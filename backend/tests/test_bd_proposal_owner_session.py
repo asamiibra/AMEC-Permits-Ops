@@ -8,7 +8,7 @@ from fastapi import HTTPException
 from sqlalchemy import select
 
 from backend.app.db import SessionLocal
-from backend.app.models import AuditEvent, DocumentVersion, Opportunity, ProposalIntakeArtifact, ProposalSourceEvidence, ProposalSourceLink
+from backend.app.models import AuditEvent, DocumentVersion, MasterContentItem, MasterContentModuleBinding, Opportunity, ProposalIntakeArtifact, ProposalSourceEvidence, ProposalSourceLink
 from backend.app.services.proposals_sor import intake_sor_root, read_proposal_source_bytes
 
 
@@ -17,11 +17,31 @@ def _headers(role: str) -> dict[str, str]:
 
 
 def _ensure_dashboard_proposal_templates(client):
-    for ref, title, usage in (("F-0003", "Regression Proposal Template", "PROPOSAL_TEMPLATE"), ("F-0004", "Regression Proposal Checklist", "PROPOSAL_CHECKLIST")):
-        rows = client.get("/api/master-content", params={"q": ref}, headers=_headers("SYSTEM_ADMIN")).json()
-        item = next((row for row in rows if row["ref"] == ref), None)
+    for ref, canonical_ref, title, usage in (("F-0003", "BD-PROP-001", "Regression Proposal Template", "PROPOSAL_TEMPLATE"), ("F-0004", "BD-CHK-001", "Regression Proposal Checklist", "PROPOSAL_CHECKLIST")):
+        resolution = client.get(f"/api/master-content/resolvers/BD/{usage}", headers=_headers("SYSTEM_ADMIN"))
+        resolved = resolution.json() if resolution.status_code == 200 else {}
+        if resolved.get("status") == "AMBIGUOUS":
+            with SessionLocal() as db:
+                stale_items = db.query(MasterContentItem).filter(
+                    MasterContentItem.ref == ref,
+                    MasterContentItem.status == "ACTIVE",
+                ).all()
+                stale_ids = [item.id for item in stale_items]
+                for stale_item in stale_items:
+                    stale_item.status = "ARCHIVED"
+                if stale_ids:
+                    db.query(MasterContentModuleBinding).filter(MasterContentModuleBinding.master_content_id.in_(stale_ids)).update({"active": False}, synchronize_session=False)
+                db.commit()
+            resolution = client.get(f"/api/master-content/resolvers/BD/{usage}", headers=_headers("SYSTEM_ADMIN"))
+            resolved = resolution.json() if resolution.status_code == 200 else {}
+        item = resolved.get("item") if resolved.get("status") == "RESOLVED" else None
+        if item and item.get("ref") not in {canonical_ref, ref}:
+            item = None
         if not item:
-            created = client.post("/api/master-content", data={"content_type": "FORM", "ref": ref, "title": title, "description": title, "used_in": '["BD"]'}, files={"file": (f"{ref}.txt", b"synthetic regression canonical content", "text/plain")}, headers=_headers("SYSTEM_ADMIN"))
+            rows = client.get("/api/master-content", params={"q": ref, "include_archived": "true"}, headers=_headers("SYSTEM_ADMIN")).json()
+            item = next((row for row in rows if row["ref"] == ref and row.get("status") == "ACTIVE"), None)
+        if not item:
+            created = client.post("/api/master-content", data={"content_type": "FORM", "ref": canonical_ref, "title": title, "description": title, "used_in": '["BD"]'}, files={"file": (f"{canonical_ref}.txt", b"synthetic regression canonical content", "text/plain")}, headers=_headers("SYSTEM_ADMIN"))
             assert created.status_code == 200, created.text
             item = created.json()
         governed = client.patch(f"/api/master-content/{item['id']}/governance", json={"content_ownership_class": "AMEC_OWNED", "artifact_kind": "AMEC_FORM", "language_profile": "EN"}, headers=_headers("SYSTEM_ADMIN"))
@@ -368,8 +388,8 @@ def test_bd_proposal_full_owner_session_flow(client):
     accepted_payload = accepted.json()
     revision = accepted_payload["current_revision"]
     assert revision["revision_number"] == 1
-    assert revision["template"]["ref"] == "F-0003"
-    assert revision["checklist"]["ref"] == "F-0004"
+    assert revision["template"]["ref"] == "BD-PROP-001"
+    assert revision["checklist"]["ref"] == "BD-CHK-001"
 
     outputs = client.get(f"/api/bd/proposals/{proposal_id}/outputs", headers=owner)
     assert outputs.status_code == 200

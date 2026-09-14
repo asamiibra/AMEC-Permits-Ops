@@ -1,7 +1,7 @@
 """Focused contract tests for the final BD Proposal Forms-v2 hardening seams."""
 
 from backend.app.db import SessionLocal
-from backend.app.models import MasterContentReferenceSequence
+from backend.app.models import MasterContentItem, MasterContentModuleBinding, MasterContentReferenceSequence
 
 
 BD = {"X-Dev-Role": "COMMERCIAL_APPROVER"}
@@ -9,11 +9,31 @@ OWNER = {"X-Dev-Role": "SYSTEM_ADMIN"}
 
 
 def _ensure_templates(client):
-    for ref, title, usage in (("F-0003", "Final hardening Proposal Template", "PROPOSAL_TEMPLATE"), ("F-0004", "Final hardening Proposal Checklist", "PROPOSAL_CHECKLIST")):
-        rows = client.get("/api/master-content", params={"q": ref}, headers=OWNER).json()
-        item = next((row for row in rows if row["ref"] == ref), None)
+    for ref, canonical_ref, title, usage in (("F-0003", "BD-PROP-001", "Final hardening Proposal Template", "PROPOSAL_TEMPLATE"), ("F-0004", "BD-CHK-001", "Final hardening Proposal Checklist", "PROPOSAL_CHECKLIST")):
+        resolution = client.get(f"/api/master-content/resolvers/BD/{usage}", headers=OWNER)
+        resolved = resolution.json() if resolution.status_code == 200 else {}
+        if resolved.get("status") == "AMBIGUOUS":
+            with SessionLocal() as db:
+                stale_items = db.query(MasterContentItem).filter(
+                    MasterContentItem.ref == ref,
+                    MasterContentItem.status == "ACTIVE",
+                ).all()
+                stale_ids = [item.id for item in stale_items]
+                for stale_item in stale_items:
+                    stale_item.status = "ARCHIVED"
+                if stale_ids:
+                    db.query(MasterContentModuleBinding).filter(MasterContentModuleBinding.master_content_id.in_(stale_ids)).update({"active": False}, synchronize_session=False)
+                db.commit()
+            resolution = client.get(f"/api/master-content/resolvers/BD/{usage}", headers=OWNER)
+            resolved = resolution.json() if resolution.status_code == 200 else {}
+        item = resolved.get("item") if resolved.get("status") == "RESOLVED" else None
+        if item and item.get("ref") not in {canonical_ref, ref}:
+            item = None
         if not item:
-            created = client.post("/api/master-content", data={"content_type": "FORM", "ref": ref, "title": title, "description": title, "used_in": '["BD"]'}, files={"file": (f"{ref}.txt", b"synthetic final hardening content", "text/plain")}, headers=OWNER)
+            rows = client.get("/api/master-content", params={"q": ref, "include_archived": "true"}, headers=OWNER).json()
+            item = next((row for row in rows if row["ref"] == ref and row.get("status") == "ACTIVE"), None)
+        if not item:
+            created = client.post("/api/master-content", data={"content_type": "FORM", "ref": canonical_ref, "title": title, "description": title, "used_in": '["BD"]'}, files={"file": (f"{canonical_ref}.txt", b"synthetic final hardening content", "text/plain")}, headers=OWNER)
             assert created.status_code == 200, created.text
             item = created.json()
         governed = client.patch(f"/api/master-content/{item['id']}/governance", json={"content_ownership_class": "AMEC_OWNED", "artifact_kind": "AMEC_FORM", "language_profile": "EN"}, headers=OWNER)

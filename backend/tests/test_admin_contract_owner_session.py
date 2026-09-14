@@ -228,12 +228,20 @@ def ensure_contract_template(client):
 
 def make_accepted_proposal(client, name="Skyline Factory Industrial"):
     with SessionLocal() as db:
-        prior_synthetic = db.query(MasterContentItem).filter(MasterContentItem.ref.like("SYN-STEP5-%"), MasterContentItem.status == "ACTIVE").all()
-        prior_ids = [item.id for item in prior_synthetic]
-        for item in prior_synthetic:
+        stale_fixture_items = db.query(MasterContentItem).filter(
+            MasterContentItem.ref.like("SYN-STEP5-%"),
+            MasterContentItem.status == "ACTIVE",
+        ).all()
+        stale_legacy_items = db.query(MasterContentItem).filter(
+            MasterContentItem.ref.in_(["F-0003", "F-0004"]),
+            MasterContentItem.status == "ACTIVE",
+        ).all()
+        stale_items = stale_fixture_items + stale_legacy_items
+        stale_ids = [item.id for item in stale_items]
+        for item in stale_items:
             item.status = "ARCHIVED"
-        if prior_ids:
-            db.query(MasterContentModuleBinding).filter(MasterContentModuleBinding.master_content_id.in_(prior_ids)).update({"active": False}, synchronize_session=False)
+        if stale_ids:
+            db.query(MasterContentModuleBinding).filter(MasterContentModuleBinding.master_content_id.in_(stale_ids)).update({"active": False}, synchronize_session=False)
         db.commit()
     for ref, canonical_ref, title, usage in (("F-0003", "BD-PROP-001", "Test Proposal Template", "PROPOSAL_TEMPLATE"), ("F-0004", "BD-CHK-001", "Test Proposal Checklist", "PROPOSAL_CHECKLIST")):
         resolution = client.get(f"/api/master-content/resolvers/BD/{usage}", headers=headers("SYSTEM_ADMIN"))
