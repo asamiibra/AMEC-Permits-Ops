@@ -234,6 +234,14 @@ def make_accepted_proposal(client, name="Skyline Factory Industrial"):
     for ref, title, usage in (("F-0003", "Test Proposal Template", "PROPOSAL_TEMPLATE"), ("F-0004", "Test Proposal Checklist", "PROPOSAL_CHECKLIST")):
         rows = client.get("/api/master-content", params={"q": ref}, headers=headers("SYSTEM_ADMIN"))
         item = next((row for row in rows.json() if row["ref"] == ref), None)
+        if item:
+            with SessionLocal() as db:
+                candidate = db.get(MasterContentItem, item["id"])
+                current_id = candidate.current_document_version_id if candidate else None
+                if not current_id or not db.get(DocumentVersion, current_id):
+                    candidate.ref = f"STALE-{ref}-{candidate.id[:8]}"
+                    db.commit()
+                    item = None
         if not item:
             created = client.post("/api/master-content", data={"content_type": "FORM", "ref": ref, "title": title, "description": title, "used_in": '["BD"]'}, files={"file": (f"{ref}.txt", b"proposal content", "text/plain")}, headers=headers("SYSTEM_ADMIN"))
             assert created.status_code == 200, created.text
