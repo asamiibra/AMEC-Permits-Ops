@@ -1,0 +1,8 @@
+{
+  "candidate_sha": "a054db7e5e10137593f73380509e97ac0817c44f",
+  "candidate_tree": "a86a308bebf8f73ea71f2301b6e38846a024f68b",
+  "p07_seal_sha": "f4c4bf986aeb67d92e5a7e5ff9e7016ebf54e22c",
+  "p07_seal_tree": "038293943208d9aaab28b9694a44ec6fc9e47c6a",
+  "implementation_candidate_immutable": true,
+  "real_data_used": false
+}

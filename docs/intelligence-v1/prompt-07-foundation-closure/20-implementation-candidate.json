@@ -1,0 +1,15 @@
+{
+  "architecture_contract_sha256": "ba21554c74df2324e72bd3a454d1230a362f4b5900f11fa4d656970ea50b8a0e",
+  "candidate_snapshot": "/private/tmp/p07-implementation-snapshot-final.kOET9G",
+  "force_push_required": false,
+  "implementation_parent": "8fcfa3b41cff1058addeb9fa0d1bd763f8315bcd",
+  "implementation_sha": "b21ab2fe5e30e306a9bc40149ba10324f0bebd9b",
+  "implementation_tree": "9dd412eaed644cef810b8fad0310451ba35d7390",
+  "normal_descendant": true,
+  "recovery_augmentation_manifest_sha256": [
+    "ef9f8fe863f74283450f34a632043e81d47d713375ff9b31bbb26bbf5c577693",
+    "3e0191a13fd598b7f0685a948d99b238874dd53132205623f4326910141a1268",
+    "5b3a3d5bf5e1fa0f241a2efd9912e2bdacaeb9edda88a6f35fef80332445e46a"
+  ],
+  "remote_base": "bdfa445de3351d49fb44b324e01928f2a4adfa76"
+}

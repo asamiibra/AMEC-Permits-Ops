@@ -68,10 +68,10 @@ def _create_version_table(
             )
 
 
-def test_repository_migration_head_is_current_intelligence_head():
+def test_repository_migration_head_is_current_intelligence_contract_head():
     assert (
         database.repository_migration_head()
-        == "p07_intelligence_foundation_closure"
+        == "p08_proposal_intelligence"
     )
 
 

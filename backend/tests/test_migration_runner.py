@@ -101,11 +101,32 @@ def test_alembic_config_escapes_percent_signs():
     assert config.get_main_option("sqlalchemy.url") == "postgresql+psycopg://u:p%25@db/app"
 
 
-@pytest.mark.parametrize("app_env", ["DEV", "TEST"])
+@pytest.mark.parametrize("app_env", ["DEV"])
 def test_runner_rejects_non_preprod_environment(monkeypatch, app_env):
     monkeypatch.setattr(migrate, "get_settings", lambda: _settings(app_env=app_env))
 
-    with pytest.raises(RuntimeError, match="restricted"):
+    with pytest.raises(RuntimeError, match="governed migration runner"):
+        migrate.run_migrations()
+
+
+def test_runner_allows_synthetic_postgres_test_environment(monkeypatch):
+    connection = _FakeConnection()
+    engine = _FakeEngine(connection=connection)
+    _install_fake_database(monkeypatch, engine=engine)
+    monkeypatch.setattr(migrate, "get_settings", lambda: _settings(app_env="TEST"))
+    monkeypatch.setattr(migrate.command, "upgrade", lambda *_: None)
+
+    assert migrate.run_migrations() == EXPECTED_HEAD
+
+
+def test_runner_rejects_non_postgres_test_environment(monkeypatch):
+    monkeypatch.setattr(
+        migrate,
+        "get_settings",
+        lambda: _settings(app_env="TEST", database_url="mssql+pyodbc://db/app"),
+    )
+
+    with pytest.raises(RuntimeError, match="TEST migration proof requires PostgreSQL"):
         migrate.run_migrations()
 
 

@@ -82,9 +82,12 @@ from .db import verify_database_migration_head
 from .observability import initialize_observability, install_log_redaction_filter
 from .api.governed_prefill_routers import router as governed_prefill_router
 from .api.ai_routers import router as ai_router
+from .api.proposal_intelligence_routers import router as proposal_intelligence_router
 from .api.bridge_intake_routers import router as bridge_intake_router
 from .api.auth_context_routers import router as auth_context_router
 from .api.source18_routers import router as source18_router
+from .ai.errors import AIError
+from .services.intelligence_contracts import IntelligenceContractError
 
 settings = get_settings()
 initialize_observability(settings)
@@ -348,6 +351,21 @@ async def correlation_middleware(
     )
 
     return response
+
+
+@app.exception_handler(AIError)
+async def ai_error_handler(request: Request, exc: AIError):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": {"code": exc.code}, "correlation_id": getattr(request.state, "correlation_id", None)},
+    )
+
+
+@app.exception_handler(IntelligenceContractError)
+async def intelligence_contract_error_handler(request: Request, exc: IntelligenceContractError):
+    code = exc.code
+    status = 404 if code.endswith("NOT_FOUND") else 409 if any(marker in code for marker in ("STALE", "PRECONDITION", "IDEMPOTENCY")) else 403
+    return JSONResponse(status_code=status, content={"detail": {"code": code}, "correlation_id": getattr(request.state, "correlation_id", None)})
 
 
 @app.exception_handler(Exception)
@@ -1145,6 +1163,11 @@ app.include_router(
 
 app.include_router(
     bd_proposal_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+
+app.include_router(
+    proposal_intelligence_router,
     dependencies=API_AUTH_DEPENDENCIES,
 )
 
