@@ -128,15 +128,17 @@ jobs:
       - run: python -m pip install --disable-pip-version-check -r backend/requirements.txt
       - name: Upgrade exact migration head
         run: alembic upgrade head
-      - name: Bootstrap canonical synthetic anchors
+      - name: Seed canonical synthetic fixtures in TEST portability lane
         run: |
-          set -euo pipefail
-          first="$(python -m backend.app.bootstrap_preprod)"
-          echo "$first"
-          FIRST="$first" python -c 'import json, os; assert json.loads(os.environ["FIRST"])["status"] == "BOOTSTRAPPED"'
-          repeat="$(python -m backend.app.bootstrap_preprod)"
-          echo "$repeat"
-          REPEAT="$repeat" python -c 'import json, os; assert json.loads(os.environ["REPEAT"])["status"] == "ALREADY_BOOTSTRAPPED"'
+          python - <<'PY'
+          from backend.app.seed import cli
+
+          cli.seed(
+              initialize_schema=False,
+              reset_existing=True,
+              clean_fixtures=True,
+          )
+          PY
       - name: Bind synthetic Owner identity for portability proof
         run: |
           python - <<'PY'
