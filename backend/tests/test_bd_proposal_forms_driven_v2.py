@@ -92,6 +92,8 @@ def _cleanup(proposal_id: str) -> None:
 
 def test_bd_forms_v2_commercial_scoping_accept_snapshot_and_rbac(client):
     _ensure_templates(client)
+    with SessionLocal() as db:
+        authority_case_count_before = db.query(AuthorityCase).count()
     created = client.post("/api/bd/proposals", json={"proposal_description": "Synthetic Forms v2 Commercial Proposal", "project_reference": "OPP-FORMS-V2", "client_name": "Synthetic Commercial Client"}, headers=BD)
     assert created.status_code == 200, created.text
     proposal_id = created.json()["id"]
@@ -167,7 +169,7 @@ def test_bd_forms_v2_commercial_scoping_accept_snapshot_and_rbac(client):
             revision = db.scalar(select(ProposalAcceptedRevision).where(ProposalAcceptedRevision.proposal_id == proposal_id))
             assert revision.snapshot["forms_driven_v2"]["commercial_client"]["canonical_party_id"] == party_id
             assert revision.snapshot["forms_driven_v2"]["regulatory_scope_intents"][0]["status"] == "HUMAN_CONFIRMED_FOR_PROPOSAL"
-            assert db.scalar(select(AuthorityCase)) is None
+            assert db.query(AuthorityCase).count() == authority_case_count_before
 
         assert client.patch(f"/api/bd/proposals/{proposal_id}", json={"fields": {"price": "200000"}}, headers=ENGINEERING).status_code == 403
         assert client.post(f"/api/bd/proposals/{proposal_id}/regulatory-scope/{intent_id}/confirm", headers=ENGINEERING).status_code == 403
