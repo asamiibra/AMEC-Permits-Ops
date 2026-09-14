@@ -237,19 +237,10 @@ def build_proposal_context(db: Session, *, proposal_id: str, operation: str, pri
     working = _working(db, proposal.id)
     if skill.manifest.skill_id in ACCEPTED_REVISION_SKILLS and accepted is None:
         raise IntelligenceContractError("PROPOSAL_ACCEPTED_REVISION_REQUIRED")
-    if skill.manifest.skill_id not in ACCEPTED_REVISION_SKILLS and working is None:
-        working = ProposalRevision(
-            proposal_id=proposal.id,
-            revision_number=(accepted.revision_number + 1 if accepted else 1),
-            base_accepted_revision_id=accepted.id if accepted else None,
-            status="DRAFT",
-            change_summary={"reason": "OWNER_TEST_OR_INTELLIGENCE_WORKING_STATE"},
-            snapshot=dict(proposal.proposal_fields_json or {}),
-            content_hash=stable_hash(proposal.proposal_fields_json or {}),
-            created_by=principal.user_id or "system",
-        )
-        db.add(working)
-        db.flush()
+    # Intelligence is read-only with respect to Proposal business state.  A
+    # pre-acceptance run may compile the current intake projection when no
+    # mutable working revision exists, but only an explicit Proposal-domain
+    # command may create that ProposalRevision.
     return ProposalContext(proposal=proposal, accepted_revision=accepted, working_revision=working, skill=skill)
 
 

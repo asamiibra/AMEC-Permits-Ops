@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import pytest
+from fastapi import HTTPException
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
 from backend.app.api.dependencies import AuthenticatedPrincipal
 from backend.app.config.settings import Settings
-from backend.app.models import Base, ConsultancyOffice, Opportunity, ProposalAcceptedRevision, ProposalIntelligenceReviewBinding, Role, User, WorkflowTask
+from backend.app.models import Base, ConsultancyOffice, Opportunity, ProposalAcceptedRevision, ProposalIntelligenceReviewBinding, ProposalRevision, Role, User, WorkflowTask
 from backend.app.services.proposal_intelligence import (
     P08_POLICY_VERSION, ProposalDeterministicProvider, execute_proposal_intelligence,
     proposal_reviews, submit_proposal_review,
@@ -13,6 +15,7 @@ from backend.app.services.proposal_intelligence import (
 from backend.app.services.intelligence_foundation import dependency_current, invalidate_dependency
 from backend.app.models import ContextDependency, AIWorkProduct
 from backend.app.ai.skill_registry import PROPOSAL_SKILLS
+from backend.app.ai.policy import authorize_ai_request
 
 
 def test_proposal_skill_pack_is_exact_and_strict():
@@ -57,6 +60,64 @@ def test_final_six_proposal_skills_execute_through_shared_runtime(tmp_path):
             assert result["skill_id"] == skill_id
             assert result["canonical_state_mutated"] is False
             assert result["protected_action_count"] == 0
+    engine.dispose()
+
+
+def test_preaccepted_intelligence_does_not_create_working_revision(tmp_path):
+    engine = create_engine(f"sqlite:///{tmp_path / 'p08-no-revision-side-effect.db'}")
+    Base.metadata.create_all(engine)
+    operations = ["intake-analysis", "requirement-evidence-analysis", "section-draft", "commercial-consistency-review"]
+    with Session(engine) as db:
+        office = ConsultancyOffice(id="pre-office", office_code="PRE", name_en="PRE", name_ar="PRE")
+        user = User(id="pre-user", email="pre@example.test", display_name="Pre", role=Role.PROCESS_CHAMPION, office_id=office.id, active=True)
+        proposal = Opportunity(id="pre-proposal", office_id=office.id, opportunity_reference="PRE-001", title="Synthetic intake", status="IN_REVIEW", source_type="TEST", fixture_classification="SYNTHETIC_OWNER_TEST", proposal_fields_json={"scope": "Synthetic"})
+        db.add_all([office, user, proposal]); db.commit()
+        principal = AuthenticatedPrincipal(auth_mode="TEST", role=Role.PROCESS_CHAMPION, user_id=user.id, office_id=office.id)
+        assert db.scalar(select(ProposalRevision).where(ProposalRevision.proposal_id == proposal.id)) is None
+        for index, operation in enumerate(operations):
+            result = execute_proposal_intelligence(db, proposal_id=proposal.id, operation=operation, principal=principal, idempotency_key=f"pre-no-revision-{index}", correlation_id=f"pre-no-revision-corr-{index}", settings=_settings(), provider=ProposalDeterministicProvider())
+            assert result["canonical_state_mutated"] is False
+        assert db.scalar(select(ProposalRevision).where(ProposalRevision.proposal_id == proposal.id)) is None
+    engine.dispose()
+
+
+def test_proposal_authorization_is_office_bound_and_not_project_membership_bound(tmp_path):
+    engine = create_engine(f"sqlite:///{tmp_path / 'p08-proposal-authorization.db'}")
+    Base.metadata.create_all(engine)
+    with Session(engine) as db:
+        office_a = ConsultancyOffice(id="auth-office-a", office_code="AUTH-A", name_en="A", name_ar="A")
+        office_b = ConsultancyOffice(id="auth-office-b", office_code="AUTH-B", name_en="B", name_ar="B")
+        bd = User(id="auth-bd", email="auth-bd@example.test", display_name="BD", role=Role.PROCESS_CHAMPION, office_id=office_a.id, active=True)
+        inactive = User(id="auth-inactive", email="auth-inactive@example.test", display_name="Inactive", role=Role.PROCESS_CHAMPION, office_id=office_a.id, active=False)
+        proposal = Opportunity(id="auth-proposal", office_id=office_a.id, opportunity_reference="AUTH-001", title="Pre-project proposal", status="IN_REVIEW", source_type="TEST", fixture_classification="SYNTHETIC_OWNER_TEST")
+        db.add_all([office_a, office_b, bd, inactive, proposal]); db.commit()
+
+        authorized, target, _ = authorize_ai_request(
+            db, AuthenticatedPrincipal(auth_mode="TEST", role=Role.PROCESS_CHAMPION, user_id=bd.id, office_id=office_a.id),
+            purpose_value="PROPOSAL_TENDER_INTAKE_ANALYSIS", execution_mode_value="INTERACTIVE",
+            target_entity_type_value="PROPOSAL", target_entity_id=proposal.id,
+            synthetic_only=True, real_data_allowed=False,
+        )
+        assert authorized.scope_decision == "AUTHORIZED"
+        assert target.target_entity_id == proposal.id
+
+        with pytest.raises(HTTPException) as wrong_office:
+            authorize_ai_request(
+                db, AuthenticatedPrincipal(auth_mode="TEST", role=Role.PROCESS_CHAMPION, user_id=bd.id, office_id=office_b.id),
+                purpose_value="PROPOSAL_TENDER_INTAKE_ANALYSIS", execution_mode_value="INTERACTIVE",
+                target_entity_type_value="PROPOSAL", target_entity_id=proposal.id,
+                synthetic_only=True, real_data_allowed=False,
+            )
+        assert wrong_office.value.detail == {"code": "PROPOSAL_SCOPE_NOT_PROVABLE"}
+
+        with pytest.raises(HTTPException) as inactive_denied:
+            authorize_ai_request(
+                db, AuthenticatedPrincipal(auth_mode="TEST", role=Role.PROCESS_CHAMPION, user_id=inactive.id, office_id=office_a.id),
+                purpose_value="PROPOSAL_TENDER_INTAKE_ANALYSIS", execution_mode_value="INTERACTIVE",
+                target_entity_type_value="PROPOSAL", target_entity_id=proposal.id,
+                synthetic_only=True, real_data_allowed=False,
+            )
+        assert inactive_denied.value.detail == {"code": "PROPOSAL_SCOPE_NOT_PROVABLE"}
     engine.dispose()
 
 

@@ -15,11 +15,15 @@ from ..models import (
     ProposalSourceLink, Role, User,
 )
 from ..services.intelligence_contracts import stable_hash
+from ..services.master_content import reconcile_preprod_canonical_master_content
+from ..storage.factory import create_binary_store
+from ..storage.port import StorageTarget
+from ..storage.service import DocumentStorageService
 
 PREFIX = "OWNER-TEST-PROPOSAL"
 
 
-def _document(db, *, proposal: Opportunity, key: str, filename: str, role: str, body: bytes) -> DocumentVersion:
+def _document(db, *, proposal: Opportunity, key: str, filename: str, role: str, body: bytes, storage: DocumentStorageService) -> DocumentVersion:
     logical_name = f"{PREFIX}-{key}"
     document = db.scalar(select(Document).where(Document.logical_name == logical_name))
     if document is None:
@@ -31,15 +35,45 @@ def _document(db, *, proposal: Opportunity, key: str, filename: str, role: str, 
     if version is None:
         version = DocumentVersion(
             document_id=document.id, version_number=1, source_filename=filename,
-            source_path_or_reference=f"synthetic-owner-test://{proposal.id}/{key}",
+            source_path_or_reference="PENDING",
             sha256=digest, mime_type="text/plain", file_size=len(body), language="EN",
             approval_state=DocumentApprovalState.APPROVED, source_system="SYNTHETIC_OWNER_TEST",
             metadata_json={"synthetic_non_business_fixture": True, "synthetic_owner_test_only": True, "not_official_production_content": True, "proposal_id": proposal.id, "source_role": role},
-            synthetic_content=body,
+            synthetic_content=None,
         )
         db.add(version)
         db.flush()
-        document.current_version_id = version.id
+    stored = storage.store_version(
+        db,
+        document=document,
+        content=body,
+        filename=filename,
+        mime_type="text/plain",
+        target=StorageTarget(
+            storage.provider_id,
+            getattr(storage.store.config, "container", None) or getattr(storage.store.config, "share", None) or "",
+            f"owner-test/proposals/{proposal.id}/{key}",
+        ),
+        actor="owner-test-seed",
+        correlation_id=f"owner-test-document:{proposal.id}:{key}",
+        idempotency_key=f"owner-test-document:v1:{proposal.id}:{key}:{digest}",
+        source_system="SYNTHETIC_OWNER_TEST",
+        metadata={"synthetic_non_business_fixture": True, "synthetic_owner_test_only": True, "not_official_production_content": True, "proposal_id": proposal.id, "source_role": role},
+        version_number=1,
+        candidate_version_id=version.id,
+    )
+    version = stored.version
+    version.synthetic_content = None
+    version.approval_state = DocumentApprovalState.APPROVED
+    version.metadata_json = {**(version.metadata_json or {}), "synthetic_non_business_fixture": True, "synthetic_owner_test_only": True, "not_official_production_content": True, "storage_verified": True, "read_back_verified": True}
+    document.current_version_id = version.id
+    db.flush()
+    with storage.read_verified(version) as readback:
+        verified = readback.read()
+    if hashlib.sha256(verified).hexdigest() != digest or len(verified) != len(body):
+        raise RuntimeError(f"OWNER_TEST_DOCUMENT_READ_BACK_MISMATCH: {proposal.id}/{key}")
+    if not version.source_path_or_reference.startswith("storage://") or version.synthetic_content is not None:
+        raise RuntimeError(f"OWNER_TEST_DOCUMENT_NOT_DURABLE: {proposal.id}/{key}")
     evidence = db.scalar(select(ProposalSourceEvidence).where(ProposalSourceEvidence.proposal_id == proposal.id, ProposalSourceEvidence.source_type == role, ProposalSourceEvidence.content_hash == digest))
     if evidence is None:
         evidence = ProposalSourceEvidence(proposal_id=proposal.id, source_type=role, source_filename=filename, source_reference=version.source_path_or_reference, content_hash=digest, content_type="text/plain", source_revision="OWNER-TEST-1", provenance={"synthetic_owner_test_only": True, "not_official_production_content": True}, status="CURRENT", verification_state="READ_BACK_VERIFIED", created_by="owner-test-seed")
@@ -78,6 +112,7 @@ def seed_owner_test() -> dict[str, object]:
     if settings.synthetic_only or settings.real_data_allowed or not settings.owner_test_mode:
         raise RuntimeError("Owner-test corpus requires SYNTHETIC_ONLY=false, REAL_DATA_ALLOWED=false, OWNER_TEST_MODE=true")
     with SessionLocal() as db:
+        storage = DocumentStorageService(create_binary_store())
         office = db.scalar(select(ConsultancyOffice).where(ConsultancyOffice.status == "ACTIVE").order_by(ConsultancyOffice.office_code))
         if office is None:
             raise RuntimeError("An active production office is required before owner-test seeding")
@@ -91,6 +126,7 @@ def seed_owner_test() -> dict[str, object]:
             client = ClientAccount(client_reference=f"{PREFIX}-CLIENT", legal_name="SYNTHETIC TEST CLIENT ONLY", display_name="SYNTHETIC TEST CLIENT ONLY", client_type="COMPANY", data_classification="SYNTHETIC", status="ACTIVE")
             db.add(client)
             db.flush()
+        master_content = reconcile_preprod_canonical_master_content(db, actor="owner-demo-seed")
         definitions = [
             ("INTAKE", "IN_REVIEW", {"client_name": client.display_name, "client_scope_of_work": "Synthetic tender scope for Owner testing", "requested_timing": "Synthetic Q4 test window"}),
             ("COMMERCIAL", "COMMERCIAL_REVIEW", {"client_name": client.display_name, "scope_of_work": "Synthetic permitting and engineering scope", "price": 125000, "currency": "QAR", "duration": "12 weeks"}),
@@ -100,11 +136,11 @@ def seed_owner_test() -> dict[str, object]:
         fixtures: list[dict[str, object]] = []
         for key, status, fields in definitions:
             proposal = _proposal(db, office_id=office.id, client_id=client.id, key=key, status=status, fields=fields)
-            tender = _document(db, proposal=proposal, key=f"{key}-TENDER", filename=f"{key.lower()}-tender.txt", role="TENDER_DOCUMENT", body=f"SYNTHETIC TEST tender for {key}. Never use as real business evidence.".encode())
-            _document(db, proposal=proposal, key=f"{key}-CLIENT", filename=f"{key.lower()}-client.txt", role="CLIENT_DATA", body=f"SYNTHETIC TEST client correspondence for {key}.".encode())
+            tender = _document(db, proposal=proposal, key=f"{key}-TENDER", filename=f"{key.lower()}-tender.txt", role="TENDER_DOCUMENT", body=f"SYNTHETIC TEST tender for {key}. Never use as real business evidence.".encode(), storage=storage)
+            _document(db, proposal=proposal, key=f"{key}-CLIENT", filename=f"{key.lower()}-client.txt", role="CLIENT_DATA", body=f"SYNTHETIC TEST client correspondence for {key}.".encode(), storage=storage)
             if key in {"ACCEPTED-LPO", "REVISION-CHANGE"}:
                 accepted = _accepted(db, proposal, actor.id)
-                lpo = _document(db, proposal=proposal, key=f"{key}-LPO", filename=f"{key.lower()}-lpo.txt", role="LPO_PO", body=b"SYNTHETIC TEST LPO amount QAR 100000; scope differs for mismatch testing.")
+                lpo = _document(db, proposal=proposal, key=f"{key}-LPO", filename=f"{key.lower()}-lpo.txt", role="LPO_PO", body=b"SYNTHETIC TEST LPO amount QAR 100000; scope differs for mismatch testing.", storage=storage)
                 existing_lpo = db.scalar(select(ProposalLpoReconciliation).where(ProposalLpoReconciliation.proposal_id == proposal.id, ProposalLpoReconciliation.accepted_revision_id == accepted.id))
                 if existing_lpo is None:
                     db.add(ProposalLpoReconciliation(proposal_id=proposal.id, accepted_revision_id=accepted.id, client_document_version_id=lpo.id, client_artifact_reference="SYNTHETIC TEST LPO", applies=True, fields_compared=["scope", "price"], variances=[{"field": "price", "proposal_value": fields.get("price"), "lpo_value": 100000, "synthetic_owner_test": True}], result="MISMATCH", source_sha256=lpo.sha256, accepted_revision_hash=accepted.content_hash, compared_by=actor.id, idempotency_key=f"owner-test-lpo:{key}", audit_correlation_id=f"owner-test-seed:{key}"))
@@ -113,7 +149,7 @@ def seed_owner_test() -> dict[str, object]:
                 db.add(ProposalRevision(proposal_id=proposal.id, revision_number=2, base_accepted_revision_id=accepted.id, status="DRAFT", change_summary={"synthetic_owner_test": True, "reason": "client change"}, snapshot=changed, content_hash=stable_hash(changed), created_by=actor.id))
             fixtures.append({"proposal_id": proposal.id, "reference": proposal.opportunity_reference, "fixture_classification": proposal.fixture_classification, "tender_document_version_id": tender.id})
         db.commit()
-        return {"status": "APPLIED", "client_account_id": client.id, "fixtures": fixtures, "real_data_count": 0, "owner_test_only": True}
+        return {"status": "APPLIED", "client_account_id": client.id, "master_content": master_content, "fixtures": fixtures, "real_data_count": 0, "owner_test_only": True}
 
 
 if __name__ == "__main__":

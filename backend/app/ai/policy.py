@@ -14,7 +14,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..api.dependencies import AuthenticatedPrincipal
-from ..models import AuthorityCase, EngineeringProjectMember, Opportunity, Project, Role
+from ..models import AuthorityCase, EngineeringProjectMember, Opportunity, Project, Role, User
 from ..services.backend_realignment import CAPABILITY_MATRIX, persona_for_role
 from .contracts import (
     AIExecutionMode,
@@ -248,7 +248,16 @@ def authorize_ai_request(
         raise ai_error(403, "AI_REAL_CONTENT_NOT_AUTHORIZED")
 
     target = resolve_target(db, target_entity_type, target_entity_id)
-    if principal.role not in OWNER_ROLES:
+    if target_entity_type is AITargetEntityType.PROPOSAL:
+        proposal = db.get(Opportunity, target_entity_id)
+        user = db.get(User, principal.user_id) if principal.user_id else None
+        if user is None or not user.active or user.role != principal.role:
+            raise ai_error(403, "PROPOSAL_SCOPE_NOT_PROVABLE")
+        if principal.role not in OWNER_ROLES and user.office_id != proposal.office_id:
+            raise ai_error(403, "PROPOSAL_SCOPE_NOT_PROVABLE")
+        if principal.office_id and principal.role not in OWNER_ROLES and principal.office_id != proposal.office_id:
+            raise ai_error(403, "PROPOSAL_SCOPE_NOT_PROVABLE")
+    elif principal.role not in OWNER_ROLES:
         if not principal.user_id:
             raise ai_error(403, "PROJECT_SCOPE_NOT_PROVABLE")
         member = db.scalar(
