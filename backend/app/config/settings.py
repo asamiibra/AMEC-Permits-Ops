@@ -217,9 +217,14 @@ class Settings(BaseSettings):
         for setting_name, expected in expected_binding.items():
             if getattr(self, setting_name.lower()) != expected:
                 raise ValueError(f"{setting_name} must equal the D4 commissioned binding {expected}")
-        from ..ai.runtime_binding import AIRuntimeBinding
-
-        AIRuntimeBinding.from_settings(self).validate()
+        endpoint = urlsplit(self.ai_azure_openai_endpoint.rstrip("/"))
+        if endpoint.scheme.lower() != "https" or not endpoint.hostname or endpoint.path.rstrip("/"):
+            raise ValueError("AI endpoint must be an HTTPS Azure OpenAI resource origin")
+        host = endpoint.hostname.lower()
+        if not (host.endswith(".openai.azure.com") or host.endswith(".cognitiveservices.azure.com")):
+            raise ValueError("AI endpoint host is not an approved Azure OpenAI host")
+        if self.ai_azure_openai_deployment_type not in {"Standard", "GlobalStandard", "DataZoneStandard"}:
+            raise ValueError("AI runtime deployment type is not synchronous")
         for setting_name, value in (
             ("AI_MAX_INPUT_TOKEN_UPPER_BOUND", self.ai_max_input_token_upper_bound),
             ("AI_MAX_OUTPUT_TOKENS", self.ai_max_output_tokens),
