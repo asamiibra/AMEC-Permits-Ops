@@ -86,6 +86,9 @@ class Opportunity(Base, TimestampMixin):
     canonical_project_reference: Mapped[str | None] = mapped_column(String(100), index=True)
     canonicalized_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     canonicalized_by: Mapped[str | None] = mapped_column(String(200))
+    # Server-owned fixture classification.  Only the dedicated owner-test
+    # seed may set SYNTHETIC_OWNER_TEST; normal API input cannot relabel data.
+    fixture_classification: Mapped[str] = mapped_column(String(40), default="NON_SYNTHETIC", nullable=False, index=True)
 
 
 class ClientAccount(Base, TimestampMixin):

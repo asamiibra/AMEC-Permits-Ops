@@ -33,6 +33,16 @@ export async function api<T>(
     typeof FormData !== "undefined"
     && init?.body instanceof FormData;
 
+  // Production bundles must never submit synthetic governance evidence. The
+  // backend remains the authority, but this client guard prevents accidental
+  // fixture payloads from being emitted by any production UI surface.
+  if (import.meta.env.PROD && !isFormData && typeof init?.body === "string") {
+    const body = init.body.toUpperCase();
+    if (["AMEC-SYN", "SYNTHETIC://", "SYN-CAPABILITY", "SYN-POLICY", "X-DEV-ROLE"].some((marker) => body.includes(marker))) {
+      throw new Error("SYNTHETIC_GOVERNANCE_EVIDENCE_FORBIDDEN_IN_PRODUCTION");
+    }
+  }
+
   const headers = new Headers(
     init?.headers,
   );

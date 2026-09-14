@@ -1,0 +1,59 @@
+{
+  "prompt": "P03_DOCUMENT_INTELLIGENCE_PLATFORMIZATION",
+  "changes": [
+    {
+      "file": "backend/app/services/document_intelligence.py",
+      "symbol": "DocumentIntelligenceService",
+      "purpose": "Normalize governed observations and classifier proposals into shared candidates with deterministic identity and source supersession.",
+      "requirement": "Shared Document Intelligence boundary, provenance, idempotency, currentness, rollback, authority stop.",
+      "existing_seam_reused": "RuleBasedDocumentClassifier, LocalSyntheticExtractor, DocumentVersion, FieldObservation, FieldDefinition, AuditEvent, P02 create_candidate_assertion.",
+      "new_behavior": "Adds field/classifier adapters, family supersession, nested transaction boundary, and metadata-only audit.",
+      "authority_impact": "No verification, projection, review, or protected command.",
+      "migration_impact": "None.",
+      "tests": ["test_field_observation_is_normalized_with_exact_lineage_and_no_authority", "test_exact_replay_and_new_source_version_supersession", "test_different_producers_coexist_without_silent_supersession", "test_supersession_rolls_back_as_one_unit", "test_classifier_adapter_preserves_envelope_and_controls"]
+    },
+    {
+      "file": "backend/app/services/classifier_v2.py",
+      "symbol": "classify_and_persist",
+      "purpose": "Add a normalized shared candidate projection beside the accepted Phase5 envelope.",
+      "requirement": "Classifier v2 adapter with rules-only controls preserved.",
+      "existing_seam_reused": "classify_document, Phase4 source/evidence/classification persistence, classifier/rules/taxonomy identities.",
+      "new_behavior": "Returns candidate_assertion_ids; no envelope replacement.",
+      "authority_impact": "auto_promotion_allowed and projection_allowed remain false.",
+      "migration_impact": "None.",
+      "tests": ["test_classifier_adapter_preserves_envelope_and_controls", "test_phase5_health_and_classify_api"]
+    },
+    {
+      "file": "backend/app/services/bridge_intake.py",
+      "symbol": "ingest_bridge_package and _existing_result",
+      "purpose": "Normalize accepted bridge evidence/observation/classification into shared candidates and replay them idempotently.",
+      "requirement": "Bridge intake adapter and negative-control preservation.",
+      "existing_seam_reused": "Bridge allowlist, payload/hash/signature validation, Phase4 event/evidence/classification, DocumentVersion, FieldObservation, audit.",
+      "new_behavior": "Returns candidate_assertion_ids; stores project binding on bridge Document; replay returns same candidate IDs.",
+      "authority_impact": "verified_assertion_created and projection_created remain false; no task or notification.",
+      "migration_impact": "None.",
+      "tests": ["test_bridge_creates_governed_objects_and_candidates_without_promotion", "test_bridge_signature_and_hash_are_checked"]
+    },
+    {
+      "file": "backend/tests/test_document_intelligence_platformization.py",
+      "symbol": "P03 focused matrix",
+      "purpose": "Prove lineage, replay, supersession, rollback, classifier, bridge, scope, and authority boundaries.",
+      "requirement": "P03 focused test matrix.",
+      "existing_seam_reused": "P02 test database and synthetic fixtures.",
+      "new_behavior": "Focused acceptance proof only.",
+      "authority_impact": "Negative assertions prove zero verification/projection/review side effects.",
+      "migration_impact": "None.",
+      "tests": ["7 focused tests"]
+    }
+  ],
+  "existing_objects_not_replaced": [
+    "Document",
+    "DocumentVersion",
+    "FieldObservation",
+    "Phase4 source/evidence/classification records",
+    "VerifiedAssertion",
+    "AIExecutionLedger",
+    "MasterContentDependency",
+    "AuditEvent"
+  ]
+}

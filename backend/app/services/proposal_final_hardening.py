@@ -34,6 +34,7 @@ def _iso(value: datetime | None) -> str | None:
 def material_fingerprint(db: Session, proposal: Opportunity, forms: dict[str, Any] | None = None) -> str:
     fields = dict(proposal.proposal_fields_json or {})
     fields.pop("provenance", None)
+    fields.pop("client_name", None)
     normalized_forms = dict(forms or {})
     normalized_forms.pop("captured_at", None)
     return stable_hash({
@@ -88,8 +89,8 @@ def hardening_projection(db: Session, proposal: Opportunity, forms: dict[str, An
         "unknowns": [{"id": item.id, "category": item.category, "statement": item.statement, "materiality": item.materiality, "source_type": item.source_type, "source_reference": item.source_reference, "status": item.status, "resolution": item.resolution, "resolved_by": item.resolved_by, "resolved_at": _iso(item.resolved_at), "acknowledged": ("PROPOSAL_UNKNOWN", item.id) in ack_by_target} for item in unknowns],
         "conflicts": [{"id": item.id, "field_code": item.field_code, "source_a": item.source_a, "value_a": item.value_a, "source_b": item.source_b, "value_b": item.value_b, "materiality": item.materiality, "status": item.status, "resolution": item.resolution, "resolver": item.resolver, "resolved_at": _iso(item.resolved_at), "acknowledged": ("PROPOSAL_CONFLICT", item.id) in ack_by_target} for item in conflicts],
         "material_acknowledgments": [{"id": item.id, "target_type": item.target_type, "target_id": item.target_id, "target_revision_hash": item.target_revision_hash, "acknowledged_by": item.acknowledged_by, "acknowledged_at": _iso(item.acknowledged_at), "note": item.note} for item in acknowledgments],
-        "staleness": [{"id": item.id, "trigger_type": item.trigger_type, "trigger_reference": item.trigger_reference, "reason_code": item.reason_code, "impacted_sections": item.impacted_sections, "status": item.status, "detected_by": item.detected_by, "created_at": _iso(item.created_at)} for item in staleness],
-        "active_staleness": [{"id": item.id, "reason_code": item.reason_code, "impacted_sections": item.impacted_sections, "trigger_reference": item.trigger_reference} for item in active_staleness],
+        "staleness": [{"id": item.id, "trigger_type": item.trigger_type, "trigger_reference": item.trigger_reference, "reason_code": item.reason_code, "impacted_sections": item.impacted_sections, "status": item.status, "detected_by": item.detected_by, "created_at": _iso(item.created_at), "revalidation_revision_id": item.revalidation_revision_id, "revalidated_by": item.revalidated_by, "revalidated_at": _iso(item.revalidated_at), "revalidation_result": item.revalidation_result} for item in staleness],
+        "active_staleness": [{"id": item.id, "reason_code": item.reason_code, "impacted_sections": item.impacted_sections, "trigger_reference": item.trigger_reference, "revalidation_revision_id": item.revalidation_revision_id, "revalidated_by": item.revalidated_by, "revalidated_at": _iso(item.revalidated_at), "revalidation_result": item.revalidation_result} for item in active_staleness],
         "current_information_changed": bool(accepted and accepted_fingerprint and accepted_fingerprint != fingerprint),
         "master_content_changed": master_content_changed,
         "master_revalidation_required": master_revalidation_required,
@@ -98,7 +99,7 @@ def hardening_projection(db: Session, proposal: Opportunity, forms: dict[str, An
         "accepted_fingerprint": accepted_fingerprint,
         "current_fingerprint": fingerprint,
         "revisions": [{"id": item.id, "revision_number": item.revision_number, "base_accepted_revision_id": item.base_accepted_revision_id, "status": item.status, "change_summary": item.change_summary, "content_hash": item.content_hash, "created_by": item.created_by} for item in revisions],
-        "client_responses": [{"id": item.id, "accepted_revision_id": item.accepted_revision_id, "response_type": item.response_type, "evidence_reference": item.evidence_reference, "notes": item.notes, "recorded_by": item.recorded_by, "recorded_at": _iso(item.recorded_at)} for item in responses],
+        "client_responses": [{"id": item.id, "accepted_revision_id": item.accepted_revision_id, "client_account_id": item.client_account_id, "client_contact_id": item.client_contact_id, "response_type": item.response_type, "evidence_reference": item.evidence_reference, "evidence_document_version_id": item.evidence_document_version_id, "evidence_sha256": item.evidence_sha256, "notes": item.notes, "recorded_by": item.recorded_by, "recorded_at": _iso(item.recorded_at)} for item in responses],
         "commercial_outcome": {"id": outcome.id, "accepted_revision_id": outcome.accepted_revision_id, "outcome": outcome.outcome, "reason": outcome.reason, "evidence_reference": outcome.evidence_reference, "recorded_by": outcome.recorded_by, "recorded_at": _iso(outcome.recorded_at)} if outcome else None,
         "material_open_unknowns": [{"id": item.id, "label": item.statement} for item in material_open_unknowns],
         "material_open_conflicts": [{"id": item.id, "label": f"{item.field_code}: {item.source_a} vs {item.source_b}"} for item in material_open_conflicts],
@@ -115,3 +116,28 @@ def impacted_sections_for_source(source_type: str) -> list[str]:
         "CLIENT_DATA": ["client_contacts", "stakeholders", "site_property", "client_request", "readiness"],
         "SITE_PHOTO": ["site_property", "readiness"],
     }.get(source_type, ["readiness"])
+
+
+def causal_revalidation_blockers(db: Session, proposal: Opportunity, draft: ProposalRevision, active_events: list[ProposalStalenessEvent]) -> list[str]:
+    """Server-derived proof that a draft actually rebound every change."""
+    if draft.content_hash != stable_hash(draft.snapshot or {}):
+        return ["REVALIDATION_DRAFT_HASH_MISMATCH"]
+    summary = draft.change_summary or {}
+    rebound_dependencies = {str(item) for item in (summary.get("rebound_dependency_ids") or [])}
+    rebound_dependencies.update(str(item) for item in ((draft.snapshot or {}).get("rebound_dependency_ids") or []))
+    rebound_sections = {str(item) for item in (summary.get("rebound_sections") or [])}
+    rebound_sections.update(str(item) for item in ((draft.snapshot or {}).get("rebound_sections") or []))
+    rebound_source_ids = {str(item) for item in ((draft.snapshot or {}).get("source_ids") or [])}
+    current_sources = list(db.scalars(select(ProposalSourceEvidence).where(ProposalSourceEvidence.proposal_id == proposal.id, ProposalSourceEvidence.status == "CURRENT")).all())
+    current_by_trigger = {f"{item.source_type}:{item.content_hash}" for item in current_sources}
+    blockers: list[str] = []
+    for event in active_events:
+        trigger = str(event.trigger_reference or "")
+        dependency_rebound = trigger in rebound_dependencies or (trigger in current_by_trigger and any(item.id in rebound_source_ids for item in current_sources if f"{item.source_type}:{item.content_hash}" == trigger))
+        if not dependency_rebound:
+            blockers.append("REVALIDATION_DEPENDENCY_NOT_REBOUND")
+        if not set(event.impacted_sections or []).issubset(rebound_sections):
+            blockers.append("REVALIDATION_IMPACTED_SECTIONS_NOT_REBOUND")
+    if not current_sources or not rebound_source_ids.intersection({item.id for item in current_sources}):
+        blockers.append("REVALIDATION_CURRENT_EVIDENCE_REQUIRED")
+    return list(dict.fromkeys(blockers))

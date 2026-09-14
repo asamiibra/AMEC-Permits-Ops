@@ -55,8 +55,8 @@ class AIRuntimeBinding:
             raise ValueError("AI runtime model binding is incomplete")
         if self.deployment_type not in {"Standard", "GlobalStandard", "DataZoneStandard"}:
             raise ValueError("AI runtime deployment type is not synchronous")
-        if not self.synthetic_only or self.real_content_allowed:
-            raise ValueError("AI runtime must remain synthetic-only")
+        if self.real_content_allowed:
+            raise ValueError("AI runtime must remain real-content=false")
 
     def as_dict(self) -> dict[str, Any]:
         return asdict(self)

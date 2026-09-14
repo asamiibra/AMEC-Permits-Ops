@@ -1,0 +1,3 @@
+# Production artifacts
+
+TEST acceptance retains the historical synthetic renderer only for fixture compatibility. Production-shaped acceptance resolves the exact governed template/checklist DocumentVersion and hash, renders supported governed text/HTML content, stores through the provider-neutral storage service, creates Document/DocumentVersion records, reads bytes back, and verifies hash/size before persisting non-synthetic output artifacts. Unsupported binary formats and synthetic governed sources fail closed. Evidence: production output path and storage tests; external provider acceptance remains pending.

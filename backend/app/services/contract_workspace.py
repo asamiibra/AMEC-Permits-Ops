@@ -24,6 +24,7 @@ from .master_content import resolve_master_content_purpose
 from .proposal_workspace import stable_hash
 from .owner_decisions import runtime_decision_value
 from .business_v1_controls import advance_payment_gate, commercial_reconciliation, maker_checker_gate
+from .proposal_production_boundary import production_mode
 
 
 CONTRACT_STAGES = ("DRAFT", "NEEDS_ACTION", "AUTHORITY_REVIEW", "READY", "ACTIVE", "CLOSED")
@@ -432,14 +433,23 @@ def _ensure_task_notification(db: Session, contract: Contract, correlation_id: s
 def create_contract_from_proposal(db: Session, *, proposal: Opportunity, accepted: ProposalAcceptedRevision, actor: str, correlation_id: str, requested_reference: str | None = None) -> Contract:
     if not proposal.client_account_id:
         raise ValueError("CLIENT_CONTEXT_REQUIRED")
+    if production_mode():
+        from .proposal_commercial_controls import handoff_predicate
+        predicate = handoff_predicate(db, proposal.id)
+        if not predicate["eligible"]:
+            raise ValueError(f"PROPOSAL_HANDOFF_BLOCKED:{predicate['blockers'][0]}")
     existing = db.scalar(select(Contract).where(Contract.proposal_id == proposal.id, Contract.accepted_proposal_revision_id == accepted.id).order_by(Contract.created_at.desc()))
     if existing:
         return existing
     quotation = db.scalar(select(Quotation).where(Quotation.opportunity_id == proposal.id).order_by(Quotation.created_at.desc()))
     if not quotation:
+        if production_mode():
+            raise ValueError("PRODUCTION_QUOTATION_REQUIRED")
         quotation = Quotation(opportunity_id=proposal.id, quotation_reference=f"AMEC-SYN-QTN-{db.query(Quotation).count() + 1:04d}", status="RELEASED_FOR_CONTRACT", client_account_id=proposal.client_account_id)
         db.add(quotation)
         db.flush()
+    if production_mode() and quotation.quotation_reference.startswith("AMEC-SYN-QTN-"):
+        raise ValueError("SYNTHETIC_QUOTATION_FORBIDDEN")
     quotation_revision = db.get(QuotationRevision, quotation.current_revision_id) if quotation.current_revision_id else None
     if not quotation_revision:
         quotation_revision = QuotationRevision(quotation_id=quotation.id, revision_number=1, source_snapshot=accepted.snapshot, content_hash=accepted.content_hash, semantic_hash=stable_hash(accepted.snapshot.get("fields", {})), status="RELEASED", created_by=actor)
