@@ -177,6 +177,7 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
         "step5_content_library_azure_sql_v2.py",
         "intelligence_v1_shared_contracts.py",
         "p07_intelligence_foundation_closure.py",
+        "p08_proposal_intelligence.py",
     }
     by_revision = {
         re.search(r'^revision = "([^"]+)"$', path.read_text(encoding="utf-8"), re.MULTILINE).group(1): path
@@ -194,6 +195,7 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
         "17c6ebd99c4a",
         "intelligence_v1_shared_contracts",
         "p07_intelligence_foundation_closure",
+        "p08_proposal_intelligence",
     }
     source = by_revision["baseline_phase4_v36_azure_sql"].read_text(encoding="utf-8")
     assert 'revision = "baseline_phase4_v36_azure_sql"' in source
@@ -625,7 +627,7 @@ def test_sqlserver_gate_azsql025_is_deterministic_and_conflict_exact():
 
 def test_sqlserver_nullable_unique_inventory_is_fully_classified():
     result = nullable_unique_audit("post")
-    assert result["unique_object_total_count"] == result["unique_object_classified_count"] == 256
+    assert result["unique_object_total_count"] == result["unique_object_classified_count"] == 258
     assert result["unclassified_unique_object_count"] == 0
     assert result["unsafe_fk_or_semantic_review_required_count"] == 0
     assert result["nullable_unique_filter_required_count"] == 20
