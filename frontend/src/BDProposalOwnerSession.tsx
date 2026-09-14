@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { api } from "./api";
 import { ProposalWorkspaceStageAware } from "./ProposalWorkspaceStageAware";
 
-type Role = "SYSTEM_ADMIN" | "OWNER_SPONSOR" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER";
+type Role = "SYSTEM_ADMIN" | "OWNER_SPONSOR" | "PROCESS_CHAMPION" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER";
 type SourceType = "TENDER_DOCUMENT" | "TENDER_EMAIL" | "TENDER_PHOTO" | "CLIENT_DATA";
 const sourceTypes: Array<{ key: SourceType; label: string }> = [
   { key: "TENDER_EMAIL", label: "Tender Email" },
@@ -12,7 +12,7 @@ const sourceTypes: Array<{ key: SourceType; label: string }> = [
 ];
 const lifecycleLabels = ["Intake & Sources", "Engineering Preparation", "Commercial Review", "Client Response", "Contract Handoff"];
 const sourceDisplay: Record<string, string> = { TENDER_EMAIL: "Tender Email", TENDER_DOCUMENT: "Tender Document", TENDER_PHOTO: "Tender Photo / Image", CLIENT_DATA: "Client Information" };
-const roleLabel: Record<Role, string> = { SYSTEM_ADMIN: "Owner", OWNER_SPONSOR: "Owner", COMMERCIAL_APPROVER: "Business Development", RESPONSIBLE_ENGINEER: "Engineering" };
+const roleLabel: Record<Role, string> = { SYSTEM_ADMIN: "System Admin", OWNER_SPONSOR: "Owner", PROCESS_CHAMPION: "Business Development", COMMERCIAL_APPROVER: "Business Development", RESPONSIBLE_ENGINEER: "Engineering" };
 const REGISTER_OWNER_ERROR = "We couldn't load the Proposal Register. Please retry.";
 function headers(role: Role) { return { "X-Dev-Role": role }; }
 

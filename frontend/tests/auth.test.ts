@@ -57,6 +57,7 @@ const msal = vi.hoisted(
       loginRedirect: vi.fn(),
       acquireTokenSilent: vi.fn(),
       acquireTokenRedirect: vi.fn(),
+      logoutRedirect: vi.fn(),
     };
 
     const configurations: unknown[] = [];
@@ -83,6 +84,23 @@ const msal = vi.hoisted(
     };
   },
 );
+
+describe("MSAL sign out", () => {
+  it("uses the active Entra account and redirect bridge", async () => {
+    stubEntraEnvironment();
+    const active = account();
+    msal.instance.getActiveAccount.mockReturnValue(active);
+
+    const auth = await loadAuth();
+    await auth.initializeBrowserAuthentication();
+    await auth.signOut();
+
+    expect(msal.instance.logoutRedirect).toHaveBeenCalledWith({
+      account: active,
+      postLogoutRedirectUri: `${window.location.origin}/`,
+    });
+  });
+});
 
 vi.mock(
   "@azure/msal-browser",
@@ -173,6 +191,7 @@ beforeEach(() => {
   msal.instance.loginRedirect.mockReset();
   msal.instance.acquireTokenSilent.mockReset();
   msal.instance.acquireTokenRedirect.mockReset();
+  msal.instance.logoutRedirect.mockReset();
 
   msal.instance.initialize
     .mockImplementation(
@@ -190,6 +209,11 @@ beforeEach(() => {
         );
         return null;
       },
+    );
+
+  msal.instance.logoutRedirect
+    .mockImplementation(
+      async () => undefined,
     );
   msal.instance.getActiveAccount
     .mockReturnValue(null);
@@ -400,7 +424,7 @@ describe(
                 redirectUri:
                   `${window.location.origin}/redirect.html`,
                 postLogoutRedirectUri:
-                  `${window.location.origin}/redirect.html`,
+                  `${window.location.origin}/`,
               }),
             cache: {
               cacheLocation:

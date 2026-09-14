@@ -4,7 +4,11 @@ export type DemoRole =
   | "COMMERCIAL_APPROVER"
   | "RESPONSIBLE_ENGINEER";
 
-export type Persona = "OWNER" | "BUSINESS_DEVELOPMENT" | "ENGINEERING";
+export type Persona =
+  | "OWNER"
+  | "BUSINESS_DEVELOPMENT"
+  | "ENGINEERING"
+  | "SYSTEM_ADMIN_TECHNICAL";
 
 import { isAllowedPublicRoute } from "./domainOwnershipRoutes";
 
@@ -102,17 +106,36 @@ const personaCapabilities: Record<Persona, Set<FeatureKey>> = {
     "moduleBillingInvoiceReceivablesCollection",
     "moduleContentLibrary",
   ]),
+  SYSTEM_ADMIN_TECHNICAL: new Set([
+    "moduleOpportunityProposalClientTender",
+    "moduleContractMobilization",
+    "moduleBillingInvoiceReceivablesCollection",
+    "moduleContentLibrary",
+  ]),
 };
 
-export function personaForRole(role: string): Persona {
+export function personaForRole(role: string): Persona | null {
+  if (role === "OWNER_SPONSOR") return "OWNER";
+  if (role === "PROCESS_CHAMPION") return "BUSINESS_DEVELOPMENT";
   if (role === "COMMERCIAL_APPROVER") return "BUSINESS_DEVELOPMENT";
   if (role === "RESPONSIBLE_ENGINEER") return "ENGINEERING";
-  return "OWNER";
+  if (role === "SYSTEM_ADMIN") return "SYSTEM_ADMIN_TECHNICAL";
+  return null;
+}
+
+export function isSupportedShellRole(role: string): boolean {
+  return [
+    "OWNER_SPONSOR",
+    "PROCESS_CHAMPION",
+    "RESPONSIBLE_ENGINEER",
+    "SYSTEM_ADMIN",
+  ].includes(role);
 }
 
 export function featureVisible(feature: FeatureKey, role: string): boolean {
   if (!featureAvailability[feature]) return false;
-  return personaCapabilities[personaForRole(role)].has(feature);
+  const persona = personaForRole(role);
+  return persona ? personaCapabilities[persona].has(feature) : false;
 }
 
 export function getPrimaryNavigation(role: string): PrimaryNavigationItem[] {
