@@ -1,0 +1,51 @@
+{
+  "contract": "content-library-ai-terminal-v1",
+  "generated_at": "2026-09-14",
+  "owning_module": "master_content",
+  "accepted_foundation": {
+    "status": "PASS",
+    "evidence_head": "f4c4bf986aeb67d92e5a7e5ff9e7016ebf54e22c",
+    "implementation_identity": "b21ab2fe5e30e306a9bc40149ba10324f0bebd9b",
+    "p08_accepted_predecessor": false,
+    "p08_reason": "backend_full_regression=FAIL; final_acceptance=NOT_ACCEPTED"
+  },
+  "reconciliation": [
+    {"path": "backend/app/ai/__init__.py", "classification": "ALREADY_PRESENT", "decision": "retain D2/D3 public exports"},
+    {"path": "backend/app/ai/contracts.py", "classification": "RECONCILE", "decision": "retain existing D2/D3 contract and add Content Library purpose/scope enum"},
+    {"path": "backend/app/ai/context.py", "classification": "REUSE_EXACT", "decision": "retain governed retrieval manifest seam"},
+    {"path": "backend/app/ai/citations.py", "classification": "REUSE_EXACT", "decision": "use shared compiled-citation validator"},
+    {"path": "backend/app/ai/errors.py", "classification": "REUSE_EXACT", "decision": "shared error boundary"},
+    {"path": "backend/app/ai/gateway.py", "classification": "REUSE_EXACT", "decision": "one server-owned Model Gateway"},
+    {"path": "backend/app/ai/identity.py", "classification": "REUSE_EXACT", "decision": "managed-identity token boundary"},
+    {"path": "backend/app/ai/ledger.py", "classification": "REUSE_EXACT", "decision": "shared reservation/finalization ledger"},
+    {"path": "backend/app/ai/limits.py", "classification": "REUSE_EXACT", "decision": "shared rate/cost reservation fence"},
+    {"path": "backend/app/ai/orchestration.py", "classification": "RECONCILE", "decision": "retain D3 compatibility on shared provider/runtime"},
+    {"path": "backend/app/ai/policy.py", "classification": "RECONCILE", "decision": "Content Library item policy remains module-owned and display claims are not used"},
+    {"path": "backend/app/ai/provider.py", "classification": "REUSE_EXACT", "decision": "shared Azure Responses provider with server-selected schema"},
+    {"path": "backend/app/ai/runtime_binding.py", "classification": "REUSE_EXACT", "decision": "reuse locked D4 binding validation"},
+    {"path": "backend/app/ai/skill_registry.py", "classification": "RECONCILE", "decision": "one registry; retain D3 compatibility and add exactly seven master-content skills"},
+    {"path": "backend/app/ai/skill_runtime.py", "classification": "REUSE_EXACT", "decision": "shared runtime remains available; Content Library adapter uses same gateway/ledger primitives"},
+    {"path": "backend/app/ai/structured_output.py", "classification": "RECONCILE", "decision": "retain D3 strict output and add strict Content Library envelope"},
+    {"path": "backend/app/models/intelligence_entities.py", "classification": "REUSE_EXACT", "decision": "port accepted shared AIWorkProduct/context/citation/invalidation entities"},
+    {"path": "backend/app/models/ai_entities.py", "classification": "RECONCILE", "decision": "port additive P7 reservation scope fields without changing business entities"},
+    {"path": "backend/app/services/intelligence_contracts.py", "classification": "REUSE_EXACT", "decision": "shared immutable manifest/work-product contracts"},
+    {"path": "backend/app/services/context_compiler.py", "classification": "RECONCILE", "decision": "retain governed resolvers and add server-derived DOCUMENT_TEXT_EVIDENCE"},
+    {"path": "backend/app/services/intelligence_foundation.py", "classification": "REUSE_EXACT", "decision": "shared dependency/invalidation/read-only tool primitives"},
+    {"path": "backend/migrations/versions/intelligence_v1_shared_contracts.py", "classification": "FORWARD_PORT_SCHEMA", "decision": "new migration preserves historical bytes"},
+    {"path": "backend/migrations/versions/p07_intelligence_foundation_closure.py", "classification": "FORWARD_PORT_SCHEMA", "decision": "new migration preserves accepted P7 identity"},
+    {"path": "backend/tests/test_ai_p05_skill_runtime.py", "classification": "REUSE_EXACT", "decision": "shared runtime regression reference"},
+    {"path": "backend/tests/test_ai_p07_foundation_control_plane.py", "classification": "REUSE_EXACT", "decision": "shared foundation regression reference"},
+    {"path": "infra/azure/ai-d2/main.bicep", "classification": "REUSE_EXACT", "decision": "reuse one shared AI infrastructure contract"}
+  ],
+  "content_library_paths": [
+    {"path": "backend/app/services/content_library_intelligence.py", "classification": "RECONCILE", "decision": "module adapter only; no second gateway/RAG/store"},
+    {"path": "backend/app/api/content_library_intelligence_routers.py", "classification": "RECONCILE", "decision": "server-owned operation routes; no client manifest/version/tools"},
+    {"path": "frontend/src/Dashboard.tsx", "classification": "RECONCILE", "decision": "existing Content Library surface remains host for intelligence UX"}
+  ],
+  "authority": {
+    "canonical_write_authority": "NONE",
+    "protected_action_authority": "NONE",
+    "real_data_allowed": false,
+    "source_text_trust": "UNTRUSTED_EVIDENCE"
+  }
+}

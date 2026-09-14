@@ -1,0 +1,18 @@
+{
+  "version": "content-library-production-closure-v1",
+  "denominator_rule": "Every route/persona/viewport candidate is counted; N/A requires a stable reason code.",
+  "viewports": ["DESKTOP_1440", "TABLET_1024", "MOBILE_390"],
+  "personas": ["OWNER", "BUSINESS_DEVELOPMENT", "ENGINEERING"],
+  "routes": [
+    {"route": "/dashboard", "persona": "OWNER", "viewport": "DESKTOP_1440", "status": "IN_SCOPE", "reason": null},
+    {"route": "/dashboard", "persona": "BUSINESS_DEVELOPMENT", "viewport": "DESKTOP_1440", "status": "IN_SCOPE", "reason": null},
+    {"route": "/dashboard", "persona": "ENGINEERING", "viewport": "DESKTOP_1440", "status": "IN_SCOPE", "reason": null},
+    {"route": "/master-content", "persona": "OWNER", "viewport": "DESKTOP_1440", "status": "IN_SCOPE", "reason": null},
+    {"route": "/master-content", "persona": "BUSINESS_DEVELOPMENT", "viewport": "DESKTOP_1440", "status": "IN_SCOPE", "reason": null},
+    {"route": "/master-content", "persona": "ENGINEERING", "viewport": "DESKTOP_1440", "status": "IN_SCOPE", "reason": null},
+    {"route": "/source18", "persona": "OWNER", "viewport": "DESKTOP_1440", "status": "IN_SCOPE", "reason": null},
+    {"route": "/source18", "persona": "BUSINESS_DEVELOPMENT", "viewport": "DESKTOP_1440", "status": "N_A", "reason": "PERSONA_NOT_APPLICABLE_TO_REGULATORY_WORKFLOW"},
+    {"route": "/source18", "persona": "ENGINEERING", "viewport": "DESKTOP_1440", "status": "IN_SCOPE", "reason": null},
+    {"route": "/source18", "persona": "OWNER", "viewport": "MOBILE_390", "status": "N_A", "reason": "RESPONSIVE_SMOKE_PENDING_AUTHORIZED_BROWSER_RUN"}
+  ]
+}

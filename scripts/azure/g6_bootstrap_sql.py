@@ -12,6 +12,7 @@ import argparse
 import json
 import re
 import struct
+import uuid
 
 import pyodbc
 from azure.identity import AzureCliCredential
@@ -20,12 +21,19 @@ from azure.identity import AzureCliCredential
 SQL_COPT_SS_ACCESS_TOKEN = 1256
 SQL_SCOPE = "https://database.windows.net/.default"
 IDENTIFIER = re.compile(r"^[A-Za-z0-9_.-]{1,128}$")
+CLIENT_ID = re.compile(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
 
 
 def _identifier(value: str, label: str) -> str:
     if not IDENTIFIER.fullmatch(value):
         raise ValueError(f"invalid {label}")
     return value
+
+
+def _client_id_sid(value: str, label: str) -> str:
+    if not CLIENT_ID.fullmatch(value):
+        raise ValueError(f"invalid {label}")
+    return f"0x{uuid.UUID(value).bytes.hex()}"
 
 
 def _connection(server: str, database: str):
@@ -45,11 +53,20 @@ def _connection(server: str, database: str):
     )
 
 
-def _principal(cursor, name: str, role_names: tuple[str, ...]) -> None:
+def _principal(cursor, name: str, client_id: str, role_names: tuple[str, ...]) -> None:
     quoted = f"[{name}]"
+    sid = _client_id_sid(client_id, f"{name} client id")
+    cursor.execute(
+        "SELECT CONVERT(varchar(2), type) AS principal_type, CONVERT(varchar(32), sid, 2) AS principal_sid "
+        "FROM sys.database_principals WHERE name = ?",
+        name,
+    )
+    existing = cursor.fetchone()
+    if existing and (existing.principal_type != "E" or existing.principal_sid.lower() != sid[2:].lower()):
+        raise ValueError(f"existing principal {name} has a different Entra client ID or type")
     cursor.execute(
         "IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = ?) "
-        "BEGIN CREATE USER " + quoted + " FROM EXTERNAL PROVIDER; END",
+        "BEGIN CREATE USER " + quoted + f" WITH SID = {sid}, TYPE = E; END",
         name,
     )
     for role in role_names:
@@ -58,18 +75,22 @@ def _principal(cursor, name: str, role_names: tuple[str, ...]) -> None:
         )
 
 
-def bootstrap(*, server: str, database: str, runtime_name: str, migration_name: str) -> list[dict[str, str]]:
+def bootstrap(*, server: str, database: str, runtime_name: str, runtime_client_id: str, migration_name: str, migration_client_id: str) -> list[dict[str, str]]:
     server = _identifier(server, "server")
     database = _identifier(database, "database")
     runtime_name = _identifier(runtime_name, "runtime identity name")
     migration_name = _identifier(migration_name, "migration identity name")
     if runtime_name == migration_name:
         raise ValueError("runtime and migration identities must differ")
+    runtime_sid = _client_id_sid(runtime_client_id, "runtime client id")
+    migration_sid = _client_id_sid(migration_client_id, "migration client id")
+    if runtime_sid == migration_sid:
+        raise ValueError("runtime and migration client IDs must differ")
 
     with _connection(server, database) as connection:
         cursor = connection.cursor()
-        _principal(cursor, runtime_name, ("db_datareader", "db_datawriter"))
-        _principal(cursor, migration_name, ("db_datareader", "db_datawriter", "db_ddladmin"))
+        _principal(cursor, runtime_name, runtime_client_id, ("db_datareader", "db_datawriter"))
+        _principal(cursor, migration_name, migration_client_id, ("db_datareader", "db_datawriter", "db_ddladmin"))
         cursor.execute(
             "IF OBJECT_ID(N'dbo.g6_qualification_probe', N'U') IS NULL "
             "CREATE TABLE dbo.g6_qualification_probe "
@@ -97,7 +118,9 @@ def main() -> int:
     parser.add_argument("--server", required=True)
     parser.add_argument("--database", required=True)
     parser.add_argument("--runtime-name", required=True)
+    parser.add_argument("--runtime-client-id", required=True)
     parser.add_argument("--migration-name", required=True)
+    parser.add_argument("--migration-client-id", required=True)
     args = parser.parse_args()
     print(json.dumps(bootstrap(**vars(args)), sort_keys=True))
     return 0
@@ -105,4 +128,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

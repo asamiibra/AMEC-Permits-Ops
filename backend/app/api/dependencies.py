@@ -12,6 +12,7 @@ from ..auth.entra import (
     EntraAuthenticationError,
     get_entra_validator,
 )
+from ..audit.service import set_audit_actor_role
 from ..config.settings import get_settings
 from ..db import get_db
 from ..models import Role, User
@@ -150,13 +151,26 @@ def trusted_current_principal(
 
 
 def current_user_role(
+    request: Request,
     principal: AuthenticatedPrincipal = Depends(
         current_principal
     ),
 ) -> Role:
+    request.state.authenticated_principal = principal
     return principal.role
 
 
+def trusted_actor_id(request: Request, role: Role) -> str:
+    """Resolve a mutation actor without allowing caller-controlled spoofing."""
+    set_audit_actor_role(role.value)
+    principal = getattr(request.state, "authenticated_principal", None)
+    if principal is not None and str(principal.auth_mode).upper() == "ENTRA":
+        if not principal.user_id:
+            raise HTTPException(500, {"code": "TRUSTED_ACTOR_ID_UNAVAILABLE"})
+        return principal.user_id
+    # DEV_HEADER is intentionally synthetic-only and retains the historical
+    # role-shaped actor used by local tests and owner demos.
+    return role.value
 def require_roles(*roles: Role):
     def dependency(
         role: Role = Depends(current_user_role),

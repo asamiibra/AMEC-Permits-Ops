@@ -106,6 +106,62 @@ class ProposalReadinessExplanation(BaseModel):
     citation_keys: list[str] = Field(min_length=1, max_length=30)
 
 
+class ContentLibrarySourceIdentity(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    master_content_item_id: str | None = Field(default=None, min_length=1, max_length=36)
+    definition_entry_id: str | None = Field(default=None, min_length=1, max_length=36)
+    document_version_id: str | None = Field(default=None, min_length=1, max_length=36)
+    definition_revision_id: str | None = Field(default=None, min_length=1, max_length=36)
+    sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def exactly_one_canonical_subject(self) -> "ContentLibrarySourceIdentity":
+        master = self.master_content_item_id is not None or self.document_version_id is not None
+        definition = self.definition_entry_id is not None or self.definition_revision_id is not None
+        if master == definition:
+            raise ValueError("source identity must identify exactly one library subject")
+        if master and (not self.master_content_item_id or not self.document_version_id):
+            raise ValueError("master content identity requires item and document version")
+        if definition and (not self.definition_entry_id or not self.definition_revision_id):
+            raise ValueError("definition identity requires entry and revision")
+        return self
+
+
+class ContentLibraryFinding(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    code: str = Field(min_length=1, max_length=120)
+    statement: str = Field(min_length=1, max_length=2000)
+    classification: Literal["FACT", "GAP", "ASSUMPTION", "RECOMMENDATION", "INSUFFICIENT_EVIDENCE"]
+    citation_keys: list[str] = Field(default_factory=list, max_length=16)
+
+
+class ContentLibraryIntelligenceOutput(BaseModel):
+    """Shared strict envelope for all advisory Content Library skills."""
+
+    model_config = ConfigDict(extra="forbid", strict=True)
+    source_identity: ContentLibrarySourceIdentity
+    summary: str = Field(min_length=1, max_length=4000)
+    findings: list[ContentLibraryFinding] = Field(max_length=50)
+    citation_keys: list[str] = Field(min_length=1, max_length=50)
+    confidence: float = Field(ge=0, le=1)
+    assumptions: list[str] = Field(default_factory=list, max_length=30)
+    missing_information: list[str] = Field(default_factory=list, max_length=30)
+    recommended_next_actions: list[str] = Field(default_factory=list, max_length=30)
+    authority_notice: Literal["ADVISORY_ONLY_NO_CANONICAL_WRITE_OR_PROTECTED_ACTION"] = "ADVISORY_ONLY_NO_CANONICAL_WRITE_OR_PROTECTED_ACTION"
+
+    @model_validator(mode="after")
+    def citations_are_bounded(self) -> "ContentLibraryIntelligenceOutput":
+        keys = set(self.citation_keys)
+        if not keys or any(not _CITATION_KEY.fullmatch(key) for key in keys):
+            raise ValueError("malformed citation key")
+        for finding in self.findings:
+            if finding.classification in {"FACT", "GAP"} and not finding.citation_keys:
+                raise ValueError("factual finding needs a citation")
+            if any(not _CITATION_KEY.fullmatch(key) for key in finding.citation_keys):
+                raise ValueError("malformed finding citation")
+        return self
+
+
 def _proposal_citation_keys(value: BaseModel) -> tuple[str, ...]:
     return tuple(value.citation_keys)
 
@@ -215,4 +271,58 @@ PROPOSAL_READINESS_EXPLANATION_OUTPUT = StructuredOutputDefinition(
     schema_name="proposal_readiness_explanation", schema_version="1", output_class="ANALYSIS",
     provider_schema=_strict_schema(ProposalReadinessExplanation), validator=lambda value: _validate_proposal(ProposalReadinessExplanation, value),
     citation_keys=_proposal_citation_keys, requires_grounding=True,
+)
+
+
+def validate_content_library_output(value: object) -> ContentLibraryIntelligenceOutput:
+    try:
+        return ContentLibraryIntelligenceOutput.model_validate(value)
+    except Exception as exc:
+        raise AIError("AI_STRUCTURED_OUTPUT_VALIDATION_FAILED", status_code=502) from exc
+
+
+def _content_library_citation_keys(value: BaseModel) -> tuple[str, ...]:
+    output = value
+    keys = list(output.citation_keys)
+    for finding in output.findings:
+        keys.extend(finding.citation_keys)
+    return tuple(keys)
+
+
+CONTENT_LIBRARY_OUTPUT = StructuredOutputDefinition(
+    schema_name="content_library_intelligence",
+    schema_version="1",
+    output_class="ANALYSIS",
+    provider_schema=_strict_schema(ContentLibraryIntelligenceOutput),
+    validator=validate_content_library_output,
+    citation_keys=_content_library_citation_keys,
+    requires_grounding=True,
+)
+
+CONTENT_LIBRARY_CANDIDATE_OUTPUT = StructuredOutputDefinition(
+    schema_name="content_library_intake_governance",
+    schema_version="1",
+    output_class="CANDIDATE",
+    provider_schema=_strict_schema(ContentLibraryIntelligenceOutput),
+    validator=validate_content_library_output,
+    citation_keys=_content_library_citation_keys,
+    requires_grounding=True,
+)
+CONTENT_LIBRARY_RECOMMENDATION_OUTPUT = StructuredOutputDefinition(
+    schema_name="content_library_reuse_applicability",
+    schema_version="1",
+    output_class="RECOMMENDATION",
+    provider_schema=_strict_schema(ContentLibraryIntelligenceOutput),
+    validator=validate_content_library_output,
+    citation_keys=_content_library_citation_keys,
+    requires_grounding=True,
+)
+CONTENT_LIBRARY_DRAFT_OUTPUT = StructuredOutputDefinition(
+    schema_name="content_library_description_draft",
+    schema_version="1",
+    output_class="DRAFT",
+    provider_schema=_strict_schema(ContentLibraryIntelligenceOutput),
+    validator=validate_content_library_output,
+    citation_keys=_content_library_citation_keys,
+    requires_grounding=True,
 )

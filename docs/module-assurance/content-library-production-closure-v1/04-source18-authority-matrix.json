@@ -1,0 +1,12 @@
+{
+  "version": "content-library-production-closure-v1",
+  "authority_owner": "SOURCE18",
+  "content_library_role": "READ_ONLY_GOVERNED_DISCOVERY_PROJECTION",
+  "required_currentness": ["transaction.CURRENT", "document.current_version_id == exact_version", "version.unsuperseded", "version.REVIEWED_OR_APPROVED", "version.metadata.official_form_currentness == CURRENT", "case.current_official_form_verified affirmative"],
+  "ordinary_reuse": "FORBIDDEN",
+  "mutation": "DENIED_ACROSS_WHOLE_DOCUMENT_LINEAGE",
+  "promotion": "ATOMIC_DOCUMENT_POINTER_AND_VERSION_METADATA_WITH_AUDIT",
+  "final_submit": "HUMAN_ONLY_WITH_IMMEDIATE_TOCTOU_REVALIDATION",
+  "synthetic_fixture": "source18-owner-demo:official-form:v1",
+  "real_data_authority": false
+}

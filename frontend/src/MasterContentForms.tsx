@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { api } from "./api";
 import { readCanonicalForm, readCanonicalForms } from "./contentLibraryApi";
 import {
-  AIAssistCompact,
   ContentType,
   Drawer,
   MODULE_LABELS,
@@ -104,11 +103,15 @@ export function CanonicalFormsLibrary({
   surface = "DASHBOARD",
   compact = false,
   filters,
+  onItemChange,
+  initialItemId,
 }: {
   role: string;
   surface?: "DASHBOARD" | "ADMINISTRATION";
   compact?: boolean;
   filters?: Filters;
+  onItemChange?: (itemId: string | null) => void;
+  initialItemId?: string | null;
 }) {
   const [forms, setForms] = useState<CanonicalForm[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -128,7 +131,10 @@ export function CanonicalFormsLibrary({
   const [v2Filters, setV2Filters] = useState({ external_body_id: "", jurisdiction_id: "", service_type_id: "", lifecycle_phase_id: "", applicability_status: "", readiness: "" });
   const [catalogs, setCatalogs] = useState<V2Catalogs | null>(null);
   const canWrite = ownerRoles.has(role);
-  const technicalGovernance = surface === "ADMINISTRATION";
+  // Governance evidence is part of the Owner's Content Library workspace;
+  // Administration remains the write surface for settings, not the only place
+  // where an Owner can understand a Form's readiness and source lineage.
+  const technicalGovernance = true;
   const load = async () => {
     setLoading(true);
     setError("");
@@ -170,6 +176,13 @@ export function CanonicalFormsLibrary({
   useEffect(() => {
     void load();
   }, [filters?.q, filters?.category, filters?.status, filters?.module, governanceFilters.ownership, governanceFilters.artifact_kind, governanceFilters.currentness, governanceFilters.readiness, governanceFilters.quality_state, governanceFilters.restricted_sample, governanceFilters.language, v2Filters.external_body_id, v2Filters.jurisdiction_id, v2Filters.service_type_id, v2Filters.lifecycle_phase_id, v2Filters.applicability_status, v2Filters.readiness]);
+  useEffect(() => {
+    if (!initialItemId) {
+      setDetails(null);
+      return;
+    }
+    void readCanonicalForm<CanonicalForm>(initialItemId).then(setDetails).catch(() => setDetails(null));
+  }, [initialItemId]);
   const save = async (request: SaveRequest) => {
     setBusy(true);
     setError("");
@@ -247,7 +260,7 @@ export function CanonicalFormsLibrary({
         </p>
       )}
       {technicalGovernance && <details className="forms-advanced-filters">
-        <summary>Advanced governance filters</summary>
+        <summary>More Form filters</summary>
         <div className="dashboard-filter-bar forms-governance-filters">
           <>
             {([['external_body_id', 'External body', catalogs?.external_bodies || []], ['jurisdiction_id', 'Jurisdiction', catalogs?.jurisdictions || []], ['service_type_id', 'Service type', catalogs?.service_types || []], ['lifecycle_phase_id', 'Lifecycle phase', catalogs?.lifecycle_phases || []]] as const).map(([key, label, options]) => <label key={key}>{label}<select aria-label={label} value={v2Filters[key]} onChange={(event) => setV2Filters((current) => ({ ...current, [key]: event.target.value }))}><option value="">All</option>{options.map((option) => <option key={String(option.id)} value={String(option.id)}>{option.name_en || option.code || option.label || option.id}</option>)}</select></label>)}
@@ -278,7 +291,7 @@ export function CanonicalFormsLibrary({
           forms={forms}
           canWrite={canWrite}
           onEdit={setEditor}
-          onOpen={async (form) => setDetails(await readCanonicalForm<CanonicalForm>(form.id))}
+          onOpen={async (form) => { onItemChange?.(form.id); setDetails(await readCanonicalForm<CanonicalForm>(form.id)); }}
           onHistory={async (form) => {
             const detail = await readCanonicalForm<CanonicalForm>(form.id);
             setHistory({
@@ -301,7 +314,7 @@ export function CanonicalFormsLibrary({
       {history && (
         <FormHistory history={history} onClose={() => setHistory(null)} />
       )}
-      {details && <FormDetails item={details} role={role} surface={surface} onRefresh={async () => setDetails(await readCanonicalForm<CanonicalForm>(details.id))} onModify={() => { setDetails(null); setEditor(details); }} onClose={() => setDetails(null)} />}
+      {details && <FormDetails item={details} role={role} surface={surface} onRefresh={async () => setDetails(await readCanonicalForm<CanonicalForm>(details.id))} onModify={() => { setDetails(null); setEditor(details); }} onClose={() => { onItemChange?.(null); setDetails(null); }} />}
     </section>
   );
 }
@@ -337,24 +350,24 @@ function FormTable({
         <tbody>
           {forms.map((form, index) => (
             <tr key={form.id}>
-              <td>{form.serial_number || index + 1}</td>
-              <td>
+              <td data-label="Number">{form.serial_number || index + 1}</td>
+              <td data-label="Reference">
                 <code className="content-reference">{form.ref}</code>
               </td>
-              <td>
+              <td data-label="Form">
                 <b>{form.title}</b>
                 <small className="table-subline">Version {form.version || "—"}</small>
               </td>
-              <td>{form.category?.label || "Uncategorized"}</td>
-              <td
+              <td data-label="Category">{form.category?.label || "Uncategorized"}</td>
+              <td data-label="Description"
                 className="description-cell"
                 title={form.description || "No description"}
               >
                 {form.description || "No description"}
               </td>
-              <td><UsedInChips values={form.used_in} /></td>
-              <td><StatusBadge value={form.owner_status || form.version_status} hasVersion={Boolean(form.version)} /></td>
-              <td className="dashboard-actions">
+              <td data-label="Used In"><UsedInChips values={form.used_in} /></td>
+              <td data-label="Status"><StatusBadge value={form.owner_status || form.version_status} hasVersion={Boolean(form.version)} /></td>
+              <td data-label="Actions" className="dashboard-actions">
                 <button className="table-action action-view" onClick={() => onOpen(form)}>Open</button>
                 {canWrite && (
                   <button
@@ -383,7 +396,7 @@ function FormDetails({ item, role, surface, onRefresh, onModify, onClose }: { it
   const governance = item.governance || {};
   const profile = governance.profile || {};
   const readiness = governance.readiness || { state: "BLOCKED", blocking_reasons: ["Governance profile is not available."], warnings: [] };
-  const technicalGovernance = surface === "ADMINISTRATION";
+  const technicalGovernance = true;
   return <Drawer title={`${item.ref} · ${item.title}`} eyebrow="FORM DETAILS" onClose={onClose} footer={<button type="button" className="button-secondary" onClick={onClose}>Close</button>}>
     <section className="form-governance-section"><h3>Overview</h3><div className="content-detail-grid">
       <div><span>Reference</span><b>{item.ref}</b></div>
@@ -628,7 +641,6 @@ function FormEditor({
             </label>
           </section>
         )}
-        <AIAssistCompact />
       </form>
     </Drawer>
   );

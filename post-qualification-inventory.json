@@ -1,0 +1,1189 @@
+{
+  "captured_at_utc": "2026-09-14T13:11:38.734956+00:00",
+  "purpose": "G6_DO_NOT_TOUCH_RESOURCE_INVENTORY",
+  "resources": [
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/ME_cae-proposalops-prod-uae_rg-proposalops-prod-uae_uaenorth/providers/Microsoft.Network/loadBalancers/capp-svc-lb",
+      "name": "capp-svc-lb",
+      "resourceGroup": "ME_cae-proposalops-prod-uae_rg-proposalops-prod-uae_uaenorth",
+      "type": "Microsoft.Network/loadBalancers"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/ME_cae-proposalops-prod-uae_rg-proposalops-prod-uae_uaenorth/providers/Microsoft.Network/publicIPAddresses/capp-svc-lb-ip",
+      "name": "capp-svc-lb-ip",
+      "resourceGroup": "ME_cae-proposalops-prod-uae_rg-proposalops-prod-uae_uaenorth",
+      "type": "Microsoft.Network/publicIPAddresses"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/ME_g6-cae-3lw2hnvs6nz2_rg-proposalops-g6-qual-20260911-b478dcbf_uaenorth/providers/Microsoft.Network/loadBalancers/capp-svc-lb",
+      "name": "capp-svc-lb",
+      "resourceGroup": "ME_g6-cae-3lw2hnvs6nz2_rg-proposalops-g6-qual-20260911-b478dcbf_uaenorth",
+      "type": "Microsoft.Network/loadBalancers"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/ME_g6-cae-kingfevc5hdp_rg-proposalops-g6-qual-20260914-31b169e_eastus/providers/Microsoft.Network/loadBalancers/capp-svc-lb",
+      "name": "capp-svc-lb",
+      "resourceGroup": "ME_g6-cae-kingfevc5hdp_rg-proposalops-g6-qual-20260914-31b169e_eastus",
+      "type": "Microsoft.Network/loadBalancers"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/ME_g6-cae-p6ksgvezcuui_rg-proposalops-g6-qual-20260914-westus3-31b169e_westus3/providers/Microsoft.Network/loadBalancers/capp-svc-lb",
+      "name": "capp-svc-lb",
+      "resourceGroup": "ME_g6-cae-p6ksgvezcuui_rg-proposalops-g6-qual-20260914-westus3-31b169e_westus3",
+      "type": "Microsoft.Network/loadBalancers"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/ME_g6-cae-qq4agzrxbids_rg-proposalops-g8-qual-20260912-6faa585_uaenorth/providers/Microsoft.Network/loadBalancers/capp-svc-lb",
+      "name": "capp-svc-lb",
+      "resourceGroup": "ME_g6-cae-qq4agzrxbids_rg-proposalops-g8-qual-20260912-6faa585_uaenorth",
+      "type": "Microsoft.Network/loadBalancers"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkWatchers/NetworkWatcher_eastus",
+      "name": "NetworkWatcher_eastus",
+      "resourceGroup": "NetworkWatcherRG",
+      "type": "Microsoft.Network/networkWatchers"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkWatchers/NetworkWatcher_qatarcentral",
+      "name": "NetworkWatcher_qatarcentral",
+      "resourceGroup": "NetworkWatcherRG",
+      "type": "Microsoft.Network/networkWatchers"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkWatchers/NetworkWatcher_uaenorth",
+      "name": "NetworkWatcher_uaenorth",
+      "resourceGroup": "NetworkWatcherRG",
+      "type": "Microsoft.Network/networkWatchers"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/NetworkWatcherRG/providers/Microsoft.Network/networkWatchers/NetworkWatcher_westus3",
+      "name": "NetworkWatcher_westus3",
+      "resourceGroup": "NetworkWatcherRG",
+      "type": "Microsoft.Network/networkWatchers"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-ai-d3-instant-20260908/providers/Microsoft.CognitiveServices/accounts/proposalopsd3instant20260908",
+      "name": "proposalopsd3instant20260908",
+      "resourceGroup": "rg-proposalops-ai-d3-instant-20260908",
+      "type": "Microsoft.CognitiveServices/accounts"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-ai-d3-instant-20260908/providers/Microsoft.CognitiveServices/accounts/proposalopsd3instant20260908/projects/proposalops-d3-synthetic",
+      "name": "proposalopsd3instant20260908/proposalops-d3-synthetic",
+      "resourceGroup": "rg-proposalops-ai-d3-instant-20260908",
+      "type": "Microsoft.CognitiveServices/accounts/projects"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-ai-d3-real-20260908/providers/Microsoft.CognitiveServices/accounts/proposalopsd3real20260908",
+      "name": "proposalopsd3real20260908",
+      "resourceGroup": "rg-proposalops-ai-d3-real-20260908",
+      "type": "Microsoft.CognitiveServices/accounts"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-canonical-preprod-g8-20260912/providers/Microsoft.ContainerRegistry/registries/acrg8p60912",
+      "name": "acrg8p60912",
+      "resourceGroup": "rg-proposalops-canonical-preprod-g8-20260912",
+      "type": "Microsoft.ContainerRegistry/registries"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-cl-prodqual-20260914-32efdbf/providers/Microsoft.ContainerRegistry/registries/g6acrfeofkzngwq5d",
+      "name": "g6acrfeofkzngwq5d",
+      "resourceGroup": "rg-proposalops-cl-prodqual-20260914-32efdbf",
+      "type": "Microsoft.ContainerRegistry/registries"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-cl-prodqual-20260914-32efdbf/providers/Microsoft.ManagedIdentity/userAssignedIdentities/g6-migration-feofkzngwq5d",
+      "name": "g6-migration-feofkzngwq5d",
+      "resourceGroup": "rg-proposalops-cl-prodqual-20260914-32efdbf",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-cl-prodqual-20260914-32efdbf/providers/Microsoft.ManagedIdentity/userAssignedIdentities/g6-runtime-feofkzngwq5d",
+      "name": "g6-runtime-feofkzngwq5d",
+      "resourceGroup": "rg-proposalops-cl-prodqual-20260914-32efdbf",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-cl-prodqual-20260914-32efdbf/providers/Microsoft.Network/networkInterfaces/g6-blob-pe-feofkzngwq5d.nic.15f3dbfe-6f9b-4198-aee1-13d74d44ade4",
+      "name": "g6-blob-pe-feofkzngwq5d.nic.15f3dbfe-6f9b-4198-aee1-13d74d44ade4",
+      "resourceGroup": "rg-proposalops-cl-prodqual-20260914-32efdbf",
+      "type": "Microsoft.Network/networkInterfaces"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-cl-prodqual-20260914-32efdbf/providers/Microsoft.Network/networkInterfaces/g6-pe-feofkzngwq5d.nic.f306500d-3469-4b8d-8737-b2b50b3545f9",
+      "name": "g6-pe-feofkzngwq5d.nic.f306500d-3469-4b8d-8737-b2b50b3545f9",
+      "resourceGroup": "rg-proposalops-cl-prodqual-20260914-32efdbf",
+      "type": "Microsoft.Network/networkInterfaces"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-cl-prodqual-20260914-32efdbf/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net",
+      "name": "privatelink.blob.core.windows.net",
+      "resourceGroup": "rg-proposalops-cl-prodqual-20260914-32efdbf",
+      "type": "Microsoft.Network/privateDnsZones"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-cl-prodqual-20260914-32efdbf/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net/virtualNetworkLinks/g6-vnet-link",
+      "name": "privatelink.blob.core.windows.net/g6-vnet-link",
+      "resourceGroup": "rg-proposalops-cl-prodqual-20260914-32efdbf",
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-cl-prodqual-20260914-32efdbf/providers/Microsoft.Network/privateDnsZones/privatelink.database.windows.net",
+      "name": "privatelink.database.windows.net",
+      "resourceGroup": "rg-proposalops-cl-prodqual-20260914-32efdbf",
+      "type": "Microsoft.Network/privateDnsZones"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-cl-prodqual-20260914-32efdbf/providers/Microsoft.Network/privateDnsZones/privatelink.database.windows.net/virtualNetworkLinks/g6-vnet-link",
+      "name": "privatelink.database.windows.net/g6-vnet-link",
+      "resourceGroup": "rg-proposalops-cl-prodqual-20260914-32efdbf",
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-cl-prodqual-20260914-32efdbf/providers/Microsoft.Network/privateEndpoints/g6-blob-pe-feofkzngwq5d",
+      "name": "g6-blob-pe-feofkzngwq5d",
+      "resourceGroup": "rg-proposalops-cl-prodqual-20260914-32efdbf",
+      "type": "Microsoft.Network/privateEndpoints"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-cl-prodqual-20260914-32efdbf/providers/Microsoft.Network/privateEndpoints/g6-pe-feofkzngwq5d",
+      "name": "g6-pe-feofkzngwq5d",
+      "resourceGroup": "rg-proposalops-cl-prodqual-20260914-32efdbf",
+      "type": "Microsoft.Network/privateEndpoints"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-cl-prodqual-20260914-32efdbf/providers/Microsoft.Network/virtualNetworks/g6-vnet-feofkzngwq5d",
+      "name": "g6-vnet-feofkzngwq5d",
+      "resourceGroup": "rg-proposalops-cl-prodqual-20260914-32efdbf",
+      "type": "Microsoft.Network/virtualNetworks"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-cl-prodqual-20260914-32efdbf/providers/Microsoft.OperationalInsights/workspaces/g6-law-feofkzngwq5d",
+      "name": "g6-law-feofkzngwq5d",
+      "resourceGroup": "rg-proposalops-cl-prodqual-20260914-32efdbf",
+      "type": "Microsoft.OperationalInsights/workspaces"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-cl-prodqual-20260914-32efdbf/providers/Microsoft.Sql/servers/g6sql-feofkzngwq5d",
+      "name": "g6sql-feofkzngwq5d",
+      "resourceGroup": "rg-proposalops-cl-prodqual-20260914-32efdbf",
+      "type": "Microsoft.Sql/servers"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-cl-prodqual-20260914-32efdbf/providers/Microsoft.Sql/servers/g6sql-feofkzngwq5d/databases/g6-qualification",
+      "name": "g6sql-feofkzngwq5d/g6-qualification",
+      "resourceGroup": "rg-proposalops-cl-prodqual-20260914-32efdbf",
+      "type": "Microsoft.Sql/servers/databases"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-cl-prodqual-20260914-32efdbf/providers/Microsoft.Sql/servers/g6sql-feofkzngwq5d/databases/master",
+      "name": "g6sql-feofkzngwq5d/master",
+      "resourceGroup": "rg-proposalops-cl-prodqual-20260914-32efdbf",
+      "type": "Microsoft.Sql/servers/databases"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-cl-prodqual-20260914-32efdbf/providers/Microsoft.Storage/storageAccounts/g6stfeofkzngwq5d",
+      "name": "g6stfeofkzngwq5d",
+      "resourceGroup": "rg-proposalops-cl-prodqual-20260914-32efdbf",
+      "type": "Microsoft.Storage/storageAccounts"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/containerApps/g10-bridge-api",
+      "name": "g10-bridge-api",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/containerApps"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/containerApps/g6-api-v3",
+      "name": "g6-api-v3",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/containerApps"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/containerApps/g6-frontend-v3",
+      "name": "g6-frontend-v3",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/containerApps"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g10-blob-check-20260911",
+      "name": "g10-blob-check-20260911",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g10-private-health-20260911",
+      "name": "g10-private-health-20260911",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g10-private-health2-20260911",
+      "name": "g10-private-health2-20260911",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g6-bootstrap-3lw2hnvs6nz2",
+      "name": "g6-bootstrap-3lw2hnvs6nz2",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g6-g66-marker-pr25",
+      "name": "g6-g66-marker-pr25",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g6-g67-final-migration",
+      "name": "g6-g67-final-migration",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g6-g67-recovery-bootstrap",
+      "name": "g6-g67-recovery-bootstrap",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g6-g67-recovery-prep",
+      "name": "g6-g67-recovery-prep",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g6-g67-recovery-preverify",
+      "name": "g6-g67-recovery-preverify",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g6-g67-rehearsal-bootstrap",
+      "name": "g6-g67-rehearsal-bootstrap",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g6-g67-rehearsal-marker",
+      "name": "g6-g67-rehearsal-marker",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g6-g67-rehearsal-prep",
+      "name": "g6-g67-rehearsal-prep",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g6-g67-rehearsal-preverify",
+      "name": "g6-g67-rehearsal-preverify",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g6-migration-3lw2hnvs6nz2",
+      "name": "g6-migration-3lw2hnvs6nz2",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g6-migration-connect-check",
+      "name": "g6-migration-connect-check",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g6-pr25-smoke-bootstrap",
+      "name": "g6-pr25-smoke-bootstrap",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g6-pr25-smoke-migration",
+      "name": "g6-pr25-smoke-migration",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g6-pr25-smoke-verify",
+      "name": "g6-pr25-smoke-verify",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g6-runtime-3lw2hnvs6nz2",
+      "name": "g6-runtime-3lw2hnvs6nz2",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g6-target-readonly-check",
+      "name": "g6-target-readonly-check",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g9-browser-probe",
+      "name": "g9-browser-probe",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g9-browser-probe2",
+      "name": "g9-browser-probe2",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g9-browser-probe3",
+      "name": "g9-browser-probe3",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g9-catalog-inventory-20260912",
+      "name": "g9-catalog-inventory-20260912",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g9-fixture-writer-20260912",
+      "name": "g9-fixture-writer-20260912",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g9-persistence-ro-20260912",
+      "name": "g9-persistence-ro-20260912",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g9-replacement-bootstrap",
+      "name": "g9-replacement-bootstrap",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g9-replacement-meta-ro",
+      "name": "g9-replacement-meta-ro",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/jobs/g9-replacement-prebootstrap-ro",
+      "name": "g9-replacement-prebootstrap-ro",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/managedEnvironments/g6-cae-3lw2hnvs6nz2",
+      "name": "g6-cae-3lw2hnvs6nz2",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.App/managedEnvironments"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.ContainerRegistry/registries/g6acr3lw2hnvs6nz2",
+      "name": "g6acr3lw2hnvs6nz2",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.ContainerRegistry/registries"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.ManagedIdentity/userAssignedIdentities/g6-bootstrap-3lw2hnvs6nz2",
+      "name": "g6-bootstrap-3lw2hnvs6nz2",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.ManagedIdentity/userAssignedIdentities/g6-migration-3lw2hnvs6nz2",
+      "name": "g6-migration-3lw2hnvs6nz2",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.ManagedIdentity/userAssignedIdentities/g6-runtime-3lw2hnvs6nz2",
+      "name": "g6-runtime-3lw2hnvs6nz2",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.ManagedIdentity/userAssignedIdentities/g9-g10-bridge-mi-20260911",
+      "name": "g9-g10-bridge-mi-20260911",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.Network/dnsResolvers/g9-dns-resolver-20260911",
+      "name": "g9-dns-resolver-20260911",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.Network/dnsResolvers"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.Network/dnsResolvers/g9-dns-resolver-20260911/inboundEndpoints/g9-inbound-20260911",
+      "name": "g9-dns-resolver-20260911/g9-inbound-20260911",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.Network/dnsResolvers/inboundEndpoints"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.Network/networkInterfaces/g6-pe-3lw2hnvs6nz2.nic.d3ec1d22-fb12-40b3-9f84-18784bff939c",
+      "name": "g6-pe-3lw2hnvs6nz2.nic.d3ec1d22-fb12-40b3-9f84-18784bff939c",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.Network/networkInterfaces"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.Network/privateDnsZones/graydune-f834e691.uaenorth.azurecontainerapps.io",
+      "name": "graydune-f834e691.uaenorth.azurecontainerapps.io",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.Network/privateDnsZones"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.Network/privateDnsZones/graydune-f834e691.uaenorth.azurecontainerapps.io/virtualNetworkLinks/g6-vnet-link",
+      "name": "graydune-f834e691.uaenorth.azurecontainerapps.io/g6-vnet-link",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.Network/privateDnsZones/privatelink.database.windows.net",
+      "name": "privatelink.database.windows.net",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.Network/privateDnsZones"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.Network/privateDnsZones/privatelink.database.windows.net/virtualNetworkLinks/g6-vnet-link",
+      "name": "privatelink.database.windows.net/g6-vnet-link",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.Network/privateEndpoints/g6-pe-3lw2hnvs6nz2",
+      "name": "g6-pe-3lw2hnvs6nz2",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.Network/privateEndpoints"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.Network/publicIPAddresses/g9-p2s-pip-20260911",
+      "name": "g9-p2s-pip-20260911",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.Network/publicIPAddresses"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.Network/virtualNetworkGateways/g9-p2s-gw-20260911",
+      "name": "g9-p2s-gw-20260911",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.Network/virtualNetworkGateways"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.Network/virtualNetworks/g6-vnet-3lw2hnvs6nz2",
+      "name": "g6-vnet-3lw2hnvs6nz2",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.Network/virtualNetworks"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.OperationalInsights/workspaces/g6-law-3lw2hnvs6nz2",
+      "name": "g6-law-3lw2hnvs6nz2",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.OperationalInsights/workspaces"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.Sql/servers/g6sql-3lw2hnvs6nz2",
+      "name": "g6sql-3lw2hnvs6nz2",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.Sql/servers"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.Sql/servers/g6sql-3lw2hnvs6nz2/databases/g11-restore-20260913",
+      "name": "g6sql-3lw2hnvs6nz2/g11-restore-20260913",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.Sql/servers/databases"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.Sql/servers/g6sql-3lw2hnvs6nz2/databases/g11-restore-pitr-20260913",
+      "name": "g6sql-3lw2hnvs6nz2/g11-restore-pitr-20260913",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.Sql/servers/databases"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.Sql/servers/g6sql-3lw2hnvs6nz2/databases/g6-g67-recovery-v2-20260911",
+      "name": "g6sql-3lw2hnvs6nz2/g6-g67-recovery-v2-20260911",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.Sql/servers/databases"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.Sql/servers/g6sql-3lw2hnvs6nz2/databases/g6-g67-rehearsal-v2-20260911",
+      "name": "g6sql-3lw2hnvs6nz2/g6-g67-rehearsal-v2-20260911",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.Sql/servers/databases"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.Sql/servers/g6sql-3lw2hnvs6nz2/databases/g6-migration-recovery",
+      "name": "g6sql-3lw2hnvs6nz2/g6-migration-recovery",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.Sql/servers/databases"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.Sql/servers/g6sql-3lw2hnvs6nz2/databases/g6-migration-rehearsal",
+      "name": "g6sql-3lw2hnvs6nz2/g6-migration-rehearsal",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.Sql/servers/databases"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.Sql/servers/g6sql-3lw2hnvs6nz2/databases/g6-pr25-runner-smoke",
+      "name": "g6sql-3lw2hnvs6nz2/g6-pr25-runner-smoke",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.Sql/servers/databases"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.Sql/servers/g6sql-3lw2hnvs6nz2/databases/g6-qualification",
+      "name": "g6sql-3lw2hnvs6nz2/g6-qualification",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.Sql/servers/databases"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.Sql/servers/g6sql-3lw2hnvs6nz2/databases/master",
+      "name": "g6sql-3lw2hnvs6nz2/master",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.Sql/servers/databases"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.Storage/storageAccounts/g10qual3lw2hnvs6nz2",
+      "name": "g10qual3lw2hnvs6nz2",
+      "resourceGroup": "rg-proposalops-g6-qual-20260911-b478dcbf",
+      "type": "Microsoft.Storage/storageAccounts"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260914-31b169e/providers/Microsoft.App/managedEnvironments/g6-cae-kingfevc5hdp",
+      "name": "g6-cae-kingfevc5hdp",
+      "resourceGroup": "rg-proposalops-g6-qual-20260914-31b169e",
+      "type": "Microsoft.App/managedEnvironments"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260914-31b169e/providers/Microsoft.ContainerRegistry/registries/g6acrkingfevc5hdp",
+      "name": "g6acrkingfevc5hdp",
+      "resourceGroup": "rg-proposalops-g6-qual-20260914-31b169e",
+      "type": "Microsoft.ContainerRegistry/registries"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260914-31b169e/providers/Microsoft.ManagedIdentity/userAssignedIdentities/g6-migration-kingfevc5hdp",
+      "name": "g6-migration-kingfevc5hdp",
+      "resourceGroup": "rg-proposalops-g6-qual-20260914-31b169e",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260914-31b169e/providers/Microsoft.ManagedIdentity/userAssignedIdentities/g6-runtime-kingfevc5hdp",
+      "name": "g6-runtime-kingfevc5hdp",
+      "resourceGroup": "rg-proposalops-g6-qual-20260914-31b169e",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260914-31b169e/providers/Microsoft.Network/privateDnsZones/privatelink.database.windows.net",
+      "name": "privatelink.database.windows.net",
+      "resourceGroup": "rg-proposalops-g6-qual-20260914-31b169e",
+      "type": "Microsoft.Network/privateDnsZones"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260914-31b169e/providers/Microsoft.Network/privateDnsZones/privatelink.database.windows.net/virtualNetworkLinks/g6-vnet-link",
+      "name": "privatelink.database.windows.net/g6-vnet-link",
+      "resourceGroup": "rg-proposalops-g6-qual-20260914-31b169e",
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260914-31b169e/providers/Microsoft.Network/virtualNetworks/g6-vnet-kingfevc5hdp",
+      "name": "g6-vnet-kingfevc5hdp",
+      "resourceGroup": "rg-proposalops-g6-qual-20260914-31b169e",
+      "type": "Microsoft.Network/virtualNetworks"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260914-31b169e/providers/Microsoft.OperationalInsights/workspaces/g6-law-kingfevc5hdp",
+      "name": "g6-law-kingfevc5hdp",
+      "resourceGroup": "rg-proposalops-g6-qual-20260914-31b169e",
+      "type": "Microsoft.OperationalInsights/workspaces"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260914-westus3-31b169e/providers/Microsoft.App/jobs/g6-migration-p6ksgvezcuui",
+      "name": "g6-migration-p6ksgvezcuui",
+      "resourceGroup": "rg-proposalops-g6-qual-20260914-westus3-31b169e",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260914-westus3-31b169e/providers/Microsoft.App/jobs/g6-runtime-p6ksgvezcuui",
+      "name": "g6-runtime-p6ksgvezcuui",
+      "resourceGroup": "rg-proposalops-g6-qual-20260914-westus3-31b169e",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260914-westus3-31b169e/providers/Microsoft.App/managedEnvironments/g6-cae-p6ksgvezcuui",
+      "name": "g6-cae-p6ksgvezcuui",
+      "resourceGroup": "rg-proposalops-g6-qual-20260914-westus3-31b169e",
+      "type": "Microsoft.App/managedEnvironments"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260914-westus3-31b169e/providers/Microsoft.ContainerRegistry/registries/g6acrp6ksgvezcuui",
+      "name": "g6acrp6ksgvezcuui",
+      "resourceGroup": "rg-proposalops-g6-qual-20260914-westus3-31b169e",
+      "type": "Microsoft.ContainerRegistry/registries"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260914-westus3-31b169e/providers/Microsoft.ManagedIdentity/userAssignedIdentities/g6-migration-p6ksgvezcuui",
+      "name": "g6-migration-p6ksgvezcuui",
+      "resourceGroup": "rg-proposalops-g6-qual-20260914-westus3-31b169e",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260914-westus3-31b169e/providers/Microsoft.ManagedIdentity/userAssignedIdentities/g6-runtime-p6ksgvezcuui",
+      "name": "g6-runtime-p6ksgvezcuui",
+      "resourceGroup": "rg-proposalops-g6-qual-20260914-westus3-31b169e",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260914-westus3-31b169e/providers/Microsoft.Network/networkInterfaces/g6-pe-p6ksgvezcuui.nic.43cbd2ef-edf8-4d07-847c-8fc33bfc707e",
+      "name": "g6-pe-p6ksgvezcuui.nic.43cbd2ef-edf8-4d07-847c-8fc33bfc707e",
+      "resourceGroup": "rg-proposalops-g6-qual-20260914-westus3-31b169e",
+      "type": "Microsoft.Network/networkInterfaces"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260914-westus3-31b169e/providers/Microsoft.Network/privateDnsZones/privatelink.database.windows.net",
+      "name": "privatelink.database.windows.net",
+      "resourceGroup": "rg-proposalops-g6-qual-20260914-westus3-31b169e",
+      "type": "Microsoft.Network/privateDnsZones"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260914-westus3-31b169e/providers/Microsoft.Network/privateDnsZones/privatelink.database.windows.net/virtualNetworkLinks/g6-vnet-link",
+      "name": "privatelink.database.windows.net/g6-vnet-link",
+      "resourceGroup": "rg-proposalops-g6-qual-20260914-westus3-31b169e",
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260914-westus3-31b169e/providers/Microsoft.Network/privateEndpoints/g6-pe-p6ksgvezcuui",
+      "name": "g6-pe-p6ksgvezcuui",
+      "resourceGroup": "rg-proposalops-g6-qual-20260914-westus3-31b169e",
+      "type": "Microsoft.Network/privateEndpoints"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260914-westus3-31b169e/providers/Microsoft.Network/virtualNetworks/g6-vnet-p6ksgvezcuui",
+      "name": "g6-vnet-p6ksgvezcuui",
+      "resourceGroup": "rg-proposalops-g6-qual-20260914-westus3-31b169e",
+      "type": "Microsoft.Network/virtualNetworks"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260914-westus3-31b169e/providers/Microsoft.OperationalInsights/workspaces/g6-law-p6ksgvezcuui",
+      "name": "g6-law-p6ksgvezcuui",
+      "resourceGroup": "rg-proposalops-g6-qual-20260914-westus3-31b169e",
+      "type": "Microsoft.OperationalInsights/workspaces"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260914-westus3-31b169e/providers/Microsoft.Sql/servers/g6sql-p6ksgvezcuui",
+      "name": "g6sql-p6ksgvezcuui",
+      "resourceGroup": "rg-proposalops-g6-qual-20260914-westus3-31b169e",
+      "type": "Microsoft.Sql/servers"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260914-westus3-31b169e/providers/Microsoft.Sql/servers/g6sql-p6ksgvezcuui/databases/g6-qualification",
+      "name": "g6sql-p6ksgvezcuui/g6-qualification",
+      "resourceGroup": "rg-proposalops-g6-qual-20260914-westus3-31b169e",
+      "type": "Microsoft.Sql/servers/databases"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260914-westus3-31b169e/providers/Microsoft.Sql/servers/g6sql-p6ksgvezcuui/databases/master",
+      "name": "g6sql-p6ksgvezcuui/master",
+      "resourceGroup": "rg-proposalops-g6-qual-20260914-westus3-31b169e",
+      "type": "Microsoft.Sql/servers/databases"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g8-qual-20260912-6faa585/providers/Microsoft.App/managedEnvironments/g6-cae-qq4agzrxbids",
+      "name": "g6-cae-qq4agzrxbids",
+      "resourceGroup": "rg-proposalops-g8-qual-20260912-6faa585",
+      "type": "Microsoft.App/managedEnvironments"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g8-qual-20260912-6faa585/providers/Microsoft.ContainerRegistry/registries/g6acrqq4agzrxbids",
+      "name": "g6acrqq4agzrxbids",
+      "resourceGroup": "rg-proposalops-g8-qual-20260912-6faa585",
+      "type": "Microsoft.ContainerRegistry/registries"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g8-qual-20260912-6faa585/providers/Microsoft.ManagedIdentity/userAssignedIdentities/g6-migration-qq4agzrxbids",
+      "name": "g6-migration-qq4agzrxbids",
+      "resourceGroup": "rg-proposalops-g8-qual-20260912-6faa585",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g8-qual-20260912-6faa585/providers/Microsoft.ManagedIdentity/userAssignedIdentities/g6-runtime-qq4agzrxbids",
+      "name": "g6-runtime-qq4agzrxbids",
+      "resourceGroup": "rg-proposalops-g8-qual-20260912-6faa585",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g8-qual-20260912-6faa585/providers/Microsoft.Network/privateDnsZones/privatelink.database.windows.net",
+      "name": "privatelink.database.windows.net",
+      "resourceGroup": "rg-proposalops-g8-qual-20260912-6faa585",
+      "type": "Microsoft.Network/privateDnsZones"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g8-qual-20260912-6faa585/providers/Microsoft.Network/privateDnsZones/privatelink.database.windows.net/virtualNetworkLinks/g6-vnet-link",
+      "name": "privatelink.database.windows.net/g6-vnet-link",
+      "resourceGroup": "rg-proposalops-g8-qual-20260912-6faa585",
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g8-qual-20260912-6faa585/providers/Microsoft.Network/virtualNetworks/g6-vnet-qq4agzrxbids",
+      "name": "g6-vnet-qq4agzrxbids",
+      "resourceGroup": "rg-proposalops-g8-qual-20260912-6faa585",
+      "type": "Microsoft.Network/virtualNetworks"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g8-qual-20260912-6faa585/providers/Microsoft.OperationalInsights/workspaces/g6-law-qq4agzrxbids",
+      "name": "g6-law-qq4agzrxbids",
+      "resourceGroup": "rg-proposalops-g8-qual-20260912-6faa585",
+      "type": "Microsoft.OperationalInsights/workspaces"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-qc/providers/Microsoft.ContainerRegistry/registries/acrproposalopsprodqcykqtmq27756ai",
+      "name": "acrproposalopsprodqcykqtmq27756ai",
+      "resourceGroup": "rg-proposalops-prod-qc",
+      "type": "Microsoft.ContainerRegistry/registries"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-qc/providers/Microsoft.Insights/components/appi-proposalops-prod-qc",
+      "name": "appi-proposalops-prod-qc",
+      "resourceGroup": "rg-proposalops-prod-qc",
+      "type": "Microsoft.Insights/components"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-qc/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-proposalops-sql-bootstrap-prod-qc",
+      "name": "id-proposalops-sql-bootstrap-prod-qc",
+      "resourceGroup": "rg-proposalops-prod-qc",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-qc/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-proposalops-sql-migrate-prod-qc",
+      "name": "id-proposalops-sql-migrate-prod-qc",
+      "resourceGroup": "rg-proposalops-prod-qc",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-qc/providers/Microsoft.Network/networkInterfaces/nic-pe-sql-proposalops-prod-qc",
+      "name": "nic-pe-sql-proposalops-prod-qc",
+      "resourceGroup": "rg-proposalops-prod-qc",
+      "type": "Microsoft.Network/networkInterfaces"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-qc/providers/Microsoft.Network/privateDnsZones/privatelink.database.windows.net",
+      "name": "privatelink.database.windows.net",
+      "resourceGroup": "rg-proposalops-prod-qc",
+      "type": "Microsoft.Network/privateDnsZones"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-qc/providers/Microsoft.Network/privateDnsZones/privatelink.database.windows.net/virtualNetworkLinks/link-proposalops-prod-qc",
+      "name": "privatelink.database.windows.net/link-proposalops-prod-qc",
+      "resourceGroup": "rg-proposalops-prod-qc",
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-qc/providers/Microsoft.Network/privateEndpoints/pe-sql-proposalops-prod-qc",
+      "name": "pe-sql-proposalops-prod-qc",
+      "resourceGroup": "rg-proposalops-prod-qc",
+      "type": "Microsoft.Network/privateEndpoints"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-qc/providers/Microsoft.Network/virtualNetworks/vnet-proposalops-prod-qc",
+      "name": "vnet-proposalops-prod-qc",
+      "resourceGroup": "rg-proposalops-prod-qc",
+      "type": "Microsoft.Network/virtualNetworks"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-qc/providers/Microsoft.OperationalInsights/workspaces/law-proposalops-prod-qc",
+      "name": "law-proposalops-prod-qc",
+      "resourceGroup": "rg-proposalops-prod-qc",
+      "type": "Microsoft.OperationalInsights/workspaces"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-qc/providers/microsoft.insights/actiongroups/Application Insights Smart Detection",
+      "name": "Application Insights Smart Detection",
+      "resourceGroup": "rg-proposalops-prod-qc",
+      "type": "microsoft.insights/actiongroups"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/containerApps/proposalops-api-preprod",
+      "name": "proposalops-api-preprod",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/containerApps"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/containerApps/proposalops-ui-preview",
+      "name": "proposalops-ui-preview",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/containerApps"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/containerApps/proposalops-web-preprod",
+      "name": "proposalops-web-preprod",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/containerApps"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-bootstrap-preprod-final",
+      "name": "p0-bootstrap-preprod-final",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-bootstrap-rehearse",
+      "name": "p0-bootstrap-rehearse",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-bootstrap-state-adjudication",
+      "name": "p0-bootstrap-state-adjudication",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-db-migrate-final",
+      "name": "p0-db-migrate-final",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-login-v2-5b-20260828024609",
+      "name": "p0-login-v2-5b-20260828024609",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-metahead-fix-v1",
+      "name": "p0-metahead-fix-v1",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-mi-token-v2-4-20260828000329",
+      "name": "p0-mi-token-v2-4-20260828000329",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-migrate-c1-20260828-164945",
+      "name": "p0-migrate-c1-20260828-164945",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-net-r9-131734",
+      "name": "p0-net-r9-131734",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-net-v2-5a-20260828015257",
+      "name": "p0-net-v2-5a-20260828015257",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-owner-bind-final",
+      "name": "p0-owner-bind-final",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-probe-v2",
+      "name": "p0-probe-v2",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-probe-v2-r2-27171837",
+      "name": "p0-probe-v2-r2-27171837",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-auth-smoke-final",
+      "name": "p0-sql-auth-smoke-final",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-auth-smoke-v1",
+      "name": "p0-sql-auth-smoke-v1",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-bootstrap-v2-2-27175029",
+      "name": "p0-sql-bootstrap-v2-2-27175029",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-bootstrap-v2-r2-27171837",
+      "name": "p0-sql-bootstrap-v2-r2-27171837",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-poststate-adj-v1",
+      "name": "p0-sql-poststate-adj-v1",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-poststate-adj-v2",
+      "name": "p0-sql-poststate-adj-v2",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-r10-140449",
+      "name": "p0-sql-r10-140449",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-r7-050133",
+      "name": "p0-sql-r7-050133",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-r8-052924",
+      "name": "p0-sql-r8-052924",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-root-c2-20260828-182441",
+      "name": "p0-sql-root-c2-20260828-182441",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-root-c21-20260828-184948",
+      "name": "p0-sql-root-c21-20260828-184948",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-rootcause-v3",
+      "name": "p0-sql-rootcause-v3",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-sec-canonical-repair",
+      "name": "p0-sql-sec-canonical-repair",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-security-canonical-final",
+      "name": "p0-sql-security-canonical-final",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-security-canonical-v2",
+      "name": "p0-sql-security-canonical-v2",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-security-final-0828191902",
+      "name": "p0-sql-security-final-0828191902",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-security-final-v1",
+      "name": "p0-sql-security-final-v1",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-security-final-v2",
+      "name": "p0-sql-security-final-v2",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-security-final-v3",
+      "name": "p0-sql-security-final-v3",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-sql-security-terminal-v1",
+      "name": "p0-sql-security-terminal-v1",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-step5-migrate-63689f0",
+      "name": "p0-step5-migrate-63689f0",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-token-selftest-corrective",
+      "name": "p0-token-selftest-corrective",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-token-selftest-final",
+      "name": "p0-token-selftest-final",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-wb-durability-closure-final",
+      "name": "p0-wb-durability-closure-final",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-wb-lifecycle-closure-final",
+      "name": "p0-wb-lifecycle-closure-final",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-wb-lifecycle-diag-final",
+      "name": "p0-wb-lifecycle-diag-final",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p0-wb-smoke-final",
+      "name": "p0-wb-smoke-final",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/p024-mi-diag-0828000347",
+      "name": "p024-mi-diag-0828000347",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/jobs/proposalops-ai-d3-migration-v1",
+      "name": "proposalops-ai-d3-migration-v1",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/jobs"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/managedEnvironments/cae-proposalops-prod-uae",
+      "name": "cae-proposalops-prod-uae",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/managedEnvironments"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.App/managedEnvironments/cae-proposalops-prod-uae/managedCertificates/www.amecidsystem.com-cae-prop-260913094017",
+      "name": "cae-proposalops-prod-uae/www.amecidsystem.com-cae-prop-260913094017",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.App/managedEnvironments/managedCertificates"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.ContainerRegistry/registries/acrproposalopsproduae2bea2887",
+      "name": "acrproposalopsproduae2bea2887",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.ContainerRegistry/registries"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-proposalops-api-prod-uae",
+      "name": "id-proposalops-api-prod-uae",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-proposalops-sql-bootstrap-prod-uae",
+      "name": "id-proposalops-sql-bootstrap-prod-uae",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-proposalops-sql-migrate-prod-uae",
+      "name": "id-proposalops-sql-migrate-prod-uae",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-proposalops-ui-prev",
+      "name": "id-proposalops-ui-prev",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uami-proposalops-ai-preprod",
+      "name": "uami-proposalops-ai-preprod",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.Network/dnszones/amecidsystem.com",
+      "name": "amecidsystem.com",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.Network/dnszones"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.Network/networkInterfaces/nic-pe-sql-proposalops-prod-uae",
+      "name": "nic-pe-sql-proposalops-prod-uae",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.Network/networkInterfaces"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.Network/privateDnsZones/privatelink.database.windows.net",
+      "name": "privatelink.database.windows.net",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.Network/privateDnsZones"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.Network/privateDnsZones/privatelink.database.windows.net/virtualNetworkLinks/link-proposalops-prod-uae",
+      "name": "privatelink.database.windows.net/link-proposalops-prod-uae",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.Network/privateEndpoints/pe-sql-proposalops-prod-uae",
+      "name": "pe-sql-proposalops-prod-uae",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.Network/privateEndpoints"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.Network/virtualNetworks/vnet-proposalops-prod-uae",
+      "name": "vnet-proposalops-prod-uae",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.Network/virtualNetworks"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.Sql/servers/sql-proposalops-prod-uae-2bea2887",
+      "name": "sql-proposalops-prod-uae-2bea2887",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.Sql/servers"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.Sql/servers/sql-proposalops-prod-uae-2bea2887/databases/master",
+      "name": "sql-proposalops-prod-uae-2bea2887/master",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.Sql/servers/databases"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.Sql/servers/sql-proposalops-prod-uae-2bea2887/databases/sqldb-proposalops-prod",
+      "name": "sql-proposalops-prod-uae-2bea2887/sqldb-proposalops-prod",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.Sql/servers/databases"
+    },
+    {
+      "id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-prod-uae/providers/Microsoft.Storage/storageAccounts/stpropops2bea28879255",
+      "name": "stpropops2bea28879255",
+      "resourceGroup": "rg-proposalops-prod-uae",
+      "type": "Microsoft.Storage/storageAccounts"
+    }
+  ],
+  "subscription": "2bea2887-9255-4273-a73f-43ae33813455"
+}

@@ -13,7 +13,7 @@ from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request
 from sqlalchemy import and_, select
 from sqlalchemy.orm import Session
 
-from ..api.dependencies import current_user_role
+from ..api.dependencies import current_user_role, trusted_actor_id
 from ..db import get_db
 from ..models import (
     ExternalBody,
@@ -38,7 +38,6 @@ from ..services.dashboard_v2_governance import (
     LINEAGE_STATUSES,
     RELEASE_STATUSES,
     SOURCE_ROLES,
-    _actor,
     _commit,
     _date,
     _error,
@@ -60,7 +59,7 @@ from ..services.dashboard_v2_governance import (
     transition_release,
     validate_release,
 )
-from ..services.master_content import canonical_master_content_read
+from ..services.master_content import authorize_master_content_access, canonical_master_content_read
 from ..services.shared_domains import projection, projections
 
 
@@ -69,6 +68,16 @@ router = APIRouter(prefix="/api/dashboard-v2", tags=["dashboard-v2-governance"])
 
 def _correlation(request: Request) -> str:
     return getattr(request.state, "correlation_id", "dashboard-v2")
+
+
+def _actor(request: Request, role: Role) -> str:
+    return trusted_actor_id(request, role)
+
+
+def _authorized_form(db: Session, item_id: str, role: Role, *, action: str) -> MasterContentItem:
+    item = _form(db, item_id)
+    authorize_master_content_access(db, item, role, action=action)
+    return item
 
 
 @router.get("/catalogs")
@@ -105,15 +114,15 @@ def get_v2_form(item_id: str, db: Session = Depends(get_db), role: Role = Depend
 @router.get("/forms/{item_id}/applicability")
 def get_applicability(item_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_reader(role)
-    _form(db, item_id)
+    _authorized_form(db, item_id, role, action="APPLICABILITY_READ")
     return list_applicability(db, item_id)
 
 
 @router.post("/applicability")
 def post_applicability(payload: dict[str, Any] = Body(default={}), request: Request = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_owner(role)
-    row = create_applicability(db, payload, actor=_actor(role))
-    return _commit(db, row, request_id=_correlation(request), event="DASHBOARD_V2_APPLICABILITY_CREATED", role=role)
+    row = create_applicability(db, payload, actor=_actor(request, role))
+    return _commit(db, row, request_id=_correlation(request), event="DASHBOARD_V2_APPLICABILITY_CREATED", role=_actor(request, role))
 
 
 @router.patch("/applicability/{applicability_id}")
@@ -124,24 +133,24 @@ def patch_applicability(applicability_id: str, payload: dict[str, Any] = Body(de
         raise _error("APPLICABILITY_NOT_FOUND", 404)
     before = projection(row)
     if "status" in payload:
-        transition_applicability(db, row, payload["status"], actor=_actor(role), note=payload.get("notes"))
+        transition_applicability(db, row, payload["status"], actor=_actor(request, role), note=payload.get("notes"))
     if "notes" in payload:
         row.notes = payload["notes"]
-    return _commit(db, row, request_id=_correlation(request), event="DASHBOARD_V2_APPLICABILITY_CHANGED", role=role, before=before)
+    return _commit(db, row, request_id=_correlation(request), event="DASHBOARD_V2_APPLICABILITY_CHANGED", role=_actor(request, role), before=before)
 
 
 @router.get("/forms/{item_id}/policy-lineage")
 def get_policy_lineage(item_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_reader(role)
-    _form(db, item_id)
+    _authorized_form(db, item_id, role, action="POLICY_LINEAGE_READ")
     return list_policy_lineage(db, item_id)
 
 
 @router.post("/policy-lineage")
 def post_policy_lineage(payload: dict[str, Any] = Body(default={}), request: Request = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_owner(role)
-    row = create_policy_lineage(db, payload, actor=_actor(role))
-    return _commit(db, row, request_id=_correlation(request), event="DASHBOARD_V2_POLICY_SOURCE_LINKED", role=role)
+    row = create_policy_lineage(db, payload, actor=_actor(request, role))
+    return _commit(db, row, request_id=_correlation(request), event="DASHBOARD_V2_POLICY_SOURCE_LINKED", role=_actor(request, role))
 
 
 @router.patch("/policy-lineage/{lineage_id}")
@@ -151,22 +160,22 @@ def patch_policy_lineage(lineage_id: str, payload: dict[str, Any] = Body(default
     if not row:
         raise _error("SOURCE_LINEAGE_NOT_FOUND", 404)
     before = projection(row)
-    transition_lineage(row, payload.get("governance_status", row.governance_status), actor=_actor(role), note=payload.get("governance_note"))
-    return _commit(db, row, request_id=_correlation(request), event="DASHBOARD_V2_POLICY_SOURCE_GOVERNANCE_CHANGED", role=role, before=before)
+    transition_lineage(row, payload.get("governance_status", row.governance_status), actor=_actor(request, role), note=payload.get("governance_note"))
+    return _commit(db, row, request_id=_correlation(request), event="DASHBOARD_V2_POLICY_SOURCE_GOVERNANCE_CHANGED", role=_actor(request, role), before=before)
 
 
 @router.get("/forms/{item_id}/technical-lineage")
 def get_technical_lineage(item_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_reader(role)
-    _form(db, item_id)
+    _authorized_form(db, item_id, role, action="TECHNICAL_LINEAGE_READ")
     return list_technical_lineage(db, item_id)
 
 
 @router.post("/technical-lineage")
 def post_technical_lineage(payload: dict[str, Any] = Body(default={}), request: Request = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_owner(role)
-    row = create_technical_lineage(db, payload, actor=_actor(role))
-    return _commit(db, row, request_id=_correlation(request), event="DASHBOARD_V2_TECHNICAL_SOURCE_LINKED", role=role)
+    row = create_technical_lineage(db, payload, actor=_actor(request, role))
+    return _commit(db, row, request_id=_correlation(request), event="DASHBOARD_V2_TECHNICAL_SOURCE_LINKED", role=_actor(request, role))
 
 
 @router.patch("/technical-lineage/{lineage_id}")
@@ -176,8 +185,8 @@ def patch_technical_lineage(lineage_id: str, payload: dict[str, Any] = Body(defa
     if not row:
         raise _error("SOURCE_LINEAGE_NOT_FOUND", 404)
     before = projection(row)
-    transition_lineage(row, payload.get("governance_status", row.governance_status), actor=_actor(role), note=payload.get("governance_note"))
-    return _commit(db, row, request_id=_correlation(request), event="DASHBOARD_V2_TECHNICAL_SOURCE_GOVERNANCE_CHANGED", role=role, before=before)
+    transition_lineage(row, payload.get("governance_status", row.governance_status), actor=_actor(request, role), note=payload.get("governance_note"))
+    return _commit(db, row, request_id=_correlation(request), event="DASHBOARD_V2_TECHNICAL_SOURCE_GOVERNANCE_CHANGED", role=_actor(request, role), before=before)
 
 
 @router.get("/resolve-source")
@@ -200,14 +209,14 @@ def resolve_source(external_body_id: str, service_type_id: str, jurisdiction_id:
 
 
 @router.get("/forms/{item_id}/automation")
-def get_automation(item_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def get_automation(item_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_reader(role)
-    _form(db, item_id)
+    _authorized_form(db, item_id, role, action="AUTOMATION_READ")
     profiles = list(db.scalars(select(FormAutomationProfile).where(FormAutomationProfile.master_content_item_id == item_id)).all())
     result = []
     for profile in profiles:
         releases = list(db.scalars(select(FormMappingRelease).where(FormMappingRelease.profile_id == profile.id).order_by(FormMappingRelease.created_at.desc())).all())
-        result.append({"profile": projection(profile), "releases": [projection(release) for release in releases], "readiness": evaluate_automated_readiness(db, profile, actor=_actor(role), persist=False)})
+        result.append({"profile": projection(profile), "releases": [projection(release) for release in releases], "readiness": evaluate_automated_readiness(db, profile, actor=_actor(request, role), persist=False)})
     return result
 
 
@@ -220,9 +229,9 @@ def create_v2_profile(item_id: str, payload: dict[str, Any] = Body(default={}), 
         raise _error("PROFILE_SOURCE_VERSION_NOT_CURRENT")
     if db.scalar(select(FormAutomationProfile).where(FormAutomationProfile.master_content_item_id == item.id)):
         raise _error("FORM_AUTOMATION_PROFILE_ALREADY_EXISTS")
-    profile = FormAutomationProfile(master_content_item_id=item.id, source_document_version_id=source_id, renderer_type=payload.get("renderer_type", "SYNTHETIC_JSON"), semantic_contract_version=payload.get("semantic_contract_version", "1.0"), working_rendition_ref=payload.get("working_rendition_ref"), writer_policy_json=payload.get("writer_policy_json") or {}, source_version_state="CURRENT", automation_status="DRAFT", managed_by=_actor(role))
+    profile = FormAutomationProfile(master_content_item_id=item.id, source_document_version_id=source_id, renderer_type=payload.get("renderer_type", "SYNTHETIC_JSON"), semantic_contract_version=payload.get("semantic_contract_version", "1.0"), working_rendition_ref=payload.get("working_rendition_ref"), writer_policy_json=payload.get("writer_policy_json") or {}, source_version_state="CURRENT", automation_status="DRAFT", managed_by=_actor(request, role))
     db.add(profile)
-    return _commit(db, profile, request_id=_correlation(request), event="DASHBOARD_V2_AUTOMATION_PROFILE_CREATED", role=role)
+    return _commit(db, profile, request_id=_correlation(request), event="DASHBOARD_V2_AUTOMATION_PROFILE_CREATED", role=_actor(request, role))
 
 
 @router.get("/mapping-releases/{release_id}")
@@ -242,8 +251,8 @@ def post_release(item_id: str, payload: dict[str, Any] = Body(default={}), reque
     profile = db.scalar(select(FormAutomationProfile).where(FormAutomationProfile.master_content_item_id == item.id))
     if not profile:
         raise _error("FORM_AUTOMATION_PROFILE_NOT_FOUND", 404)
-    release = create_release(db, profile, payload, actor=_actor(role))
-    return _commit(db, release, request_id=_correlation(request), event="DASHBOARD_V2_MAPPING_DRAFT_CREATED", role=role)
+    release = create_release(db, profile, payload, actor=_actor(request, role))
+    return _commit(db, release, request_id=_correlation(request), event="DASHBOARD_V2_MAPPING_DRAFT_CREATED", role=_actor(request, role))
 
 
 @router.post("/mapping-releases/{release_id}/rules")
@@ -258,7 +267,7 @@ def post_release_rule(release_id: str, payload: dict[str, Any] = Body(default={}
         raise _error("WRITER_OWNERSHIP_INVALID", 422)
     rule = FormMappingRule(mapping_release_id=release.id, logical_field_key=payload["logical_field_key"], target_key=payload["target_key"], transform_type=payload.get("transform_type", "SCALAR"), target_writer=payload["target_writer"], page_number=payload.get("page_number"), rect_json=payload.get("rect_json") or {}, capacity=payload.get("capacity"), configuration_json=payload.get("configuration_json") or {})
     db.add(rule)
-    return _commit(db, rule, request_id=_correlation(request), event="DASHBOARD_V2_MAPPING_RULE_CREATED", role=role)
+    return _commit(db, rule, request_id=_correlation(request), event="DASHBOARD_V2_MAPPING_RULE_CREATED", role=_actor(request, role))
 
 
 @router.post("/mapping-releases/{release_id}/validate")
@@ -285,11 +294,11 @@ def preview_mapping(release_id: str, payload: dict[str, Any] = Body(default={}),
     item = _form(db, profile.master_content_item_id)
     if release.source_document_version_id != item.current_document_version_id:
         raise _error("MAPPING_SOURCE_MISMATCH")
-    instance = FormInstance(master_content_item_id=item.id, source_document_version_id=release.source_document_version_id, profile_id=profile.id, mapping_release_id=release.id, context_type=payload.get("context_type", "SYNTHETIC_PREVIEW"), context_id=payload.get("context_id", "SYNTHETIC"), resolved_values=payload.get("resolved_values") or {}, resolved_assertion_ids=[], status="DRAFT", created_by=_actor(role))
+    instance = FormInstance(master_content_item_id=item.id, source_document_version_id=release.source_document_version_id, profile_id=profile.id, mapping_release_id=release.id, context_type=payload.get("context_type", "SYNTHETIC_PREVIEW"), context_id=payload.get("context_id", "SYNTHETIC"), resolved_values=payload.get("resolved_values") or {}, resolved_assertion_ids=[], status="DRAFT", created_by=_actor(request, role))
     db.add(instance)
     db.flush()
     try:
-        result = render_instance(db, instance, actor_id=_actor(role), correlation_id=_correlation(request))
+        result = render_instance(db, instance, actor_id=_actor(request, role), correlation_id=_correlation(request))
         db.commit()
         return {"preview": True, **result}
     except Exception:
@@ -303,16 +312,16 @@ def transition_mapping(release_id: str, status: str, request: Request = None, db
     release = db.get(FormMappingRelease, release_id)
     if not release:
         raise _error("MAPPING_RELEASE_NOT_FOUND", 404)
-    return transition_release(db, release, status, actor=_actor(role), request_id=_correlation(request))
+    return transition_release(db, release, status, actor=_actor(request, role), request_id=_correlation(request))
 
 
 @router.post("/profiles/{profile_id}/readiness/evaluate")
-def evaluate_readiness(profile_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def evaluate_readiness(profile_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_reader(role)
     profile = db.get(FormAutomationProfile, profile_id)
     if not profile:
         raise _error("FORM_AUTOMATION_PROFILE_NOT_FOUND", 404)
-    result = evaluate_automated_readiness(db, profile, actor=_actor(role), persist=True)
+    result = evaluate_automated_readiness(db, profile, actor=_actor(request, role), persist=True)
     return result
 
 
@@ -324,6 +333,6 @@ def readiness_history(profile_id: str, db: Session = Depends(get_db), role: Role
 
 
 @router.get("/resolve-automation")
-def resolve_automation_package(external_body_id: str, service_type_id: str, jurisdiction_id: str | None = None, lifecycle_phase_id: str | None = None, effective_date: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+def resolve_automation_package(external_body_id: str, service_type_id: str, jurisdiction_id: str | None = None, lifecycle_phase_id: str | None = None, effective_date: str | None = None, request: Request = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_reader(role)
-    return resolve_automation(db, external_body_id=external_body_id, jurisdiction_id=jurisdiction_id, service_type_id=service_type_id, lifecycle_phase_id=lifecycle_phase_id, effective_date=_date(effective_date), actor=_actor(role))
+    return resolve_automation(db, external_body_id=external_body_id, jurisdiction_id=jurisdiction_id, service_type_id=service_type_id, lifecycle_phase_id=lifecycle_phase_id, effective_date=_date(effective_date), actor=_actor(request, role))

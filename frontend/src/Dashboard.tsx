@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { api } from "./api";
 import { CanonicalFormsLibrary } from "./MasterContentForms";
 import {
-  AIAssistCompact,
   CONTENT_LABELS,
   Drawer,
   MODULE_LABELS,
@@ -72,14 +71,9 @@ type Definition = {
 };
 type SaveRequest = { form?: FormData; metadata?: Record<string, unknown> };
 type MasterType = "REPORT" | "ENGINEERING_WORK";
+type LibraryKey = "forms" | "reports" | "engineering-works" | "definitions";
 
 const ownerRoles = new Set(["SYSTEM_ADMIN", "OWNER_SPONSOR"]);
-
-type DashboardFormSummary = {
-  owner_status?: "Current" | "Needs Review" | "Inactive";
-  needs_review?: boolean;
-  current_document_version_id?: string | null;
-};
 
 export function CurrentDashboard({ role }: { role: string }) {
   const [items, setItems] = useState<MasterItem[]>([]);
@@ -87,10 +81,17 @@ export function CurrentDashboard({ role }: { role: string }) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("");
-  const [status, setStatus] = useState("");
-  const [module, setModule] = useState("");
+  const [query, setQuery] = useState(() => new URLSearchParams(window.location.search).get("q") || "");
+  const [category, setCategory] = useState(() => new URLSearchParams(window.location.search).get("category") || "");
+  const [status, setStatus] = useState(() => new URLSearchParams(window.location.search).get("status") || "");
+  const [module, setModule] = useState(() => new URLSearchParams(window.location.search).get("module") || "");
+  const [needsAttention, setNeedsAttention] = useState(() => new URLSearchParams(window.location.search).get("attention") === "true");
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [library, setLibrary] = useState<LibraryKey>(() => {
+    const value = new URLSearchParams(window.location.search).get("library");
+    return value === "reports" || value === "engineering-works" || value === "definitions" ? value : "forms";
+  });
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(() => new URLSearchParams(window.location.search).get("item"));
   const [editor, setEditor] = useState<{
     type: MasterType;
     item?: MasterItem;
@@ -107,14 +108,51 @@ export function CurrentDashboard({ role }: { role: string }) {
   const [details, setDetails] = useState<MasterItem | Definition | null>(null);
   const [busy, setBusy] = useState(false);
   const canWrite = ownerRoles.has(role);
-  const filtersActive = Boolean(query || category || status || module);
+  const filtersActive = Boolean(query || category || status || module || needsAttention);
+  const updateUrl = (next: Partial<{ library: LibraryKey; item: string | null }>) => {
+    const params = new URLSearchParams(window.location.search);
+    const nextLibrary = next.library || library;
+    params.set("library", nextLibrary);
+    if (next.item === null) params.delete("item");
+    else if (next.item) params.set("item", next.item);
+    window.history.pushState({}, "", `${window.location.pathname}?${params.toString()}`);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  };
+  useEffect(() => {
+    const syncLibrary = () => {
+      const params = new URLSearchParams(window.location.search);
+      const value = params.get("library");
+      setLibrary(value === "reports" || value === "engineering-works" || value === "definitions" ? value : "forms");
+      setSelectedItemId(params.get("item"));
+    };
+    syncLibrary();
+    window.addEventListener("popstate", syncLibrary);
+    return () => window.removeEventListener("popstate", syncLibrary);
+  }, []);
+  useEffect(() => {
+    if (!selectedItemId || library === "forms") return;
+    const endpoint = library === "definitions" ? `/api/definitions/${selectedItemId}` : `/api/master-content/${selectedItemId}`;
+    void api<MasterItem | Definition>(endpoint).then(setDetails).catch(() => {
+      setDetails(null);
+      setSelectedItemId(null);
+      updateUrl({ item: null });
+    });
+  }, [library, selectedItemId]);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const values: Record<string, string> = { library, q: query, category, status, module };
+    Object.entries(values).forEach(([key, value]) => value ? params.set(key, value) : params.delete(key));
+    needsAttention ? params.set("attention", "true") : params.delete("attention");
+    if (!params.get("tab")) params.set("tab", "overview");
+    window.history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
+  }, [library, query, category, status, module, needsAttention]);
   const load = async () => {
     setLoading(true);
     setError("");
     try {
       const params = new URLSearchParams({ q: query });
       if (category) params.set("category_label", category);
-      if (status) params.set("owner_status", status);
+      if (status || needsAttention) params.set("owner_status", status || "NEEDS_REVIEW");
       if (module) params.set("module", module);
       const defParams = new URLSearchParams({ q: query });
       if (category) defParams.set("category", category);
@@ -140,7 +178,7 @@ export function CurrentDashboard({ role }: { role: string }) {
   };
   useEffect(() => {
     void load();
-  }, [query, category, status, module]);
+  }, [query, category, status, module, needsAttention]);
   const categoryOptions = useMemo(
     () =>
       Array.from(
@@ -153,6 +191,14 @@ export function CurrentDashboard({ role }: { role: string }) {
     setCategory("");
     setStatus("");
     setModule("");
+    setNeedsAttention(false);
+  };
+  const openDetail = async (item: MasterItem | Definition) => {
+    setSelectedItemId(item.id);
+    updateUrl({ item: item.id });
+    setDetails(await api<MasterItem | Definition>(
+      "content_type" in item ? `/api/master-content/${item.id}` : `/api/definitions/${item.id}`,
+    ));
   };
   const saveMaster = async (request: SaveRequest) => {
     setBusy(true);
@@ -213,41 +259,36 @@ export function CurrentDashboard({ role }: { role: string }) {
     }
   };
   return (
-    <div className="dashboard-page current-dashboard-v2" data-dashboard-root="v2-evolution" data-testid="current-dashboard">
+    <main className="dashboard-page current-dashboard-v2" data-dashboard-root="content-library" data-testid="current-dashboard" aria-label="Content Library workspace">
       <header className="dashboard-page-header">
         <div>
-          <span className="eyebrow">AMEC · MASTER / REFERENCE CONTENT</span>
+          <span className="eyebrow">AMEC CONTENT LIBRARY</span>
           <h2>Content Library</h2>
-          <p>Govern the shared Forms, Reports, Engineering Works, and Definitions foundation.</p>
+          <p>Find, review, reuse, and maintain shared business content in one governed workspace.</p>
         </div>
         <div className="dashboard-counts">
-          <span>
-            <b>
-              {items.filter((item) => item.content_type === "REPORT").length}
-            </b>{" "}
-            Reports
-          </span>
-          <span>
-            <b>
-              {
-                items.filter((item) => item.content_type === "ENGINEERING_WORK")
-                  .length
-              }
-            </b>{" "}
-            Engineering Works
-          </span>
-          <span>
-            <b>{definitions.length}</b> Definitions
-          </span>
+          <span><b>{items.filter((item) => item.content_type === "REPORT").length + items.filter((item) => item.content_type === "ENGINEERING_WORK").length}</b> Reference items</span>
+          <span><b>{definitions.length}</b> Definitions</span>
         </div>
       </header>
-      <DashboardGovernanceOverview />
-      <DashboardLibraryNavigation />
-      <section id="categories" className="dashboard-filter-bar" aria-label="Dashboard filters">
+      <DashboardLibraryNavigation
+        active={library}
+        counts={{
+          forms: undefined,
+          reports: items.filter((item) => item.content_type === "REPORT").length,
+          "engineering-works": items.filter((item) => item.content_type === "ENGINEERING_WORK").length,
+          definitions: definitions.length,
+        }}
+        onSelect={(next) => { setDetails(null); updateUrl({ library: next, item: null }); }}
+      />
+      <button className="content-library-filter-toggle" type="button" aria-expanded={filtersOpen} aria-controls="content-library-filters" onClick={() => setFiltersOpen((open) => !open)}>
+        {filtersOpen ? "Hide filters" : "Filters"}{filtersActive ? " · active" : ""}
+      </button>
+      <section id="content-library-filters" className={`dashboard-filter-bar ${filtersOpen ? "filter-open" : ""}`} aria-label="Content Library filters">
         <label>
           Search
           <input
-            aria-label="Search master content"
+            aria-label="Search content library"
             placeholder="Search title, term, or reference"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
@@ -255,204 +296,72 @@ export function CurrentDashboard({ role }: { role: string }) {
         </label>
         <label>
           Category
-          <select
-            aria-label="Filter by category"
-            value={category}
-            onChange={(event) => setCategory(event.target.value)}
-          >
+          <select aria-label="Filter by category" value={category} onChange={(event) => setCategory(event.target.value)}>
             <option value="">All categories</option>
-            {categoryOptions.map((item) => (
-              <option value={item.label} key={item.label}>
-                {item.label}
-              </option>
-            ))}
+            {categoryOptions.map((item) => <option value={item.label} key={item.label}>{item.label}</option>)}
           </select>
         </label>
         <label>
           Status
-          <select
-            aria-label="Filter by status"
-            value={status}
-            onChange={(event) => setStatus(event.target.value)}
-          >
-            <option value="">All statuses</option>
-            <option value="CURRENT">Current</option>
-            <option value="NEEDS_REVIEW">Needs Review</option>
-            <option value="INACTIVE">Inactive</option>
+          <select aria-label="Filter by status" value={status} onChange={(event) => setStatus(event.target.value)}>
+            <option value="">All statuses</option><option value="CURRENT">Current</option><option value="NEEDS_REVIEW">Needs Review</option><option value="INACTIVE">Inactive</option>
           </select>
         </label>
         <label>
           Used In
-          <select
-            aria-label="Filter by Used In"
-            value={module}
-            onChange={(event) => setModule(event.target.value)}
-          >
+          <select aria-label="Filter by Used In" value={module} onChange={(event) => setModule(event.target.value)}>
             <option value="">All modules</option>
-            {Object.entries(MODULE_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
+            {Object.entries(MODULE_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
           </select>
         </label>
-        {filtersActive && (
-          <button
-            className="button-secondary clear-filter-button"
-            onClick={clearFilters}
-          >
-            Clear filters
-          </button>
-        )}
+        <label className="filter-checkbox"><input type="checkbox" checked={needsAttention} onChange={(event) => setNeedsAttention(event.target.checked)} /> Needs attention</label>
+        {filtersActive && <button className="button-secondary clear-filter-button" onClick={clearFilters}>Clear all</button>}
       </section>
+      {filtersActive && <div className="active-filter-chips" aria-label="Active filters">
+        {[query && `Search: ${query}`, category && `Category: ${category}`, status && `Status: ${status}`, module && `Used In: ${MODULE_LABELS[module] || module}`, needsAttention && "Needs attention"].filter((chip): chip is string => Boolean(chip)).map((chip) => <button type="button" key={chip} onClick={clearFilters}>{chip} ×</button>)}
+      </div>}
       {error && (
-        <div className="dashboard-error" role="alert">
-          <b>Dashboard unavailable</b>
-          <span>{error}</span>
-          <button className="button-secondary" onClick={() => void load()}>
-            Retry
-          </button>
-        </div>
+        <div className="dashboard-error" role="alert"><b>Content Library unavailable</b><span>{error}</span><button className="button-secondary" onClick={() => void load()}>Retry</button></div>
       )}
-      {loading && (
-        <div className="panel dashboard-state" role="status">
-          Loading master content…
-        </div>
-      )}
+      {loading && <div className="panel dashboard-state" role="status">Loading Content Library…</div>}
       {!loading && !error && (
         <>
-          <CanonicalFormsLibrary
-            role={role}
-            filters={{ q: query, category, status, module }}
-          />
-          <MasterSection
-            type="REPORT"
-            items={items.filter((item) => item.content_type === "REPORT")}
-            canWrite={canWrite}
-            filtered={filtersActive}
-            onNew={() => setEditor({ type: "REPORT" })}
-            onEdit={(item) => setEditor({ type: "REPORT", item })}
-            onOpen={async (item) => setDetails(await api<MasterItem>(`/api/master-content/${item.id}`))}
-            onHistory={async (item) => {
-              const detail = await api<MasterItem>(
-                `/api/master-content/${item.id}`,
-              );
-              setHistory({
-                itemId: item.id,
-                title: `${item.ref} · ${item.title}`,
-                versions: detail.versions,
-              });
-            }}
-          />
-          <MasterSection
-            type="ENGINEERING_WORK"
-            items={items.filter(
-              (item) => item.content_type === "ENGINEERING_WORK",
-            )}
-            canWrite={canWrite}
-            filtered={filtersActive}
-            onNew={() => setEditor({ type: "ENGINEERING_WORK" })}
-            onEdit={(item) => setEditor({ type: "ENGINEERING_WORK", item })}
-            onOpen={async (item) => setDetails(await api<MasterItem>(`/api/master-content/${item.id}`))}
-            onHistory={async (item) => {
-              const detail = await api<MasterItem>(
-                `/api/master-content/${item.id}`,
-              );
-              setHistory({
-                itemId: item.id,
-                title: `${item.ref} · ${item.title}`,
-                versions: detail.versions,
-              });
-            }}
-          />
-          <DefinitionSection
-            definitions={definitions}
-            canWrite={canWrite}
-            filtered={filtersActive}
-            onNew={() => setDefinitionEditor(null)}
-            onEdit={setDefinitionEditor}
-            onOpen={async (item) => setDetails(await api<Definition>(`/api/definitions/${item.id}`))}
-            onHistory={async (item) => {
-              const detail = await api<Definition>(
-                `/api/definitions/${item.id}`,
-              );
-              setHistory({
-                title: `${item.ref || "Definition"} · ${item.term}`,
-                revisions: detail.revisions,
-              });
-            }}
-          />
+          {library === "forms" && <CanonicalFormsLibrary role={role} filters={{ q: query, category, status: status || (needsAttention ? "NEEDS_REVIEW" : ""), module }} initialItemId={selectedItemId} onItemChange={(item) => { setSelectedItemId(item); updateUrl({ item }); }} />}
+          {library === "reports" && <MasterSection type="REPORT" items={items.filter((item) => item.content_type === "REPORT")} canWrite={canWrite} filtered={filtersActive} onNew={() => setEditor({ type: "REPORT" })} onEdit={(item) => setEditor({ type: "REPORT", item })} onOpen={openDetail} onHistory={async (item) => { const detail = await api<MasterItem>(`/api/master-content/${item.id}`); setHistory({ itemId: item.id, title: `${item.ref} · ${item.title}`, versions: detail.versions }); }} />}
+          {library === "engineering-works" && <MasterSection type="ENGINEERING_WORK" items={items.filter((item) => item.content_type === "ENGINEERING_WORK")} canWrite={canWrite} filtered={filtersActive} onNew={() => setEditor({ type: "ENGINEERING_WORK" })} onEdit={(item) => setEditor({ type: "ENGINEERING_WORK", item })} onOpen={openDetail} onHistory={async (item) => { const detail = await api<MasterItem>(`/api/master-content/${item.id}`); setHistory({ itemId: item.id, title: `${item.ref} · ${item.title}`, versions: detail.versions }); }} />}
+          {library === "definitions" && <DefinitionSection definitions={definitions} canWrite={canWrite} filtered={filtersActive} onNew={() => setDefinitionEditor(null)} onEdit={setDefinitionEditor} onOpen={openDetail} onHistory={async (item) => { const detail = await api<Definition>(`/api/definitions/${item.id}`); setHistory({ title: `${item.ref || "Definition"} · ${item.term}`, revisions: detail.revisions }); }} />}
         </>
       )}
-      {editor && (
-        <MasterEditor
-          type={editor.type}
-          item={editor.item}
-          categories={categories}
-          busy={busy}
-          onClose={() => setEditor(null)}
-          onSave={saveMaster}
-        />
-      )}
-      {definitionEditor !== undefined && (
-        <DefinitionEditor
-          item={definitionEditor || undefined}
-          categories={categories}
-          busy={busy}
-          onClose={() => setDefinitionEditor(undefined)}
-          onSave={saveDefinition}
-        />
-      )}
-      {history && (
-        <HistoryDrawer history={history} onClose={() => setHistory(null)} />
-      )}
-      {details && <ContentDetails item={details} onClose={() => setDetails(null)} />}
-    </div>
+      {editor && <MasterEditor type={editor.type} item={editor.item} categories={categories} busy={busy} onClose={() => setEditor(null)} onSave={saveMaster} />}
+      {definitionEditor !== undefined && <DefinitionEditor item={definitionEditor || undefined} categories={categories} busy={busy} onClose={() => setDefinitionEditor(undefined)} onSave={saveDefinition} />}
+      {history && <HistoryDrawer history={history} onClose={() => setHistory(null)} />}
+      {details && <ContentDetails item={details} onClose={() => { setDetails(null); setSelectedItemId(null); updateUrl({ item: null }); }} />}
+    </main>
   );
 }
 
-function DashboardGovernanceOverview() {
-  const [forms, setForms] = useState<DashboardFormSummary[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    void api<DashboardFormSummary[]>("/api/master-content?content_type=FORM")
-      .then(setForms)
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
-  }, []);
-
-  const count = (status: DashboardFormSummary["owner_status"]) =>
-    forms.filter((form) => form.owner_status === status).length;
-
+function DashboardLibraryNavigation({
+  active,
+  counts,
+  onSelect,
+}: {
+  active: LibraryKey;
+  counts: Record<LibraryKey, number | undefined>;
+  onSelect: (library: LibraryKey) => void;
+}) {
+  const entries: Array<[LibraryKey, string, string]> = [
+    ["forms", "Forms", "Reusable governed templates"],
+    ["reports", "Reports", "Reusable reporting references"],
+    ["engineering-works", "Engineering Works", "Controlled technical references"],
+    ["definitions", "Definitions", "Shared business language"],
+  ];
   return (
-    <section className="dashboard-v2-overview" aria-label="Dashboard governance overview" data-testid="dashboard-governance-overview">
-      <div className="dashboard-v2-overview-heading">
-        <div>
-          <span className="eyebrow">GOVERNANCE OVERVIEW</span>
-          <h3>Canonical control plane</h3>
-          <p>One governed view of currentness, review state, source authority, and immutable version history.</p>
-        </div>
-        <span className="dashboard-v2-overview-state">{error ? "Summary unavailable" : loading ? "Reading canonical Forms…" : String(forms.length) + " canonical Forms"}</span>
-      </div>
-      <div className="dashboard-v2-overview-grid">
-        <article className="dashboard-v2-summary-card" data-testid="dashboard-current-summary"><span>Current</span><strong>{loading ? "—" : count("Current")}</strong><small>Eligible business status</small></article>
-        <article className="dashboard-v2-summary-card dashboard-v2-summary-review" data-testid="dashboard-review-summary"><span>Needs Review</span><strong>{loading ? "—" : count("Needs Review")}</strong><small>Visible, not resolver eligible</small></article>
-        <article className="dashboard-v2-summary-card" data-testid="dashboard-inactive-summary"><span>Inactive</span><strong>{loading ? "—" : count("Inactive")}</strong><small>Historical versions retained</small></article>
-        <article className="dashboard-v2-source-card" data-testid="dashboard-source-authority-panel"><span className="eyebrow">SOURCE / VERSION</span><strong>Canonical records remain linked</strong><small>MasterContentItem → Document → DocumentVersion</small></article>
-      </div>
-    </section>
-  );
-}
-
-function DashboardLibraryNavigation() {
-  return (
-    <nav className="dashboard-v2-library-nav" aria-label="Dashboard master libraries" data-testid="dashboard-library-navigation">
-      <a href="#forms"><span className="eyebrow">PRIMARY LIBRARY</span><strong>Forms</strong><small>Governed templates and automation readiness</small></a>
-      <a href="#reports"><span className="eyebrow">REFERENCE LIBRARY</span><strong>Reports</strong><small>Reusable reporting references</small></a>
-      <a href="#engineering-works"><span className="eyebrow">TECHNICAL LIBRARY</span><strong>Engineering Works</strong><small>Controlled technical references</small></a>
-      <a href="#definitions"><span className="eyebrow">SEMANTIC LIBRARY</span><strong>Definitions</strong><small>Shared business language</small></a>
+    <nav className="dashboard-v2-library-nav content-library-nav" aria-label="Content Library sections" data-testid="dashboard-library-navigation">
+      {entries.map(([key, label, description]) => (
+        <button type="button" className={active === key ? "active" : ""} aria-current={active === key ? "page" : undefined} key={key} onClick={() => onSelect(key)}>
+          <span className="eyebrow">LIBRARY</span><strong>{label}</strong><small>{description}</small><span className="nav-count">{counts[key] === undefined ? "—" : counts[key]}</span>
+        </button>
+      ))}
     </nav>
   );
 }
@@ -523,22 +432,22 @@ function MasterSection({
             <tbody>
               {items.map((item, index) => (
                 <tr key={item.id}>
-                  <td>{item.serial_number || index + 1}</td>
-                  <td>{versionLabel(item.version)}</td>
-                  <td>
+                  <td data-label="Number">{item.serial_number || index + 1}</td>
+                  <td data-label="Version">{versionLabel(item.version)}</td>
+                  <td data-label="Reference">
                     <code className="content-reference">{item.ref}</code>
                   </td>
-                  <td>
+                  <td data-label={type === "ENGINEERING_WORK" ? "Engineering work" : "Report"}>
                     <b>{item.title}</b>
                   </td>
-                  <td>{item.category?.label || "Uncategorized"}</td>
-                  <td
+                  <td data-label="Category">{item.category?.label || "Uncategorized"}</td>
+                  <td data-label="Description"
                     className="description-cell"
                     title={item.description || "No description"}
                   >
                     {item.description || "No description"}
                   </td>
-                  <td className="dashboard-actions">
+                  <td data-label="Actions" className="dashboard-actions">
                     <button className="table-action action-view" onClick={() => onOpen(item)}>Open</button>
                     {canWrite && (
                       <button
@@ -630,23 +539,23 @@ function DefinitionSection({
             <tbody>
               {definitions.map((item, index) => (
                 <tr key={item.id}>
-                  <td>{item.serial_number || index + 1}</td>
-                  <td>
+                  <td data-label="Number">{item.serial_number || index + 1}</td>
+                  <td data-label="Reference">
                     <code className="content-reference">
                       {item.ref || "Unassigned"}
                     </code>
                   </td>
-                  <td>
+                  <td data-label="Term">
                     <b>{item.term}</b>
                   </td>
-                  <td>{item.category || "Uncategorized"}</td>
-                  <td
+                  <td data-label="Category">{item.category || "Uncategorized"}</td>
+                  <td data-label="Meaning"
                     className="description-cell"
                     title={item.description || "No meaning recorded"}
                   >
                     {item.description || "No meaning recorded"}
                   </td>
-                  <td className="dashboard-actions">
+                  <td data-label="Actions" className="dashboard-actions">
                     <button className="table-action action-view" onClick={() => onOpen(item)}>Open</button>
                     {canWrite && (
                       <button
@@ -697,9 +606,12 @@ function MasterEditor({
   const [usedIn, setUsedIn] = useState(item?.used_in || []);
   const [reason, setReason] = useState("");
   const [file, setFile] = useState<File | null>(null);
-  const [metadata, setMetadata] = useState(
-    JSON.stringify(item?.engineering_metadata || {}, null, 2),
-  );
+  const [authority, setAuthority] = useState(String(item?.engineering_metadata?.authority || ""));
+  const [edition, setEdition] = useState(String(item?.engineering_metadata?.edition || ""));
+  const [effectiveDate, setEffectiveDate] = useState(String(item?.engineering_metadata?.effective_date || ""));
+  const [clause, setClause] = useState(String(item?.engineering_metadata?.clause || ""));
+  const [applicabilityNotes, setApplicabilityNotes] = useState(String(item?.engineering_metadata?.applicability_notes || ""));
+  const engineeringDetails = () => ({ authority, edition, effective_date: effectiveDate, clause, applicability_notes: applicabilityNotes, discipline });
   const [sourceType, setSourceType] = useState(item?.source_type_code || "");
   const [discipline, setDiscipline] = useState(String(item?.engineering_metadata?.discipline || "GENERAL"));
   const submit = (event: React.FormEvent) => {
@@ -714,7 +626,7 @@ function MasterEditor({
       form.append("used_in", JSON.stringify(usedIn));
       if (type === "ENGINEERING_WORK") {
         if (sourceType) form.append("source_type_code", sourceType);
-        form.append("engineering_metadata", JSON.stringify({ ...parseJson(metadata), discipline }));
+        form.append("engineering_metadata", JSON.stringify(engineeringDetails()));
       }
       form.append("file", file as File);
       void onSave({ form });
@@ -730,7 +642,7 @@ function MasterEditor({
       form.append("used_in", JSON.stringify(usedIn));
       if (type === "ENGINEERING_WORK") {
         if (sourceType) form.append("source_type_code", sourceType);
-        form.append("engineering_metadata", JSON.stringify({ ...parseJson(metadata), discipline }));
+        form.append("engineering_metadata", JSON.stringify(engineeringDetails()));
       }
       form.append("file", file);
       void onSave({ form });
@@ -741,8 +653,7 @@ function MasterEditor({
           category_id: category || null,
           description,
           used_in: usedIn,
-          engineering_metadata:
-            type === "ENGINEERING_WORK" ? { ...parseJson(metadata), discipline, source_type_code: sourceType || undefined } : null,
+        engineering_metadata: type === "ENGINEERING_WORK" ? engineeringDetails() : null,
           source_type_code: type === "ENGINEERING_WORK" ? sourceType || null : null,
           change_reason: reason,
         },
@@ -881,12 +792,24 @@ function MasterEditor({
               </select>
             </label>
             <label>
-              Additional metadata (authority, edition, effective date, clause/section, applicability notes)
-              <textarea
-                aria-label="Engineering metadata"
-                value={metadata}
-                onChange={(event) => setMetadata(event.target.value)}
-              />
+              Authority / publisher
+              <input value={authority} onChange={(event) => setAuthority(event.target.value)} />
+            </label>
+            <label>
+              Edition / issue
+              <input value={edition} onChange={(event) => setEdition(event.target.value)} />
+            </label>
+            <label>
+              Effective date
+              <input type="date" value={effectiveDate} onChange={(event) => setEffectiveDate(event.target.value)} />
+            </label>
+            <label>
+              Clause / section
+              <input value={clause} onChange={(event) => setClause(event.target.value)} />
+            </label>
+            <label>
+              Applicability notes
+              <textarea value={applicabilityNotes} onChange={(event) => setApplicabilityNotes(event.target.value)} />
             </label>
           </section>
         )}
@@ -903,7 +826,6 @@ function MasterEditor({
             </label>
           </section>
         )}
-        <AIAssistCompact />
       </form>
     </Drawer>
   );
@@ -1026,7 +948,6 @@ function DefinitionEditor({
             </label>
           </section>
         )}
-        <AIAssistCompact />
       </form>
     </Drawer>
   );

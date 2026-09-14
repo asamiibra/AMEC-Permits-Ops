@@ -17,12 +17,14 @@ def test_source18_non_project_subject_and_project_required_gate_are_persisted(cl
         body = ExternalBody(code=f"S18-BODY-{suffix}", name_en="Synthetic Current Authority", body_type="AUTHORITY", status="ACTIVE", verification_state="VERIFIED", created_by="source18-owner")
         jurisdiction = Jurisdiction(code=f"S18-JUR-{suffix}", country_code="QA", name_en="Synthetic Jurisdiction", level="LOCALITY", status="ACTIVE")
         service = ServiceType(code=f"S18-SVC-{suffix}", name_en="Synthetic Regulatory Service", status="ACTIVE")
-        document = Document(project_id=None, document_type=DocumentType.OTHER, logical_name=f"synthetic-original-{suffix}.pdf", language="EN", source_system="SYNTHETIC")
+        document = Document(project_id=None, document_type=DocumentType.OTHER, logical_name=f"synthetic-original-{suffix}.pdf", language="EN", source_system="SOURCE18")
         db.add_all([engineer, body, jurisdiction, service, document])
         db.flush()
-        original_1 = DocumentVersion(document_id=document.id, version_number=1, source_filename="synthetic-original-1.pdf", source_path_or_reference="synthetic://original/1", sha256="1" * 64, mime_type="application/pdf", file_size=10, language="EN", approval_state=DocumentApprovalState.APPROVED, source_system="SYNTHETIC", synthetic_content=b"original-1")
-        original_2 = DocumentVersion(document_id=document.id, version_number=2, source_filename="synthetic-original-2.pdf", source_path_or_reference="synthetic://original/2", sha256="2" * 64, mime_type="application/pdf", file_size=10, language="EN", approval_state=DocumentApprovalState.APPROVED, source_system="SYNTHETIC", synthetic_content=b"original-2")
+        original_1 = DocumentVersion(document_id=document.id, version_number=1, source_filename="synthetic-original-1.pdf", source_path_or_reference="synthetic://original/1", sha256="1" * 64, mime_type="application/pdf", file_size=10, language="EN", approval_state=DocumentApprovalState.APPROVED, source_system="SOURCE18", metadata_json={"official_form_currentness": "CURRENT"}, synthetic_content=b"original-1")
+        original_2 = DocumentVersion(document_id=document.id, version_number=2, source_filename="synthetic-original-2.pdf", source_path_or_reference="synthetic://original/2", sha256="2" * 64, mime_type="application/pdf", file_size=10, language="EN", approval_state=DocumentApprovalState.SUPERSEDED, source_system="SOURCE18", metadata_json={"official_form_currentness": "SUPERSEDED"}, synthetic_content=b"original-2")
         db.add_all([original_1, original_2])
+        db.flush()
+        document.current_version_id = original_1.id
         db.commit()
         ids = {"office": office.id, "engineer": engineer.id, "body": body.id, "jurisdiction": jurisdiction.id, "service": service.id, "original_1": original_1.id, "original_2": original_2.id}
 

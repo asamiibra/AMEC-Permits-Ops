@@ -67,12 +67,13 @@ def _master(client, content_type: str = "ENGINEERING_WORK", *, needs_review: boo
         headers=OWNER,
     )
     assert provenance.status_code == 200, provenance.text
-    bound = client.put(
-        f"/api/master-content/{item['id']}/module-bindings",
-        json=[{"module": module, "usage_type": purpose}],
-        headers=OWNER,
-    )
-    assert bound.status_code == 200, bound.text
+    if not needs_review:
+        bound = client.put(
+            f"/api/master-content/{item['id']}/module-bindings",
+            json=[{"module": module, "usage_type": purpose}],
+            headers=OWNER,
+        )
+        assert bound.status_code == 200, bound.text
     return item
 
 

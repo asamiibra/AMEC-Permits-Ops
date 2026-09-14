@@ -10,6 +10,8 @@ import hashlib
 import json
 import os
 import re
+import zipfile
+from io import BytesIO
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -51,6 +53,12 @@ from ..models import (
     WorkflowTask,
     WorkflowTaskStatus,
     LineageEdge,
+    Source18WorkflowTransaction,
+    AuthorityCase,
+    ConsultancyOffice,
+    ExternalBody,
+    Jurisdiction,
+    ServiceType,
 )
 from ..storage.legacy import legacy_synthetic_adapter
 from ..storage.factory import create_binary_store
@@ -112,6 +120,21 @@ MODULE_LABELS = {
     "CONTRACT": "Contracts",
 }
 
+CONSUMER_RESOLUTION_MATRIX = {
+    "BD": [
+        {"module": "BD", "purpose": "PROPOSAL_TEMPLATE", "content_type": "FORM", "selection_cardinality": "SINGLETON_REQUIRED", "downstream_caller": "BD proposal configuration", "ui_surface": "Proposal Configuration"},
+        {"module": "BD", "purpose": "PROPOSAL_CHECKLIST", "content_type": "FORM", "selection_cardinality": "SINGLETON_REQUIRED", "downstream_caller": "BD proposal acceptance", "ui_surface": "Proposal Configuration"},
+    ],
+    "ADMIN": [{"module": "ADMIN", "purpose": "CONTRACT_TEMPLATE", "content_type": "FORM", "selection_cardinality": "SINGLETON_REQUIRED", "downstream_caller": "Contract workspace", "ui_surface": "Contract Template / Configuration"}],
+    "ENGINEERING": [{"module": "ENGINEERING", "purpose": "AVAILABLE", "content_type": "ENGINEERING_WORK", "selection_cardinality": "COLLECTION", "downstream_caller": "Engineering proposal preparation", "ui_surface": "Engineering References"}],
+    "PERMIT": [{"module": "PERMIT", "purpose": "AVAILABLE", "content_type": None, "selection_cardinality": "COLLECTION", "downstream_caller": "Permit source preparation", "ui_surface": "Project & Sources"}],
+    "REPORTS": [
+        {"module": "REPORTS", "purpose": "AVAILABLE", "content_type": None, "selection_cardinality": "COLLECTION", "downstream_caller": "Report source preparation", "ui_surface": "Reports"},
+        {"module": "REPORTS", "purpose": "REPORT_SOURCE", "content_type": "REPORT", "selection_cardinality": "COLLECTION", "downstream_caller": "Controlled report source binding", "ui_surface": "Reports"},
+    ],
+    "DEFINITIONS": [{"module": "DEFINITIONS", "purpose": "SEMANTIC_SOURCE", "content_type": "DEFINITION", "selection_cardinality": "SINGLETON_REQUIRED", "downstream_caller": "Semantic definition lookup", "ui_surface": "Definitions"}],
+}
+
 
 def _error(code: str, status: int = 422, **details: Any) -> HTTPException:
     return HTTPException(status_code=status, detail={"code": code, **details})
@@ -166,6 +189,21 @@ def validate_internal_template_binding(db: Session, *, item: MasterContentItem, 
         )
 
 
+def source18_authority_binding(db: Session, item: MasterContentItem) -> Source18WorkflowTransaction | None:
+    """Find Source18 ownership anywhere in the item's document lineage."""
+    return db.scalar(select(Source18WorkflowTransaction).where(
+        Source18WorkflowTransaction.official_form_version_id.in_(
+            select(DocumentVersion.id).where(DocumentVersion.document_id == item.document_id)
+        )
+    ))
+
+
+def assert_content_library_authority_write_allowed(db: Session, item: MasterContentItem) -> None:
+    transaction = source18_authority_binding(db, item)
+    if transaction:
+        raise _error("SOURCE18_OFFICIAL_FORM_READ_ONLY", 409, source18_transaction_id=transaction.id, authority_case_id=transaction.authority_case_id, document_version_id=transaction.official_form_version_id)
+
+
 def _actor(role: Any) -> str:
     return getattr(role, "value", str(role))
 
@@ -191,7 +229,9 @@ def _deployed_synthetic() -> bool:
 
 
 def read_master_content_bytes(db: Session, version: DocumentVersion) -> bytes:
-    """Read verified master bytes, retaining a durable synthetic TEST fallback."""
+    """Read verified master bytes only after managed malware eligibility passes."""
+    if not master_content_scan_is_clean(version):
+        raise _error("MASTER_CONTENT_MALWARE_SCAN_NOT_CLEAN", 409, malware_scan_state=master_content_scan_state(version))
     if _deployed_synthetic() and version.synthetic_content is not None:
         return version.synthetic_content
     if version.source_path_or_reference.startswith("storage://"):
@@ -201,6 +241,32 @@ def read_master_content_bytes(db: Session, version: DocumentVersion) -> bytes:
         except StorageError as exc:
             raise _error(exc.code.value, 502) from exc
     return _adapter().read_configured_artifact(version.source_path_or_reference)
+
+
+def master_content_scan_state(version: DocumentVersion) -> str:
+    """Return the normalized scan state for a managed master-content version."""
+    metadata = version.metadata_json or {}
+    if str(metadata.get("storage_provider") or "").lower() != "azure-blob":
+        return "CLEAN"
+    return str(metadata.get("malware_scan_state") or "SCAN_PENDING").strip().upper()
+
+
+def master_content_scan_is_clean(version: DocumentVersion) -> bool:
+    """Only a clean result from the managed provider may release master bytes."""
+    return master_content_scan_state(version) == "CLEAN"
+
+
+def master_content_synthetic_fallback_allowed(version: DocumentVersion) -> bool:
+    """Allow legacy fixture text only in the explicitly synthetic TEST mode."""
+    settings = get_settings()
+    provider = str((version.metadata_json or {}).get("storage_provider") or "").strip().lower()
+    app_env = os.getenv("APP_ENV", str(getattr(settings, "app_env", ""))).upper()
+    synthetic_only = os.getenv("SYNTHETIC_ONLY", str(getattr(settings, "synthetic_only", False))).strip().lower() == "true"
+    return (
+        synthetic_only
+        and app_env == "TEST"
+        and provider != "azure-blob"
+    )
 
 
 def _mapping() -> dict[str, str]:
@@ -223,14 +289,41 @@ def _safe_filename(filename: str, ref: str, version_number: int) -> str:
 
 def _allowed_file(filename: str, content: bytes) -> None:
     settings = get_settings()
-    extension = Path(filename or "").suffix.lower()
+    raw_name = str(filename or "")
+    extension = Path(raw_name).suffix.lower()
     allowed = {item.strip().lower() for item in settings.master_sor_allowed_extensions.split(",") if item.strip()}
+    if "\x00" in raw_name or Path(raw_name).name != raw_name or any(part.lower() in {".exe", ".dll", ".bat", ".cmd", ".com", ".scr", ".js", ".vbs", ".ps1", ".sh", ".php"} for part in Path(raw_name).suffixes):
+        raise _error("DANGEROUS_FILENAME")
     if extension not in allowed:
         raise _error("FILE_TYPE_NOT_ALLOWED", extension=extension)
     if not content:
         raise _error("FILE_REQUIRED")
     if len(content) > settings.master_sor_max_file_size:
         raise _error("FILE_TOO_LARGE", max_bytes=settings.master_sor_max_file_size)
+    if extension == ".pdf" and not content.startswith(b"%PDF-"):
+        raise _error("FILE_SIGNATURE_MISMATCH", extension=extension)
+    if extension in {".docx", ".xlsx", ".pptx"}:
+        if not content.startswith(b"PK\x03\x04"):
+            raise _error("FILE_SIGNATURE_MISMATCH", extension=extension)
+        try:
+            with zipfile.ZipFile(BytesIO(content)) as archive:
+                total_uncompressed = 0
+                for member in archive.infolist():
+                    name = member.filename.replace("\\", "/")
+                    if name.startswith("/") or ".." in Path(name).parts:
+                        raise _error("DANGEROUS_ARCHIVE_MEMBER")
+                    if member.filename.lower().endswith(("vbaproject.bin", "vbaprojectsignature.bin")):
+                        raise _error("MACRO_CONTENT_NOT_ALLOWED")
+                    total_uncompressed += member.file_size
+                    if total_uncompressed > settings.master_sor_max_file_size * 4:
+                        raise _error("ARCHIVE_EXPANSION_LIMIT_EXCEEDED")
+        except zipfile.BadZipFile as exc:
+            raise _error("FILE_SIGNATURE_MISMATCH", extension=extension) from exc
+    if extension in {".txt", ".csv"}:
+        try:
+            content.decode("utf-8")
+        except UnicodeDecodeError as exc:
+            raise _error("TEXT_ENCODING_NOT_ALLOWED") from exc
 
 
 def _category(db: Session, category_id: str | None, content_type: str) -> ContentCategory | None:
@@ -345,6 +438,9 @@ def _parse_modules(value: Any, content_type: str | None = None) -> list[str]:
 
 
 def _sync_module_bindings(db: Session, *, item_id: str, modules: list[str], actor: str) -> None:
+    item = db.get(MasterContentItem, item_id)
+    if item:
+        assert_content_library_authority_write_allowed(db, item)
     existing = db.scalars(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == item_id)).all()
     for binding in existing:
         binding.active = binding.module in modules
@@ -406,31 +502,9 @@ def canonical_master_content_candidates(
     candidates: list[dict[str, Any]] = []
     for item in db.scalars(statement).all():
         version = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
-        if not version:
+        eligibility = evaluate_master_content_reuse_eligibility(db, item=item, version=version, module=module, usage_type=usage_type, content_type=content_type)
+        if not eligibility["eligible"]:
             continue
-        if _status(version) != "CURRENT" or version.approval_state != DocumentApprovalState.REVIEWED:
-            continue
-        if not version.source_path_or_reference or version.source_path_or_reference == "PENDING":
-            continue
-
-        governance = governance_projection(db, item)
-        if item.content_type == "FORM":
-            # Proposal and Contract AMEC-owned bindings are frozen canonical
-            # product configuration. Other forms require manual readiness.
-            frozen_purpose = usage_type in INTERNAL_TEMPLATE_PURPOSES
-            profile = governance["profile"]
-            is_frozen_amec_form = (
-                profile.get("content_ownership_class") == "AMEC_OWNED"
-                and not profile.get("restricted_reference_sample")
-            )
-            if frozen_purpose:
-                if not is_frozen_amec_form:
-                    continue
-            elif governance["readiness"]["state"] != "MANUAL_USE_READY":
-                continue
-        elif item.content_type == "ENGINEERING_WORK":
-            if governance["readiness"]["state"] not in {"MANUAL_USE_READY", "AUTOMATED_USE_READY"}:
-                continue
 
         candidates.append({
             "id": item.id,
@@ -450,10 +524,52 @@ def canonical_master_content_candidates(
     return candidates
 
 
-def resolve_master_content_purpose(db: Session, *, module: str, usage_type: str) -> dict[str, Any]:
+def evaluate_master_content_reuse_eligibility(
+    db: Session,
+    *,
+    item: MasterContentItem,
+    version: DocumentVersion | None = None,
+    module: str | None = None,
+    usage_type: str | None = None,
+    content_type: str | None = None,
+    require_binding: bool = True,
+    enforce_governance_readiness: bool = True,
+) -> dict[str, Any]:
+    """One fail-closed eligibility decision shared by all reusable consumers."""
+    reasons: list[str] = []
+    version = version or (db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None)
+    if item.status != "ACTIVE": reasons.append("MASTER_CONTENT_INACTIVE")
+    if item.needs_review: reasons.append("MASTER_CONTENT_NEEDS_REVIEW")
+    if content_type and item.content_type != content_type.strip().upper(): reasons.append("MASTER_CONTENT_TYPE_MISMATCH")
+    if not version: reasons.append("DOCUMENT_VERSION_NOT_FOUND")
+    if version and version.document_id != item.document_id: reasons.append("DOCUMENT_VERSION_ITEM_MISMATCH")
+    if item.current_document_version_id != (version.id if version else None): reasons.append("MASTER_CONTENT_VERSION_NOT_CURRENT")
+    document = db.get(Document, version.document_id) if version else None
+    if version and (not document or document.current_version_id != version.id): reasons.append("DOCUMENT_VERSION_NOT_DOCUMENT_CURRENT")
+    if version and _status(version) != "CURRENT": reasons.append("DOCUMENT_VERSION_NOT_CURRENT")
+    if version and version.approval_state != DocumentApprovalState.REVIEWED: reasons.append("DOCUMENT_VERSION_NOT_REVIEWED")
+    if version and (not version.source_path_or_reference or version.source_path_or_reference == "PENDING"): reasons.append("MASTER_CONTENT_SOURCE_UNAVAILABLE")
+    if version and not master_content_scan_is_clean(version):
+        reasons.append("MALWARE_SCAN_NOT_CLEAN")
+    if source18_authority_binding(db, item): reasons.append("SOURCE18_AUTHORITY_FORM_ORDINARY_REUSE_FORBIDDEN")
+    governance = governance_projection(db, item)["profile"] if item else {}
+    if governance.get("content_ownership_class") in {"EXTERNAL_OFFICIAL", "AUTHORITY_FORM"} or governance.get("artifact_kind") == "AUTHORITY_FORM":
+        reasons.append("EXTERNAL_AUTHORITY_FORM_NOT_ORDINARY_REUSABLE")
+    if governance.get("restricted_reference_sample"): reasons.append("MASTER_CONTENT_RESTRICTED_REFERENCE")
+    if module and usage_type:
+        binding = db.scalar(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == item.id, MasterContentModuleBinding.module == module, MasterContentModuleBinding.usage_type == usage_type, MasterContentModuleBinding.active == true()))
+        if require_binding and not binding: reasons.append("MODULE_PURPOSE_NOT_APPLICABLE")
+        if usage_type in INTERNAL_TEMPLATE_PURPOSES and governance.get("content_ownership_class") != "AMEC_OWNED": reasons.append("INTERNAL_TEMPLATE_REQUIRES_AMEC_OWNERSHIP")
+    if enforce_governance_readiness and item.content_type == "FORM" and usage_type not in INTERNAL_TEMPLATE_PURPOSES:
+        if governance_projection(db, item)["readiness"]["state"] != "MANUAL_USE_READY": reasons.append("GOVERNANCE_NOT_READY")
+    if enforce_governance_readiness and item.content_type == "ENGINEERING_WORK" and governance_projection(db, item)["readiness"]["state"] not in {"MANUAL_USE_READY", "AUTOMATED_USE_READY"}: reasons.append("GOVERNANCE_NOT_READY")
+    return {"eligible": not reasons, "reasons": list(dict.fromkeys(reasons)), "item": item, "version": version}
+
+
+def resolve_master_content_purpose(db: Session, *, module: str, usage_type: str, content_type: str | None = None) -> dict[str, Any]:
     module = module.strip().upper()
     usage_type = usage_type.strip().upper()
-    resolved = canonical_master_content_candidates(db, module=module, usage_type=usage_type, content_type=PURPOSE_CONTENT_TYPES.get(usage_type))
+    resolved = canonical_master_content_candidates(db, module=module, usage_type=usage_type, content_type=content_type or PURPOSE_CONTENT_TYPES.get(usage_type))
     return {"module": module, "purpose": usage_type, "status": "RESOLVED" if len(resolved) == 1 else "AMBIGUOUS" if len(resolved) > 1 else "UNRESOLVED", "canonical_count": len(resolved), "item": resolved[0] if len(resolved) == 1 else None, "candidates": resolved, "truth": "DASHBOARD_MASTER_CONTENT"}
 
 
@@ -471,31 +587,10 @@ def exact_master_content_binding_check(
     """
     item = db.get(MasterContentItem, master_content_item_id)
     version = db.get(DocumentVersion, document_version_id)
-    reasons: list[str] = []
     if not item:
-        reasons.append("MASTER_CONTENT_NOT_FOUND")
-    if not version:
-        reasons.append("DOCUMENT_VERSION_NOT_FOUND")
-    if item and content_type and item.content_type != content_type.strip().upper():
-        reasons.append("MASTER_CONTENT_TYPE_MISMATCH")
-    if item and item.status != "ACTIVE":
-        reasons.append("MASTER_CONTENT_INACTIVE")
-    if item and item.needs_review:
-        reasons.append("MASTER_CONTENT_NEEDS_REVIEW")
-    if item and version and version.document_id != item.document_id:
-        reasons.append("DOCUMENT_VERSION_ITEM_MISMATCH")
-    if item and item.current_document_version_id != document_version_id:
-        reasons.append("MASTER_CONTENT_VERSION_NOT_CURRENT")
-    if version and _status(version) != "CURRENT":
-        reasons.append("DOCUMENT_VERSION_NOT_CURRENT")
-    if version and version.approval_state != DocumentApprovalState.REVIEWED:
-        reasons.append("DOCUMENT_VERSION_NOT_REVIEWED")
-    if version and (not version.source_path_or_reference or version.source_path_or_reference == "PENDING"):
-        reasons.append("MASTER_CONTENT_SOURCE_UNAVAILABLE")
-    if item:
-        profile = governance_projection(db, item)["profile"]
-        if profile.get("restricted_reference_sample"):
-            reasons.append("MASTER_CONTENT_RESTRICTED_REFERENCE")
+        return {"valid": False, "reasons": ["MASTER_CONTENT_NOT_FOUND"], "item": None, "version": version}
+    eligibility = evaluate_master_content_reuse_eligibility(db, item=item, version=version, content_type=content_type)
+    reasons = eligibility["reasons"]
     return {"valid": not reasons, "reasons": list(dict.fromkeys(reasons)), "item": item, "version": version}
 
 
@@ -620,6 +715,10 @@ def register_dependency(db: Session, *, item_id: str, downstream_type: str, down
     item = db.get(MasterContentItem, item_id)
     if not item or not item.current_document_version_id:
         raise _error("CONTENT_NOT_FOUND", 404)
+    assert_content_library_authority_write_allowed(db, item)
+    eligibility = evaluate_master_content_reuse_eligibility(db, item=item)
+    if not eligibility["eligible"]:
+        raise _error("MASTER_CONTENT_NOT_REUSABLE", 409, reasons=eligibility["reasons"])
     allowed = {"EngineeringReview", "EngineeringReviewRun", "RenderedArtifact", "GeneratedReport", "Proposal", "Contract", "PermitApplication", "Workflow", "Requirement", "FormTemplate", "ReportDefinition"}
     if downstream_type not in allowed:
         raise _error("DEPENDENCY_TYPE_NOT_ALLOWED")
@@ -639,6 +738,13 @@ def revalidate_dependency(db: Session, *, dependency_id: str, actor: str, correl
     dependency = db.get(MasterContentDependency, dependency_id)
     if not dependency:
         raise _error("DEPENDENCY_NOT_FOUND", 404)
+    item = db.get(MasterContentItem, dependency.master_content_id)
+    if not item:
+        raise _error("CONTENT_NOT_FOUND", 404)
+    assert_content_library_authority_write_allowed(db, item)
+    eligibility = evaluate_master_content_reuse_eligibility(db, item=item, version=db.get(DocumentVersion, dependency.expected_current_version_id))
+    if not eligibility["eligible"]:
+        raise _error("MASTER_CONTENT_NOT_REUSABLE", 409, reasons=eligibility["reasons"])
     dependency.bound_document_version_id = dependency.expected_current_version_id
     dependency.status = "CURRENT"
     audit(db, correlation_id=correlation_id, event_type="MASTER_CONTENT_DEPENDENCY_REVALIDATED", entity_type="MasterContentDependency", entity_id=dependency.id, actor_id=actor, after={"bound_version_id": dependency.bound_document_version_id})
@@ -847,13 +953,23 @@ def _forme_category_id(db: Session, label: str) -> str:
 
 def _forme_synthetic_content(spec: dict[str, object]) -> bytes:
     """Create only the approved synthetic MVP representation, never a source binary."""
-    return (
+    body = (
         "PROPOSALOPS SYNTHETIC MVP REPRESENTATION\n"
         f"FORME business identity: {spec['title']}\n"
         f"Source package: FORME.zip\n"
         f"Source path: {spec['source_path']}\n"
         "Actual source binary is not embedded in this deployment.\n"
     ).encode("utf-8")
+    suffix = Path(str(spec.get("filename") or "")).suffix.lower()
+    if suffix == ".pdf":
+        return b"%PDF-1.7\n% synthetic representation\n" + body
+    if suffix == ".docx":
+        stream = BytesIO()
+        with zipfile.ZipFile(stream, "w", zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr("[Content_Types].xml", "<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\"/>")
+            archive.writestr("word/document.xml", f"<document><body>{body.decode('utf-8')}</body></document>")
+        return stream.getvalue()
+    return body
 
 
 def _forme_metadata(spec: dict[str, object]) -> dict[str, object]:
@@ -880,13 +996,16 @@ def _ensure_forme_category_configuration(db: Session) -> None:
 def _apply_forme_governance(db: Session, item: MasterContentItem, spec: dict[str, object], *, actor: str) -> None:
     profile = ensure_profile(db, item)
     title = str(spec["title"])
-    profile.content_ownership_class = "EXTERNAL_OFFICIAL" if spec["official_form_no"] else "AMEC_OWNED"
+    # FORME is an AMEC-owned synthetic reference projection.  It is not the
+    # Source18 official-form authority and therefore must never be labelled or
+    # bound as an external official form.
+    profile.content_ownership_class = "AMEC_OWNED"
     profile.artifact_kind = "UNDERTAKING" if "Undertaking" in title else "AUTHORIZATION" if "Authorization" in title else "CHECKLIST" if "Checklist" in title else "INVOICE" if title == "Invoice Template" else "HANDOVER" if title == "Design Project Handover Form" else "TECHNICAL_WORKSHEET" if title == "External Wall / Roof U-Value Calculation" else "CERTIFICATE_DECLARATION" if title == "Material & Specification Conformity Certificate" else "OTHER"
     profile.publisher_name = "Ministry of Municipality" if str(spec["category"]).startswith("Municipality") else "GSAS / Lusail" if title == "GSAS 3+ Star Undertaking" else "AMEC / FORME source package"
     profile.publisher_unit = str(spec["category"])
     profile.jurisdiction_text = "Qatar"
-    profile.official_form_no = spec["official_form_no"]
-    profile.official_issue_no = str(spec["source_version"]) if spec.get("source_version") else None
+    profile.official_form_no = None
+    profile.official_issue_no = None
     profile.language_profile = "AR_EN_BILINGUAL" if str(spec["source_path"]).lower().endswith((".pdf", ".docx")) else "OTHER"
     profile.currentness_status = "VERIFIED_CURRENT" if spec["status"] == "CURRENT" else "NEEDS_REVIEW"
     profile.currentness_verified_by = actor
@@ -958,6 +1077,7 @@ def _reconcile_forme_masters(db: Session, *, actor: str) -> dict[str, object]:
             if prior_marker and prior_marker.get("stable_key") == spec["stable_key"]:
                 if prior_marker.get("source_sha256") != forme_metadata.get("source_sha256") or existing.needs_review != (spec["status"] == "NEEDS_REVIEW") or existing.review_note != spec["review_note"]:
                     conflicts.append({"stable_key": spec["stable_key"], "id": existing.id, "reason": "seed-owned record drifted; refusing silent overwrite"})
+                _apply_forme_governance(db, existing, spec, actor=actor)
                 _ensure_forme_provenance(db, existing, spec, actor=actor)
                 preserved.append(str(spec["stable_key"]))
                 continue
@@ -1127,6 +1247,21 @@ def _canonical_role_can_see(role: Any, row: dict[str, Any]) -> bool:
         return True
     module = "BD" if persona == "BUSINESS_DEVELOPMENT" else "ENGINEERING"
     return module in row.get("used_in", [])
+
+
+def authorize_master_content_access(db: Session, item: MasterContentItem, role: Any, *, action: str = "READ") -> None:
+    """Authorize an identified object against persona applicability.
+
+    This is deliberately evaluated after object lookup so every direct-object
+    route shares the same decision and returns a typed non-applicability error
+    instead of exposing a role-only object path.
+    """
+    persona = persona_for_role(role)
+    if persona in {"OWNER", "SYSTEM_ADMIN"}:
+        return
+    required_module = "BD" if persona == "BUSINESS_DEVELOPMENT" else "ENGINEERING"
+    if required_module not in _modules_for(db, item_id=item.id):
+        raise _error("MASTER_CONTENT_NOT_APPLICABLE", 403, persona=persona, action=action.upper())
 
 
 def _normalized_owner_status(value: str | None) -> str | None:
@@ -1309,34 +1444,20 @@ def _verify_and_promote(
             version.rendition_sha256 = None
             version.rendition_mime_type = None
             version.rendition_file_size = None
-        version.metadata_json = {**(version.metadata_json or {}), "master_status": "VERIFIED", "read_back_verified": True, "storage_provider": "synthetic-db"}
+        version.metadata_json = {**(version.metadata_json or {}), "master_status": "VERIFIED", "read_back_verified": True, "storage_provider": "synthetic-db", "malware_scan_state": "CLEAN", "malware_scan_provider": "SYNTHETIC_TEST_BYPASS"}
         db.flush()
-    elif get_settings().storage_provider.lower() == "smb":
+    else:
         try:
             store = create_binary_store()
             service = DocumentStorageService(store)
-            target = StorageTarget(getattr(store, "provider_id", "smb"), getattr(getattr(store, "config", None), "share", ""), configured_destination)
-            service.store_version(
-                db,
-                document=document,
-                content=content,
-                filename=version.source_filename,
-                mime_type=version.mime_type,
-                target=target,
-                actor=actor,
-                correlation_id=correlation_id,
-                idempotency_key=f"master-content:{version.id}:{version.sha256}",
-                source_system="MASTER_CONTENT",
-                metadata={"master_content_id": item.id, "content_type": item.content_type},
-                version_number=version.version_number,
-                candidate_version_id=version.id,
-            )
+            config = getattr(store, "config", None)
+            share_or_container = getattr(config, "share", None) or getattr(config, "container", None) or "managed-artifacts"
+            target = StorageTarget(getattr(store, "provider_id", "storage"), share_or_container, configured_destination)
+            service.store_version(db, document=document, content=content, filename=version.source_filename, mime_type=version.mime_type, target=target, actor=actor, correlation_id=correlation_id, idempotency_key=f"master-content:{version.id}:{version.sha256}", source_system="MASTER_CONTENT", metadata={"master_content_id": item.id, "content_type": item.content_type}, version_number=version.version_number, candidate_version_id=version.id)
         except StorageError as exc:
             version.metadata_json = {**(version.metadata_json or {}), "master_status": exc.code.value}
             db.flush()
             raise _error(exc.code.value, 502) from exc
-        if _deployed_synthetic():
-            version.synthetic_content = content
         if version.mime_type == "application/pdf" or Path(version.source_filename).suffix.lower() == ".pdf":
             version.rendition_status = "SOURCE_PDF"
             version.rendition_path_or_reference = version.source_path_or_reference
@@ -1349,55 +1470,8 @@ def _verify_and_promote(
             version.rendition_sha256 = None
             version.rendition_mime_type = None
             version.rendition_file_size = None
-        version.metadata_json = {**(version.metadata_json or {}), "master_status": "VERIFIED", "read_back_verified": True, "storage_provider": "smb"}
+        version.metadata_json = {**(version.metadata_json or {}), "master_status": "VERIFIED", "read_back_verified": True, "storage_provider": getattr(store, "provider_id", "storage"), "malware_scan_state": "SCAN_PENDING", "malware_scan_provider": "DEFENDER_FOR_STORAGE_REQUIRED"}
         db.flush()
-    else:
-        adapter = _adapter()
-        try:
-            target = adapter.resolve_configured_path(configured_destination)
-            existing_same_hash = None
-            if previous and previous.sha256 == version.sha256 and previous.source_path_or_reference:
-                try:
-                    existing_same_hash = adapter.verify_artifact(previous.source_path_or_reference, version.sha256, version.file_size)
-                except (FileNotFoundError, ValueError, OSError):
-                    existing_same_hash = None
-            if existing_same_hash and existing_same_hash.get("verified"):
-                sor_metadata = existing_same_hash
-                version.source_path_or_reference = previous.source_path_or_reference
-            else:
-                stored = adapter.put_configured_artifact(configured_destination, version.source_filename, content)
-                version.source_path_or_reference = stored["path"]
-                sor_metadata = adapter.verify_artifact(stored["path"], version.sha256, version.file_size)
-            if not sor_metadata.get("verified"):
-                version.metadata_json = {**(version.metadata_json or {}), "master_status": "SOR_HASH_MISMATCH"}
-                db.commit()
-                raise _error("SOR_HASH_MISMATCH", 502)
-            if sor_metadata.get("path", "").startswith("/") or target is None:
-                raise _error("SOR_READBACK_FAILED", 502)
-            if _deployed_synthetic():
-                version.synthetic_content = content
-            if version.mime_type == "application/pdf" or Path(version.source_filename).suffix.lower() == ".pdf":
-                version.rendition_status = "SOURCE_PDF"
-                version.rendition_path_or_reference = version.source_path_or_reference
-                version.rendition_sha256 = version.sha256
-                version.rendition_mime_type = version.mime_type
-                version.rendition_file_size = version.file_size
-            else:
-                # DOCX and other source formats remain authoritative and truthful
-                # when no safe server-side converter is configured.
-                version.rendition_status = "RENDITION_NOT_AVAILABLE"
-                version.rendition_path_or_reference = None
-                version.rendition_sha256 = None
-                version.rendition_mime_type = None
-                version.rendition_file_size = None
-            version.metadata_json = {**(version.metadata_json or {}), "master_status": "VERIFIED", "verified_at": version.ingested_at.isoformat()}
-            db.flush()
-        except HTTPException:
-            raise
-        except (FileNotFoundError, ValueError, OSError, RuntimeError) as exc:
-            version.metadata_json = {**(version.metadata_json or {}), "master_status": "SOR_WRITE_FAILED", "failure": str(exc)}
-            db.commit()
-            raise _error("SOR_UNAVAILABLE" if isinstance(exc, FileNotFoundError) else "SOR_WRITE_FAILED", 502) from exc
 
     if previous:
         previous.metadata_json = {**(previous.metadata_json or {}), "master_status": "SUPERSEDED"}
@@ -1412,6 +1486,18 @@ def _verify_and_promote(
     event = MasterContentChangeEvent(master_content_id=item.id, previous_version_id=previous.id if previous else None, new_version_id=version.id, change_type="MASTER_CONTENT_VERSION_PROMOTED", status="APPLIED", correlation_id=correlation_id, actor_or_system=actor, metadata_json={"content_type": item.content_type, "ref": item.ref, "version_number": version.version_number, "source_surface": source_surface, "used_in": item.used_in or []}, event_type="MASTER_CONTENT_CREATED" if previous is None else "MASTER_CONTENT_VERSION_PROMOTED", content_type=item.content_type, business_ref=item.ref, category_snapshot={"id": category.id, "code": category.code, "label": category.label} if category else {}, change_kind=(version.metadata_json or {}).get("change_kind", "MODIFY"), change_reason=change_reason, materiality=_materiality(item, previous, version, category_changed or used_in_changed), source_hash=version.sha256)
     db.add(event)
     db.flush()
+    if previous:
+        # AI products are invalidated causally for the superseded exact
+        # version; unrelated Content Library items remain current.
+        from .intelligence_foundation import invalidate_dependency
+        invalidate_dependency(
+            db,
+            dependency_type="MASTER_CONTENT_VERSION",
+            dependency_id=previous.id,
+            superseding_version_or_hash=version.sha256,
+            source_event_id=event.id,
+            reason_code="MASTER_CONTENT_VERSION_SUPERSEDED",
+        )
     propagate_master_change(db, event, item, version)
     audit(db, correlation_id=correlation_id, event_type="SOR_READBACK_VERIFIED", entity_type="MasterContentItem", entity_id=item.id, actor_id=actor, metadata={"ref": item.ref, "version": version.version_number, "source_surface": source_surface})
     audit(db, correlation_id=correlation_id, event_type="MASTER_CONTENT_VERSION_PROMOTED", entity_type="MasterContentItem", entity_id=item.id, actor_id=actor, before={"version": previous.version_number if previous else None}, after={"version": version.version_number, "status": "CURRENT"}, metadata={"ref": item.ref, "source_surface": source_surface})
@@ -1504,6 +1590,7 @@ def create_master_content_version(
     item = db.scalar(select(MasterContentItem).where(MasterContentItem.id == item_id).with_for_update())
     if not item:
         raise _error("CONTENT_NOT_FOUND", 404)
+    assert_content_library_authority_write_allowed(db, item)
     if item.status != "ACTIVE":
         raise _error("CONTENT_ARCHIVED", 409)
     current = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
@@ -1555,7 +1642,7 @@ def create_master_content_version(
     return item_projection(db, item, include_history=True)
 
 
-def reconcile_item(db: Session, item_id: str, correlation_id: str) -> dict[str, Any]:
+def reconcile_item(db: Session, item_id: str, correlation_id: str, *, actor: str) -> dict[str, Any]:
     item = db.get(MasterContentItem, item_id)
     if not item or not item.current_document_version_id:
         raise _error("CONTENT_NOT_FOUND", 404)
@@ -1565,7 +1652,7 @@ def reconcile_item(db: Session, item_id: str, correlation_id: str) -> dict[str, 
     else:
         actual = _adapter().verify_artifact(version.source_path_or_reference, version.sha256, version.file_size)
     if not actual.get("verified"):
-        audit(db, correlation_id=correlation_id, event_type="EXTERNAL_MUTATION_DETECTED", entity_type="MasterContentItem", entity_id=item.id, after={"ref": item.ref, "version": version.version_number}, metadata={"code": "SOR_EXTERNAL_MUTATION"})
+        audit(db, correlation_id=correlation_id, event_type="EXTERNAL_MUTATION_DETECTED", entity_type="MasterContentItem", entity_id=item.id, actor_id=actor, after={"ref": item.ref, "version": version.version_number}, metadata={"code": "SOR_EXTERNAL_MUTATION"})
         db.commit()
         raise _error("SOR_EXTERNAL_MUTATION", 409)
     return item_projection(db, item, include_history=True)
@@ -1575,6 +1662,7 @@ def archive_master_content(db: Session, *, item_id: str, actor: str, correlation
     item = db.get(MasterContentItem, item_id)
     if not item:
         raise _error("CONTENT_NOT_FOUND", 404)
+    assert_content_library_authority_write_allowed(db, item)
     item.status = "ARCHIVED"
     current = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
     event = MasterContentChangeEvent(master_content_id=item.id, previous_version_id=current.id if current else None, new_version_id=current.id if current else item.id, change_type="MASTER_CONTENT_ARCHIVED", status="APPLIED", correlation_id=correlation_id, actor_or_system=actor, metadata_json={"ref": item.ref, "version_number": current.version_number if current else None}, event_type="MASTER_CONTENT_ARCHIVED", content_type=item.content_type, business_ref=item.ref, change_kind="ARCHIVE", change_reason="Owner archived content", materiality="MATERIAL", source_hash=current.sha256 if current else None)
@@ -1598,6 +1686,16 @@ def emit_definition_revision_event(db: Session, *, definition: DefinitionEntry, 
     event = MasterContentChangeEvent(definition_id=definition.id, previous_version_id=previous.id if previous else None, new_version_id=revision.id, change_type="DEFINITION_REVISION_PROMOTED", status="PROCESSED", correlation_id=correlation_id, actor_or_system=actor, metadata_json={"term": revision.term, "revision": revision.revision_number, "version_number": revision.revision_number}, event_type="DEFINITION_REVISION_PROMOTED", content_type="DEFINITION", business_ref=definition.ref or revision.term, change_kind="CREATE" if previous is None else "MODIFY", change_reason=revision.change_reason, materiality="MATERIAL", source_hash=digest)
     db.add(event)
     db.flush()
+    if previous:
+        from .intelligence_foundation import invalidate_dependency
+        invalidate_dependency(
+            db,
+            dependency_type="DEFINITION_REVISION",
+            dependency_id=previous.id,
+            superseding_version_or_hash=revision.id,
+            source_event_id=event.id,
+            reason_code="DEFINITION_REVISION_SUPERSEDED",
+        )
     for role in ("OWNER", "BUSINESS_DEVELOPMENT", "ENGINEERING"):
         if not _delivery_exists(db, event.id, "NOTIFICATION", "ROLE", role, role):
             db.add(NotificationEvent(recipient_role=role, channel="IN_APP", event_type="DEFINITION_REVISION_PROMOTED", status="PENDING", subject=f"Definition updated: {revision.term}", body_preview=f"Definition revision {revision.revision_number} is current.", correlation_id=correlation_id, domain="MASTER_CONTENT", audience=[role], actor=actor, deep_link="/dashboard"))

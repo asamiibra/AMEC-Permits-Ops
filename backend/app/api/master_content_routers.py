@@ -13,7 +13,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import func, or_, select, true
 from sqlalchemy.orm import Session
 
-from ..api.dependencies import current_user_role
+from ..api.dependencies import current_user_role, trusted_actor_id
 from ..audit.service import audit
 from ..db import get_db
 from ..config.settings import get_settings
@@ -46,8 +46,14 @@ from ..services.master_content import (
     ENGINEERING_SOURCE_TYPES,
     ENGINEERING_DISCIPLINES,
     resolve_master_content_purpose,
+    CONSUMER_RESOLUTION_MATRIX,
     validate_module_binding,
     validate_internal_template_binding,
+    assert_content_library_authority_write_allowed,
+    authorize_master_content_access,
+    evaluate_master_content_reuse_eligibility,
+    master_content_scan_is_clean,
+    master_content_scan_state,
 )
 from ..services.forms_governance import (
     add_provenance,
@@ -61,6 +67,11 @@ from ..services.forms_governance import (
     update_source_section,
     update_governance,
 )
+from ..services.source18_form_projection import resolve_source18_official_form, source18_official_form_projection
+from ..storage.azure_blob import AzureBlobBinaryStore
+from ..storage.errors import StorageError
+from ..storage.factory import create_binary_store
+from ..storage.port import StorageLocator
 
 router = APIRouter(prefix="/api", tags=["master-content"])
 
@@ -73,8 +84,25 @@ def owner_test_cleanup(db: Session = Depends(get_db), role: Role = Depends(curre
     return {"status": "APPLIED", **reconcile_owner_demo_dataset(db, actor="e2e-cleanup")}
 
 
-def _actor(role: Role) -> str:
-    return role.value
+def _actor(request: Request, role: Role) -> str:
+    return trusted_actor_id(request, role)
+
+
+def _require_binary_access(item: MasterContentItem, version: DocumentVersion, role: Role) -> None:
+    """Keep superseded bytes behind the governed history capability."""
+    if version.id != item.current_document_version_id and persona_for_role(role) not in {"OWNER", "SYSTEM_ADMIN"}:
+        raise HTTPException(403, {"code": "HISTORICAL_BINARY_ACCESS_FORBIDDEN"})
+
+
+def _require_scan_access(version: DocumentVersion, role: Role) -> None:
+    metadata = version.metadata_json or {}
+    if str(metadata.get("storage_provider") or "").lower() != "azure-blob":
+        return
+    state = master_content_scan_state(version)
+    if state == "MALICIOUS":
+        raise HTTPException(409, {"code": "MASTER_CONTENT_MALWARE_QUARANTINED", "malware_scan_state": state})
+    if not master_content_scan_is_clean(version):
+        raise HTTPException(409, {"code": "MASTER_CONTENT_MALWARE_SCAN_NOT_CLEAN", "malware_scan_state": state})
 
 
 def _json_object(value: str | None, code: str = "MASTER_CONTENT_METADATA_INVALID") -> dict[str, Any] | None:
@@ -224,6 +252,14 @@ class QualityFlagResolution(BaseModel):
     resolution: str = Field(min_length=1)
 
 
+class MalwareScanPayload(BaseModel):
+    document_version_id: str | None = None
+    scan_state: str
+    evidence_reference: str = Field(min_length=1, max_length=500)
+    scanned_sha256: str | None = None
+    result_source: str = "DEFENDER_FOR_STORAGE_EVENT_GRID"
+
+
 class SourceSectionPayload(BaseModel):
     document_version_id: str
     section_key: str = Field(min_length=1)
@@ -266,7 +302,7 @@ def create_category(payload: CategoryPayload, request: Request, db: Session = De
         raise HTTPException(409, {"code": "CATEGORY_CODE_CONFLICT"})
     category = ContentCategory(code=code, label=payload.label.strip(), description=payload.description, allowed_content_types=types, sort_order=payload.sort_order, source_kind=payload.source_kind.strip().upper())
     db.add(category)
-    audit(db, correlation_id=request.state.correlation_id, event_type="MASTER_CATEGORY_CREATED", entity_type="ContentCategory", entity_id=category.id, actor_id=_actor(role), after={"code": code, "label": category.label})
+    audit(db, correlation_id=request.state.correlation_id, event_type="MASTER_CATEGORY_CREATED", entity_type="ContentCategory", entity_id=category.id, actor_id=_actor(request, role), after={"code": code, "label": category.label})
     db.commit()
     return {"id": category.id, "code": category.code, "label": category.label, "description": category.description, "allowed_content_types": category.allowed_content_types, "active": category.active, "sort_order": category.sort_order, "source_kind": category.source_kind}
 
@@ -290,7 +326,7 @@ def patch_category(category_id: str, payload: CategoryPatch, request: Request, d
         category.sort_order = payload.sort_order
     if payload.active is not None:
         category.active = payload.active
-    audit(db, correlation_id=request.state.correlation_id, event_type="MASTER_CATEGORY_UPDATED", entity_type="ContentCategory", entity_id=category.id, actor_id=_actor(role), after={"label": category.label, "active": category.active})
+    audit(db, correlation_id=request.state.correlation_id, event_type="MASTER_CATEGORY_UPDATED", entity_type="ContentCategory", entity_id=category.id, actor_id=_actor(request, role), after={"label": category.label, "active": category.active})
     db.commit()
     return {"id": category.id, "code": category.code, "label": category.label, "description": category.description, "allowed_content_types": category.allowed_content_types, "active": category.active, "sort_order": category.sort_order, "source_kind": category.source_kind}
 
@@ -315,7 +351,7 @@ def put_reference_policy(content_type: str, payload: ReferencePolicyPayload, req
     row = db.scalar(select(MasterContentReferenceSequence).where(MasterContentReferenceSequence.content_type == content_type, MasterContentReferenceSequence.scope == "GLOBAL"))
     row.prefix = prefix
     row.padding = payload.padding
-    audit(db, correlation_id=request.state.correlation_id, event_type="MASTER_REFERENCE_POLICY_UPDATED", entity_type="MasterContentReferenceSequence", entity_id=row.id, actor_id=_actor(role), after={"content_type": content_type, "prefix": row.prefix, "padding": row.padding, "renumber_existing": False})
+    audit(db, correlation_id=request.state.correlation_id, event_type="MASTER_REFERENCE_POLICY_UPDATED", entity_type="MasterContentReferenceSequence", entity_id=row.id, actor_id=_actor(request, role), after={"content_type": content_type, "prefix": row.prefix, "padding": row.padding, "renumber_existing": False})
     db.commit()
     return {"content_type": row.content_type, "prefix": row.prefix, "padding": row.padding, "scope": row.scope, "next_reference": f"{row.prefix}-{row.current_value + 1:0{row.padding}d}", "renumber_existing": False}
 
@@ -341,9 +377,35 @@ def consumer_resolvers(consumer: str, db: Session = Depends(get_db), role: Role 
         consumer = "BD"
     elif persona == "ENGINEERING":
         consumer = "ENGINEERING"
-    purpose_map = {"BD": [("BD", "PROPOSAL_TEMPLATE"), ("BD", "PROPOSAL_CHECKLIST")], "ADMIN": [("ADMIN", "CONTRACT_TEMPLATE")]}
-    resolved = [{"module": module, "purpose": purpose, "resolution": resolve_master_content_purpose(db, module=module, usage_type=purpose)} for module, purpose in purpose_map.get(consumer, [])]
-    return {"consumer": consumer, "resolvers": resolved, "truth": "DASHBOARD_MASTER_CONTENT"}
+    aliases = {"BUSINESS_DEVELOPMENT": "BD", "PROPOSAL": "BD", "CONTRACT": "ADMIN", "DEFINITION": "DEFINITIONS", "REPORT": "REPORTS"}
+    consumer = aliases.get(consumer, consumer)
+    if consumer not in CONSUMER_RESOLUTION_MATRIX:
+        raise HTTPException(422, {"code": "MASTER_CONTENT_CONSUMER_NOT_ALLOWED", "consumer": consumer})
+    resolved = []
+    for contract in CONSUMER_RESOLUTION_MATRIX[consumer]:
+        resolution = {"status": "LOOKUP_REQUIRED", "canonical_count": None, "item": None, "candidates": [], "truth": "DEFINITIONS"} if consumer == "DEFINITIONS" else resolve_master_content_purpose(db, module=contract["module"], usage_type=contract["purpose"], content_type=contract.get("content_type"))
+        resolved.append({**contract, "canonical_resolver": f"/api/master-content/resolvers/{contract['module']}/{contract['purpose']}", "resolution": resolution})
+    return {"consumer": consumer, "resolvers": resolved, "truth": "DASHBOARD_MASTER_CONTENT", "selection_rule": "SINGLETON_REQUIRED fails closed on zero or multiple; COLLECTION returns all deterministic eligible candidates"}
+
+
+@router.get("/master-content/official-forms")
+def source18_official_forms(q: str = "", current_only: bool = False, transaction_id: str | None = None, authority_case_id: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "SOURCE18_OFFICIAL_FORM_READ")
+    rows = source18_official_form_projection(db, include_non_current=not current_only)
+    if transaction_id:
+        rows = [row for row in rows if row["source18"]["transaction_id"] == transaction_id]
+    if authority_case_id:
+        rows = [row for row in rows if row["source18"]["authority_case_id"] == authority_case_id]
+    needle = q.strip().casefold()
+    if needle:
+        rows = [row for row in rows if needle in " ".join(str(value or "") for value in (row["title"], row["source18"]["case_reference"], row["authority"]["publisher"], row["authority"]["official_form_number"], row["authority"]["official_form_revision"])).casefold()]
+    return {"projection_type": "SOURCE18_OFFICIAL_FORM_READ_ONLY", "authority_owner": "SOURCE18", "read_only": True, "items": rows, "count": len(rows)}
+
+
+@router.get("/master-content/official-forms/resolve")
+def resolve_source18_form(transaction_id: str | None = None, authority_case_id: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "SOURCE18_OFFICIAL_FORM_READ")
+    return resolve_source18_official_form(db, transaction_id=transaction_id, authority_case_id=authority_case_id)
 
 
 @router.get("/master-content")
@@ -382,9 +444,15 @@ async def create_content(
 ):
     content_type = content_type.upper()
     require_capability(role, _write_capability(content_type))
-    payload = await file.read()
+    max_bytes = get_settings().master_sor_max_file_size
+    declared_length = request.headers.get("content-length")
+    if declared_length and declared_length.isdigit() and int(declared_length) > max_bytes + 1024 * 1024:
+        raise HTTPException(413, {"code": "FILE_TOO_LARGE", "max_bytes": max_bytes})
+    payload = await file.read(max_bytes + 1)
+    if len(payload) > max_bytes:
+        raise HTTPException(413, {"code": "FILE_TOO_LARGE", "max_bytes": max_bytes})
     parsed_metadata = _json_object(engineering_metadata)
-    return create_master_content(db, content_type=content_type, ref=ref, title=title, category_id=category_id, description=description, filename=file.filename or "document.bin", mime_type=file.content_type or "application/octet-stream", content=payload, actor=_actor(role), idempotency_key=idempotency_key or str(uuid.uuid4()), correlation_id=request.state.correlation_id, source_surface=source_surface.upper() if source_surface.upper() in {"DASHBOARD", "ADMINISTRATION"} else "DASHBOARD", used_in=used_in, source_type_code=source_type_code, engineering_metadata=parsed_metadata, needs_review=needs_review, review_note=review_note)
+    return create_master_content(db, content_type=content_type, ref=ref, title=title, category_id=category_id, description=description, filename=file.filename or "document.bin", mime_type=file.content_type or "application/octet-stream", content=payload, actor=_actor(request, role), idempotency_key=idempotency_key or str(uuid.uuid4()), correlation_id=request.state.correlation_id, source_surface=source_surface.upper() if source_surface.upper() in {"DASHBOARD", "ADMINISTRATION"} else "DASHBOARD", used_in=used_in, source_type_code=source_type_code, engineering_metadata=parsed_metadata, needs_review=needs_review, review_note=review_note)
 
 
 @router.get("/master-content/{item_id}")
@@ -404,6 +472,12 @@ def _governed_item(db: Session, item_id: str) -> MasterContentItem:
     return item
 
 
+def _authorized_item(db: Session, item_id: str, role: Role, *, action: str = "READ") -> MasterContentItem:
+    item = _governed_item(db, item_id)
+    authorize_master_content_access(db, item, role, action=action)
+    return item
+
+
 @router.get("/master-content/governance/options")
 def governance_options(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     return {"ownership": ["AMEC_OWNED", "EXTERNAL_OFFICIAL", "EXTERNAL_REFERENCE", "REFERENCE_SAMPLE", "NEEDS_REVIEW"], "artifact_kind": ["AUTHORITY_FORM", "AMEC_FORM", "CHECKLIST", "UNDERTAKING", "AUTHORIZATION", "SERVICE_REQUEST", "CERTIFICATE_DECLARATION", "TECHNICAL_WORKSHEET", "INVOICE", "HANDOVER", "OTHER", "UNKNOWN"], "currentness": ["UNVERIFIED", "VERIFIED_CURRENT", "VERIFIED_NOT_CURRENT", "NEEDS_REVIEW"], "language": ["AR", "EN", "AR_EN_BILINGUAL", "OTHER"], "quality_state": ["OPEN", "ACCEPTED_RISK", "RESOLVED", "NOT_APPLICABLE"]}
@@ -416,99 +490,106 @@ def governance_blocker_rollup(db: Session = Depends(get_db), role: Role = Depend
 
 @router.get("/master-content/{item_id}/governance")
 def get_governance(item_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    rows = canonical_master_content_read(db, role=role, item_id=item_id, include_archived=True, include_history=True, include_governance=True)
-    if not rows:
-        _governed_item(db, item_id)
-        raise HTTPException(403, {"code": "MASTER_CONTENT_NOT_APPLICABLE"})
-    return rows[0]["governance"]
+    item = _authorized_item(db, item_id, role)
+    return item_projection(db, item, include_history=True)["governance"]
 
 
 @router.patch("/master-content/{item_id}/governance")
 def patch_governance(item_id: str, payload: GovernancePatch, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "MASTER_CONTENT_GOVERNANCE_WRITE")
-    return update_governance(db, _governed_item(db, item_id), payload.model_dump(exclude_none=True), actor=_actor(role), correlation_id=request.state.correlation_id)
+    item = _authorized_item(db, item_id, role, action="GOVERNANCE_WRITE"); assert_content_library_authority_write_allowed(db, item)
+    return update_governance(db, item, payload.model_dump(exclude_none=True), actor=_actor(request, role), correlation_id=request.state.correlation_id)
 
 
 @router.post("/master-content/{item_id}/currentness")
 def currentness(item_id: str, payload: CurrentnessPayload, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "MASTER_SOURCE_VERIFY_CURRENTNESS")
-    return set_currentness(db, _governed_item(db, item_id), action=payload.action, actor=_actor(role), note=payload.note, correlation_id=request.state.correlation_id)
+    item = _authorized_item(db, item_id, role, action="CURRENTNESS_WRITE"); assert_content_library_authority_write_allowed(db, item)
+    return set_currentness(db, item, action=payload.action, actor=_actor(request, role), note=payload.note, correlation_id=request.state.correlation_id)
 
 
 @router.post("/master-content/{item_id}/provenance")
 def provenance(item_id: str, payload: ProvenancePayload, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "MASTER_CONTENT_GOVERNANCE_WRITE")
-    item = _governed_item(db, item_id)
+    item = _authorized_item(db, item_id, role, action="PROVENANCE_WRITE")
+    assert_content_library_authority_write_allowed(db, item)
     version = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
     if not version: raise HTTPException(409, {"code": "METADATA_REQUIRES_CURRENT_VERSION"})
-    return add_provenance(db, item, version, payload.model_dump(exclude_none=True), actor=_actor(role), correlation_id=request.state.correlation_id)
+    return add_provenance(db, item, version, payload.model_dump(exclude_none=True), actor=_actor(request, role), correlation_id=request.state.correlation_id)
 
 
 @router.post("/master-content/{item_id}/quality-flags")
 def create_quality_flag(item_id: str, payload: QualityFlagPayload, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "MASTER_SOURCE_MANAGE_QUALITY")
-    return add_quality_flag(db, _governed_item(db, item_id), payload.model_dump(exclude_none=True), actor=_actor(role), correlation_id=request.state.correlation_id)
+    item = _authorized_item(db, item_id, role, action="QUALITY_WRITE"); assert_content_library_authority_write_allowed(db, item)
+    return add_quality_flag(db, item, payload.model_dump(exclude_none=True), actor=_actor(request, role), correlation_id=request.state.correlation_id)
 
 
 @router.patch("/master-content/{item_id}/quality-flags/{flag_id}")
 def patch_quality_flag(item_id: str, flag_id: str, payload: QualityFlagResolution, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "MASTER_SOURCE_MANAGE_QUALITY")
-    item = _governed_item(db, item_id)
+    item = _authorized_item(db, item_id, role, action="QUALITY_WRITE")
+    assert_content_library_authority_write_allowed(db, item)
     flag = db.get(MasterContentQualityFlag, flag_id)
     if not flag or flag.master_content_item_id != item.id: raise HTTPException(404, {"code": "QUALITY_FLAG_NOT_FOUND"})
-    return resolve_quality_flag(db, item, flag, status=payload.status, resolution=payload.resolution, actor=_actor(role), correlation_id=request.state.correlation_id)
+    return resolve_quality_flag(db, item, flag, status=payload.status, resolution=payload.resolution, actor=_actor(request, role), correlation_id=request.state.correlation_id)
 
 
 @router.post("/master-content/{item_id}/source-sections")
 def create_source_section(item_id: str, payload: SourceSectionPayload, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "MASTER_SOURCE_SECTION_MANAGE")
-    return add_source_section(db, _governed_item(db, item_id), payload.model_dump(exclude_none=True), actor=_actor(role), correlation_id=request.state.correlation_id)
+    item = _authorized_item(db, item_id, role, action="SOURCE_SECTION_WRITE"); assert_content_library_authority_write_allowed(db, item)
+    return add_source_section(db, item, payload.model_dump(exclude_none=True), actor=_actor(request, role), correlation_id=request.state.correlation_id)
 
 
 @router.patch("/master-content/{item_id}/source-sections/{section_id}")
 def patch_source_section(item_id: str, section_id: str, payload: SourceSectionPatch, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "MASTER_SOURCE_SECTION_MANAGE")
-    item = _governed_item(db, item_id)
+    item = _authorized_item(db, item_id, role, action="SOURCE_SECTION_WRITE")
+    assert_content_library_authority_write_allowed(db, item)
     from ..models import MasterContentSourceSection
     section = db.get(MasterContentSourceSection, section_id)
     if not section or section.master_content_item_id != item.id: raise HTTPException(404, {"code": "SOURCE_SECTION_NOT_FOUND"})
-    return update_source_section(db, item, section, payload.model_dump(exclude_none=True), actor=_actor(role), correlation_id=request.state.correlation_id)
+    return update_source_section(db, item, section, payload.model_dump(exclude_none=True), actor=_actor(request, role), correlation_id=request.state.correlation_id)
 
 
 @router.post("/master-content/{item_id}/readiness/evaluate")
 def evaluate_content_readiness(item_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "MASTER_READINESS_EVALUATE")
-    item = _governed_item(db, item_id)
+    item = _authorized_item(db, item_id, role, action="READINESS_WRITE")
+    assert_content_library_authority_write_allowed(db, item)
     result = evaluate_readiness(db, item, persist=True)
-    audit(db, correlation_id=request.state.correlation_id, event_type="MASTER_CONTENT_READINESS_EVALUATED", entity_type="MasterContentItem", entity_id=item.id, actor_id=_actor(role), after=result)
+    audit(db, correlation_id=request.state.correlation_id, event_type="MASTER_CONTENT_READINESS_EVALUATED", entity_type="MasterContentItem", entity_id=item.id, actor_id=_actor(request, role), after=result)
     db.commit()
     return result
 
 
 @router.get("/master-content/{item_id}/dependencies")
 def dependencies(item_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    if not db.get(MasterContentItem, item_id):
-        raise HTTPException(404, {"code": "CONTENT_NOT_FOUND"})
+    _authorized_item(db, item_id, role)
     return [{"id": d.id, "downstream_type": d.downstream_type, "downstream_id": d.downstream_id, "project_id": d.project_id, "bound_version_id": d.bound_document_version_id, "expected_current_version_id": d.expected_current_version_id, "status": d.status, "policy": d.policy} for d in db.scalars(select(MasterContentDependency).where(MasterContentDependency.master_content_id == item_id).order_by(MasterContentDependency.created_at)).all()]
 
 
 @router.post("/master-content/{item_id}/dependencies")
 def add_dependency(item_id: str, payload: DependencyCreate, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "MASTER_CONTENT_DEPENDENCY_WRITE")
-    return register_dependency(db, item_id=item_id, downstream_type=payload.downstream_type, downstream_id=payload.downstream_id, project_id=payload.project_id, dependency_kind=payload.dependency_kind, actor=_actor(role), correlation_id=request.state.correlation_id)
+    assert_content_library_authority_write_allowed(db, _governed_item(db, item_id))
+    return register_dependency(db, item_id=item_id, downstream_type=payload.downstream_type, downstream_id=payload.downstream_id, project_id=payload.project_id, dependency_kind=payload.dependency_kind, actor=_actor(request, role), correlation_id=request.state.correlation_id)
 
 
 @router.post("/master-content/dependencies/{dependency_id}/revalidate")
 def revalidate_dependency_route(dependency_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "MASTER_CONTENT_DEPENDENCY_REVALIDATE")
-    return revalidate_dependency(db, dependency_id=dependency_id, actor=_actor(role), correlation_id=request.state.correlation_id)
+    dependency = db.get(MasterContentDependency, dependency_id)
+    if not dependency:
+        raise HTTPException(404, {"code": "DEPENDENCY_NOT_FOUND"})
+    _authorized_item(db, dependency.master_content_id, role, action="DEPENDENCY_REVALIDATE")
+    return revalidate_dependency(db, dependency_id=dependency_id, actor=_actor(request, role), correlation_id=request.state.correlation_id)
 
 
 @router.get("/master-content/{item_id}/propagation")
 def propagation(item_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    item = db.get(MasterContentItem, item_id)
-    if not item:
-        raise HTTPException(404, {"code": "CONTENT_NOT_FOUND"})
+    item = _authorized_item(db, item_id, role)
     events = db.scalars(select(MasterContentChangeEvent).where(MasterContentChangeEvent.master_content_id == item.id).order_by(MasterContentChangeEvent.occurred_at.desc())).all()
     dependencies = db.scalars(select(MasterContentDependency).where(MasterContentDependency.master_content_id == item.id)).all()
     lineage = []
@@ -520,17 +601,14 @@ def propagation(item_id: str, db: Session = Depends(get_db), role: Role = Depend
 
 @router.get("/master-content/{item_id}/versions")
 def versions(item_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    item = db.get(MasterContentItem, item_id)
-    if not item:
-        raise HTTPException(404, {"code": "CONTENT_NOT_FOUND"})
+    item = _authorized_item(db, item_id, role)
     return item_projection(db, item, include_history=True)["versions"]
 
 
 @router.patch("/master-content/{item_id}/metadata")
 def patch_metadata(item_id: str, payload: MetadataPatch, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    item = db.get(MasterContentItem, item_id)
-    if not item:
-        raise HTTPException(404, {"code": "CONTENT_NOT_FOUND"})
+    item = _authorized_item(db, item_id, role, action="METADATA_WRITE")
+    assert_content_library_authority_write_allowed(db, item)
     require_capability(role, _write_capability(item.content_type))
     current = db.scalar(select(DocumentVersion).where(DocumentVersion.id == item.current_document_version_id)) if item.current_document_version_id else None
     if not current:
@@ -546,7 +624,7 @@ def patch_metadata(item_id: str, payload: MetadataPatch, request: Request, db: S
     if payload.used_in is not None:
         modules = _parse_modules(payload.used_in, item.content_type)
         item.used_in = modules
-        _sync_module_bindings(db, item_id=item.id, modules=modules, actor=_actor(role))
+        _sync_module_bindings(db, item_id=item.id, modules=modules, actor=_actor(request, role))
     if payload.needs_review is not None:
         item.needs_review = payload.needs_review
         item.review_note = (payload.review_note or None) if payload.needs_review else None
@@ -556,28 +634,28 @@ def patch_metadata(item_id: str, payload: MetadataPatch, request: Request, db: S
         if item.content_type != "ENGINEERING_WORK" or payload.source_type_code.upper() not in ENGINEERING_SOURCE_TYPES:
             raise HTTPException(422, {"code": "ENGINEERING_SOURCE_TYPE_NOT_ALLOWED"})
         item.source_type_code = payload.source_type_code.upper()
-    audit(db, correlation_id=request.state.correlation_id, event_type="MASTER_CONTENT_METADATA_UPDATED", entity_type="MasterContentItem", entity_id=item.id, actor_id=_actor(role), after={"ref": item.ref, "title": item.title, "category_id": item.category_id, "description": item.description, "used_in": item.used_in, "current_version_id": current.id}, metadata={"change_reason": payload.change_reason, "document_version_unchanged": True})
+    audit(db, correlation_id=request.state.correlation_id, event_type="MASTER_CONTENT_METADATA_UPDATED", entity_type="MasterContentItem", entity_id=item.id, actor_id=_actor(request, role), after={"ref": item.ref, "title": item.title, "category_id": item.category_id, "description": item.description, "used_in": item.used_in, "current_version_id": current.id}, metadata={"change_reason": payload.change_reason, "document_version_unchanged": True})
     db.commit()
     return item_projection(db, item, include_history=True)
 
 
 @router.get("/master-content/{item_id}/module-bindings")
 def get_module_bindings(item_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    if not db.get(MasterContentItem, item_id):
-        raise HTTPException(404, {"code": "CONTENT_NOT_FOUND"})
+    _authorized_item(db, item_id, role)
     return [{"id": binding.id, "module": binding.module, "usage_type": binding.usage_type, "active": binding.active, "created_by": binding.created_by} for binding in db.scalars(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == item_id).order_by(MasterContentModuleBinding.module)).all()]
 
 
 @router.put("/master-content/{item_id}/module-bindings")
 def put_module_bindings(item_id: str, payload: list[BindingPayload], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "MASTER_CONTENT_BINDING_WRITE")
-    item = db.get(MasterContentItem, item_id)
-    if not item:
-        raise HTTPException(404, {"code": "CONTENT_NOT_FOUND"})
+    item = _authorized_item(db, item_id, role, action="BINDING_WRITE")
+    assert_content_library_authority_write_allowed(db, item)
     seen: dict[tuple[str, str], bool] = {}
     for row in payload:
         module, usage_type = validate_module_binding(content_type=item.content_type, module=row.module, usage_type=row.usage_type)
-        validate_internal_template_binding(db, item=item, usage_type=usage_type)
+        eligibility = evaluate_master_content_reuse_eligibility(db, item=item, module=module, usage_type=usage_type, content_type=item.content_type, require_binding=False, enforce_governance_readiness=usage_type in {"PROPOSAL_TEMPLATE", "PROPOSAL_CHECKLIST", "CONTRACT_TEMPLATE"})
+        if not eligibility["eligible"]:
+            raise HTTPException(409, {"code": "MASTER_CONTENT_NOT_REUSABLE", "reasons": eligibility["reasons"]})
         key = (module, usage_type)
         if key in seen:
             raise HTTPException(422, {"code": "MODULE_BINDING_DUPLICATE", "module": module, "usage_type": usage_type})
@@ -590,9 +668,9 @@ def put_module_bindings(item_id: str, payload: list[BindingPayload], request: Re
         if binding:
             binding.active = active
         else:
-            db.add(MasterContentModuleBinding(master_content_id=item_id, module=module, usage_type=usage_type, active=active, created_by=_actor(role)))
+            db.add(MasterContentModuleBinding(master_content_id=item_id, module=module, usage_type=usage_type, active=active, created_by=_actor(request, role)))
     item.used_in = sorted({module for (module, _), active in seen.items() if active})
-    audit(db, correlation_id=request.state.correlation_id, event_type="MASTER_CONTENT_MODULE_BINDINGS_UPDATED", entity_type="MasterContentItem", entity_id=item.id, actor_id=_actor(role), after={"used_in": item.used_in})
+    audit(db, correlation_id=request.state.correlation_id, event_type="MASTER_CONTENT_MODULE_BINDINGS_UPDATED", entity_type="MasterContentItem", entity_id=item.id, actor_id=_actor(request, role), after={"used_in": item.used_in})
     db.commit()
     return item_projection(db, item, include_history=True)
 
@@ -617,32 +695,101 @@ async def create_version(
     db: Session = Depends(get_db),
     role: Role = Depends(current_user_role),
 ):
-    item = db.get(MasterContentItem, item_id)
-    if not item:
-        raise HTTPException(404, {"code": "CONTENT_NOT_FOUND"})
+    item = _authorized_item(db, item_id, role, action="VERSION_WRITE")
+    assert_content_library_authority_write_allowed(db, item)
     require_capability(role, _write_capability(item.content_type))
-    payload = await file.read() if file else None
+    max_bytes = get_settings().master_sor_max_file_size
+    if file:
+        declared_length = request.headers.get("content-length")
+        if declared_length and declared_length.isdigit() and int(declared_length) > max_bytes + 1024 * 1024:
+            raise HTTPException(413, {"code": "FILE_TOO_LARGE", "max_bytes": max_bytes})
+        payload = await file.read(max_bytes + 1)
+        if len(payload) > max_bytes:
+            raise HTTPException(413, {"code": "FILE_TOO_LARGE", "max_bytes": max_bytes})
+    else:
+        payload = None
     parsed_metadata = _json_object(engineering_metadata)
-    return create_master_content_version(db, item_id=item_id, expected_current_version=expected_current_version, filename=file.filename if file else None, mime_type=file.content_type if file else None, content=payload, title=title, category_id=category_id, description=description, change_reason=change_reason, actor=_actor(role), idempotency_key=idempotency_key or str(uuid.uuid4()), correlation_id=request.state.correlation_id, source_surface=source_surface.upper() if source_surface.upper() in {"DASHBOARD", "ADMINISTRATION"} else "DASHBOARD", used_in=used_in, source_type_code=source_type_code, engineering_metadata=parsed_metadata, needs_review=needs_review, review_note=review_note)
+    return create_master_content_version(db, item_id=item_id, expected_current_version=expected_current_version, filename=file.filename if file else None, mime_type=file.content_type if file else None, content=payload, title=title, category_id=category_id, description=description, change_reason=change_reason, actor=_actor(request, role), idempotency_key=idempotency_key or str(uuid.uuid4()), correlation_id=request.state.correlation_id, source_surface=source_surface.upper() if source_surface.upper() in {"DASHBOARD", "ADMINISTRATION"} else "DASHBOARD", used_in=used_in, source_type_code=source_type_code, engineering_metadata=parsed_metadata, needs_review=needs_review, review_note=review_note)
 
 
 @router.get("/master-content/{item_id}/download")
 def download_current(item_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    item = db.get(MasterContentItem, item_id)
-    if not item or not item.current_document_version_id:
+    item = _authorized_item(db, item_id, role)
+    if not item.current_document_version_id:
         raise HTTPException(404, {"code": "CONTENT_NOT_FOUND"})
     version = db.get(DocumentVersion, item.current_document_version_id)
+    if not version:
+        raise HTTPException(404, {"code": "CONTENT_NOT_FOUND"})
+    _require_scan_access(version, role)
     if item_projection(db, item).get("governance", {}).get("profile", {}).get("restricted_reference_sample"):
         require_capability(role, "MASTER_RESTRICTED_SAMPLE_DOWNLOAD")
     return _download(db, version)
 
 
+@router.post("/master-content/{item_id}/malware-scan")
+def record_malware_scan(item_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    """Trigger trusted reconciliation; request-body scan claims are intentionally ignored."""
+    require_capability(role, "MASTER_SOURCE_MANAGE_QUALITY")
+    item = _authorized_item(db, item_id, role, action="QUALITY_WRITE")
+    if not item.current_document_version_id:
+        raise HTTPException(409, {"code": "MALWARE_SCAN_VERSION_UNAVAILABLE"})
+    return reconcile_malware_scan(item_id, item.current_document_version_id, request, db, role)
+
+
+@router.post("/master-content/{item_id}/malware-scan/reconcile/{version_id}")
+def reconcile_malware_scan(item_id: str, version_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    """Reconcile state from Defender's Blob index-tag channel, never from caller claims."""
+    require_capability(role, "MASTER_SOURCE_MANAGE_QUALITY")
+    item = _authorized_item(db, item_id, role, action="QUALITY_WRITE")
+    version = db.get(DocumentVersion, version_id)
+    if not version or version.document_id != item.document_id:
+        raise HTTPException(404, {"code": "VERSION_NOT_FOUND"})
+    metadata = version.metadata_json or {}
+    if str(metadata.get("storage_provider") or "").lower() != "azure-blob":
+        raise HTTPException(409, {"code": "MALWARE_SCAN_REQUIRES_AZURE_BLOB"})
+    try:
+        provider, container, relative = version.source_path_or_reference.removeprefix("storage://").split("/", 2)
+        store = create_binary_store()
+        if not isinstance(store, AzureBlobBinaryStore) or provider != "azure-blob" or container != store.config.container:
+            raise StorageError("MALWARE_SCAN_STORAGE_LOCATOR_INVALID")
+        tags = store.scan_result(StorageLocator(provider, container, relative))
+        result = tags.get("Malware scanning scan result", "").strip().lower()
+        state = {
+            "no threats found": "CLEAN",
+            "malicious": "MALICIOUS",
+            "error": "SCAN_FAILED",
+            "not scanned": "SCAN_UNAVAILABLE",
+        }.get(result, "SCAN_PENDING")
+        if state == "CLEAN" and store.stat(StorageLocator(provider, container, relative)).sha256 != version.sha256:
+            state = "SCAN_FAILED"
+            result = "hash mismatch"
+        evidence = f"blob-index-tags:{tags.get('Malware scanning scan time', 'UNAVAILABLE')}"
+    except StorageError as exc:
+        raise HTTPException(503, {"code": "MALWARE_SCAN_RESULT_UNAVAILABLE", "reason": exc.code.value}) from exc
+    except (ValueError, AttributeError) as exc:
+        raise HTTPException(503, {"code": "MALWARE_SCAN_RESULT_UNAVAILABLE"}) from exc
+    version.metadata_json = {
+        **metadata,
+        "malware_scan_state": state,
+        "malware_scan_provider": "DEFENDER_FOR_STORAGE",
+        "malware_scan_result_source": "DEFENDER_FOR_STORAGE_INDEX_TAG",
+        "malware_scan_evidence_reference": evidence,
+        "malware_scan_sha256": version.sha256 if state == "CLEAN" else None,
+        "malware_scan_recorded_by": _actor(request, role),
+    }
+    audit(db, correlation_id=request.state.correlation_id, event_type="MASTER_CONTENT_MALWARE_SCAN_RECONCILED", entity_type="DocumentVersion", entity_id=version.id, actor_id=_actor(request, role), after={"master_content_id": item.id, "malware_scan_state": state, "malware_scan_result": result, "malware_scan_sha256": version.sha256 if state == "CLEAN" else None}, metadata={"evidence_reference": evidence, "result_source": "DEFENDER_FOR_STORAGE_INDEX_TAG", "fail_closed_until_clean": state != "CLEAN"})
+    db.commit()
+    return item_projection(db, item, include_history=True)
+
+
 @router.get("/master-content/{item_id}/versions/{version_id}/download")
 def download_version(item_id: str, version_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    item = db.get(MasterContentItem, item_id)
+    item = _authorized_item(db, item_id, role)
     version = db.get(DocumentVersion, version_id) if item else None
     if not item or not version or version.document_id != item.document_id:
         raise HTTPException(404, {"code": "VERSION_NOT_FOUND"})
+    _require_binary_access(item, version, role)
+    _require_scan_access(version, role)
     if item_projection(db, item).get("governance", {}).get("profile", {}).get("restricted_reference_sample"):
         require_capability(role, "MASTER_RESTRICTED_SAMPLE_DOWNLOAD")
     return _download(db, version)
@@ -650,10 +797,12 @@ def download_version(item_id: str, version_id: str, db: Session = Depends(get_db
 
 @router.get("/master-content/{item_id}/versions/{version_id}/rendition")
 def download_rendition(item_id: str, version_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    item = db.get(MasterContentItem, item_id)
+    item = _authorized_item(db, item_id, role)
     version = db.get(DocumentVersion, version_id) if item else None
     if not item or not version or version.document_id != item.document_id:
         raise HTTPException(404, {"code": "VERSION_NOT_FOUND"})
+    _require_binary_access(item, version, role)
+    _require_scan_access(version, role)
     if version.rendition_status != "SOURCE_PDF" or not version.rendition_path_or_reference:
         raise HTTPException(409, {"code": "RENDITION_NOT_AVAILABLE"})
     if item_projection(db, item).get("governance", {}).get("profile", {}).get("restricted_reference_sample"):
@@ -672,15 +821,16 @@ def _download(db: Session, version: DocumentVersion, path_override: str | None =
 @router.post("/master-content/{item_id}/archive")
 def archive_content(item_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "MASTER_CONTENT_ARCHIVE")
-    item = db.get(MasterContentItem, item_id)
-    if not item:
-        raise HTTPException(404, {"code": "CONTENT_NOT_FOUND"})
-    return archive_master_content(db, item_id=item_id, actor=_actor(role), correlation_id=request.state.correlation_id)
+    item = _authorized_item(db, item_id, role, action="ARCHIVE")
+    assert_content_library_authority_write_allowed(db, item)
+    return archive_master_content(db, item_id=item_id, actor=_actor(request, role), correlation_id=request.state.correlation_id)
 
 
 @router.post("/master-content/{item_id}/reconcile")
 def reconcile(item_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    return reconcile_item(db, item_id, request.state.correlation_id)
+    require_capability(role, "MASTER_CONTENT_RECONCILE")
+    _authorized_item(db, item_id, role, action="RECONCILE")
+    return reconcile_item(db, item_id, request.state.correlation_id, actor=_actor(request, role))
 
 
 @router.get("/definitions")
@@ -711,17 +861,17 @@ def create_definition(payload: DefinitionCreate, request: Request, db: Session =
     if ref and db.scalar(select(DefinitionEntry).where(DefinitionEntry.ref == ref)):
         raise HTTPException(409, {"code": "DEFINITION_REF_CONFLICT"})
     modules = _parse_modules(payload.used_in, "DEFINITION")
-    definition = DefinitionEntry(ref=ref, term=term, category=payload.category, used_in=modules, status="ACTIVE", created_by=_actor(role))
+    definition = DefinitionEntry(ref=ref, term=term, category=payload.category, used_in=modules, status="ACTIVE", created_by=_actor(request, role))
     db.add(definition)
     db.flush()
-    revision = DefinitionRevision(definition_id=definition.id, revision_number=1, term=definition.term, category=payload.category, used_in=modules, description=payload.description, aliases=payload.aliases, notes=payload.notes, changed_by=_actor(role), change_reason=payload.change_reason or "Initial definition", status="CURRENT")
+    revision = DefinitionRevision(definition_id=definition.id, revision_number=1, term=definition.term, category=payload.category, used_in=modules, description=payload.description, aliases=payload.aliases, notes=payload.notes, changed_by=_actor(request, role), change_reason=payload.change_reason or "Initial definition", status="CURRENT")
     db.add(revision)
     db.flush()
     definition.current_revision_id = revision.id
-    emit_definition_revision_event(db, definition=definition, revision=revision, previous=None, actor=_actor(role), correlation_id=request.state.correlation_id)
+    emit_definition_revision_event(db, definition=definition, revision=revision, previous=None, actor=_actor(request, role), correlation_id=request.state.correlation_id)
     for module in modules:
-        db.add(MasterContentModuleBinding(definition_id=definition.id, module=module, usage_type="SEMANTIC_SOURCE", active=True, created_by=_actor(role)))
-    audit(db, correlation_id=request.state.correlation_id, event_type="DEFINITION_CREATED", entity_type="DefinitionEntry", entity_id=definition.id, actor_id=_actor(role), after={"ref": ref, "term": definition.term, "revision": 1}, metadata={"reference_generated": generated, "used_in": modules})
+        db.add(MasterContentModuleBinding(definition_id=definition.id, module=module, usage_type="SEMANTIC_SOURCE", active=True, created_by=_actor(request, role)))
+    audit(db, correlation_id=request.state.correlation_id, event_type="DEFINITION_CREATED", entity_type="DefinitionEntry", entity_id=definition.id, actor_id=_actor(request, role), after={"ref": ref, "term": definition.term, "revision": 1}, metadata={"reference_generated": generated, "used_in": modules})
     db.commit()
     return definition_projection(db, definition, include_history=True)
 
@@ -782,9 +932,9 @@ def put_definition_module_bindings(definition_id: str, payload: list[BindingPayl
         if binding:
             binding.active = active
         else:
-            db.add(MasterContentModuleBinding(definition_id=definition_id, module=module, usage_type=usage_type, active=active, created_by=_actor(role)))
+            db.add(MasterContentModuleBinding(definition_id=definition_id, module=module, usage_type=usage_type, active=active, created_by=_actor(request, role)))
     definition.used_in = sorted({module for (module, _), active in seen.items() if active})
-    audit(db, correlation_id=request.state.correlation_id, event_type="DEFINITION_MODULE_BINDINGS_UPDATED", entity_type="DefinitionEntry", entity_id=definition_id, actor_id=_actor(role), after={"used_in": definition.used_in})
+    audit(db, correlation_id=request.state.correlation_id, event_type="DEFINITION_MODULE_BINDINGS_UPDATED", entity_type="DefinitionEntry", entity_id=definition_id, actor_id=_actor(request, role), after={"used_in": definition.used_in})
     db.commit()
     return definition_projection(db, definition, include_history=True)
 
@@ -805,19 +955,19 @@ def revise_definition(definition_id: str, payload: DefinitionRevisionCreate, req
     modules = _parse_modules(payload.used_in, "DEFINITION") if payload.used_in is not None else definition.used_in or []
     definition.category = payload.category if payload.category is not None else definition.category
     definition.used_in = modules
-    revision = DefinitionRevision(definition_id=definition.id, revision_number=current.revision_number + 1, term=term, category=definition.category, used_in=modules, description=payload.description, aliases=payload.aliases, notes=payload.notes, changed_by=_actor(role), change_reason=payload.change_reason, status="CURRENT")
+    revision = DefinitionRevision(definition_id=definition.id, revision_number=current.revision_number + 1, term=term, category=definition.category, used_in=modules, description=payload.description, aliases=payload.aliases, notes=payload.notes, changed_by=_actor(request, role), change_reason=payload.change_reason, status="CURRENT")
     db.add(revision)
     db.flush()
     definition.term = revision.term
     definition.current_revision_id = revision.id
-    emit_definition_revision_event(db, definition=definition, revision=revision, previous=current, actor=_actor(role), correlation_id=request.state.correlation_id)
+    emit_definition_revision_event(db, definition=definition, revision=revision, previous=current, actor=_actor(request, role), correlation_id=request.state.correlation_id)
     existing_bindings = db.scalars(select(MasterContentModuleBinding).where(MasterContentModuleBinding.definition_id == definition.id)).all()
     for binding in existing_bindings:
         binding.active = binding.module in modules
     for module in modules:
         if not db.scalar(select(MasterContentModuleBinding).where(MasterContentModuleBinding.definition_id == definition.id, MasterContentModuleBinding.module == module, MasterContentModuleBinding.usage_type == "SEMANTIC_SOURCE")):
-            db.add(MasterContentModuleBinding(definition_id=definition.id, module=module, usage_type="SEMANTIC_SOURCE", active=True, created_by=_actor(role)))
-    audit(db, correlation_id=request.state.correlation_id, event_type="DEFINITION_REVISED", entity_type="DefinitionEntry", entity_id=definition.id, actor_id=_actor(role), before={"revision": current.revision_number}, after={"revision": revision.revision_number}, metadata={"change_reason": payload.change_reason})
+            db.add(MasterContentModuleBinding(definition_id=definition.id, module=module, usage_type="SEMANTIC_SOURCE", active=True, created_by=_actor(request, role)))
+    audit(db, correlation_id=request.state.correlation_id, event_type="DEFINITION_REVISED", entity_type="DefinitionEntry", entity_id=definition.id, actor_id=_actor(request, role), before={"revision": current.revision_number}, after={"revision": revision.revision_number}, metadata={"change_reason": payload.change_reason})
     db.commit()
     return definition_projection(db, definition, include_history=True)
 
@@ -829,7 +979,7 @@ def archive_definition(definition_id: str, request: Request, db: Session = Depen
     if not definition:
         raise HTTPException(404, {"code": "DEFINITION_NOT_FOUND"})
     definition.status = "ARCHIVED"
-    audit(db, correlation_id=request.state.correlation_id, event_type="DEFINITION_ARCHIVED", entity_type="DefinitionEntry", entity_id=definition.id, actor_id=_actor(role), after={"term": definition.term})
+    audit(db, correlation_id=request.state.correlation_id, event_type="DEFINITION_ARCHIVED", entity_type="DefinitionEntry", entity_id=definition.id, actor_id=_actor(request, role), after={"term": definition.term})
     db.commit()
     return definition_projection(db, definition, include_history=True)
 

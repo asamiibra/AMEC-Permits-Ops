@@ -1,0 +1,79 @@
+{
+  "contract": "content-library-ai-terminal-v1",
+  "branch": "closure/content-library-production-v1",
+  "predecessor": {
+    "PREDECESSOR_CLOSURE_HEAD": "c4b89d6c9e981e67fac12761ed7ce16182803da4",
+    "PREDECESSOR_CLOSURE_TREE": "d8d8a659ea4f893d61ffa21c84994d2d430bcca1",
+    "PREDECESSOR_CLOSURE_RESULT": "BLOCKED",
+    "PREDECESSOR_IMAGE_DIGESTS": [
+      "sha256:1af1157ce41c55b908d7a9d30f2e07b2e19ea0f490f5d1e72d2ae62d42df1655"
+    ],
+    "PREDECESSOR_AZURE_RESOURCES": "EXISTING_NONPROD_ACA_EXECUTION_PATH",
+    "PREDECESSOR_DEPLOYMENT_STATE": "NOT_PRODUCTION_DEPLOYED"
+  },
+  "integration": {
+    "EXECUTION_START_MAIN_SHA": "d92cef6d6fdbb7e4248061ebbcfef30cf2f0011d",
+    "EXECUTION_START_MAIN_TREE": "04af916251fb2cf92b8575a9e780d35c3322baf8",
+    "CURRENT_MAIN_SHA": "d92cef6d6fdbb7e4248061ebbcfef30cf2f0011d",
+    "CURRENT_MAIN_TREE": "04af916251fb2cf92b8575a9e780d35c3322baf8",
+    "CONTENT_BRANCH_PARENT_MERGE_SHA": "d1ed04cbea710d47f409b171db618dec57bd10e7",
+    "CONTENT_BRANCH_PARENT_MERGE_TREE": "4820a98f8544dd6c9eda47b75f7ac67143cae5b0",
+    "MERGE_BASE": "d92cef6d6fdbb7e4248061ebbcfef30cf2f0011d",
+    "D92_OR_DESCENDANT_PRESENT": true,
+    "normal_forward_merge": true,
+    "published_history_rewritten": false
+  },
+  "identity": {
+    "display_name": "DISPLAY_ONLY",
+    "preferred_username": "DISPLAY_ONLY",
+    "authorization_actor": "SERVER_DERIVED_AUTHENTICATED_PRINCIPAL",
+    "spoofed_actor_headers": "NOT_AUTHORIZED"
+  },
+  "architecture": {
+    "AI_ARCHITECTURE": "SHARED_PROPOSALOPS_INTELLIGENCE_PLATFORM",
+    "owning_module": "master_content",
+    "skill_count": 7,
+    "output_classes": ["CANDIDATE", "ANALYSIS", "RECOMMENDATION", "DRAFT"],
+    "canonical_write_authority": "NONE",
+    "protected_action_authority": "NONE",
+    "REAL_DATA_AUTHORITY": false,
+    "NEXT_MODULE_INTEGRATION": "UNTOUCHED"
+  },
+  "verification": {
+    "focused_content_library_ai": "7 passed",
+    "shared_ai_p1_p7_regression": "32 passed",
+    "content_library_regression_and_ai": "68 passed",
+    "frontend": "122 passed across 24 test files",
+    "frontend_build": "PASS",
+    "full_backend": "935 passed, 12 failed, 34 skipped, 4 warnings",
+    "full_backend_failure_classification": "migration-graph expectation drift plus unrelated/state-order-sensitive legacy failures; not converted to PASS",
+    "migration_head": "p07_intelligence_foundation_closure",
+    "alembic_head_count": 1,
+    "nullable_unique_audit": "PASS; 256 total, 20 filtered-required, 20 implemented, 0 open, 0 unsafe",
+    "isolated_sqlite_migration_upgrade": "BLOCKED_AT_HISTORICAL_BASELINE",
+    "isolated_sqlite_migration_blocker": "baseline_phase4_v36_azure_sql.py:6696; SQLite does not support ALTER of constraints",
+    "browser_e2e": "NOT_RUN",
+    "postgres16_acceptance": "NOT_RUN",
+    "github_ci": "NOT_RUN",
+    "independent_code_arch_review": "NOT_RUN",
+    "real_azure_model_inference": "NOT_RUN_EXTERNAL_GATE",
+    "production_shaped_runtime": "NOT_RUN_EXTERNAL_GATE"
+  },
+  "safety": {
+    "NEXT_MODULE_INTEGRATION": "READ_ONLY_AND_UNTOUCHED",
+    "PRODUCTION_DEPLOYMENT": "NOT_PERFORMED",
+    "AZURE_CONTROL_PLANE_MUTATION": "NOT_PERFORMED",
+    "real_amec_data_mutation": false,
+    "protected_human_authority": "UNCHANGED"
+  },
+  "external_blockers": [
+    "Microsoft.EventGrid subscription registration is absent; no registration was performed",
+    "Defender for Storage scan/on-upload permission and trusted malware reconciliation are not proven",
+    "Azure SQL logical-server Entra identity and Directory Readers bootstrap are not proven",
+    "ACA quota/runtime production-shaped qualification is not proven",
+    "approved Azure model capacity/commissioning and real synthetic inference are not proven",
+    "amecidsystem.com deployment and Owner smoke are not performed"
+  ],
+  "terminal_state": "BLOCKED_EXTERNAL_AND_UNPROVEN_ACCEPTANCE_GATES",
+  "production_ready": false
+}

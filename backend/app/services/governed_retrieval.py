@@ -18,7 +18,7 @@ from ..models import (AssertionStatus, DefinitionEntry, DefinitionRevision, Docu
     DocumentClassification, DocumentVersion, FieldObservation,
     MasterContentGovernanceProfile, MasterContentItem, MasterContentModuleBinding,
     MasterContentSourceProvenance, Role, VerifiedAssertion)
-from .master_content import read_master_content_bytes
+from .master_content import master_content_scan_is_clean, master_content_synthetic_fallback_allowed, read_master_content_bytes
 
 RETRIEVAL_CONTRACT_VERSION = "1.0"
 RETRIEVAL_CANONICAL_WRITE_COUNT = 0
@@ -141,19 +141,37 @@ def _sort(candidate: tuple[GovernedRetrievalResult, tuple[int, ...]]) -> tuple[A
 
 def _content(db: Session, item: MasterContentItem, version: DocumentVersion, access: RetrievalAccessContext) -> str:
     if not access.may_read_master(item): raise UnauthorizedRetrieval("master content is outside caller scope")
-    try: payload = read_master_content_bytes(db, version)
-    except Exception: payload = str(version.metadata_json.get("synthetic_text", "")).encode()
+    if not master_content_scan_is_clean(version):
+        raise UnauthorizedRetrieval("master content malware scan is not clean")
+    try:
+        payload = read_master_content_bytes(db, version)
+    except Exception:
+        # Only un-managed synthetic TEST fixtures may use their durable
+        # fixture text. Azure-managed artifacts must propagate read/hash/
+        # storage failures and never substitute synthetic content.
+        if not master_content_synthetic_fallback_allowed(version):
+            raise
+        payload = str((version.metadata_json or {}).get("synthetic_text", "")).encode()
     return payload.decode("utf-8", errors="replace")
 
 def _master(db: Session, item: MasterContentItem, version: DocumentVersion, access: RetrievalAccessContext, query: RetrievalQuery, *, profile=None, provenance=None, bindings=None, prefetched=False):
     if not access.may_read_master(item): return None
+    if not master_content_scan_is_clean(version): return None
     if not prefetched:
         profile = db.scalar(select(MasterContentGovernanceProfile).where(MasterContentGovernanceProfile.master_content_item_id == item.id))
         provenance = list(db.scalars(select(MasterContentSourceProvenance).where(MasterContentSourceProvenance.document_version_id == version.id)))
         bindings = list(db.scalars(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == item.id, MasterContentModuleBinding.active == 1)))
     provenance = sorted(provenance or [], key=lambda row: (row.source_reference or "", row.id))
     source = provenance[0].source_reference if provenance else None
-    content = _content(db, item, version, access)
+    try:
+        content = _content(db, item, version, access)
+    except Exception:
+        # Broad discovery must omit an unreadable managed candidate rather
+        # than expose it or abort unrelated results. Explicit object/version
+        # retrieval remains a hard fail-closed error for the caller.
+        if query.master_content_id or query.document_version_id:
+            raise
+        return None
     fields = (("ref", item.ref), ("official_source", source), ("official_source", version.source_path_or_reference), ("official_source", profile.official_form_no if profile else None), ("official_source", profile.official_issue_no if profile else None), ("title", item.title), ("description", item.description), ("content", content))
     rank = _rank(query.query, fields)
     if rank is None: return None
@@ -259,6 +277,20 @@ def governed_retrieve(db: Session, query: RetrievalQuery, access: RetrievalAcces
         classifications = defaultdict(list)
         for row in (db.scalars(select(DocumentClassification).where(DocumentClassification.document_version_id.in_(version_ids))).all() if version_ids and not query.document_version_id else []): classifications[row.document_version_id].append(row)
         for version in versions:
+            master_item = db.scalar(select(MasterContentItem).where(MasterContentItem.document_id == version.document_id))
+            if master_item:
+                if query.master_content_id and query.master_content_id != master_item.id:
+                    continue
+                if not master_item.current_document_version_id or not access.may_read_master(master_item):
+                    continue
+                profile = db.scalar(select(MasterContentGovernanceProfile).where(MasterContentGovernanceProfile.master_content_item_id == master_item.id))
+                if master_item.status != "ACTIVE" or master_item.needs_review or (profile and profile.restricted_reference_sample and access.role not in OWNER_ROLES):
+                    continue
+                provenance_rows = list(db.scalars(select(MasterContentSourceProvenance).where(MasterContentSourceProvenance.document_version_id == version.id)).all())
+                binding_rows = list(db.scalars(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == master_item.id, MasterContentModuleBinding.active == 1)).all())
+                candidate = _master(db, master_item, version, access, query, profile=profile, provenance=provenance_rows, bindings=binding_rows, prefetched=True)
+                if candidate: candidates.append(candidate)
+                continue
             rows = observations.get(version.id, []); assertion_rows = [a for o in rows for a in assertions.get(o.id, [])]
             candidate = _transactional(db, version, access, query, document=documents.get(version.document_id), observations=rows, assertions=assertion_rows, classifications=classifications.get(version.id, []), prefetched=not query.document_version_id)
             if candidate: candidates.append(candidate)

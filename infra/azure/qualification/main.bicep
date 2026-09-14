@@ -36,6 +36,9 @@ param sqlAdministratorLogin string
 @description('SQL login required by the control-plane API; must differ from the Entra administrator.')
 param sqlServerAdministratorLogin string = 'proposalops_g6_sqladmin'
 
+@description('Whether to deploy the temporary ACA runtime jobs. Set false when the subscription regional ACA quota is exhausted; SQL/Blob control-plane resources remain isolated.')
+param deployRuntime bool = true
+
 @secure()
 @description('Required by the Azure SQL control-plane API; application URLs remain credentialless.')
 param sqlAdministratorPassword string
@@ -57,10 +60,13 @@ var logAnalyticsName = 'g6-law-${shortId}'
 var acrName = 'g6acr${shortId}'
 var sqlServerName = 'g6sql-${shortId}'
 var sqlDatabaseName = 'g6-qualification'
+var artifactStorageName = 'g6st${shortId}'
 var runtimeIdentityName = 'g6-runtime-${shortId}'
 var migrationIdentityName = 'g6-migration-${shortId}'
 var acrPullRoleDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
+var storageBlobDataContributorRoleDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')
 var sqlPrivateDnsZoneName = 'privatelink.database.windows.net'
+var blobPrivateDnsZoneName = 'privatelink.blob.core.windows.net'
 var imageRuntime = '${acr.properties.loginServer}/${imageRepository}@${runtimeImageDigest}'
 var imageMigration = '${acr.properties.loginServer}/${imageRepository}@${migrationImageDigest}'
 var credentiallessDatabaseUrl = 'mssql+pyodbc://@${sqlServer.properties.fullyQualifiedDomainName}/${sqlDatabaseName}?driver=ODBC+Driver+18+for+SQL+Server&Encrypt=yes&TrustServerCertificate=no'
@@ -82,6 +88,17 @@ var commonEnvironment = [
   { name: 'QUALIFICATION_ID', value: qualificationId }
   { name: 'RELEASE_SHA', value: releaseSha }
   { name: 'G6_QUALIFICATION_ONLY', value: 'true' }
+  { name: 'SOURCE_INTAKE_MODE', value: 'BRIDGE' }
+  { name: 'BRIDGE_TENANT_ID', value: tenantId }
+  { name: 'BRIDGE_CLIENT_ID', value: entraApiClientId }
+  { name: 'BRIDGE_AUDIENCE', value: entraApiClientId }
+  { name: 'BRIDGE_REQUIRED_ROLE', value: 'proposalops.source-intake' }
+  { name: 'AZURE_DIRECT_SYNOLOGY_SMB', value: 'false' }
+  { name: 'STORAGE_PROVIDER', value: 'azure_blob' }
+  { name: 'MANAGED_ARTIFACT_STORE_REQUIRED', value: 'true' }
+  { name: 'AZURE_BLOB_ACCOUNT_URL', value: 'https://${artifactStorage.name}.blob.core.windows.net' }
+  { name: 'AZURE_BLOB_CONTAINER', value: 'managed-artifacts' }
+  { name: 'AZURE_BLOB_UAMI_CLIENT_ID', value: runtimeIdentity.properties.clientId }
 ]
 
 resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
@@ -150,6 +167,22 @@ resource sqlPrivateDnsLink 'Microsoft.Network/privateDnsZones/virtualNetworkLink
   }
 }
 
+resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = {
+  name: blobPrivateDnsZoneName
+  location: 'global'
+  tags: tags
+}
+
+resource blobPrivateDnsLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = {
+  name: 'g6-vnet-link'
+  parent: blobPrivateDnsZone
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: { id: vnet.id }
+  }
+}
+
 resource runtimeIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: runtimeIdentityName
   location: location
@@ -196,7 +229,64 @@ resource sqlDatabase 'Microsoft.Sql/servers/databases@2023-08-01-preview' = {
   }
 }
 
-resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' = {
+resource artifactStorage 'Microsoft.Storage/storageAccounts@2023-05-01' = {
+  name: artifactStorageName
+  location: location
+  sku: { name: 'Standard_LRS' }
+  kind: 'StorageV2'
+  tags: tags
+  properties: {
+    accessTier: 'Hot'
+    allowBlobPublicAccess: false
+    allowCrossTenantReplication: false
+    defaultToOAuthAuthentication: true
+    minimumTlsVersion: 'TLS1_2'
+    publicNetworkAccess: 'Disabled'
+    supportsHttpsTrafficOnly: true
+    networkAcls: {
+      bypass: 'None'
+      defaultAction: 'Deny'
+      ipRules: []
+      virtualNetworkRules: []
+    }
+  }
+}
+
+resource artifactBlobService 'Microsoft.Storage/storageAccounts/blobServices@2023-05-01' = {
+  name: 'default'
+  parent: artifactStorage
+  properties: {
+    changeFeed: { enabled: true }
+    deleteRetentionPolicy: { allowPermanentDelete: false, days: 7, enabled: true }
+    isVersioningEnabled: true
+  }
+}
+
+resource artifactContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01' = {
+  name: 'managed-artifacts'
+  parent: artifactBlobService
+  properties: { publicAccess: 'None' }
+}
+
+// Microsoft Defender for Storage on-upload malware scanning. The service
+// writes its supported scan result tags to each scanned blob by default.
+resource defenderForStorageSetting 'Microsoft.Security/defenderForStorageSettings@2025-01-01' = {
+  name: 'current'
+  scope: artifactStorage
+  properties: {
+    isEnabled: true
+    overrideSubscriptionLevelSettings: true
+    malwareScanning: {
+      onUpload: {
+        capGBPerMonth: 10
+        isEnabled: true
+      }
+    }
+    sensitiveDataDiscovery: { isEnabled: false }
+  }
+}
+
+resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' = if (deployRuntime) {
   name: acaEnvironmentName
   location: location
   tags: tags
@@ -215,7 +305,7 @@ resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2024-03-01'
   }
 }
 
-resource runtimeJob 'Microsoft.App/jobs@2024-03-01' = {
+resource runtimeJob 'Microsoft.App/jobs@2024-03-01' = if (deployRuntime) {
   name: 'g6-runtime-${shortId}'
   location: location
   identity: {
@@ -246,7 +336,7 @@ resource runtimeJob 'Microsoft.App/jobs@2024-03-01' = {
   }
 }
 
-resource migrationJob 'Microsoft.App/jobs@2024-03-01' = {
+resource migrationJob 'Microsoft.App/jobs@2024-03-01' = if (deployRuntime) {
   name: 'g6-migration-${shortId}'
   location: location
   identity: {
@@ -293,6 +383,33 @@ resource sqlPrivateEndpoint 'Microsoft.Network/privateEndpoints@2024-05-01' = {
   }
 }
 
+resource blobPrivateEndpoint 'Microsoft.Network/privateEndpoints@2024-05-01' = {
+  name: 'g6-blob-pe-${shortId}'
+  location: location
+  tags: tags
+  properties: {
+    subnet: { id: resourceId(resourceGroup().name, 'Microsoft.Network/virtualNetworks/subnets', vnetName, 'private-endpoints') }
+    privateLinkServiceConnections: [{
+      name: 'blob'
+      properties: {
+        privateLinkServiceId: artifactStorage.id
+        groupIds: ['blob']
+      }
+    }]
+  }
+}
+
+resource blobPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2024-05-01' = {
+  name: 'default'
+  parent: blobPrivateEndpoint
+  properties: {
+    privateDnsZoneConfigs: [{
+      name: 'blob'
+      properties: { privateDnsZoneId: blobPrivateDnsZone.id }
+    }]
+  }
+}
+
 resource sqlPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2024-05-01' = {
   name: 'default'
   parent: sqlPrivateEndpoint
@@ -324,6 +441,26 @@ resource migrationAcrPull 'Microsoft.Authorization/roleAssignments@2022-04-01' =
   }
 }
 
+resource runtimeBlobDataContributor 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(artifactStorage.id, runtimeIdentity.id, storageBlobDataContributorRoleDefinitionId)
+  scope: artifactStorage
+  properties: {
+    principalId: runtimeIdentity.properties.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: storageBlobDataContributorRoleDefinitionId
+  }
+}
+
+resource migrationBlobDataContributor 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(artifactStorage.id, migrationIdentity.id, storageBlobDataContributorRoleDefinitionId)
+  scope: artifactStorage
+  properties: {
+    principalId: migrationIdentity.properties.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: storageBlobDataContributorRoleDefinitionId
+  }
+}
+
 resource sqlDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   name: 'g6-to-log-analytics'
   scope: sqlServer
@@ -344,6 +481,11 @@ output acrLoginServer string = acr.properties.loginServer
 output sqlServerResourceId string = sqlServer.id
 output sqlServerFqdn string = sqlServer.properties.fullyQualifiedDomainName
 output sqlDatabaseResourceId string = sqlDatabase.id
+output artifactStorageResourceId string = artifactStorage.id
+output artifactStorageAccountUrl string = 'https://${artifactStorage.name}.blob.core.windows.net'
+output artifactContainerResourceId string = artifactContainer.id
+output defenderForStorageResourceId string = defenderForStorageSetting.id
+output blobPrivateEndpointResourceId string = blobPrivateEndpoint.id
 output privateEndpointResourceId string = sqlPrivateEndpoint.id
 output sqlPrivateDnsZoneResourceId string = sqlPrivateDnsZone.id
 output runtimeIdentityResourceId string = runtimeIdentity.id
@@ -352,6 +494,6 @@ output runtimeIdentityPrincipalId string = runtimeIdentity.properties.principalI
 output migrationIdentityResourceId string = migrationIdentity.id
 output migrationIdentityClientId string = migrationIdentity.properties.clientId
 output migrationIdentityPrincipalId string = migrationIdentity.properties.principalId
-output runtimeJobResourceId string = runtimeJob.id
-output migrationJobResourceId string = migrationJob.id
+output runtimeJobResourceId string = deployRuntime ? runtimeJob.id : ''
+output migrationJobResourceId string = deployRuntime ? migrationJob.id : ''
 output databaseUrl string = credentiallessDatabaseUrl

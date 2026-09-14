@@ -132,12 +132,45 @@ def dependency_current(db: Session, dependency: ContextDependency | AIWorkProduc
         return observation is not None and _document_version_current(db.get(DocumentVersion, observation.document_version_id))
     if kind == "MASTER_CONTENT_VERSION":
         return _document_version_current(db.get(DocumentVersion, dependency.dependency_id), expected)
+    if kind == "DOCUMENT_VERSION_PREDECESSOR":
+        predecessor = db.get(DocumentVersion, dependency.dependency_id)
+        metadata = dependency.metadata_json or {}
+        current = db.get(DocumentVersion, metadata.get("current_document_version_id"))
+        return (
+            predecessor is not None
+            and current is not None
+            and predecessor.document_id == current.document_id
+            and predecessor.superseded_by == current.id
+            and current.document.current_version_id == current.id
+            and predecessor.sha256 == expected
+        )
     if kind == "DEFINITION_REVISION":
         revision = db.get(DefinitionRevision, dependency.dependency_id)
         if revision is None:
             return False
         definition = db.get(DefinitionEntry, revision.definition_id)
         return definition is not None and definition.current_revision_id == revision.id and revision.status == "CURRENT"
+    if kind == "DEFINITION_REVISION_PREDECESSOR":
+        revision = db.get(DefinitionRevision, dependency.dependency_id)
+        metadata = dependency.metadata_json or {}
+        current = db.get(DefinitionRevision, metadata.get("current_definition_revision_id"))
+        return (
+            revision is not None
+            and current is not None
+            and revision.definition_id == current.definition_id
+            and revision.revision_number + 1 == current.revision_number
+            and stable_hash({
+                "definition_revision_id": revision.id,
+                "definition_id": revision.definition_id,
+                "revision_number": revision.revision_number,
+                "term": revision.term,
+                "description": revision.description,
+                "category": revision.category,
+                "used_in": revision.used_in,
+                "aliases": revision.aliases,
+                "notes": revision.notes,
+            }) == expected
+        )
     if kind == "POLICY_VERSION":
         policy = db.get(IntelligencePolicy, dependency.dependency_id)
         return policy is not None and policy.state == "ACTIVE" and policy.immutable_hash == expected

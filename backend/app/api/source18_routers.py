@@ -17,6 +17,8 @@ from ..models import (
     AuthorityCase,
     CommitteePacketRevision,
     ConsultancyOffice,
+    Document,
+    DocumentApprovalState,
     DocumentVersion,
     ExternalBody,
     Jurisdiction,
@@ -49,7 +51,10 @@ from ..services.source18 import (
     staffing_readiness,
     transition,
     transaction_states,
+    lock_source18_official_form_version,
+    validate_source18_official_form_version,
     validate_source_currentness,
+    validate_submission_preconditions,
 )
 
 
@@ -57,6 +62,11 @@ router = APIRouter(prefix="/api/source18", tags=["source18-engineers-acceptance-
 
 
 def _actor(request: Request, role: Role) -> str:
+    principal = getattr(request.state, "authenticated_principal", None)
+    if principal is not None and str(principal.auth_mode).upper() == "ENTRA":
+        if not principal.user_id:
+            raise HTTPException(500, {"code": "TRUSTED_ACTOR_ID_UNAVAILABLE"})
+        return principal.user_id
     return request.headers.get("X-Dev-Actor") or role.value
 
 
@@ -137,20 +147,40 @@ def create_policy(office_id: str, payload: dict[str, Any], request: Request, rol
 @router.post("/official-form-versions")
 def create_official_form_version(payload: dict[str, Any], request: Request, role: Role = Depends(current_user_role), db: Session = Depends(get_db)):
     require_capability(role, "MANAGE_REGULATORY_POLICY")
-    form_code = str(payload.get("form_code") or "").strip()
+    form_code = str(payload.get("form_code") or "").strip().upper()
     form_version = str(payload.get("version") or "").strip()
     source_id = str(payload.get("source_document_version_id") or "").strip()
     item = db.get(DocumentVersion, source_id)
     if not form_code or not form_version or not item:
         raise HTTPException(422, {"code": "OFFICIAL_FORM_VERSION_REQUIRED"})
+    if str(item.source_system or "").upper() != "SOURCE18":
+        raise HTTPException(409, {"code": "SOURCE18_DOCUMENT_VERSION_REQUIRED"})
     currentness = str(payload.get("currentness_state") or "UNKNOWN").upper()
     status = str(payload.get("status") or "UNKNOWN").upper()
-    for candidate in db.scalars(select(DocumentVersion)).all():
+    if currentness != "CURRENT":
+        raise HTTPException(422, {"code": "SOURCE18_OFFICIAL_FORM_MUST_BE_CURRENT"})
+    if status not in {"CURRENT", "ACTIVE"}:
+        raise HTTPException(422, {"code": "SOURCE18_OFFICIAL_FORM_STATUS_INVALID"})
+    document = db.get(Document, item.document_id)
+    if not document or str(document.source_system or "").upper() != "SOURCE18" or item.approval_state not in {DocumentApprovalState.REVIEWED, DocumentApprovalState.APPROVED}:
+        raise HTTPException(409, {"code": "SOURCE18_FORM_VERSION_NOT_READY"})
+    prior_current: list[dict[str, Any]] = []
+    candidates = db.scalars(select(DocumentVersion).where(DocumentVersion.source_system == "SOURCE18").with_for_update()).all()
+    # Lock versions before canonical documents, matching submit validation;
+    # the current pointer and version metadata update atomically together.
+    db.scalars(select(Document).where(Document.source_system == "SOURCE18").with_for_update()).all()
+    for candidate in candidates:
+        if str(candidate.source_system or "").upper() != "SOURCE18":
+            continue
         metadata = dict(candidate.metadata_json or {})
         if metadata.get("official_form_code") == form_code and metadata.get("official_form_currentness") == "CURRENT":
+            prior_current.append({"document_version_id": candidate.id, "sha256": candidate.sha256, "version": metadata.get("official_form_version")})
             metadata["official_form_currentness"] = "SUPERSEDED"
             metadata["official_form_status"] = "SUPERSEDED"
             candidate.metadata_json = metadata
+            if candidate.id != item.id:
+                candidate.superseded_by = item.id
+                candidate.approval_state = DocumentApprovalState.SUPERSEDED
     item.metadata_json = {
         **(item.metadata_json or {}),
         "official_form_code": form_code,
@@ -159,6 +189,9 @@ def create_official_form_version(payload: dict[str, Any], request: Request, role
         "official_form_status": status,
         "official_form_provenance": payload.get("provenance") or {},
     }
+    if currentness == "CURRENT" and document:
+        document.current_version_id = item.id
+    audit(db, correlation_id=_corr(request), event_type="SOURCE18_OFFICIAL_FORM_PROMOTED", entity_type="DocumentVersion", entity_id=item.id, actor_id=_actor(request, role), before={"form_code": form_code, "prior_current": prior_current}, after={"form_code": form_code, "document_version_id": item.id, "sha256": item.sha256, "version": form_version, "currentness_state": currentness, "status": status}, metadata={"atomic_registry": "DOCUMENT_CURRENT_POINTER_AND_VERSION_METADATA", "provenance": payload.get("provenance") or {}, "source18_only": True})
     db.commit(); db.refresh(item)
     return {**{key: value for key, value in item.__dict__.items() if not key.startswith("_")}, "form_code": form_code, "version": form_version, "currentness_state": currentness, "status": status}
 
@@ -333,7 +366,7 @@ def create_packet(transaction_id: str, payload: dict[str, Any], request: Request
 @router.post("/packets/{packet_id}/release")
 def release_packet(packet_id: str, request: Request, role: Role = Depends(current_user_role), db: Session = Depends(get_db)):
     require_capability(role, "OWNER_INTERNAL_PACKET_RELEASE")
-    packet = db.get(CommitteePacketRevision, packet_id)
+    packet = db.scalar(select(CommitteePacketRevision).where(CommitteePacketRevision.id == packet_id).with_for_update())
     if not packet or not packet.source18_transaction_id:
         raise HTTPException(404, {"code": "SOURCE18_PACKET_NOT_FOUND"})
     if packet.status != "DRAFT" or packet.signature_state != "COMPLETE" or packet.stamp_state != "COMPLETE" or packet.packet_hash != _hash({"manifest": packet.manifest_json, "required_signers": packet.required_signers_json}):
@@ -392,18 +425,29 @@ def record_physical_original_custody(packet_id: str, payload: dict[str, Any], re
 @router.post("/packets/{packet_id}/submit")
 def submit_packet(packet_id: str, payload: dict[str, Any], request: Request, role: Role = Depends(current_user_role), db: Session = Depends(get_db)):
     require_capability(role, "AUTHORIZE_EXTERNAL_SUBMISSION")
-    packet = db.get(CommitteePacketRevision, packet_id)
+    packet = db.scalar(select(CommitteePacketRevision).where(CommitteePacketRevision.id == packet_id).with_for_update())
     if not packet:
         raise HTTPException(404, {"code": "SOURCE18_PACKET_NOT_FOUND"})
     if packet.status != "RELEASED" or packet.internal_release_state != "RELEASED" or packet.signature_state != "COMPLETE" or packet.stamp_state != "COMPLETE":
         raise HTTPException(409, {"code": "OWNER_INTERNAL_RELEASE_SIGNATURE_STAMP_REQUIRED"})
-    tx = db.get(Source18WorkflowTransaction, packet.source18_transaction_id)
+    tx = db.scalar(select(Source18WorkflowTransaction).where(Source18WorkflowTransaction.id == packet.source18_transaction_id).with_for_update())
+    if not tx:
+        raise HTTPException(409, {"code": "SOURCE18_TRANSACTION_NOT_FOUND"})
+    db.scalar(select(AuthorityCase).where(AuthorityCase.id == tx.authority_case_id).with_for_update())
+    if tx.official_form_version_id:
+        # Acquire the same authoritative Source18 version/document locks used
+        # by validation before any final-submit state mutation.
+        lock_source18_official_form_version(db, tx.official_form_version_id)
     idempotency_key = str(payload.get("idempotency_key") or "").strip()
     if not idempotency_key:
         raise HTTPException(422, {"code": "IDEMPOTENCY_KEY_REQUIRED"})
     existing_cycle = db.scalar(select(Source18SubmissionCycle).where(Source18SubmissionCycle.transaction_id == tx.id, Source18SubmissionCycle.idempotency_key == idempotency_key))
     if existing_cycle:
         return {"packet": packet_row(packet), "submission_cycle": {key: value for key, value in existing_cycle.__dict__.items() if not key.startswith("_")}, "idempotent_replay": True}
+    # TOCTOU boundary: all mutable source, staffing, requirement, signature,
+    # release, binding, and hash facts are revalidated immediately before the
+    # packet/transaction/cycle state mutation below.
+    validate_submission_preconditions(db, packet, tx)
     cycle_count = db.scalar(select(func.count(Source18SubmissionCycle.id)).where(Source18SubmissionCycle.transaction_id == tx.id)) or 0
     packet.status = "SUBMITTED"; packet.submitted_at = _now(); cycle = Source18SubmissionCycle(transaction_id=tx.id, packet_revision_id=packet.id, cycle_number=int(cycle_count) + 1, idempotency_key=idempotency_key, status="SUBMITTED", external_reference=payload.get("external_reference"), external_outcome_json={"source": "HUMAN_EXTERNAL_WORKFLOW", "portal_api": False}, recorded_by=_actor(request, role)); db.add(cycle); tx.state = "SUBMITTED"; audit(db, correlation_id=_corr(request), event_type="SOURCE18_EXTERNAL_SUBMISSION_RECORDED", entity_type="Source18SubmissionCycle", entity_id=cycle.id, actor_id=_actor(request, role), after={"packet_id": packet.id, "portal_api": False}); db.commit(); db.refresh(packet); db.refresh(cycle)
     return {"packet": packet_row(packet), "submission_cycle": {key: value for key, value in cycle.__dict__.items() if not key.startswith("_")}, "idempotent_replay": False}

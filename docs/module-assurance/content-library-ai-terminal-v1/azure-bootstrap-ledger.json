@@ -1,0 +1,77 @@
+{
+  "subscription": {
+    "subscription_id": "2bea2887-9255-4273-a73f-43ae33813455",
+    "tenant_id": "2a82f16d-87fa-4036-97a9-17d94060eddd",
+    "operation_scope": "QUALIFICATION_ONLY_UNLESS_EXPLICITLY_NOTED"
+  },
+  "event_grid": {
+    "provider": "Microsoft.EventGrid",
+    "EVENTGRID_PROVIDER_STATE_BEFORE": "NotRegistered",
+    "EVENTGRID_PROVIDER_STATE_AFTER": "Registered",
+    "EVENTGRID_PROVIDER_REGISTERED": "PASS",
+    "mutation": "EXPLICIT_OWNER_AUTHORIZATION"
+  },
+  "defender_for_storage": {
+    "storage_account_id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.Storage/storageAccounts/clp1blob0914a7e3",
+    "defender_settings_id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.Storage/storageAccounts/clp1blob0914a7e3/providers/Microsoft.Security/defenderForStorageSettings/current",
+    "DEFENDER_ON_UPLOAD_SCANNING_ENABLED": "PASS",
+    "DEFENDER_ACCOUNT_OVERRIDE": "PASS",
+    "isEnabled": true,
+    "onUpload": true,
+    "operation_status": "Succeeded",
+    "data_plane_acceptance": "BLOCKED_EXTERNAL_STORAGE_NETWORK",
+    "network_boundary": {
+      "default_action": "Deny",
+      "bypass": "None",
+      "ip_rules": [],
+      "private_endpoint_status": "Approved/Succeeded",
+      "private_endpoint_id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.Network/privateEndpoints/clp1-blob-pe-0914-a7e3"
+    },
+    "local_upload_attempt": "BLOCKED_BY_STORAGE_NETWORK_RULES",
+    "network_boundary_modified": false
+  },
+  "sql": {
+    "server_id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.Sql/servers/g6sql-3lw2hnvs6nz2",
+    "SQL_SERVER_IDENTITY_PRINCIPAL_ID": null,
+    "SQL_SERVER_IDENTITY_STATE": "ABSENT",
+    "SQL_ENTRA_ADMIN": {
+      "login": "g6-bootstrap-3lw2hnvs6nz2",
+      "principal_type": "Group",
+      "sid": "0c406687-a5f3-4e77-a8d1-a61200c7a8a7",
+      "tenant_id": "2a82f16d-87fa-4036-97a9-17d94060eddd",
+      "preserved": true
+    },
+    "SQL_SERVER_DIRECTORY_RESOLUTION": "BLOCKED_EXTERNAL_IDENTITY_UNRESOLVED",
+    "directory_role": "NOT_ASSIGNED",
+    "directory_role_mutation": "NOT_PERFORMED",
+    "runtime_uami": {
+      "name": "g6-runtime-3lw2hnvs6nz2",
+      "client_id": "921b9d50-ed7e-44ea-93ab-33b8767f97eb",
+      "principal_id": "d94a0bf2-13e2-4757-9707-c6c23e21d95a"
+    },
+    "migration_uami": {
+      "name": "g6-migration-3lw2hnvs6nz2",
+      "client_id": "b2be6d1a-52d9-4003-a0bb-ae7c7fd27ae6",
+      "principal_id": "2549c126-c9a4-4ac3-bf8c-b44bf967051c"
+    },
+    "runtime_and_migration_distinct": true,
+    "SQL_RUNTIME_UAMI_LOGIN": "NOT_RUN",
+    "SQL_RUNTIME_DDL_DENIED": "NOT_RUN",
+    "SQL_MIGRATION_UAMI_LOGIN": "NOT_RUN",
+    "exact_blocker": "No dedicated qualification SQL server control-plane UAMI is established by the deployed qualification template; do not repurpose runtime, migration, or bootstrap identity without Owner-selected identity mapping."
+  },
+  "aca": {
+    "ACA_QUALIFICATION_ENV_REUSED": "PASS",
+    "environment_id": "/subscriptions/2bea2887-9255-4273-a73f-43ae33813455/resourceGroups/rg-proposalops-g6-qual-20260911-b478dcbf/providers/Microsoft.App/managedEnvironments/g6-cae-3lw2hnvs6nz2",
+    "NO_NEW_ACA_MANAGED_ENV_CREATED": "PASS",
+    "final_candidate_runtime_deployed": false
+  },
+  "safety": {
+    "production_storage_modified": false,
+    "production_sql_modified": false,
+    "tenant_directory_modified": false,
+    "real_amec_data_used": false,
+    "unrelated_event_grid_resources_created": false
+  },
+  "terminal_result": "BLOCKED_EXTERNAL"
+}

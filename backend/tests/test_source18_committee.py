@@ -7,6 +7,7 @@ import pytest
 from backend.app.models import (
     Base,
     ConsultancyOffice,
+    AuthorityCase,
     Source18EngineerProfile,
     Source18PolicyVersion,
     Source18RosterMembership,
@@ -34,6 +35,13 @@ def db():
 
 
 def test_engineer_update_cannot_skip_regulator_counted(db):
+    db.add(AuthorityCase(
+        id="case-1", case_reference="CASE-1", external_body_id="body-1", service_type_id="service-1",
+        jurisdiction_id="jurisdiction-1", status="CURRENT", processing_mode="COUNTER_PROCESS",
+        currentness_control_implemented=True, current_authority_policy_verified="CURRENT",
+        current_official_form_verified="NOT_APPLICABLE", live_action_eligibility="READY_FOR_HUMAN_ACTION",
+        g5_blocking_currentness_gap=False, created_by="tester",
+    ))
     tx = Source18WorkflowTransaction(
         authority_case_id="case-1", office_id="office-1", transaction_type="ENGINEER_UPDATE",
         processing_mode="COUNTER_PROCESS", state="UPDATED_CREDENTIAL_VERIFIED",
@@ -148,6 +156,22 @@ def test_unknown_staffing_policy_fails_closed(db):
 
 
 def test_staffing_deficiency_blocks_panel_but_allows_remediation(db):
+    db.add_all([
+        AuthorityCase(
+            id="case-gate", case_reference="CASE-GATE", external_body_id="body-gate", service_type_id="service-gate",
+            jurisdiction_id="jurisdiction-gate", status="CURRENT", processing_mode="COMMITTEE_PANEL",
+            currentness_control_implemented=True, current_authority_policy_verified="CURRENT",
+            current_official_form_verified="NOT_APPLICABLE", live_action_eligibility="READY_FOR_HUMAN_ACTION",
+            g5_blocking_currentness_gap=False, created_by="tester",
+        ),
+        AuthorityCase(
+            id="case-gate-2", case_reference="CASE-GATE-2", external_body_id="body-gate", service_type_id="service-gate",
+            jurisdiction_id="jurisdiction-gate", status="CURRENT", processing_mode="COMMITTEE_PANEL",
+            currentness_control_implemented=True, current_authority_policy_verified="CURRENT",
+            current_official_form_verified="NOT_APPLICABLE", live_action_eligibility="READY_FOR_HUMAN_ACTION",
+            g5_blocking_currentness_gap=False, created_by="tester",
+        ),
+    ])
     db.add(Source18PolicyVersion(
         policy_code="OFFICE_STAFFING", version="policy-gate", status="CURRENT",
         source_class="OWNER_CONFIRMED", source_reference="synthetic-policy",

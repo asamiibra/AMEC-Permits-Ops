@@ -35,7 +35,8 @@ def test_owner_status_is_simple_and_needs_review_is_not_resolved_downstream(clie
         json=[{"module": "PERMIT", "usage_type": "AVAILABLE"}],
         headers=OWNER,
     )
-    assert bound.status_code == 200
+    assert bound.status_code == 409
+    assert bound.json()["detail"]["code"] == "MASTER_CONTENT_NOT_REUSABLE"
     unresolved = client.get("/api/master-content/resolvers/PERMIT/AVAILABLE", headers=OWNER)
     assert item["id"] not in {row["id"] for row in unresolved.json()["candidates"]}
 

@@ -52,6 +52,8 @@ from backend.app.services.intelligence_foundation import ensure_builtin_policy
 from backend.app.services.master_content import (
     canonical_master_content_candidates,
     exact_master_content_binding_check,
+    master_content_scan_is_clean,
+    read_master_content_bytes,
     resolve_master_content_purpose,
 )
 
@@ -76,7 +78,10 @@ _CONTEXT_TYPE_ALIASES = {
     "PHASE4DOCUMENTEVIDENCEENVELOPE": "PHASE4_DOCUMENT_EVIDENCE_ENVELOPE",
     "VERIFIEDASSERTION": "VERIFIED_ASSERTION",
     "MASTERCONTENT": "MASTER_CONTENT",
+    "DOCUMENTTEXTEVIDENCE": "DOCUMENT_TEXT_EVIDENCE",
+    "DOCUMENTVERSIONPREDECESSOR": "DOCUMENT_VERSION_PREDECESSOR",
     "DEFINITIONREVISION": "DEFINITION_REVISION",
+    "DEFINITIONREVISIONPREDECESSOR": "DEFINITION_REVISION_PREDECESSOR",
     "DOMAINENTITYREVISION": "DOMAIN_ENTITY_REVISION",
     "POLICYVERSION": "POLICY_VERSION",
 }
@@ -84,7 +89,9 @@ _CONTEXT_TYPE_ALIASES = {
 _FORBIDDEN_SELECTOR_KEYS = {
     "sql", "query", "table", "model", "orm", "python_import", "import_path",
     "raw_sql", "payload", "context_payload", "projection", "content", "text",
-    "bytes", "prompt", "token", "secret", "authorization", "jwt",
+    "bytes", "source_bytes", "source_text", "raw_text", "raw_value",
+    "prompt", "token", "secret", "authorization", "jwt",
+    "predecessor_id", "previous_version_id", "previous_revision_id",
 }
 _FORBIDDEN_PROJECTION_KEYS = _FORBIDDEN_SELECTOR_KEYS | {"output", "source_text", "source_bytes", "raw_text", "raw_value"}
 
@@ -224,7 +231,10 @@ class GovernedContextCompiler:
         "PHASE4_DOCUMENT_EVIDENCE_ENVELOPE": _MethodResolver("PHASE4_DOCUMENT_EVIDENCE_ENVELOPE", "_resolve_evidence_envelope"),
         "VERIFIED_ASSERTION": _MethodResolver("VERIFIED_ASSERTION", "_resolve_verified_assertion"),
         "MASTER_CONTENT": _MethodResolver("MASTER_CONTENT", "_resolve_master_content"),
+        "DOCUMENT_TEXT_EVIDENCE": _MethodResolver("DOCUMENT_TEXT_EVIDENCE", "_resolve_document_text_evidence"),
+        "DOCUMENT_VERSION_PREDECESSOR": _MethodResolver("DOCUMENT_VERSION_PREDECESSOR", "_resolve_document_version_predecessor"),
         "DEFINITION_REVISION": _MethodResolver("DEFINITION_REVISION", "_resolve_definition_revision"),
+        "DEFINITION_REVISION_PREDECESSOR": _MethodResolver("DEFINITION_REVISION_PREDECESSOR", "_resolve_definition_revision_predecessor"),
         "DOMAIN_ENTITY_REVISION": _MethodResolver("DOMAIN_ENTITY_REVISION", "_resolve_domain_entity_revision"),
         "POLICY_VERSION": _MethodResolver("POLICY_VERSION", "_resolve_policy_version"),
     }
@@ -553,6 +563,7 @@ class GovernedContextCompiler:
             raise IntelligenceContractError("CONTEXT_CANDIDATE_MODULE_MISMATCH")
         if candidate.contains_sensitive_data:
             self._require_capability(capabilities, "PHASE4_VIEW_RESTRICTED_EVIDENCE")
+        revision_hash = stable_hash({"revision_id": revision.id, "revision_number": revision.revision_number, "term": revision.term, "description": revision.description, "aliases": revision.aliases})
         projection = self._safe_projection({
             "candidate_assertion_id": candidate.id,
             "assertion_code": candidate.assertion_code,
@@ -718,14 +729,97 @@ class GovernedContextCompiler:
             {"master_content_item_id": item.id, "master_content_ref": item.ref},
         )
 
+    def _resolve_document_text_evidence(self, request: ContextCompileRequest, source: ContextSourceSpec, capabilities: set[str]) -> _ResolvedSource | None:
+        """Build bounded server-derived text evidence for one exact version.
+
+        The selector identifies only canonical IDs.  Bytes are read through the
+        existing governed storage service after currentness and malware gates;
+        callers cannot supply text, bytes, a blob locator, or an alternate
+        extraction result.
+        """
+        selector = self._validate_selector(
+            source,
+            {"master_content_item_id", "document_version_id"},
+        )
+        item_id = str(selector.get("master_content_item_id") or "")
+        version_id = str(selector.get("document_version_id") or "")
+        if not item_id or not version_id:
+            raise IntelligenceContractError("CONTEXT_DOCUMENT_TEXT_EXACT_BINDING_REQUIRED")
+        binding = exact_master_content_binding_check(
+            self.db,
+            master_content_item_id=item_id,
+            document_version_id=version_id,
+        )
+        if not binding["valid"]:
+            reason = binding["reasons"][0] if binding["reasons"] else "INVALID"
+            raise IntelligenceContractError(f"CONTEXT_DOCUMENT_TEXT_{reason}")
+        item = binding["item"]
+        version = binding["version"]
+        self._current_document_version(version)
+        if item.document_id != version.document_id:
+            raise IntelligenceContractError("CONTEXT_DOCUMENT_TEXT_SOURCE_MISMATCH")
+        if not master_content_scan_is_clean(version):
+            raise IntelligenceContractError("CONTEXT_DOCUMENT_TEXT_MALWARE_SCAN_NOT_CLEAN")
+        self._check_project(version.document.project_id, request)
+        try:
+            raw = read_master_content_bytes(self.db, version)
+            extracted = raw[:8192].decode("utf-8", errors="replace").strip()
+        except Exception as exc:
+            raise IntelligenceContractError("CONTEXT_DOCUMENT_TEXT_EXTRACTION_UNAVAILABLE") from exc
+        if not extracted:
+            raise IntelligenceContractError("CONTEXT_DOCUMENT_TEXT_EMPTY")
+        synthetic = self._synthetic_version(version)
+        evidence_hash = stable_hash({
+            "document_version_id": version.id,
+            "sha256": version.sha256,
+            "extractor": "proposalops-plain-text-v1",
+            "text": extracted,
+        })
+        projection = self._safe_projection({
+            "master_content_item_id": item.id,
+            "document_id": version.document_id,
+            "document_version_id": version.id,
+            "sha256": version.sha256,
+            "page": 1,
+            "segment_id": f"{version.id}:segment:0001",
+            "extracted_text": extracted,
+            "extraction_runtime": "proposalops-plain-text-v1",
+            "extraction_hash": evidence_hash,
+            "source_currentness_state": "CURRENT",
+            "classification": "SYNTHETIC" if synthetic else "INTERNAL",
+            "synthetic_only": synthetic,
+        })
+        return _ResolvedSource(
+            "DOCUMENT_TEXT_EVIDENCE",
+            "DOCUMENT_TEXT_EVIDENCE",
+            f"{version.id}:segment:0001",
+            evidence_hash,
+            "CANONICAL",
+            "CURRENT",
+            "SYNTHETIC" if synthetic else "INTERNAL",
+            False,
+            synthetic,
+            projection,
+            {
+                "master_content_item_id": item.id,
+                "document_id": version.document_id,
+                "document_version_id": version.id,
+                "source_sha256": version.sha256,
+                "extraction_runtime": "proposalops-plain-text-v1",
+            },
+        )
+
     def _resolve_definition_revision(self, request: ContextCompileRequest, source: ContextSourceSpec, capabilities: set[str]) -> _ResolvedSource | None:
-        self._validate_selector(source, {"id", "definition_revision_id"})
+        selector = self._validate_selector(source, {"id", "definition_entry_id", "definition_revision_id"})
         revision = self.db.get(DefinitionRevision, self._id_selector(source, "id", "definition_revision_id"))
         if revision is None:
             return None
         definition = self.db.get(DefinitionEntry, revision.definition_id)
+        if selector.get("definition_entry_id") and str(selector["definition_entry_id"]) != revision.definition_id:
+            raise IntelligenceContractError("CONTEXT_DEFINITION_SOURCE_MISMATCH")
         if definition is None or definition.status != "ACTIVE" or definition.current_revision_id != revision.id or revision.status != "CURRENT":
             raise IntelligenceContractError("CONTEXT_DEFINITION_REVISION_NOT_CURRENT")
+        revision_hash = stable_hash({"revision_id": revision.id, "revision_number": revision.revision_number, "term": revision.term, "description": revision.description, "aliases": revision.aliases})
         projection = self._safe_projection({
             "definition_revision_id": revision.id,
             "definition_id": definition.id,
@@ -735,12 +829,111 @@ class GovernedContextCompiler:
             "category": revision.category,
             "revision_number": revision.revision_number,
             "aliases": revision.aliases,
+            "sha256": revision_hash,
         })
         return _ResolvedSource(
             "DEFINITION_REVISION", "DEFINITION_REVISION", revision.id,
-            stable_hash({"revision_id": revision.id, "revision_number": revision.revision_number, "term": revision.term, "description": revision.description, "aliases": revision.aliases}),
+            revision_hash,
             "CANONICAL", "CURRENT", "INTERNAL", False, False, projection,
             {"definition_id": definition.id, "revision_number": revision.revision_number},
+        )
+
+    def _resolve_document_version_predecessor(self, request: ContextCompileRequest, source: ContextSourceSpec, capabilities: set[str]) -> _ResolvedSource | None:
+        """Resolve only the immediate historical predecessor of exact current content."""
+        selector = self._validate_selector(source, {"master_content_item_id", "document_version_id"})
+        item_id = str(selector.get("master_content_item_id") or "")
+        current_id = str(selector.get("document_version_id") or "")
+        if not item_id or not current_id:
+            raise IntelligenceContractError("CONTEXT_DOCUMENT_PREDECESSOR_EXACT_BINDING_REQUIRED")
+        binding = exact_master_content_binding_check(self.db, master_content_item_id=item_id, document_version_id=current_id)
+        if not binding["valid"]:
+            reason = binding["reasons"][0] if binding["reasons"] else "INVALID"
+            raise IntelligenceContractError(f"CONTEXT_DOCUMENT_PREDECESSOR_{reason}")
+        item = binding["item"]
+        current = binding["version"]
+        predecessor = self.db.scalar(select(DocumentVersion).where(
+            DocumentVersion.document_id == current.document_id,
+            DocumentVersion.version_number == current.version_number - 1,
+        ))
+        if predecessor is None:
+            return None
+        if predecessor.superseded_by != current.id or not master_content_scan_is_clean(predecessor):
+            raise IntelligenceContractError("CONTEXT_DOCUMENT_PREDECESSOR_NOT_GOVERNED")
+        try:
+            raw = read_master_content_bytes(self.db, predecessor)
+            extracted = raw[:8192].decode("utf-8", errors="replace").strip()
+        except Exception as exc:
+            raise IntelligenceContractError("CONTEXT_DOCUMENT_PREDECESSOR_EXTRACTION_UNAVAILABLE") from exc
+        evidence_hash = stable_hash({
+            "document_version_id": predecessor.id,
+            "sha256": predecessor.sha256,
+            "extractor": "proposalops-plain-text-v1",
+            "text": extracted,
+        })
+        synthetic = self._synthetic_version(predecessor)
+        projection = self._safe_projection({
+            "master_content_item_id": item.id,
+            "document_id": predecessor.document_id,
+            "document_version_id": predecessor.id,
+            "version_number": predecessor.version_number,
+            "sha256": predecessor.sha256,
+            "extracted_text": extracted,
+            "extraction_runtime": "proposalops-plain-text-v1",
+            "extraction_hash": evidence_hash,
+            "source_currentness_state": "HISTORICAL_IMMEDIATE_PREDECESSOR",
+            "current_document_version_id": current.id,
+            "synthetic_only": synthetic,
+        })
+        return _ResolvedSource(
+            "DOCUMENT_VERSION_PREDECESSOR", "DOCUMENT_VERSION_PREDECESSOR", predecessor.id,
+            predecessor.sha256, "CANONICAL", "HISTORICAL", "SYNTHETIC" if synthetic else "INTERNAL",
+            False, synthetic, projection,
+            {"master_content_item_id": item.id, "current_document_version_id": current.id},
+        )
+
+    def _resolve_definition_revision_predecessor(self, request: ContextCompileRequest, source: ContextSourceSpec, capabilities: set[str]) -> _ResolvedSource | None:
+        """Resolve the immediate prior revision from the same definition only."""
+        selector = self._validate_selector(source, {"definition_entry_id", "definition_revision_id"})
+        definition_id = str(selector.get("definition_entry_id") or "")
+        current_id = str(selector.get("definition_revision_id") or "")
+        if not definition_id or not current_id:
+            raise IntelligenceContractError("CONTEXT_DEFINITION_PREDECESSOR_EXACT_BINDING_REQUIRED")
+        definition = self.db.get(DefinitionEntry, definition_id)
+        current = self.db.get(DefinitionRevision, current_id)
+        if definition is None or current is None or current.definition_id != definition.id or definition.current_revision_id != current.id or current.status != "CURRENT":
+            raise IntelligenceContractError("CONTEXT_DEFINITION_PREDECESSOR_CURRENT_BINDING_INVALID")
+        predecessor = self.db.scalar(select(DefinitionRevision).where(
+            DefinitionRevision.definition_id == definition.id,
+            DefinitionRevision.revision_number == current.revision_number - 1,
+        ))
+        if predecessor is None:
+            return None
+        revision_hash = stable_hash({
+            "definition_revision_id": predecessor.id,
+            "definition_id": predecessor.definition_id,
+            "revision_number": predecessor.revision_number,
+            "term": predecessor.term,
+            "description": predecessor.description,
+            "category": predecessor.category,
+            "used_in": predecessor.used_in,
+            "aliases": predecessor.aliases,
+            "notes": predecessor.notes,
+        })
+        projection = self._safe_projection({
+            "definition_entry_id": definition.id,
+            "definition_revision_id": predecessor.id,
+            "revision_number": predecessor.revision_number,
+            "term": predecessor.term,
+            "description": predecessor.description,
+            "category": predecessor.category,
+            "aliases": predecessor.aliases,
+            "current_definition_revision_id": current.id,
+            "source_currentness_state": "HISTORICAL_IMMEDIATE_PREDECESSOR",
+        })
+        return _ResolvedSource(
+            "DEFINITION_REVISION_PREDECESSOR", "DEFINITION_REVISION_PREDECESSOR", predecessor.id,
+            revision_hash, "CANONICAL", "HISTORICAL", "INTERNAL", False, False, projection,
+            {"definition_entry_id": definition.id, "current_definition_revision_id": current.id},
         )
 
     def _resolve_domain_entity_revision(self, request: ContextCompileRequest, source: ContextSourceSpec, capabilities: set[str]) -> _ResolvedSource | None:
