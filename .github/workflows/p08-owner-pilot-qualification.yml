@@ -149,23 +149,45 @@ jobs:
               ).all()
           assert rows == [("proposal-reference-sequence", "PROPOSAL_REFERENCE", "AMEC-SYN-PROP", 4, "GLOBAL", True, 0)]
           PY
-      - name: Seed canonical synthetic anchors for the proof
-        run: python backend/scripts/vercel_data_bootstrap.py
-      - name: Bind synthetic owner Entra identity for the proof
+      - name: Isolate synthetic fixture roots
+        run: |
+          set -euo pipefail
+          fixture_root="$RUNNER_TEMP/proposalops-p08-fixtures"
+          mkdir -p "$fixture_root"
+          cp -R backend/mock-systems "$fixture_root/mock-systems"
+          cp -R synthetic-data "$fixture_root/synthetic-data"
+          echo "SYNTHETIC_TEST_ROOT=$fixture_root" >> "$GITHUB_ENV"
+          echo "MOCK_SYSTEMS_ROOT=$fixture_root/mock-systems" >> "$GITHUB_ENV"
+      - name: Seed canonical synthetic fixtures in TEST portability lane
+        run: |
+          python - <<'PY'
+          from backend.app.seed import cli
+
+          cli.seed(
+              initialize_schema=False,
+              reset_existing=True,
+              clean_fixtures=True,
+          )
+          PY
+      - name: Bind synthetic Owner identity for portability proof
         run: |
           python - <<'PY'
           from sqlalchemy import select
-          from backend.app.db import SessionLocal
+
+          from backend.app.db import SessionLocal, verify_database_migration_head
           from backend.app.models import User
 
-          expected_oid = "44444444-4444-4444-8444-444444444444"
+          email = "owner@amec.synthetic"
+          object_id = "44444444-4444-4444-8444-444444444444"
+          verify_database_migration_head()
           with SessionLocal() as db:
-              owner = db.scalar(select(User).where(User.email == "owner@amec.synthetic"))
-              if owner is None or not owner.active:
-                  raise RuntimeError("synthetic owner is missing or inactive")
-              if owner.entra_object_id not in (None, expected_oid):
-                  raise RuntimeError("synthetic owner is already bound to another Entra object")
-              owner.entra_object_id = expected_oid
+              owner = db.scalar(select(User).where(User.email == email))
+              assert owner is not None and owner.active
+              bound = db.scalars(
+                  select(User).where(User.entra_object_id == object_id)
+              ).all()
+              assert not bound or all(row.id == owner.id for row in bound)
+              owner.entra_object_id = object_id
               db.commit()
           PY
       - name: Run PostgreSQL 16 proof
