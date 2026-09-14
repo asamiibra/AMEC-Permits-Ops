@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 
 from ..models import (
     AuditEvent,
+    ClientAccount,
     Contract,
     ContractRevision,
     Finding,
@@ -244,6 +245,10 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
     tasks = db.scalars(select(WorkflowTask).where(WorkflowTask.context_type == "OPPORTUNITY", WorkflowTask.context_id == proposal.id).order_by(WorkflowTask.created_at.desc())).all()
     history = db.scalars(select(AuditEvent).where(AuditEvent.entity_type == "Opportunity", AuditEvent.entity_id == proposal.id).order_by(AuditEvent.occurred_at.desc()).limit(20)).all()
     issues = db.scalars(select(Finding).where(Finding.proposal_id == proposal.id).order_by(Finding.captured_at.desc()).limit(20)).all()
+    client = db.get(ClientAccount, proposal.client_account_id) if proposal.client_account_id else None
+    fields = dict(proposal.proposal_fields_json or {})
+    if client and client.status == "ACTIVE":
+        fields["client_name"] = client.display_name or client.legal_name
     return {
         "id": proposal.id,
         "entity_type": "Proposal",
@@ -256,7 +261,7 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
         "canonical_project_reference": project.project_number if project else None,
         "current_stage": proposal_stage(proposal.status, bool(contracts)),
         "responsibility": "ENGINEERING" if proposal.status == "PROPOSAL_PREPARATION" else "BUSINESS_DEVELOPMENT",
-        "fields": _field_projection(proposal.proposal_fields_json or {}),
+        "fields": _field_projection(fields),
         "sources": sources,
         "current_revision": _current_proposal_revision(db, proposal, contracts),
         "related_contracts": [contract_projection(db, contract, include_history=False) for contract in contracts],
@@ -271,7 +276,7 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
             "reference_state": proposal.reference_state in {"PROVISIONAL", "CANONICAL"},
         },
         "source_count": sum(1 for item in sources if item["current"]),
-        "client": {"id": proposal.client_account_id} if proposal.client_account_id else None,
+        "client": {"id": client.id, "reference": client.client_reference, "name": client.display_name or client.legal_name} if client and client.status == "ACTIVE" else None,
         "last_activity": proposal.updated_at.isoformat() if proposal.updated_at else None,
     }
 

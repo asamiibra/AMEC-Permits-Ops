@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 
 from ..models import (
     AuditEvent,
+    ClientAccount,
     DefinitionEntry,
     DefinitionRevision,
     MasterContentModuleBinding,
@@ -49,6 +50,16 @@ DEFAULT_OWNER_SETTINGS = {
 
 def stable_hash(value: Any) -> str:
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":"), default=str).encode()).hexdigest()
+
+
+def canonical_client_presentation(db: Session, client_account_id: str | None) -> dict[str, Any] | None:
+    """Return current ClientAccount presentation; intake wording is not identity."""
+    if not client_account_id:
+        return None
+    client = db.get(ClientAccount, client_account_id)
+    if not client or client.status != "ACTIVE":
+        return None
+    return {"id": client.id, "reference": client.client_reference, "name": client.display_name or client.legal_name}
 
 
 def _now() -> datetime:
@@ -514,13 +525,17 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
         "lpo_reconciliation": control_projection(lpo) if lpo else None,
         "contract_handoff": control_projection(handoff) if handoff else None,
     }
+    canonical_client = canonical_client_presentation(db, proposal.client_account_id)
+    display_fields = dict(fields)
+    if canonical_client:
+        display_fields["client_name"] = canonical_client["name"]
     return {
         "id": proposal.id,
         "proposal_reference": proposal.opportunity_reference,
         "project_reference": proposal.canonical_project_reference or proposal.provisional_reference,
         "project_id": proposal.project_id,
         "client_account_id": proposal.client_account_id,
-        "client_name": fields.get("client_name"),
+        "client_name": canonical_client["name"] if canonical_client else None,
         "title": proposal.title,
         "stage": proposal.status,
         "stage_label": stage_labels.get(proposal.status, proposal.status.replace("_", " ").title()),
@@ -531,7 +546,7 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
         "amount": fields.get("price"),
         "last_activity": proposal.updated_at.isoformat() if proposal.updated_at else None,
         "updated_at": proposal.updated_at.isoformat() if proposal.updated_at else None,
-        "fields": fields,
+        "fields": display_fields,
         "provenance": fields.get("provenance", {}),
         "amec_input": fields.get("amec_input", {}),
         "additional_information": fields.get("additional_information"),
@@ -576,6 +591,7 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
 
 def snapshot_for_accept(db: Session, proposal: Opportunity, validation: dict[str, Any]) -> dict[str, Any]:
     fields = dict(proposal.proposal_fields_json or {})
+    intake_client_name = fields.pop("client_name", None)
     fields.pop("provenance", None)
     fields.pop("amec_input", None)
     source_ids = [item.id for item in _sources(db, proposal.id) if item.status == "CURRENT"]
@@ -588,11 +604,12 @@ def snapshot_for_accept(db: Session, proposal: Opportunity, validation: dict[str
         "title": proposal.title,
         "project_reference": proposal.canonical_project_reference or proposal.provisional_reference,
         "client_account_id": proposal.client_account_id,
+        "client_name": (canonical_client_presentation(db, proposal.client_account_id) or {}).get("name"),
         "fields": fields,
         "amec_input": (proposal.proposal_fields_json or {}).get("amec_input", {}),
         "additional_information": (proposal.proposal_fields_json or {}).get("additional_information"),
         "proposal_breakdown": proposal_breakdown(db, proposal),
-        "provenance": (proposal.proposal_fields_json or {}).get("provenance", {}),
+        "provenance": {**(proposal.proposal_fields_json or {}).get("provenance", {}), **({"intake_client_name": "manual"} if intake_client_name else {})},
         "source_ids": source_ids,
         "template": validation["template"]["item"],
         "checklist": validation["checklist"]["item"],

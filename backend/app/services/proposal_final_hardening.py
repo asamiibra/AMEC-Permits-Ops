@@ -34,6 +34,7 @@ def _iso(value: datetime | None) -> str | None:
 def material_fingerprint(db: Session, proposal: Opportunity, forms: dict[str, Any] | None = None) -> str:
     fields = dict(proposal.proposal_fields_json or {})
     fields.pop("provenance", None)
+    fields.pop("client_name", None)
     normalized_forms = dict(forms or {})
     normalized_forms.pop("captured_at", None)
     return stable_hash({

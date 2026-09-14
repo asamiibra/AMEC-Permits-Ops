@@ -118,7 +118,7 @@ def _create_proposal_record(payload: ProposalCreate, request: Request, db: Sessi
         db.flush()
         client_id = client.id
     reference = allocate_proposal_reference(db)
-    fields = {"client_name": payload.client_name, "project_reference": payload.project_reference, "provenance": {"client_name": "manual", "project_reference": "manual"}}
+    fields = {"intake_client_name": payload.client_name, "project_reference": payload.project_reference, "provenance": {"intake_client_name": "manual", "project_reference": "manual"}}
     fields = {key: value for key, value in fields.items() if value is not None}
     item = Opportunity(office_id=office.id, client_account_id=client_id, opportunity_reference=reference, title=payload.proposal_description.strip(), status="IN_REVIEW", source_type="BD_WORKSPACE", project_id=payload.project_id, reference_state="CANONICAL" if payload.project_id else "PROVISIONAL", proposal_fields_json=fields, idempotency_key=payload.idempotency_key, provisional_reference=reference, canonical_project_reference=payload.project_reference)
     db.add(item)
@@ -605,7 +605,14 @@ def patch_proposal(proposal_id: str, payload: ProposalFieldsPatch, request: Requ
         if actual and actual != expected:
             raise domain_error(409, "PROPOSAL_DRAFT_CHANGED", expected_updated_at=payload.expected_updated_at, actual_updated_at=actual.isoformat())
     current = dict(item.proposal_fields_json or {})
-    current.update(payload.fields or {})
+    incoming_fields = dict(payload.fields or {})
+    if production_mode() and "client_account_id" in incoming_fields:
+        if str(incoming_fields.pop("client_account_id")) != str(item.client_account_id):
+            raise domain_error(409, "CANONICAL_CLIENT_ID_IMMUTABLE", client_account_id=item.client_account_id)
+    if "client_name" in incoming_fields:
+        current["intake_client_name"] = incoming_fields.pop("client_name")
+        current["provenance"] = {**(current.get("provenance") or {}), "intake_client_name": "manual"}
+    current.update(incoming_fields)
     if payload.amec_input is not None:
         current["amec_input"] = payload.amec_input
     if payload.provenance is not None:
