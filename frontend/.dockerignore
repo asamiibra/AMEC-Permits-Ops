@@ -8,6 +8,7 @@ browser-e2e
 browser-real-stack
 .git
 .gitignore
-*.log
 .env
 .env.*
+*.log
+.DS_Store

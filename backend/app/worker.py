@@ -222,21 +222,20 @@ def run_worker_once(
 ) -> WorkerResult:
     settings = get_settings()
 
-    if settings.app_env.upper() not in {"AZURE-PREPROD", "PROD"}:
+    environment = settings.app_env.upper()
+    if environment not in {"TEST", "AZURE-PREPROD", "PROD"}:
         raise RuntimeError(
-            "The Azure worker is restricted to AZURE-PREPROD or PROD."
+            "The governed worker is restricted to TEST, AZURE-PREPROD, or PROD."
         )
 
-    if settings.app_env.upper() == "AZURE-PREPROD" and not settings.synthetic_only:
+    if environment in {"TEST", "AZURE-PREPROD"} and not settings.synthetic_only:
         raise RuntimeError(
-            "AZURE-PREPROD worker requires "
-            "SYNTHETIC_ONLY=true."
+            f"{environment} worker requires SYNTHETIC_ONLY=true."
         )
 
-    if settings.app_env.upper() == "AZURE-PREPROD" and settings.real_data_allowed:
+    if environment in {"TEST", "AZURE-PREPROD"} and settings.real_data_allowed:
         raise RuntimeError(
-            "AZURE-PREPROD worker requires "
-            "REAL_DATA_ALLOWED=false."
+            f"{environment} worker requires REAL_DATA_ALLOWED=false."
         )
 
     resolved_worker_id = (

@@ -107,7 +107,9 @@ jobs:
           --health-timeout 5s
           --health-retries 10
     env:
-      APP_ENV: AZURE-PREPROD
+      # PostgreSQL is the portability lane; the live Owner pilot remains
+      # separately qualified against Azure SQL under AZURE-PREPROD.
+      APP_ENV: TEST
       AUTH_MODE: ENTRA
       ENTRA_TENANT_ID: 11111111-1111-4111-8111-111111111111
       ENTRA_WEB_CLIENT_ID: 22222222-2222-4222-8222-222222222222
@@ -124,8 +126,48 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - run: python -m pip install --disable-pip-version-check -r backend/requirements.txt
-      - name: Upgrade exact migration head
-        run: alembic upgrade head
+      - name: Upgrade exact migration head through governed runner
+        run: python -m backend.app.migrate
+      - name: Verify migration-owned synthetic baseline before fixture seed
+        run: |
+          python - <<'PY'
+          from sqlalchemy import select
+          from backend.app.db import engine
+          from backend.app.models import MasterContentReferenceSequence
+
+          with engine.connect() as connection:
+              rows = connection.execute(
+                  select(
+                      MasterContentReferenceSequence.id,
+                      MasterContentReferenceSequence.content_type,
+                      MasterContentReferenceSequence.prefix,
+                      MasterContentReferenceSequence.padding,
+                      MasterContentReferenceSequence.scope,
+                      MasterContentReferenceSequence.active,
+                      MasterContentReferenceSequence.current_value,
+                  )
+              ).all()
+          assert rows == [("proposal-reference-sequence", "PROPOSAL_REFERENCE", "AMEC-SYN-PROP", 4, "GLOBAL", True, 0)]
+          PY
+      - name: Seed canonical synthetic anchors for the proof
+        run: python backend/scripts/vercel_data_bootstrap.py
+      - name: Bind synthetic owner Entra identity for the proof
+        run: |
+          python - <<'PY'
+          from sqlalchemy import select
+          from backend.app.db import SessionLocal
+          from backend.app.models import User
+
+          expected_oid = "44444444-4444-4444-8444-444444444444"
+          with SessionLocal() as db:
+              owner = db.scalar(select(User).where(User.email == "owner@amec.synthetic"))
+              if owner is None or not owner.active:
+                  raise RuntimeError("synthetic owner is missing or inactive")
+              if owner.entra_object_id not in (None, expected_oid):
+                  raise RuntimeError("synthetic owner is already bound to another Entra object")
+              owner.entra_object_id = expected_oid
+              db.commit()
+          PY
       - name: Run PostgreSQL 16 proof
         run: python backend/scripts/batch3a_postgres16_proof.py
 

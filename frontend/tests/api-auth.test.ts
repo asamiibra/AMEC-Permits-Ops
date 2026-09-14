@@ -15,7 +15,6 @@ const auth = vi.hoisted(
       vi.fn(),
   }),
 );
-
 vi.mock(
   "../src/auth",
   () => ({

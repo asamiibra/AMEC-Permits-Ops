@@ -16,7 +16,6 @@
   --ui-muted: #607783;
   --ui-focus: #0f887d;
 }
-
 .app-shell { color: var(--ui-text); }
 .app-shell .sidebar { width: 232px; padding: 18px 14px; }
 .app-shell .office-pill { margin: 22px 0 14px; padding: 10px 11px; border-radius: var(--ui-radius-surface); }
