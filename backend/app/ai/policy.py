@@ -90,9 +90,45 @@ PROPOSAL_INTELLIGENCE_POLICY = AIPurposePolicy(
 )
 
 
+def _proposal_skill_policy(purpose: AIPurpose) -> AIPurposePolicy:
+    """Return the shared fail-closed policy for one precise Proposal skill."""
+
+    return AIPurposePolicy(
+        purpose_id=purpose,
+        policy_version="PROPOSAL_INTELLIGENCE_V1-1.0",
+        allowed_roles=frozenset({Role.OWNER_SPONSOR, Role.SYSTEM_ADMIN, Role.PROCESS_CHAMPION, Role.RESPONSIBLE_ENGINEER}),
+        required_capabilities=("BD_PROPOSAL_READ",),
+        allowed_target_entity_types=frozenset({AITargetEntityType.PROPOSAL}),
+        allowed_execution_modes=frozenset({AIExecutionMode.INTERACTIVE}),
+        allow_master_content=True,
+        allow_transactional_evidence=True,
+        allow_definitions=True,
+        allowed_sensitivity_classes=frozenset({"NONE", "SYNTHETIC"}),
+        allow_historical=False,
+        allow_superseded=False,
+        real_content_allowed=False,
+        protected_action_authority="ZERO",
+        canonical_write_authority="ZERO",
+    )
+
+
+PROPOSAL_V1_POLICIES = {
+    purpose: _proposal_skill_policy(purpose)
+    for purpose in (
+        AIPurpose.PROPOSAL_TENDER_INTAKE_ANALYSIS,
+        AIPurpose.PROPOSAL_REQUIREMENT_EVIDENCE_ANALYSIS,
+        AIPurpose.PROPOSAL_SECTION_DRAFT,
+        AIPurpose.PROPOSAL_COMMERCIAL_CONSISTENCY_REVIEW,
+        AIPurpose.PROPOSAL_LPO_VARIANCE_ANALYSIS,
+        AIPurpose.PROPOSAL_HANDOFF_PREFLIGHT,
+    )
+}
+
+
 AI_PURPOSE_POLICIES = {
     AIPurpose.ENGINEERING_TECHNICAL_DRAFT: ENGINEERING_TECHNICAL_DRAFT_POLICY,
     AIPurpose.PROPOSAL_INTELLIGENCE: PROPOSAL_INTELLIGENCE_POLICY,
+    **PROPOSAL_V1_POLICIES,
 }
 
 

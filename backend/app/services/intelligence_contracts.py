@@ -117,6 +117,7 @@ class SkillManifest(BaseModel):
     input_trust_floor: str
     allowed_tools: list[str]
     model_policy: dict[str, Any]
+    purpose: str = "UNSPECIFIED"
     output_class: str
     canonical_write_authority: str = "NONE"
     protected_action_authority: str = "NONE"
@@ -126,6 +127,9 @@ class SkillManifest(BaseModel):
     dependency_capture: dict[str, Any]
     invalidation: dict[str, Any]
     eval_pack_version: str
+    interactive_background_support: tuple[str, ...] = ("INTERACTIVE", "BACKGROUND")
+    context_budget: dict[str, Any] = {}
+    cost_token_budget: dict[str, Any] = {}
     manifest_hash: str = ""
 
     @model_validator(mode="after")

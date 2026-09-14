@@ -33,6 +33,7 @@ def test_active_graph_and_legacy_archive_are_exact():
         "intelligence_v1_shared_contracts.py",
         "p07_intelligence_foundation_closure.py",
         "p08_proposal_intelligence.py",
+        "proposal_intelligence_combined_merge_v1.py",
     }
     phase4_source = PHASE4.read_text(encoding="utf-8")
     assert 'revision = "phase4_corpus_app_integration_v1"' in phase4_source

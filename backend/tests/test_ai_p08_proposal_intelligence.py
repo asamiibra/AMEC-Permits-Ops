@@ -17,18 +17,47 @@ from backend.app.ai.skill_registry import PROPOSAL_SKILLS
 
 def test_proposal_skill_pack_is_exact_and_strict():
     expected = [
-        "proposal.intake-analysis",
-        "proposal.scope-technical-analysis",
+        "proposal.tender-intake-analysis",
+        "proposal.requirement-evidence-analysis",
+        "proposal.section-draft",
+        "proposal.commercial-consistency-review",
         "proposal.lpo-variance-analysis",
-        "proposal.readiness-explanation",
+        "proposal.handoff-preflight",
     ]
     assert [item.manifest.skill_id for item in PROPOSAL_SKILLS] == expected
     assert all(item.manifest.version == "1.0.0" for item in PROPOSAL_SKILLS)
-    assert all(item.manifest.owning_module == "proposal" for item in PROPOSAL_SKILLS)
-    assert all(item.manifest.allowed_scope_types == ["PROPOSAL"] for item in PROPOSAL_SKILLS)
+    assert all(item.manifest.owning_module == "BD_PROPOSAL" for item in PROPOSAL_SKILLS)
+    assert all(item.manifest.purpose.startswith("PROPOSAL_") for item in PROPOSAL_SKILLS)
+    assert all(item.manifest.allowed_scope_types == ["PROPOSAL", "PROPOSAL_REVISION"] for item in PROPOSAL_SKILLS)
     assert all(getattr(item.manifest, field) == "NONE" for item in PROPOSAL_SKILLS for field in ("canonical_write_authority", "protected_action_authority", "canonical_or_protected_authority"))
     assert all(item.manifest.allowed_tools == [] for item in PROPOSAL_SKILLS)
     assert all(item.output.provider_schema.get("additionalProperties") is False for item in PROPOSAL_SKILLS)
+
+
+def test_final_six_proposal_skills_execute_through_shared_runtime(tmp_path):
+    engine = create_engine(f"sqlite:///{tmp_path / 'p08-six.db'}")
+    Base.metadata.create_all(engine)
+    operations = [
+        ("tender-intake-analysis", "proposal.tender-intake-analysis"),
+        ("requirement-evidence-analysis", "proposal.requirement-evidence-analysis"),
+        ("section-draft", "proposal.section-draft"),
+        ("commercial-consistency-review", "proposal.commercial-consistency-review"),
+        ("lpo-variance-analysis", "proposal.lpo-variance-analysis"),
+        ("handoff-preflight", "proposal.handoff-preflight"),
+    ]
+    with Session(engine) as db:
+        office = ConsultancyOffice(id="six-office", office_code="SIX", name_en="SIX", name_ar="SIX")
+        user = User(id="six-user", email="six@example.test", display_name="Six", role=Role.SYSTEM_ADMIN, office_id=office.id, active=True)
+        proposal = Opportunity(id="six-proposal", office_id=office.id, opportunity_reference="SIX-001", title="Synthetic Proposal", status="ACCEPTED", source_type="TEST")
+        revision = ProposalAcceptedRevision(id="six-revision", proposal_id=proposal.id, revision_number=1, snapshot={"title": proposal.title}, validation_snapshot={}, content_hash="a" * 64, accepted_by=user.id, status="ACCEPTED")
+        db.add_all([office, user, proposal, revision]); db.commit()
+        principal = AuthenticatedPrincipal(auth_mode="TEST", role=Role.SYSTEM_ADMIN, user_id=user.id, office_id=office.id)
+        for index, (operation, skill_id) in enumerate(operations):
+            result = execute_proposal_intelligence(db, proposal_id=proposal.id, operation=operation, principal=principal, idempotency_key=f"six-exec-{index}", correlation_id=f"six-corr-{index}", settings=_settings(), provider=ProposalDeterministicProvider())
+            assert result["skill_id"] == skill_id
+            assert result["canonical_state_mutated"] is False
+            assert result["protected_action_count"] == 0
+    engine.dispose()
 
 
 def _settings() -> Settings:

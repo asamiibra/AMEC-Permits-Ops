@@ -68,6 +68,67 @@ class ProposalIntakeAnalysis(BaseModel):
     citation_keys: list[str] = Field(min_length=1, max_length=30)
 
 
+class ProposalRequirementCandidate(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    requirement: str = Field(min_length=1, max_length=2000)
+    proposal_section: str = Field(min_length=1, max_length=240)
+    supporting_facts: list[str] = Field(default_factory=list, max_length=20)
+    evidence_candidates: list[str] = Field(default_factory=list, max_length=20)
+    conflicting_evidence: list[str] = Field(default_factory=list, max_length=20)
+    missing_evidence: list[str] = Field(default_factory=list, max_length=20)
+    explanation: str = Field(min_length=1, max_length=2000)
+    confidence: float = Field(ge=0, le=1)
+    citation_keys: list[str] = Field(min_length=1, max_length=16)
+
+
+class ProposalRequirementEvidenceAnalysis(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    summary: str = Field(min_length=1, max_length=4000)
+    requirement_candidates: list[ProposalRequirementCandidate] = Field(default_factory=list, max_length=50)
+    open_questions: list[str] = Field(default_factory=list, max_length=30)
+    citation_keys: list[str] = Field(min_length=1, max_length=30)
+
+
+class ProposalSectionDraft(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    section_type: str = Field(min_length=1, max_length=120)
+    draft_content: str = Field(min_length=1, max_length=16000)
+    approved_content_used: list[str] = Field(default_factory=list, max_length=30)
+    canonical_facts_used: list[str] = Field(default_factory=list, max_length=30)
+    open_questions: list[str] = Field(default_factory=list, max_length=30)
+    assumptions: list[str] = Field(default_factory=list, max_length=30)
+    unsupported_claims: list[str] = Field(default_factory=list, max_length=30)
+    citation_keys: list[str] = Field(min_length=1, max_length=30)
+    draft_only: Literal[True] = True
+
+
+class ProposalCommercialVariance(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    field: str = Field(min_length=1, max_length=160)
+    proposal_value: str = Field(max_length=1000)
+    source_value: str = Field(max_length=1000)
+    candidate_classification: Literal["POSSIBLE_MATERIAL_VARIANCE"] = "POSSIBLE_MATERIAL_VARIANCE"
+    citation_keys: list[str] = Field(min_length=1, max_length=16)
+
+
+class ProposalCommercialConsistencyReview(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    summary: str = Field(min_length=1, max_length=4000)
+    variances: list[ProposalCommercialVariance] = Field(default_factory=list, max_length=50)
+    open_questions: list[str] = Field(default_factory=list, max_length=30)
+    citation_keys: list[str] = Field(min_length=1, max_length=30)
+
+
+class ProposalHandoffPreflight(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    summary: str = Field(min_length=1, max_length=4000)
+    deterministic_state: Literal["READY", "BLOCKED", "UNKNOWN"]
+    deterministic_blockers: list[str] = Field(default_factory=list, max_length=50)
+    candidate_issues: list[str] = Field(default_factory=list, max_length=30)
+    next_permissible_human_actions: list[str] = Field(default_factory=list, max_length=30)
+    citation_keys: list[str] = Field(min_length=1, max_length=30)
+
+
 class ProposalScopeTechnicalAnalysis(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
     summary: str = Field(min_length=1, max_length=4000)
@@ -214,5 +275,31 @@ PROPOSAL_LPO_VARIANCE_ANALYSIS_OUTPUT = StructuredOutputDefinition(
 PROPOSAL_READINESS_EXPLANATION_OUTPUT = StructuredOutputDefinition(
     schema_name="proposal_readiness_explanation", schema_version="1", output_class="ANALYSIS",
     provider_schema=_strict_schema(ProposalReadinessExplanation), validator=lambda value: _validate_proposal(ProposalReadinessExplanation, value),
+    citation_keys=_proposal_citation_keys, requires_grounding=True,
+)
+
+PROPOSAL_TENDER_INTAKE_ANALYSIS_OUTPUT = StructuredOutputDefinition(
+    schema_name="proposal_tender_intake_analysis", schema_version="1", output_class="ANALYSIS",
+    provider_schema=_strict_schema(ProposalIntakeAnalysis), validator=lambda value: _validate_proposal(ProposalIntakeAnalysis, value),
+    citation_keys=_proposal_citation_keys, requires_grounding=True,
+)
+PROPOSAL_REQUIREMENT_EVIDENCE_ANALYSIS_OUTPUT = StructuredOutputDefinition(
+    schema_name="proposal_requirement_evidence_analysis", schema_version="1", output_class="ANALYSIS",
+    provider_schema=_strict_schema(ProposalRequirementEvidenceAnalysis), validator=lambda value: _validate_proposal(ProposalRequirementEvidenceAnalysis, value),
+    citation_keys=_proposal_citation_keys, requires_grounding=True,
+)
+PROPOSAL_SECTION_DRAFT_OUTPUT = StructuredOutputDefinition(
+    schema_name="proposal_section_draft", schema_version="1", output_class="DRAFT",
+    provider_schema=_strict_schema(ProposalSectionDraft), validator=lambda value: _validate_proposal(ProposalSectionDraft, value),
+    citation_keys=_proposal_citation_keys, requires_grounding=True,
+)
+PROPOSAL_COMMERCIAL_CONSISTENCY_REVIEW_OUTPUT = StructuredOutputDefinition(
+    schema_name="proposal_commercial_consistency_review", schema_version="1", output_class="ANALYSIS",
+    provider_schema=_strict_schema(ProposalCommercialConsistencyReview), validator=lambda value: _validate_proposal(ProposalCommercialConsistencyReview, value),
+    citation_keys=_proposal_citation_keys, requires_grounding=True,
+)
+PROPOSAL_HANDOFF_PREFLIGHT_OUTPUT = StructuredOutputDefinition(
+    schema_name="proposal_handoff_preflight", schema_version="1", output_class="ANALYSIS",
+    provider_schema=_strict_schema(ProposalHandoffPreflight), validator=lambda value: _validate_proposal(ProposalHandoffPreflight, value),
     citation_keys=_proposal_citation_keys, requires_grounding=True,
 )

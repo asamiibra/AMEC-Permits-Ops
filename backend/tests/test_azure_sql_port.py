@@ -179,6 +179,7 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
         "intelligence_v1_shared_contracts.py",
         "p07_intelligence_foundation_closure.py",
         "p08_proposal_intelligence.py",
+        "proposal_intelligence_combined_merge_v1.py",
     }
     by_revision = {
         re.search(r'^revision = "([^"]+)"$', path.read_text(encoding="utf-8"), re.MULTILINE).group(1): path
@@ -198,6 +199,7 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
         "intelligence_v1_shared_contracts",
         "p07_intelligence_foundation_closure",
         "p08_proposal_intelligence",
+        "proposal_intelligence_combined_merge_v1",
     }
     source = by_revision["baseline_phase4_v36_azure_sql"].read_text(encoding="utf-8")
     assert 'revision = "baseline_phase4_v36_azure_sql"' in source

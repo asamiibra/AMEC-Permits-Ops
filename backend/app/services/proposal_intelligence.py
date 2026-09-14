@@ -28,7 +28,7 @@ from backend.app.services.intelligence_foundation import (
 )
 
 
-P08_POLICY_VERSION = "PROPOSAL_INTELLIGENCE-1.0"
+P08_POLICY_VERSION = "PROPOSAL_INTELLIGENCE_V1-1.0"
 P08_REVIEW_CAPABILITY = "BD_PROPOSAL_INTELLIGENCE_REVIEW"
 P08_EVAL_PACK_ID = "proposal-intelligence-v1"
 P08_EVAL_PACK_VERSION = "1.0.0"
@@ -42,10 +42,15 @@ P08_CRITICAL_CASES = (
 )
 P08_EVAL_PACK_HASH = stable_hash({"eval_pack_id": P08_EVAL_PACK_ID, "version": P08_EVAL_PACK_VERSION, "owning_module": "proposal", "critical_case_policy": "ALL_SECURITY_CURRENTNESS_AUTHORITY_CRITICAL", "acceptance_threshold_policy": "CRITICAL_100_PERCENT_NO_SKIPS"})
 OPERATION_TO_SKILL = {
-    "intake-analysis": "proposal.intake-analysis",
-    "scope-technical-analysis": "proposal.scope-technical-analysis",
+    "tender-intake-analysis": "proposal.tender-intake-analysis",
+    "requirement-evidence-analysis": "proposal.requirement-evidence-analysis",
+    "section-draft": "proposal.section-draft",
+    "commercial-consistency-review": "proposal.commercial-consistency-review",
     "lpo-variance-analysis": "proposal.lpo-variance-analysis",
-    "readiness-explanation": "proposal.readiness-explanation",
+    "handoff-preflight": "proposal.handoff-preflight",
+    "intake-analysis": "proposal.tender-intake-analysis",
+    "scope-technical-analysis": "proposal.section-draft",
+    "readiness-explanation": "proposal.handoff-preflight",
 }
 _SKILLS = {item.manifest.skill_id: item for item in PROPOSAL_SKILLS}
 
@@ -124,14 +129,18 @@ class ProposalDeterministicProvider:
         projection = item.get("projection", {})
         citation = ["CIT-001"]
         name = request.schema_name
-        if name == "proposal_intake_analysis":
+        if name in {"proposal_intake_analysis", "proposal_tender_intake_analysis"}:
             payload = {"summary": "Synthetic governed Proposal intake analysis.", "missing_information": [], "contradictions": [], "unresolved_candidate_facts": [], "source_currentness_issues": [], "citation_keys": citation}
-        elif name == "proposal_scope_technical_analysis":
-            payload = {"summary": "Synthetic governed technical scope recommendation.", "assumptions": [], "exclusions": [], "unresolved_technical_questions": [], "eligibility_dependencies": [], "recommendation_notes": ["Human BD / Engineering review remains required."], "citation_keys": citation}
+        elif name == "proposal_requirement_evidence_analysis":
+            payload = {"summary": "Synthetic requirement and evidence candidate map.", "requirement_candidates": [], "open_questions": [], "citation_keys": citation}
+        elif name == "proposal_section_draft":
+            payload = {"section_type": "Executive Summary", "draft_content": "Synthetic draft for human editing only.", "approved_content_used": [], "canonical_facts_used": [], "open_questions": [], "assumptions": [], "unsupported_claims": [], "citation_keys": citation, "draft_only": True}
+        elif name == "proposal_commercial_consistency_review":
+            payload = {"summary": "Synthetic commercial consistency review; disposition remains human-owned.", "variances": [], "open_questions": [], "citation_keys": citation}
         elif name == "proposal_lpo_variance_analysis":
             payload = {"summary": "Synthetic typed LPO comparison; no adjudication performed.", "accepted_revision_id": projection.get("accepted_revision_id", "unresolved"), "lpo_evidence_id": projection.get("lpo_evidence_id"), "differences": [], "citation_keys": citation}
         else:
-            payload = {"explanation": "Synthetic governed Proposal readiness explanation.", "blockers": [], "stale_dependencies": [], "missing_information": [], "next_permissible_human_actions": ["Review the analysis inside the Proposal workspace."], "citation_keys": citation}
+            payload = {"summary": "Synthetic governed Contract handoff preflight explanation.", "deterministic_state": "UNKNOWN", "deterministic_blockers": [], "candidate_issues": [], "next_permissible_human_actions": ["Review the preflight inside the Proposal workspace."], "citation_keys": citation}
         return AIProviderResult(f"synthetic-proposal-{name}", payload, AIProviderUsage(1, 1, 2))
 
 
@@ -166,7 +175,7 @@ def execute_proposal_intelligence(
     request = SkillExecutionRequest(
         idempotency_key=idempotency_key, correlation_id=correlation_id,
         skill_id=context.skill.manifest.skill_id, skill_version=context.skill.manifest.version,
-        skill_manifest_hash=context.skill.manifest.manifest_hash, purpose="PROPOSAL_INTELLIGENCE",
+        skill_manifest_hash=context.skill.manifest.manifest_hash, purpose=context.skill.manifest.purpose,
         execution_mode="INTERACTIVE", scope_type="PROPOSAL", scope_id=proposal.id,
         project_id=proposal.project_id, target_entity_type="PROPOSAL", target_entity_id=proposal.id,
         context_schema_version="proposal-context-v1", policy_version=P08_POLICY_VERSION,
