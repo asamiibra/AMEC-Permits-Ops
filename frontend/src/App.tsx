@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import type { KeyboardEvent as ReactKeyboardEvent } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { api } from "./api";
 import {
   DocumentsPage,
@@ -28,63 +27,42 @@ import { LineageValidityPage } from "./Week8";
 import { AttachmentGridPage } from "./Week9";
 import { ReconciliationControls } from "./ReconciliationControls";
 import {
-  AdministrationPage,
   Application,
-  MyWorkPage,
-  PermitsPage,
   PermitWorkspacePage,
   Project,
   ReviewsPage,
   WorkflowStage,
-  projectWorkflowStage,
 } from "./WorkflowFirst";
 import {
-  IssueFocusBanner,
   PersonaIssueDetailPage,
   PersonaIssuesPage,
   PersonaNotificationsPage,
-  Persona,
 } from "./PersonaIssuesNotifications";
 import { ExpansionFoundation } from "./ExpansionFoundation";
 import { OpportunitiesPage } from "./Opportunities";
 import { ProposalsContractsPage } from "./ProposalsContracts";
 import { EngineeringCloseoutPage } from "./EngineeringCloseout";
 import { ProjectEngineeringPage } from "./ProjectEngineering";
-import { EngineeringDrawingReviewPage } from "./EngineeringDrawingReview";
-import { AboutPermitOpsPage } from "./AboutPermitOps";
-import { AdministrationOwnerPage, ContractMobilizationPage } from "./AdministrationOwner";
-import { AMECWorkPage } from "./AMECWork";
-import {
-  ReadinessDrawer,
-  ReadinessOverviewPage,
-  getScreenDefinition,
-} from "./ProductionReadiness";
 import { AmecLogo } from "./AmecLogo";
 import { readDemoRole } from "./rebrand";
-import { browserAuthMode } from "./auth";
 import { CurrentDashboard } from "./Dashboard";
-import { DashboardInputsPage } from "./DashboardInputs";
-import { Phase4ReviewPage } from "./Phase4Review";
-import { Phase5ReviewPage } from "./Phase5Review";
 import { BDProposalOwnerSessionPage } from "./BDProposalOwnerSession";
 import { AuthorityCaseWorkspacePage } from "./AuthorityCaseWorkspace";
 import { NewPermitPage, PermitCasePage, PermitPortfolioPage } from "./PermitAuthorityUX";
 import { BillingInvoicePage } from "./BillingInvoice";
 import { ConstructionPage } from "./Construction";
 import { CompletionPage } from "./Completion";
-import { HandoverPage } from "./Handover";
-import { HomeCommandCenter } from "./HomeCommandCenter";
-import { Source18CommitteePage } from "./Source18Committee";
-import { Icon, type IconName } from "./Icon";
+import { HomePage } from "./Home";
+import {
+  getPrimaryNavigation,
+  isDisabledTopLevelRoute,
+  personaForRole,
+} from "./featureAvailability";
 import "./dashboard.css";
 import "./billing-invoice.css";
 import "./construction.css";
 import "./completion.css";
 import "./handover.css";
-import "./home-command-center.css";
-import "./home-command-center-accessibility.css";
-import "./phase4-review.css";
-import "./phase5-review.css";
 
 type Decision = {
   id: string;
@@ -104,27 +82,6 @@ type Raid = {
   mitigation: string;
 };
 
-type BusinessNavItem = {
-  id: string;
-  page: string;
-  label: string;
-  icon: IconName;
-  path?: string;
-  group: "HOME" | "BUSINESS FLOW";
-};
-const businessNav: BusinessNavItem[] = [
-  { id: "home", page: "home", label: "Home", icon: "dashboard", path: "/home", group: "HOME" },
-  { id: "phase4-review", page: "phase4-review", label: "Evidence Review", icon: "check", path: "/phase4/review", group: "HOME" },
-  { id: "phase5-review", page: "phase5-review", label: "Classifier Review", icon: "check", path: "/phase5/review", group: "HOME" },
-  { id: "intake-opportunity", page: "opportunities", label: "Intake & Opportunity", icon: "briefcase", path: "/opportunities", group: "BUSINESS FLOW" },
-  { id: "contract-mobilization", page: "contract-mobilization", label: "Contract & Mobilization", icon: "contract", path: "/contract-mobilization", group: "BUSINESS FLOW" },
-  { id: "design-delivery", page: "project-engineering", label: "Design & Technical Delivery", icon: "engineering", path: "/engineering", group: "BUSINESS FLOW" },
-  { id: "regulatory-submissions", page: "permit-portfolio", label: "Regulatory & Submissions", icon: "authority", path: "/permits", group: "BUSINESS FLOW" },
-  { id: "source18-committee", page: "source18-committee", label: "Engineers Committee", icon: "authority", path: "/source18/committee", group: "BUSINESS FLOW" },
-  { id: "construction-post-approval", page: "construction", label: "Construction & Post-Approval", icon: "construction", path: "/construction", group: "BUSINESS FLOW" },
-  { id: "completion-as-built", page: "completion", label: "Completion & As-Built", icon: "completion", path: "/completion", group: "BUSINESS FLOW" },
-  { id: "handover-closeout", page: "handover", label: "Handover & Closeout", icon: "handover", path: "/handover", group: "BUSINESS FLOW" },
-];
 const legacyNav = [
   { id: "expansion-foundation", label: "Expansion foundation" },
   { id: "projects", label: "Project register" },
@@ -157,39 +114,27 @@ const legacyNav = [
   { id: "raid", label: "RAID log" },
   { id: "control-loop", label: "Control diagnostics" },
 ];
-const adminRoles = new Set(["SYSTEM_ADMIN", "OWNER_SPONSOR"]);
-const personaForRole = (value: string): Persona =>
-  value === "COMMERCIAL_APPROVER"
-    ? "BUSINESS_DEVELOPMENT"
-    : value === "RESPONSIBLE_ENGINEER"
-      ? "ENGINEERING"
-      : "OWNER";
 const statusClass = (status: string) =>
   `status status-${status.toLowerCase().replaceAll("_", "-")}`;
 const pageFromPath = () => {
   const path = window.location.pathname;
-  if (path === "/" || path === "/home") return "home";
-  if (path === "/phase4/review") return "phase4-review";
-  if (path === "/phase5/review") return "phase5-review";
-  if (path === "/dashboard") return "dashboard";
-  if (path === "/dashboard-v2") return "dashboard";
-  if (path === "/content-library" || path === "/library" || path === "/master-content") return "dashboard";
+  if (isDisabledTopLevelRoute(path)) return "home";
+  if (path === "/home" || path === "/" || path === "/work") return "home";
+  if (
+    path === "/content-library" ||
+    path === "/dashboard" ||
+    path === "/dashboard-v2" ||
+    path === "/library" ||
+    path.startsWith("/library/") ||
+    path === "/master-content" ||
+    path.startsWith("/master-content/")
+  )
+    return "content-library";
   if (path === "/bd") return "opportunities";
   if (path === "/bd/proposals") return "bd-proposals";
   if (path === "/billing" || path.startsWith("/billing/")) return "billing";
-  if (path === "/contract-mobilization" || path.startsWith("/contract-mobilization/")) return "contract-mobilization";
-  if (path === "/engineering") return "project-engineering";
-  if (path === "/project-engineering") return "project-engineering";
-  if (path === "/construction" || path.startsWith("/construction/")) return "construction";
-  if (path === "/completion" || path.startsWith("/completion/")) return "completion";
-  if (path === "/handover" || path.startsWith("/handover/")) return "handover";
-  if (path === "/engineering/drawing-review") return "engineering-drawing-review";
-  if (path === "/permit") return "permit-portfolio";
-  if (path === "/source18/committee") return "source18-committee";
-  if (path === "/authority-cases" || path.startsWith("/authority-cases/")) return "authority-cases";
-  if (path === "/work") return "my-work";
   if (path === "/permits" || path === "/projects") return "permit-portfolio";
-  if (path === "/proposals-contracts") return "permits";
+  if (path === "/proposals-contracts") return "contract-mobilization";
   if (path === "/permits/new") return "permit-new";
   if (path.startsWith("/permits/")) return "permit-case";
   if (
@@ -199,25 +144,9 @@ const pageFromPath = () => {
   )
     return "permits";
   if (path === "/opportunities" || path.startsWith("/opportunities/")) return "opportunities";
-  if (path === "/engineering-closeout") return "engineering-closeout";
-  if (path === "/reviews") return "reviews";
+  if (path === "/contract-mobilization" || path.startsWith("/contract-mobilization/")) return "contract-mobilization";
   if (path === "/issues") return "issues";
   if (path.startsWith("/issues/")) return "issue-detail";
-  if (path === "/notifications") return "notifications";
-  if (
-    path === "/about" ||
-    path === "/how-permitops-works" ||
-    path === "/operating-guide"
-  )
-    return "about";
-  if (path === "/admin") return "administration";
-  if (path === "/dashboard/inputs-go-live") return "dashboard-inputs";
-  if (path === "/dashboard-v2/inputs-go-live") return "dashboard-inputs";
-  if (path === "/admin/go-live-readiness" || path === "/admin/contracts/inputs/go-live") return "go-live-readiness";
-  if (path === "/admin/control-diagnostics") return "control-loop";
-  if (path === "/admin/contracts" || path.startsWith("/admin/contracts/") || path === "/admin/project-activation" || path.startsWith("/admin/project-activation/")) return "contract-mobilization";
-  if (path === "/admin/invoices" || path.startsWith("/admin/invoices/")) return "billing";
-  if (path.startsWith("/admin/")) return "administration";
   if (path.startsWith("/proposals-contracts/"))
     return "permit-workspace";
   return "home";
@@ -253,17 +182,6 @@ function App() {
   const [governance] = useState({ environment_badge: "SYNTHETIC PROTOTYPE" });
   const [error, setError] = useState("");
   const [role, setRole] = useState<string>(() => readDemoRole());
-  const [authSession, setAuthSession] = useState<{ authenticated: boolean; identity: { user_id: string | null; tenant_id: string | null; object_id: string | null; role: string } } | null>(null);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [createOpen, setCreateOpen] = useState(false);
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const mobileNavTriggerRef = useRef<HTMLButtonElement>(null);
-  const mobileNavDrawerRef = useRef<HTMLElement>(null);
-  const mobileNavCloseButtonRef = useRef<HTMLButtonElement>(null);
-  const mobileNavInitiatorRef = useRef<HTMLElement | null>(null);
-  const sidebarRef = useRef<HTMLElement>(null);
-  const mainRef = useRef<HTMLElement>(null);
-  const mainContentRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     document.documentElement.lang = "en";
     document.documentElement.dir = "ltr";
@@ -281,17 +199,6 @@ function App() {
     }
   }, []);
   useEffect(() => {
-    const pathname = window.location.pathname;
-    const target = pathname === "/dashboard-v2"
-      ? "/dashboard"
-      : pathname === "/dashboard-v2/inputs-go-live"
-        ? "/dashboard/inputs-go-live"
-        : null;
-    if (!target) return;
-    window.history.replaceState({}, "", `${target}${window.location.search}${window.location.hash}`);
-    window.dispatchEvent(new PopStateEvent("popstate"));
-  }, []);
-  useEffect(() => {
     const originalPushState = window.history.pushState.bind(window.history);
     window.history.pushState = ((
       state: unknown,
@@ -306,7 +213,7 @@ function App() {
     };
   }, []);
   useEffect(() => {
-    if (page === "my-work") return;
+    if (page === "home") return;
     Promise.allSettled([
       api<Project[]>("/api/projects"),
       api<Application[]>("/api/applications"),
@@ -323,17 +230,6 @@ function App() {
       }
     });
   }, [page]);
-  useEffect(() => {
-    if (browserAuthMode() !== "ENTRA") return;
-    api<{ authenticated: boolean; identity: { user_id: string | null; tenant_id: string | null; object_id: string | null; role: string } }>("/api/auth/session")
-      .then((session) => setAuthSession(session))
-      .catch(() => setAuthSession(null));
-  }, []);
-  useEffect(() => {
-    if (browserAuthMode() === "ENTRA" && authSession?.identity.role) {
-      setRole(authSession.identity.role);
-    }
-  }, [authSession]);
   useEffect(() => {
     sessionStorage.setItem("proposalops-role", role);
   }, [role]);
@@ -356,112 +252,30 @@ function App() {
     return () => window.removeEventListener("popstate", syncLocation);
   }, [projects]);
   useEffect(() => {
-    if (
-      window.location.pathname.startsWith("/admin") &&
-      !adminRoles.has(role)
-    ) {
-      setPage("home");
-      window.history.replaceState({}, "", "/home");
-    }
+    if (!isDisabledTopLevelRoute(window.location.pathname)) return;
+    setPage("home");
+    window.history.replaceState({}, "", "/home");
   }, [role]);
-  const restoreMobileNavFocus = () => {
-    const target = mobileNavInitiatorRef.current || mobileNavTriggerRef.current;
-    mobileNavInitiatorRef.current = null;
-    window.requestAnimationFrame(() => target?.focus());
-  };
-  const closeMobileNav = (restoreFocus = true) => {
-    setMobileNavOpen(false);
-    if (restoreFocus) restoreMobileNavFocus();
-    else mobileNavInitiatorRef.current = null;
-  };
-  const openMobileNav = () => {
-    mobileNavInitiatorRef.current = mobileNavTriggerRef.current;
-    setMobileNavOpen(true);
-  };
-  useEffect(() => {
-    const background = [sidebarRef.current, mainRef.current].filter(
-      (element): element is HTMLElement => Boolean(element),
-    );
-    background.forEach((element) => {
-      (element as HTMLElement & { inert: boolean }).inert = mobileNavOpen;
-      if (mobileNavOpen) element.setAttribute("aria-hidden", "true");
-      else element.removeAttribute("aria-hidden");
-    });
-    return () => {
-      background.forEach((element) => {
-        (element as HTMLElement & { inert: boolean }).inert = false;
-        element.removeAttribute("aria-hidden");
-      });
-    };
-  }, [mobileNavOpen]);
-  useEffect(() => {
-    if (!mobileNavOpen) return;
-    window.requestAnimationFrame(() => {
-      const firstControl = mobileNavCloseButtonRef.current ||
-        mobileNavDrawerRef.current?.querySelector<HTMLElement>("button, a[href]");
-      firstControl?.focus();
-    });
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        closeMobileNav();
-      }
-    };
-    window.addEventListener("keydown", closeOnEscape);
-    return () => window.removeEventListener("keydown", closeOnEscape);
-  }, [mobileNavOpen]);
-  const handleMobileDrawerKeyDown = (event: ReactKeyboardEvent<HTMLElement>) => {
-    if (event.key !== "Tab") return;
-    const focusable = Array.from(
-      event.currentTarget.querySelectorAll<HTMLElement>(
-        'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-      ),
-    );
-    if (!focusable.length) return;
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus();
-    }
-  };
   const navigate = (next: string) => {
-    const fromMobileDrawer = mobileNavOpen;
-    closeMobileNav(false);
-    const navItem = businessNav.find((item) => item.id === next);
+    const navItem = getPrimaryNavigation(role).find((item) => item.id === next);
     const nextPage = navItem?.page || next;
+    if (isDisabledTopLevelRoute(next)) {
+      navigate("home");
+      return;
+    }
     setPage(nextPage);
     setSelected(null);
-    const path = navItem?.path ||
-      (nextPage === "my-work"
-        ? "/work"
+    const path =
+      navItem?.route ||
+      (nextPage === "home"
+        ? "/home"
         : nextPage === "permit-portfolio"
           ? "/permits"
           : nextPage === "permits"
             ? "/proposals-contracts"
-          : nextPage === "contract-mobilization"
-            ? "/contract-mobilization"
-          : nextPage === "phase4-review"
-            ? "/phase4/review"
-          : nextPage === "phase5-review"
-            ? "/phase5/review"
-          : nextPage === "about"
-            ? "/operating-guide"
-            : nextPage === "administration"
-              ? "/admin"
-              : nextPage === "go-live-readiness"
-                ? "/admin/go-live-readiness"
-                : nextPage === "dashboard-inputs"
-                  ? "/dashboard/inputs-go-live"
-                  : `/${nextPage}`);
+            : `/${nextPage}`);
     window.history.pushState({}, "", path);
     window.dispatchEvent(new PopStateEvent("popstate"));
-    if (fromMobileDrawer) {
-      window.requestAnimationFrame(() => mainContentRef.current?.focus());
-    }
   };
   const openPermit = (
     projectId: string,
@@ -480,8 +294,8 @@ function App() {
     );
   };
   const openLegacy = (next: string, projectId?: string) => {
-    if (!adminRoles.has(role) && !projectId) {
-      navigate("my-work");
+    if (!projectId) {
+      navigate("home");
       return;
     }
     if (next === "control-loop") {
@@ -503,53 +317,13 @@ function App() {
     );
   };
   const openProject = (p: Project) => openPermit(p.id);
-  const visibleBusinessNav = businessNav.filter((item) => {
-    if (role === "SYSTEM_ADMIN" || role === "OWNER_SPONSOR") return true;
-    if (role === "COMMERCIAL_APPROVER")
-      return [
-        "home",
-        "phase4-review",
-        "phase5-review",
-        "intake-opportunity",
-        "contract-mobilization",
-        "regulatory-submissions",
-        "source18-committee",
-        "completion-as-built",
-      ].includes(item.id);
-    if (role === "RESPONSIBLE_ENGINEER")
-      return [
-        "home",
-        "phase4-review",
-        "phase5-review",
-        "design-delivery",
-        "regulatory-submissions",
-        "source18-committee",
-        "construction-post-approval",
-        "completion-as-built",
-        "handover-closeout",
-      ].includes(item.id);
-    return ["home", "phase4-review", "phase5-review", "regulatory-submissions", "completion-as-built", "handover-closeout"].includes(item.id);
-  });
+  const visiblePrimaryNavigation = getPrimaryNavigation(role);
   const title =
     page === "permit-workspace" && selected
       ? `${selected.project_number} · ${selected.project_name}`
-      : page === "home"
-        ? "Home"
       : ["permit-portfolio", "permit-new", "permit-case"].includes(page)
         ? "Permit"
-      : page === "administration"
-        ? "Admin"
-      : page === "contract-mobilization"
-        ? "Contract & Mobilization"
-      : page === "handover"
-          ? "Handover / Admin Closeout"
-        : page === "go-live-readiness"
-          ? "Go-Live Setup"
-          : page === "dashboard-inputs"
-            ? "Master Content Setup & Go-Live"
-              : page === "home"
-                ? "Home"
-                : visibleBusinessNav.find((item) => item.page === page)?.label ||
+      : visiblePrimaryNavigation.find((item) => item.page === page)?.label ||
               legacyNav.find((item) => item.id === page)?.label ||
               (page === "project-detail" ? "Project detail" : "PermitOps");
   const permitSafetySurface = page === "permit-workspace";
@@ -557,66 +331,8 @@ function App() {
     ? window.location.pathname.split("/")[2]
     : undefined;
   return (
-    <div className="app-shell" data-g9-authenticated={authSession?.authenticated ? "true" : "false"} data-g9-auth-tenant={authSession?.identity.tenant_id || ""} data-g9-auth-object-id={authSession?.identity.object_id || ""} data-g9-auth-role={authSession?.identity.role || ""}>
-      {mobileNavOpen && (
-        <div
-          className="mobile-nav-backdrop"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) closeMobileNav();
-          }}
-        >
-          <aside
-            ref={mobileNavDrawerRef}
-            className="mobile-nav-drawer"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="mobile-nav-title"
-            onKeyDown={handleMobileDrawerKeyDown}
-          >
-            <div className="mobile-nav-drawer-head">
-              <div>
-                <b id="mobile-nav-title">AMEC Works</b>
-                <small>PROPOSALOPS WORKSPACE</small>
-              </div>
-              <button
-                ref={mobileNavCloseButtonRef}
-                className="mobile-nav-close"
-                type="button"
-                aria-label="Close navigation"
-                onClick={() => closeMobileNav()}
-              >
-                ×
-              </button>
-            </div>
-            <nav id="mobile-primary-navigation" aria-label="Mobile primary navigation">
-              <div className="nav-section-label">HOME</div>
-              {visibleBusinessNav.filter((item) => item.group === "HOME").map((item) => (
-                <button key={item.id} type="button" aria-label={item.label} data-nav-id={item.id} className={page === item.page ? "nav-item active" : "nav-item"} onClick={() => navigate(item.id)}>
-                  <span className="nav-icon"><Icon name={item.icon} size={18} /></span><span>{item.label}</span>
-                </button>
-              ))}
-              <div className="nav-section-label">BUSINESS FLOW</div>
-              {visibleBusinessNav.filter((item) => item.group === "BUSINESS FLOW").map((item) => (
-                <button key={item.id} type="button" aria-label={item.label} data-nav-id={item.id} className={page === item.page ? "nav-item active" : "nav-item"} onClick={() => navigate(item.id)}>
-                  <span className="nav-icon"><Icon name={item.icon} size={18} /></span><span>{item.label}</span>
-                </button>
-              ))}
-              {adminRoles.has(role) && (
-                <>
-                  <div className="nav-section-label">SYSTEM</div>
-                  <button type="button" aria-label="Admin" data-nav-id="administration" className={page === "administration" ? "nav-item active" : "nav-item"} onClick={() => navigate("administration")}>
-                    <span className="nav-icon"><Icon name="settings" size={18} /></span><span>Admin</span>
-                  </button>
-                </>
-              )}
-              <button type="button" aria-label="Operating Guide" data-nav-id="operating-guide" className={page === "about" ? "nav-item active" : "nav-item"} onClick={() => navigate("about")}>
-                <span className="nav-icon"><Icon name="guide" size={18} /></span><span>Operating Guide</span>
-              </button>
-            </nav>
-          </aside>
-        </div>
-      )}
-      <aside ref={sidebarRef} className="sidebar">
+    <div className="app-shell">
+      <aside className="sidebar">
         <div className="brand">
           <AmecLogo size="sm" className="sidebar-amec-logo" />
           <div className="brand-product">
@@ -631,31 +347,20 @@ function App() {
           <small>QEC-DOHA · SYNTHETIC DEV</small>
         </div>
         <nav aria-label="Primary navigation">
-          <div className="nav-section-label">HOME</div>
-          {visibleBusinessNav.filter((item) => item.group === "HOME").map((item) => <button key={item.id} aria-label={item.label} data-nav-id={item.id} className={page === item.page ? "nav-item active" : "nav-item"} onClick={() => navigate(item.id)}><span className="nav-icon"><Icon name={item.icon} size={18} /></span><span>{item.label}</span></button>)}
-          <div className="nav-section-label">BUSINESS FLOW</div>
-          {visibleBusinessNav.filter((item) => item.group === "BUSINESS FLOW").map((item) => <button key={item.id} aria-label={item.label} data-nav-id={item.id} className={page === item.page ? "nav-item active" : "nav-item"} onClick={() => navigate(item.id)}><span className="nav-icon"><Icon name={item.icon} size={18} /></span><span>{item.label}</span></button>)}
-          {adminRoles.has(role) && (
-            <>
-              <div className="nav-section-label nav-system-label">SYSTEM</div>
-              <button
-                aria-label="Admin"
-                data-nav-id="administration"
-                className={
-                  page === "administration" ? "nav-item active" : "nav-item"
-                }
-                onClick={() => navigate("administration")}
-              >
-                <span className="nav-icon"><Icon name="settings" size={18} /></span>
-                <span>Admin</span>
-              </button>
-              <button aria-label="Operating Guide" data-nav-id="operating-guide" className={page === "about" ? "nav-item active" : "nav-item"} onClick={() => navigate("about")}><span className="nav-icon"><Icon name="guide" size={18} /></span><span>Operating Guide</span></button>
-            </>
-          )}
-          {!adminRoles.has(role) && <button aria-label="Operating Guide" data-nav-id="operating-guide" className={page === "about" ? "nav-item active" : "nav-item"} onClick={() => navigate("about")}><span className="nav-icon"><Icon name="guide" size={18} /></span><span>Operating Guide</span></button>}
+          {visiblePrimaryNavigation.map((item) => (
+            <button
+              key={item.id}
+              aria-label={item.label}
+              className={page === item.page ? "nav-item active" : "nav-item"}
+              onClick={() => navigate(item.id)}
+            >
+              <span className="nav-icon">{item.icon}</span>
+              <span>{item.label}</span>
+            </button>
+          ))}
         </nav>
         <div className="sidebar-foot">
-          <span className="lock"><Icon name="shield" size={16} /></span>
+          <span className="lock">▣</span>
           <span>
             <b>Safe boundary</b>
             <small>
@@ -668,56 +373,20 @@ function App() {
           </span>
         </div>
       </aside>
-      <main ref={mainRef} className="main">
-        {page === "handover" && <HandoverPage />}
-        {page === "engineering-drawing-review" && <EngineeringDrawingReviewPage />}
+      <main className="main">
         <header className="topbar">
           <div className="topbar-heading">
-            <button
-              ref={mobileNavTriggerRef}
-              className="mobile-nav-trigger"
-              type="button"
-              aria-label={mobileNavOpen ? "Close navigation" : "Open navigation"}
-              aria-expanded={mobileNavOpen}
-              aria-controls="mobile-primary-navigation"
-              onClick={() => (mobileNavOpen ? closeMobileNav() : openMobileNav())}
-            >
-              Menu
-            </button>
             <AmecLogo size="sm" className="mobile-topbar-amec-logo" />
             <div>
               <span className="eyebrow">AMEC WORKSPACE</span>
-              <h1>ProposalOps</h1>
+              <h1>{title}</h1>
             </div>
           </div>
           <div className="top-actions">
-            <div className="header-menu-control">
-              <button className="header-control" aria-label="Global search" aria-expanded={searchOpen} onClick={() => { setSearchOpen((value) => !value); setCreateOpen(false); }}>⌕</button>
-              {searchOpen && <div className="header-popover" role="dialog" aria-label="Global search"><b>Global search</b><p>Search is bounded to canonical workspaces. Use the workspace filters or open AMEC Work for a governed action list.</p><a href="/work">Open AMEC Work →</a><a href="/dashboard">Search Content Library →</a></div>}
-            </div>
-            <div className="header-menu-control">
-              <button className="header-control" aria-label="Quick create" aria-expanded={createOpen} onClick={() => { setCreateOpen((value) => !value); setSearchOpen(false); }}>＋</button>
-              {createOpen && <div className="header-popover quick-create-popover" role="dialog" aria-label="Quick create"><b>Quick create</b><p>Start only from supported canonical workflows.</p><a href="/proposals/new">New Proposal →</a><a href="/dashboard">Manage Content Library →</a></div>}
-            </div>
-            <NotificationBell role={role} onNavigate={() => navigate("notifications")} />
-            <ReadinessDrawer
-              screenId={
-                window.location.pathname === "/proposals/new"
-                  ? getScreenDefinition("new-proposal").screenId
-                  : page === "permit-workspace"
-                    ? getScreenDefinition(selectedStage).screenId
-                    : ["permit-portfolio", "permit-new", "permit-case"].includes(page)
-                    ? getScreenDefinition("permits").screenId
-                    : getScreenDefinition(page === "home" || page === "my-work" ? "my-work" : page).screenId
-              }
-              role={role}
-              onNavigate={navigate}
-            />
             <span className="env-chip">
               <span className="dot green" />{" "}
               {governance?.environment_badge || "SYNTHETIC PROTOTYPE"}
             </span>
-            {browserAuthMode() === "DEV_HEADER" && (
             <label aria-label="Demo as" className="role-switcher">
               Demo as
               <select
@@ -732,46 +401,33 @@ function App() {
                 <option value="RESPONSIBLE_ENGINEER">Engineering</option>
               </select>
             </label>
-            )}
             <button className="avatar" aria-label="Current user">
               SA
             </button>
           </div>
         </header>
-        <div ref={mainContentRef} className="content" tabIndex={-1}>
+        <div className="content">
           {error && (
             <div className="error-banner">
               API unavailable: {error}. Start the backend to view seeded data.
             </div>
           )}
-          {page === "administration" ||
-          page === "control-loop" ||
-          page.startsWith("admin-") ||
-          page === "go-live-readiness" ||
-          page === "dashboard-inputs" ||
-          page === "about" ||
-          window.location.pathname === "/proposals/new" ? null : (
+          {window.location.pathname === "/proposals/new" ? null : (
             <div className="synthetic-note compact-environment-badge">
               SYNTHETIC PROTOTYPE · NO PORTAL WRITES · HUMAN SUBMISSION REQUIRED
             </div>
           )}
-          {page === "dashboard" && <CurrentDashboard role={role} />}{" "}
-          {page === "home" && <HomeCommandCenter role={role} />}{" "}
-          {page === "phase4-review" && <Phase4ReviewPage role={role} />}
-          {page === "phase5-review" && <Phase5ReviewPage role={role} />}
-          {page === "source18-committee" && <Source18CommitteePage />}
-          {page === "my-work" && (
-            <MyWorkPage
+          {page === "home" && <HomePage />}{" "}
+          {page === "content-library" && <CurrentDashboard role={role} />}{" "}
+          {page === "opportunities" && <OpportunitiesPage role={role as "SYSTEM_ADMIN" | "OWNER_SPONSOR" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER"} />}{" "}
+          {page === "contract-mobilization" && (
+            <ProposalsContractsPage
               projects={projects}
-              applications={apps}
-              openPermit={openPermit}
-              openAbout={() => navigate("about")}
+              persona={role as "SYSTEM_ADMIN" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER"}
+              openRecord={openPermit}
             />
           )}{" "}
-          {page === "about" && <AboutPermitOpsPage onNavigate={navigate} />}{" "}
-          {page === "opportunities" && <OpportunitiesPage role={role as "SYSTEM_ADMIN" | "OWNER_SPONSOR" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER"} />}{" "}
           {page === "billing" && <BillingInvoicePage />}{" "}
-          {page === "contract-mobilization" && <ContractMobilizationPage />}{" "}
           {page === "bd-proposals" && <BDProposalOwnerSessionPage role={role as "SYSTEM_ADMIN" | "OWNER_SPONSOR" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER"} />} {" "}
           {page === "project-engineering" && <ProjectEngineeringPage />}{" "}
           {page === "construction" && <ConstructionPage />}{" "}
@@ -828,15 +484,6 @@ function App() {
               openLegacy={openLegacy}
               backToPermits={() => navigate("permits")}
             />
-          )}{" "}
-          {page === "administration" && (
-            <AdministrationPage openLegacy={openLegacy} />
-          )}{" "}
-          {page === "go-live-readiness" && (
-            <ReadinessOverviewPage onNavigate={navigate} role={role} />
-          )}{" "}
-          {page === "dashboard-inputs" && (
-            <DashboardInputsPage onNavigate={navigate} role={role} />
           )}{" "}
           {page === "expansion-foundation" && <ExpansionFoundation />}{" "}
           {page === "projects" && (
@@ -924,18 +571,6 @@ function PageIntro({
     </div>
   );
 }
-
-function NotificationBell({ role, onNavigate }: { role: string; onNavigate: () => void }) {
-  const [unread, setUnread] = useState(0);
-  useEffect(() => {
-    let live = true;
-    api<{ summary?: { unread?: number } }>(`/api/notifications/summary?persona=${personaForRole(role)}`)
-      .then((value) => { if (live) setUnread(Number(value.summary?.unread || 0)); })
-      .catch(() => { if (live) setUnread(0); });
-    return () => { live = false; };
-  }, [role]);
-  return <button className="header-notifications" aria-label={`Notifications${unread ? `, ${unread} unread` : ""}`} onClick={onNavigate}><Icon name="notifications" size={17} />{unread > 0 && <span className="header-notifications-badge">{unread > 99 ? "99+" : unread}</span>}</button>;
-}
 function Dashboard({
   projects,
   apps,
@@ -973,7 +608,7 @@ function Dashboard({
               <h3>Projects requiring attention</h3>
             </div>
             <button className="text-button" onClick={() => go("projects")}>
-              View all <Icon name="arrow-up-right" size={14} />
+              View all →
             </button>
           </div>
           <div className="mini-list">
@@ -1008,7 +643,7 @@ function Dashboard({
             discovery dashboard before any Phase 0 data decision.
           </p>
           <button className="button-secondary" onClick={() => go("discovery")}>
-            Open discovery <Icon name="arrow-up-right" size={14} />
+            Open discovery →
           </button>
         </section>
       </div>
@@ -1139,7 +774,7 @@ function ProjectDetail({
   return (
     <>
       <button className="back-button" onClick={back}>
-        <Icon name="arrow-left" size={14} /> Projects
+        ← Projects
       </button>
       <PageIntro
         kicker={project.project_number}
@@ -1198,9 +833,9 @@ function ProjectDetail({
               {a.application_status === "RETURNED" && (
                 <div className="comments">
                   <b>Synthetic authority comments</b>
-                  <p><Icon name="alert" size={14} /> Owner name differs from supporting document.</p>
-                  <p><Icon name="alert" size={14} /> Drawing revision does not match package revision.</p>
-                  <p><Icon name="alert" size={14} /> Required attachment missing.</p>
+                  <p>• Owner name differs from supporting document.</p>
+                  <p>• Drawing revision does not match package revision.</p>
+                  <p>• Required attachment missing.</p>
                 </div>
               )}
             </>
@@ -1508,7 +1143,7 @@ function Privacy() {
         description="No real sensitive data is authorized in DEV or TEST. This page makes the current boundary explicit."
       />
       <div className="privacy-banner">
-        <div className="shield"><Icon name="check" size={16} /></div>
+        <div className="shield">✓</div>
         <div>
           <b>REAL SENSITIVE-DOCUMENT PROCESSING: NOT APPROVED</b>
           <p>
