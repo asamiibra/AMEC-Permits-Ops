@@ -49,7 +49,7 @@ jobs:
       - name: Execute mandatory source preflight
         run: |
           set -euo pipefail
-          python scripts/phase5/source_preflight.py --source-dir . --output "$RUNNER_TEMP/source-preflight.json"
+          python scripts/phase5/source_preflight.py --output "$RUNNER_TEMP/source-preflight.json"
           test "$(python -c 'import json,sys; print(json.load(open(sys.argv[1]))["result"])' "$RUNNER_TEMP/source-preflight.json")" = PASS
 
       - name: Execute P08 EvalPack 26 of 26
@@ -113,6 +113,7 @@ jobs:
       ENTRA_WEB_CLIENT_ID: 22222222-2222-4222-8222-222222222222
       ENTRA_API_CLIENT_ID: 33333333-3333-4333-8333-333333333333
       ENTRA_REQUIRED_SCOPE: access_as_user
+      FRONTEND_ORIGINS: https://www.amecidsystem.com
       STORAGE_PROVIDER: mock
       SYNOLOGY_MODE: SYNTHETIC
       DATABASE_URL: postgresql+psycopg://postgres:synthetic-postgres-password@127.0.0.1:5432/proposalops
