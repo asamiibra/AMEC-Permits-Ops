@@ -29,10 +29,11 @@ class BillingViewScope:
     project_ids: frozenset[str] = frozenset()
     client_account_ids: frozenset[str] = frozenset()
     contract_ids: frozenset[str] = frozenset()
+    assignment_specs: tuple[tuple[str | None, str | None, str | None], ...] = ()
 
     @property
     def empty(self) -> bool:
-        return not (self.project_ids or self.client_account_ids or self.contract_ids)
+        return not self.assignment_specs
 
 
 def _utc_now() -> datetime:
@@ -96,6 +97,9 @@ def billing_view_scope(db: Session, principal: AuthenticatedPrincipal) -> Billin
     aggregate or row is read first and filtered in Python, and a missing grant
     produces an empty scope.
     """
+    user = db.get(User, principal.user_id) if principal.user_id else None
+    if not user or not user.active:
+        return BillingViewScope()
     assignments = active_assignments(db, principal, capability_code="BILLING_VIEW")
     now = _utc_now()
     assignments = [
@@ -107,26 +111,15 @@ def billing_view_scope(db: Session, principal: AuthenticatedPrincipal) -> Billin
     if not assignments:
         return BillingViewScope()
 
-    # Local imports avoid making the authorization service depend on the full
-    # model import graph during application startup.
-    from ..models import Contract, Project
-
     office_ids = {item.office_id for item in assignments if item.office_id}
     project_ids = {item.project_id for item in assignments if item.project_id}
     client_ids = {item.client_account_id for item in assignments if item.client_account_id}
-    if office_ids:
-        project_ids.update(db.scalars(select(Project.id).where(Project.office_id.in_(office_ids))).all())
-    contract_ids = set(db.scalars(select(Contract.id).where(Contract.project_id.in_(project_ids))).all()) if project_ids else set()
-    if client_ids:
-        client_contracts = db.scalars(select(Contract.id).where(Contract.client_account_id.in_(client_ids))).all()
-        contract_ids.update(client_contracts)
-        client_projects = db.scalars(select(Contract.project_id).where(Contract.id.in_(client_contracts))).all()
-        project_ids.update(item for item in client_projects if item)
+    specs = tuple(sorted({(item.office_id, item.client_account_id, item.project_id) for item in assignments}))
     return BillingViewScope(
         office_ids=frozenset(office_ids),
         project_ids=frozenset(project_ids),
         client_account_ids=frozenset(client_ids),
-        contract_ids=frozenset(contract_ids),
+        assignment_specs=specs,
     )
 
 

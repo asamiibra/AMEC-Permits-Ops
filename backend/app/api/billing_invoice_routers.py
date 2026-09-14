@@ -17,7 +17,7 @@ from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy import false, func, or_, select
+from sqlalchemy import and_, false, func, or_, select
 from sqlalchemy.orm import Session
 
 from ..api.dependencies import current_user_role
@@ -32,6 +32,7 @@ from ..models import (
     InvoiceIssueEvent, InvoiceDeliveryEvent, InvoiceAcknowledgment, InvoiceLineItem, InvoiceNumberingPolicy, InvoicePaymentAllocation,
     InvoiceReference, LineageEdge, PaymentReceipt, Project, ProjectActivation,
     PaymentReversalEvent, ReceivableFollowUp, ReceivableResolution, BillingFxRateRecord, ProjectExpectedExpVersion, Role, TemplateDefinition, TemplateVersion,
+    User, GovernedSignatoryAuthority,
 )
 from ..services.contract_workspace import contract_billing_context, contract_revision_is_finalized
 from ..services.finance_authorization import (
@@ -194,17 +195,57 @@ def _authorize_view(
 
 
 def _view_scope(db: Session, principal: AuthenticatedPrincipal):
-    return billing_view_scope(db, principal)
+    scope = billing_view_scope(db, principal)
+    if scope.empty:
+        raise HTTPException(403, {"code": "SCOPED_FINANCE_CAPABILITY_REQUIRED", "capability": "BILLING_VIEW"})
+    return scope
 
 
 def _scope_clause(model: Any, scope: Any, *, project: str | None = "project_id", client: str | None = "client_account_id", contract: str | None = "contract_id"):
+    """Build OR-of-grants / AND-of-dimensions SQL scope predicates.
+
+    A client assignment is never expanded into all projects touched by that
+    client. Canonical Contract/Project subqueries are used only when the row
+    model lacks a direct dimension.
+    """
+    if not scope.assignment_specs:
+        return false()
+    from ..models import Contract
+
+    project_column = getattr(model, project, None) if project else None
+    client_column = getattr(model, client, None) if client else None
+    contract_column = getattr(model, contract, None) if contract else None
     clauses = []
-    if project and scope.project_ids:
-        clauses.append(getattr(model, project).in_(scope.project_ids))
-    if client and scope.client_account_ids:
-        clauses.append(getattr(model, client).in_(scope.client_account_ids))
-    if contract and scope.contract_ids:
-        clauses.append(getattr(model, contract).in_(scope.contract_ids))
+    for office_id, client_id, project_id in scope.assignment_specs:
+        dimensions = []
+        if project_id:
+            if project_column is not None:
+                dimensions.append(project_column == project_id)
+            elif contract_column is not None:
+                dimensions.append(contract_column.in_(select(Contract.id).where(Contract.project_id == project_id)))
+            else:
+                continue
+        if office_id:
+            office_projects = select(Project.id).where(Project.office_id == office_id)
+            if project_column is not None:
+                dimensions.append(project_column.in_(office_projects))
+            elif contract_column is not None:
+                dimensions.append(contract_column.in_(select(Contract.id).where(Contract.project_id.in_(office_projects))))
+            else:
+                continue
+        if client_id:
+            if client_column is not None:
+                dimensions.append(client_column == client_id)
+            elif contract_column is not None:
+                dimensions.append(contract_column.in_(select(Contract.id).where(Contract.client_account_id == client_id)))
+            elif project_column is not None and (project_id or office_id):
+                dimensions.append(project_column.in_(select(Contract.project_id).where(Contract.client_account_id == client_id)))
+            else:
+                # A project-only row cannot safely be exposed by a client-only
+                # grant: the project may contain another client's contract.
+                continue
+        if dimensions:
+            clauses.append(and_(*dimensions))
     return or_(*clauses) if clauses else false()
 
 
@@ -522,24 +563,76 @@ def _precheck(db: Session, invoice: Invoice, contract: Contract, revision: Invoi
     return {"result": result, "checks": checks}
 
 
-def _signer_evidence(payload: dict[str, Any]) -> dict[str, Any]:
-    """Require Source 13 signer evidence at the protected Issue boundary."""
+def _signer_evidence(
+    db: Session,
+    payload: dict[str, Any],
+    *,
+    invoice: Invoice,
+    revision: InvoiceRevision,
+    project: Project | None,
+    account_master: FinancialAccountMaster | None,
+    issue_at: datetime,
+) -> dict[str, Any]:
+    """Resolve Source 13 signer authority from governed records at Issue."""
     settings = get_settings()
-    identity = str(payload.get("signer_identity") or "").strip()
-    capacity = str(payload.get("signer_capacity") or "").strip()
-    authority_reference = str(payload.get("signer_authority_reference") or "").strip()
-    evidence_reference = str(payload.get("signer_evidence_reference") or "").strip()
     if settings.synthetic_only:
         return {
-            "identity": identity or "SYNTHETIC_SIGNER",
-            "capacity": capacity or "SYNTHETIC_AUTHORIZED_FINANCE_SIGNER",
-            "authority_reference": authority_reference or "SYNTHETIC-SOURCE13-SIGNER",
-            "evidence_reference": evidence_reference or "synthetic://source13/signer-authority",
+            "identity": str(payload.get("signer_identity") or "SYNTHETIC_SIGNER").strip(),
+            "capacity": str(payload.get("signer_capacity") or "SYNTHETIC_AUTHORIZED_FINANCE_SIGNER").strip(),
+            "authority_reference": str(payload.get("signer_authority_reference") or "SYNTHETIC-SOURCE13-SIGNER").strip(),
+            "evidence_reference": str(payload.get("signer_evidence_reference") or "synthetic://source13/signer-authority").strip(),
             "status": "SYNTHETIC_ONLY",
         }
-    if not all((identity, capacity, authority_reference, evidence_reference)):
+    authority_id = str(payload.get("signer_authority_id") or "").strip()
+    authority = db.get(GovernedSignatoryAuthority, authority_id) if authority_id else None
+    if not authority:
+        raise HTTPException(409, {"code": "SIGNER_AUTHORITY_RECORD_REQUIRED", "source": "SOURCE13"})
+    authority_from = authority.effective_from.replace(tzinfo=timezone.utc) if authority.effective_from.tzinfo is None else authority.effective_from
+    authority_to = authority.effective_to.replace(tzinfo=timezone.utc) if authority.effective_to and authority.effective_to.tzinfo is None else authority.effective_to
+    if authority.status != "ACTIVE" or authority_from > issue_at or (authority_to and authority_to < issue_at):
+        raise HTTPException(409, {"code": "SIGNER_AUTHORITY_NOT_ACTIVE_AT_ISSUE", "source": "SOURCE13"})
+    signer_user = db.get(User, authority.user_id)
+    if not signer_user or not signer_user.active:
+        raise HTTPException(409, {"code": "SIGNER_USER_NOT_ACTIVE", "source": "SOURCE13"})
+    normalized_capacity = authority.capacity.strip().upper().replace(" ", "_")
+    if normalized_capacity not in {"GENERAL_MANAGER", "RESPONSIBLE_ACCOUNTING_SIGNER"}:
+        raise HTTPException(409, {"code": "SIGNER_CAPACITY_NOT_AUTHORIZED", "source": "SOURCE13"})
+    if normalized_capacity == "RESPONSIBLE_ACCOUNTING_SIGNER" and not authority.owner_authorization_reference.strip():
+        raise HTTPException(409, {"code": "OWNER_SIGNER_AUTHORIZATION_REQUIRED", "source": "SOURCE13"})
+    if project and authority.office_id != project.office_id:
+        raise HTTPException(409, {"code": "SIGNER_OFFICE_MISMATCH", "source": "SOURCE13"})
+    expected_entity = str((revision.contract_project_context_snapshot or {}).get("legal_entity_ref") or "").strip()
+    if not expected_entity or not account_master or authority.legal_entity_ref != expected_entity or authority.legal_entity_ref != account_master.legal_entity_ref:
+        raise HTTPException(409, {"code": "SIGNER_LEGAL_ENTITY_MISMATCH", "source": "SOURCE13"})
+    if not (authority.authority_evidence_document_version_id or str(authority.authority_evidence_reference or "").strip()):
         raise HTTPException(409, {"code": "SIGNER_AUTHORITY_EVIDENCE_REQUIRED", "source": "SOURCE13"})
-    return {"identity": identity, "capacity": capacity, "authority_reference": authority_reference, "evidence_reference": evidence_reference, "status": "PRODUCTION_EVIDENCED"}
+    signed_id = str(payload.get("signed_invoice_evidence_document_version_id") or "").strip()
+    signed_version = db.get(DocumentVersion, signed_id) if signed_id else None
+    signed_document = db.get(Document, signed_version.document_id) if signed_version else None
+    metadata = signed_version.metadata_json if signed_version else {}
+    if not signed_version or not signed_document or (project and signed_document.project_id != project.id) or not (
+        metadata.get("invoice_id") == invoice.id or metadata.get("invoice_revision_id") == revision.id
+    ):
+        raise HTTPException(409, {"code": "SIGNED_INVOICE_EVIDENCE_REQUIRED", "source": "SOURCE13"})
+    supplied_identity = str(payload.get("signer_identity") or "").strip()
+    supplied_capacity = str(payload.get("signer_capacity") or "").strip().upper().replace(" ", "_")
+    valid_identities = {signer_user.id, signer_user.email, signer_user.entra_object_id}
+    if supplied_identity and supplied_identity not in valid_identities:
+        raise HTTPException(409, {"code": "SIGNER_IDENTITY_MISMATCH", "source": "SOURCE13"})
+    if supplied_capacity and supplied_capacity != normalized_capacity:
+        raise HTTPException(409, {"code": "SIGNER_CAPACITY_MISMATCH", "source": "SOURCE13"})
+    return {
+        "identity": signer_user.id,
+        "display_identity": signer_user.display_name,
+        "capacity": normalized_capacity,
+        "authority_type": authority.authority_type,
+        "authority_id": authority.id,
+        "authority_reference": authority.owner_authorization_reference,
+        "authority_evidence_document_version_id": authority.authority_evidence_document_version_id,
+        "authority_evidence_reference": authority.authority_evidence_reference,
+        "signed_invoice_evidence_document_version_id": signed_version.id,
+        "status": "PRODUCTION_EVIDENCED",
+    }
 
 
 def _resolve_account(db: Session, currency: str, as_of: date, version_id: str | None = None) -> FinancialAccountVersion:
@@ -837,7 +930,7 @@ def office_invoice_register(office_id: str, request: Request, db: Session = Depe
         raise HTTPException(404, {"code": "OFFICE_NOT_FOUND"})
     scope = _view_scope(db, principal)
     allowed_projects = {item for item in scope.project_ids if (db.get(Project, item) and db.get(Project, item).office_id == office_id)}
-    if not allowed_projects:
+    if not allowed_projects and office_id not in scope.office_ids:
         raise HTTPException(403, {"code": "SCOPED_FINANCE_CAPABILITY_REQUIRED", "capability": "BILLING_VIEW"})
     rows = _office_invoice_projection(db, office_id, scope=scope)
     return {"office_id": office_id, "items": rows, "total": len(rows), "source_of_truth": "CANONICAL_BILLING_EVENTS"}
@@ -849,7 +942,7 @@ def office_open_receivables(office_id: str, request: Request, db: Session = Depe
     if not db.get(ConsultancyOffice, office_id):
         raise HTTPException(404, {"code": "OFFICE_NOT_FOUND"})
     scope = _view_scope(db, principal)
-    if not any(db.get(Project, item) and db.get(Project, item).office_id == office_id for item in scope.project_ids):
+    if office_id not in scope.office_ids and not any(db.get(Project, item) and db.get(Project, item).office_id == office_id for item in scope.project_ids):
         raise HTTPException(403, {"code": "SCOPED_FINANCE_CAPABILITY_REQUIRED", "capability": "BILLING_VIEW"})
     rows = _office_invoice_projection(db, office_id, open_only=True, scope=scope)
     total_open = sum((_d(row.get("outstanding_amount") or 0) for row in rows), Decimal("0"))
@@ -1159,7 +1252,9 @@ def issue_invoice(revision_id: str, payload: dict[str, Any], request: Request, d
         raise HTTPException(409, {"code": "FINANCIAL_ACCOUNT_LEGAL_ENTITY_MISMATCH"})
     if not get_settings().synthetic_only and not expected_legal_entity:
         raise HTTPException(409, {"code": "FINANCIAL_ACCOUNT_LEGAL_ENTITY_BINDING_REQUIRED"})
-    signer = _signer_evidence(payload)
+    if not get_settings().synthetic_only and (not account_master or account_master.office_id != (project.office_id if project else None)):
+        raise HTTPException(409, {"code": "FINANCIAL_ACCOUNT_OFFICE_BINDING_REQUIRED"})
+    signer = _signer_evidence(db, payload, invoice=invoice, revision=revision, project=project, account_master=account_master, issue_at=datetime.now(timezone.utc))
     template = select_template(db, payload.get("template_version_id"), "INVOICE")
     official_ref = _allocate_invoice_ref(db, issue_date, _actor(request, payload), contract=contract, revision=revision)
     artifact = render_artifact(db, artifact_type="INVOICE", context_type="INVOICE_REVISION", context_id=revision.id, payload={"invoice_reference": official_ref, "contract_reference": contract.contract_reference, "client_account_id": contract.client_account_id, "project_id": project.id if project else None, "project_context": revision.contract_project_context_snapshot or {}, "description": revision.description, "currency": revision.currency, "lines": [_row(x) for x in _lines(db, revision.id)], "gross_charge_total": str(revision.gross_charge_total), "payable_total": str(revision.payable_total), "amount_in_words": revision.amount_in_words, "invoice_date": issue_date.isoformat(), "due_date": revision.due_date.isoformat() if revision.due_date else None, "due_date_basis": revision.due_date_basis, "financial_account_version_id": account.id, "source_sample_policy": "REFERENCE_ONLY"}, source_revision_ids=[contract.id, revision.controlling_contract_revision_id, plan_revision.id if plan_revision else revision.id], template_version_id=template.id, actor=_actor(request, payload), correlation_id=_corr(request), project_id=project.id if project else None)
@@ -1673,7 +1768,7 @@ def create_readiness_request(payload: dict[str, Any], request: Request, db: Sess
 def list_readiness_requests(request: Request, project_id: str | None = None, milestone_id: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role), principal: AuthenticatedPrincipal = Depends(current_principal)):
     _role(role, VIEW, "BILLING_VIEW")
     scope = _view_scope(db, principal)
-    query = select(BillingReadinessRequest).where(_scope_clause(BillingReadinessRequest, scope, client=None, contract=None)).order_by(BillingReadinessRequest.requested_at.desc())
+    query = select(BillingReadinessRequest).where(_scope_clause(BillingReadinessRequest, scope)).order_by(BillingReadinessRequest.requested_at.desc())
     if project_id: query = query.where(BillingReadinessRequest.project_id == project_id)
     if milestone_id: query = query.where(BillingReadinessRequest.billing_milestone_id == milestone_id)
     return {"items": [_row(item) for item in db.scalars(query).all()], "total": db.scalar(select(func.count()).select_from(query.subquery())) or 0}

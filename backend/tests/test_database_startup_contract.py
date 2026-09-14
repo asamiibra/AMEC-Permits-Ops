@@ -71,7 +71,7 @@ def _create_version_table(
 def test_repository_migration_head_is_billing_production_hardening_head():
     assert (
         database.repository_migration_head()
-        == "billing_finance_production_hardening_v1"
+        == "governed_signatory_authority_v1"
     )
 
 

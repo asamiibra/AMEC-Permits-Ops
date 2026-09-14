@@ -44,9 +44,11 @@ approved policy as unresolved.
 - The accepted closure migration `billing_finance_experience_closure_v1` remains
   intact, followed by the persisted assignment migration
   `scoped_finance_capability_assignment_v1` and the forward production-
-  hardening migration `billing_finance_production_hardening_v1`. The latter
-  binds financial-account masters to canonical office scope; neither migration
-  rewrites V10 or PR #46 historical migrations.
+  hardening migration `billing_finance_production_hardening_v1`, followed by
+  reusable governed signatory authority migration
+  `governed_signatory_authority_v1`. These migrations bind financial-account
+  and signer evidence to canonical scope; none rewrites V10 or PR #46
+  historical migrations.
 - Synthetic data only; no production database, credentials, bank account,
   client payment, cheque, receipt, or external AI invocation.
 - Full qualification must be rerun after closure changes; prior PR #46 counts
@@ -146,8 +148,9 @@ users. Live route tests prove no-grant denial, wrong-capability denial,
 wrong-project denial, exact project-scope success, and auditable revoke.
 
 The migrations `scoped_finance_capability_assignment_v1` and
-`billing_finance_production_hardening_v1` follow
-`billing_finance_experience_closure_v1`; `billing_finance_production_hardening_v1`
+`billing_finance_production_hardening_v1` and
+`governed_signatory_authority_v1` follow
+`billing_finance_experience_closure_v1`; `governed_signatory_authority_v1`
 is the sole repository head. The existing universal UI closure was not
 reopened, and no Vercel repair or merge to `main` was performed.
 

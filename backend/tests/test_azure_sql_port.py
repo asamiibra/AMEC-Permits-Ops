@@ -176,6 +176,7 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
         "billing_finance_experience_closure_v1.py",
         "scoped_finance_capability_assignment_v1.py",
         "billing_finance_production_hardening_v1.py",
+        "governed_signatory_authority_v1.py",
         "source18_committee_implementation_v1.py",
         "source18_regulatory_current_state_v1.py",
         "step5_content_library_azure_sql_v2.py",
@@ -198,6 +199,7 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
         "billing_finance_experience_closure_v1",
         "scoped_finance_capability_assignment_v1",
         "billing_finance_production_hardening_v1",
+        "governed_signatory_authority_v1",
     }
     source = by_revision["baseline_phase4_v36_azure_sql"].read_text(encoding="utf-8")
     assert 'revision = "baseline_phase4_v36_azure_sql"' in source

@@ -196,7 +196,7 @@ def seed(
             SignoffCProposal, Stage2ReviewAcknowledgement, Stage2Baseline, DeliveryAuthorityStatus, Phase0Decision, PilotCohort, PrecheckDecision, MunicipalityOperationDecision, DeliveryScenario, BusinessKpiTarget, BusinessBaseline, Tier2BacklogItem, Tier1Decision, AcceptanceCorpusDefinition, ThresholdDefinition, AdjudicationHistory, AdjudicationCase, PhaseBaseline,
             Representation, Authorization, PropertyOwnership, ExcelProjectionRule, ExcelProjectRow, SynologyProjectBootstrap, ProjectNumberReservation, ProjectInitiation, TargetRenderingRule, Party, Property, LegacyFixtureAlias, SyntheticFixtureSet,
             SpikeFieldResult, SpikeDocumentResult, ExtractionSpikeRun, GoldFieldLabel, GoldDocumentLabel, RealDocumentTestGate, MunicipalityDraft, MunicipalityConfig, Conflict, DrawingMetadataControl, AttachmentCategoryConfig, ApprovalDependency, RequirementConfig, FieldAuthorityRule, VerifiedAssertion, FieldObservation, DocumentClassification, DocumentVersion, Document, FieldDefinition, ScenarioConfig,
-            ExternalSystemLink, Project, ScopedCapabilityAssignment, User, ConsultancyOffice, DiscoveryDecision, BusinessCase, VolumeBaseline, MinistryInquiry, RaidItem,
+            ExternalSystemLink, Project, GovernedSignatoryAuthority, ScopedCapabilityAssignment, User, ConsultancyOffice, DiscoveryDecision, BusinessCase, VolumeBaseline, MinistryInquiry, RaidItem,
         ]
 
         if reset_existing:

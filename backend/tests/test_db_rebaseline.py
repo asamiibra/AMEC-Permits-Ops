@@ -30,6 +30,7 @@ def test_active_graph_and_legacy_archive_are_exact():
         "billing_finance_experience_closure_v1.py",
         "scoped_finance_capability_assignment_v1.py",
         "billing_finance_production_hardening_v1.py",
+        "governed_signatory_authority_v1.py",
         "source18_committee_implementation_v1.py",
         "source18_regulatory_current_state_v1.py",
         "step5_content_library_azure_sql_v2.py",
