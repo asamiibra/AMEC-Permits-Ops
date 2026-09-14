@@ -326,6 +326,7 @@ def main() -> int:
                     "step": "3A.2",
                     "status": "FAIL",
                     "error_class": type(exc).__name__,
+                    "error": str(exc),
                 },
                 sort_keys=True,
             )
