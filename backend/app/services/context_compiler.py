@@ -31,7 +31,10 @@ from backend.app.models import (
     MasterContentGovernanceProfile,
     MasterContentItem,
     Phase4DocumentEvidenceEnvelope,
+    Opportunity,
     Project,
+    ProposalAcceptedRevision,
+    ProposalLpoReconciliation,
     Role,
     User,
     VerifiedAssertion,
@@ -445,6 +448,13 @@ class GovernedContextCompiler:
             if self.db.get(Project, request.project_id) is None:
                 raise IntelligenceContractError("CONTEXT_PROJECT_NOT_FOUND")
             return scope_type, request.project_id
+        if scope_type == "PROPOSAL":
+            proposal = self.db.get(Opportunity, request.scope_id)
+            if proposal is None:
+                raise IntelligenceContractError("CONTEXT_PROPOSAL_NOT_FOUND")
+            if request.project_id is not None and proposal.project_id != request.project_id:
+                raise IntelligenceContractError("CONTEXT_PROJECT_SCOPE_MISMATCH")
+            return scope_type, proposal.project_id
         if request.project_id is not None:
             raise IntelligenceContractError("CONTEXT_NON_PROJECT_HAS_PROJECT_ID")
         return scope_type, None
@@ -474,7 +484,9 @@ class GovernedContextCompiler:
         scope_type, request_project_id = self._request_scope(request)
         if scope_type == "PROJECT" and project_id != request_project_id:
             raise IntelligenceContractError("CONTEXT_CROSS_PROJECT_SOURCE")
-        if project_id is not None and scope_type != "PROJECT":
+        if scope_type == "PROPOSAL" and project_id != request_project_id:
+            raise IntelligenceContractError("CONTEXT_CROSS_PROJECT_SOURCE")
+        if project_id is not None and scope_type not in {"PROJECT", "PROPOSAL"}:
             raise IntelligenceContractError("CONTEXT_NON_PROJECT_SOURCE_SCOPE")
 
     def _require_capability(self, capabilities: set[str], capability: str) -> None:
@@ -733,7 +745,48 @@ class GovernedContextCompiler:
 
     def _resolve_domain_entity_revision(self, request: ContextCompileRequest, source: ContextSourceSpec, capabilities: set[str]) -> _ResolvedSource | None:
         selector = self._validate_selector(source, {"entity_type", "entity_id"})
-        if str(selector.get("entity_type", "")).upper() != "PROJECT":
+        entity_type = str(selector.get("entity_type", "")).upper()
+        if entity_type == "PROPOSAL":
+            if request.scope_type.upper() != "PROPOSAL":
+                raise IntelligenceContractError("CONTEXT_CROSS_PROJECT_SOURCE")
+            entity_id = str(selector.get("entity_id") or request.scope_id)
+            if entity_id != request.scope_id:
+                raise IntelligenceContractError("CONTEXT_CROSS_PROJECT_SOURCE")
+            proposal = self.db.get(Opportunity, entity_id)
+            if proposal is None:
+                return None
+            accepted = self.db.scalars(select(ProposalAcceptedRevision).where(
+                ProposalAcceptedRevision.proposal_id == proposal.id,
+                ProposalAcceptedRevision.status == "ACCEPTED",
+            ).order_by(ProposalAcceptedRevision.revision_number.desc())).all()
+            if len(accepted) != 1:
+                raise IntelligenceContractError("CONTEXT_PROPOSAL_ACCEPTED_REVISION_AMBIGUOUS")
+            revision = accepted[0]
+            self._check_project(proposal.project_id, request)
+            lpo = self.db.scalar(select(ProposalLpoReconciliation).where(
+                ProposalLpoReconciliation.proposal_id == proposal.id,
+                ProposalLpoReconciliation.accepted_revision_id == revision.id,
+            ).order_by(ProposalLpoReconciliation.compared_at.desc()))
+            projection = self._safe_projection({
+                "entity_type": "PROPOSAL",
+                "entity_id": proposal.id,
+                "proposal_reference": proposal.opportunity_reference,
+                "title": proposal.title,
+                "status": proposal.status,
+                "project_id": proposal.project_id,
+                "accepted_revision_id": revision.id,
+                "accepted_revision_number": revision.revision_number,
+                "accepted_revision_hash": revision.content_hash,
+                "lpo_evidence_id": lpo.id if lpo else None,
+                "lpo_result": lpo.result if lpo else None,
+            })
+            return _ResolvedSource(
+                "DOMAIN_ENTITY_REVISION", "DOMAIN_ENTITY_REVISION", proposal.id,
+                f"{revision.id}:{revision.revision_number}:{revision.content_hash}",
+                "CANONICAL", "CURRENT", "SYNTHETIC", False, True, projection,
+                {"domain_entity": "PROPOSAL", "accepted_revision_id": revision.id, "accepted_revision_number": revision.revision_number, "accepted_revision_hash": revision.content_hash, "lpo_evidence_id": lpo.id if lpo else None},
+            )
+        if entity_type != "PROJECT":
             raise IntelligenceContractError("CONTEXT_DOMAIN_ENTITY_TYPE_UNSUPPORTED")
         entity_id = str(selector.get("entity_id") or request.project_id or "")
         if not entity_id:

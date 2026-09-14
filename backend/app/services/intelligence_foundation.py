@@ -43,6 +43,8 @@ from ..models import (
     IntelligenceToolDefinition,
     IntelligenceToolInvocation,
     Project,
+    Opportunity,
+    ProposalAcceptedRevision,
     VerifiedAssertion,
 )
 from .intelligence_contracts import IntelligenceContractError, stable_hash
@@ -142,6 +144,20 @@ def dependency_current(db: Session, dependency: ContextDependency | AIWorkProduc
     if kind == "SKILL_MANIFEST":
         return str(expected) == str(dependency.metadata_json.get("manifest_hash", expected))
     if kind == "DOMAIN_ENTITY_REVISION":
+        metadata = dependency.metadata_json or {}
+        if str(metadata.get("domain_entity", "")).upper() == "PROPOSAL":
+            proposal = db.get(Opportunity, dependency.dependency_id)
+            if proposal is None:
+                return False
+            accepted = db.scalars(select(ProposalAcceptedRevision).where(
+                ProposalAcceptedRevision.proposal_id == proposal.id,
+                ProposalAcceptedRevision.status == "ACCEPTED",
+            ).order_by(ProposalAcceptedRevision.revision_number.desc())).all()
+            if len(accepted) != 1:
+                return False
+            revision = accepted[0]
+            current = f"{revision.id}:{revision.revision_number}:{revision.content_hash}"
+            return current == expected
         project = db.get(Project, dependency.dependency_id)
         if project is None:
             return False

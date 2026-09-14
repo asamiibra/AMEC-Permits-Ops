@@ -72,6 +72,11 @@ for _persona in ("SYSTEM_ADMIN", "OWNER"):
         "CONTRACT_HANDOFF",
     })
 
+# Proposal Intelligence review is a narrow human-review capability.  It does
+# not imply Proposal acceptance, release, professional approval, or handoff.
+for _persona in ("SYSTEM_ADMIN", "OWNER", "BUSINESS_DEVELOPMENT", "ENGINEERING"):
+    CAPABILITY_MATRIX[_persona].add("BD_PROPOSAL_INTELLIGENCE_REVIEW")
+
 # Source-18 actions are registered in the application's canonical capability
 # policy.  The Source-18 service consumes these names; it does not maintain a
 # second authorization universe.
