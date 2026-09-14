@@ -36,6 +36,9 @@ class AuthenticatedPrincipal:
     office_id: str | None = None
     tenant_id: str | None = None
     object_id: str | None = None
+    # Display-only Entra claims. They are never consulted for authorization.
+    display_name: str | None = None
+    preferred_username: str | None = None
 
 
 _principal_context: ContextVar[AuthenticatedPrincipal | None] = ContextVar(
@@ -160,6 +163,8 @@ def current_principal(
         office_id=user.office_id,
         tenant_id=identity.tenant_id,
         object_id=identity.object_id,
+        display_name=identity.display_name,
+        preferred_username=identity.preferred_username,
     )
     _principal_context.set(principal)
     return principal

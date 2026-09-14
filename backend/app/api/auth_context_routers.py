@@ -19,6 +19,8 @@ def auth_session(
             "user_id": principal.user_id,
             "tenant_id": principal.tenant_id,
             "object_id": principal.object_id,
+            "display_name": principal.display_name,
+            "preferred_username": principal.preferred_username,
             "role": principal.role.value,
         },
         "raw_auth_token_values": 0,
