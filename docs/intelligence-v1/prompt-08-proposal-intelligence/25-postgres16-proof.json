@@ -1,0 +1,10 @@
+{
+  "postgres_image": "postgres:16",
+  "postgres_version": "PostgreSQL 16.15",
+  "container": "proposalops-p08-postgres-20260914",
+  "database": "proposalops",
+  "zero_to_head": "PASS",
+  "reopen_readback": "PASS",
+  "alembic_head": "p08_proposal_intelligence",
+  "alembic_head_count": 1
+}

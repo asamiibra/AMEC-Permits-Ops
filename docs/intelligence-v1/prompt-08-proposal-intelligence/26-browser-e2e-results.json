@@ -1,0 +1,8 @@
+{
+  "command": "BASE_URL=http://127.0.0.1:5174 npx playwright test -c playwright.real-stack.config.ts browser-real-stack/proposal-intelligence-real-stack.spec.ts --reporter=line",
+  "tests": 1,
+  "passed": 1,
+  "failed": 0,
+  "mocked_p08_api": false,
+  "real_api_and_persistence": true
+}

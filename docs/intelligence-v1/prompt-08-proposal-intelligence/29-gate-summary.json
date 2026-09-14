@@ -1,0 +1,16 @@
+{
+  "p08_predecessor_exact": "PASS",
+  "independent_clone": "PASS",
+  "proposal_skill_pack": "PASS",
+  "proposal_structured_outputs": "PASS",
+  "proposal_context_builder": "PASS",
+  "proposal_revision_currentness": "PASS",
+  "proposal_module_review": "PASS",
+  "browser_e2e": "PASS",
+  "frontend_tests": "PASS",
+  "frontend_build": "PASS",
+  "postgres16": "PASS",
+  "backend_full_regression": "FAIL",
+  "final_acceptance": "NOT_ACCEPTED",
+  "p09_started": false
+}
