@@ -1,6 +1,6 @@
 # Production readiness decision
 
-`IMPLEMENTATION_CLOSURE=PASS`: focused and broader synthetic current-suite reconciliation is green on the closure branch; exact commit identity and independent review remain release gates.
+`IMPLEMENTATION_CLOSURE=PASS`: focused and complete synthetic current-suite reconciliation is green, exact-head PR checks are green, and two independent read-only cold reviews passed.
 
 `AZURE_SQL_ACCEPTANCE=BLOCKED`: isolated local SQLite migration rehearsal is blocked by the frozen historical baseline's existing `ALTER TABLE ... ADD CONSTRAINT` limitation; no Azure SQL environment was mutated.
 
