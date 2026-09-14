@@ -1,10 +1,18 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { ApiError, api } from "./api";
-import { OpportunitiesPage } from "./Opportunities";
-import { ContractMobilizationPage } from "./AdministrationOwner";
-import { CurrentDashboard } from "./Dashboard";
-import { BillingInvoicePage } from "./BillingInvoice";
+const OpportunitiesPage = lazy(() => import("./Opportunities").then(m => ({ default: m.OpportunitiesPage })));
+const ContractMobilizationPage = lazy(() => import("./contract/ContractMobilizationFeature").then(m => ({ default: m.ContractMobilizationFeature })));
+const CurrentDashboard = lazy(() => import("./Dashboard").then(m => ({ default: m.CurrentDashboard })));
+const BillingInvoicePage = lazy(() => import("./BillingInvoice").then(m => ({ default: m.BillingInvoicePage })));
 import { HomePage } from "./Home";
+const WorkPage = lazy(() => import("./AMECWork").then(m => ({ default: m.AMECWorkPage })));
+const EngineeringPage = lazy(() => import("./ProjectEngineering").then(m => ({ default: m.ProjectEngineeringPage })));
+const RegulatoryPage = lazy(() => import("./PermitAuthorityUX").then(m => ({ default: m.PermitPortfolioPage })));
+const CommitteePage = lazy(() => import("./Source18Committee").then(m => ({ default: m.Source18CommitteePage })));
+const ConstructionPage = lazy(() => import("./Construction").then(m => ({ default: m.ConstructionPage })));
+const CompletionPage = lazy(() => import("./Completion").then(m => ({ default: m.CompletionPage })));
+const HandoverPage = lazy(() => import("./Handover").then(m => ({ default: m.HandoverPage })));
+const AdministrationPage = lazy(() => import("./AdministrationOwner").then(m => ({ default: m.AdministrationOwnerPage })));
 import { AmecLogo } from "./AmecLogo";
 import { browserAuthMode, getSignedInAccountIdentity, signOut } from "./auth";
 import { readDemoRole } from "./rebrand";
@@ -59,6 +67,7 @@ export default function App() {
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const [signOutError, setSignOutError] = useState<string | null>(null);
+  const [environment, setEnvironment] = useState<{ environment: string; synthetic_only: boolean } | null>(null);
   const [role, setRole] = useState<string>(() => (
     browserAuthMode() === "DEV_HEADER" ? readDemoRole() : ""
   ));
@@ -72,17 +81,8 @@ export default function App() {
     document.documentElement.lang = "en";
     document.documentElement.dir = "ltr";
     document.body.dir = "ltr";
-    try {
-      [
-        "permitops.locale",
-        "permitops-locale",
-        "permitops-language",
-        "language",
-        "locale",
-      ].forEach((key) => window.localStorage.removeItem(key));
-    } catch {
-      // The application remains English/LTR when browser storage is unavailable.
-    }
+    // English is the supported UI; retain user preferences for future locales.
+    void api<{ environment: string; synthetic_only: boolean }>("/health").then(setEnvironment).catch(() => setEnvironment(null));
   }, []);
 
   useEffect(() => {
@@ -135,8 +135,8 @@ export default function App() {
   useEffect(() => {
     const syncLocation = () => {
       const route = classifyPublicRoute(window.location.pathname);
-      if (!route.allowed) {
-        window.history.replaceState({}, "", "/home");
+      if (route.canonicalPath !== window.location.pathname) {
+        window.history.replaceState({}, "", route.canonicalPath + window.location.search + window.location.hash);
       }
       setPage(route.page);
     };
@@ -154,7 +154,7 @@ export default function App() {
     }
     setMobileNavOpen(false);
     window.history.pushState({}, "", item.route);
-    setPage(item.page);
+    setPage(item.page as PublicPage);
     window.dispatchEvent(new PopStateEvent("popstate"));
   };
 
@@ -199,6 +199,7 @@ export default function App() {
       data-g9-auth-object-id={authSession?.identity.object_id || ""}
       data-g9-auth-role={authSession?.identity.role || ""}
     >
+      <a className="skip-link" href="#product-content">Skip to workspace</a>
       <aside className="sidebar">
         <div className="brand">
           <AmecLogo size="sm" className="sidebar-amec-logo" />
@@ -211,7 +212,7 @@ export default function App() {
           <span className="dot" />
           <span>AMEC Engineering</span>
           <br />
-          <small>QEC-DOHA · SYNTHETIC COMMISSIONING</small>
+          {environment?.synthetic_only && <small>Synthetic workspace</small>}
         </div>
         <nav aria-label="Primary navigation">
           {visibleNavigation.map((item) => (
@@ -230,8 +231,8 @@ export default function App() {
         <div className="sidebar-foot">
           <span className="lock">▣</span>
           <span>
-            <b>Safe boundary</b>
-            <small>Synthetic data only<br />No portal writes<br />No closure automation</small>
+            <b>Human-controlled decisions</b>
+            <small>Review evidence before approving business actions.</small>
           </span>
         </div>
       </aside>
@@ -270,9 +271,7 @@ export default function App() {
             </div>
           </div>
           <div className="top-actions">
-            <span className="env-chip">
-              <span className="dot green" /> SYNTHETIC PROTOTYPE
-            </span>
+            {environment && environment.environment !== "PROD" && <span className="env-chip">{environment.environment}{environment.synthetic_only ? " · Synthetic data" : ""}</span>}
             {browserAuthMode() === "DEV_HEADER" && (
               <label aria-label="Demo as" className="role-switcher">
                 Demo as
@@ -281,7 +280,7 @@ export default function App() {
                   value={role}
                   onChange={(event) => setRole(event.target.value)}
                 >
-                  <option value="SYSTEM_ADMIN">System Admin</option>
+                  <option value="SYSTEM_ADMIN">Owner</option>
                   <option value="PROCESS_CHAMPION">Business Development</option>
                   <option value="RESPONSIBLE_ENGINEER">Engineering</option>
                 </select>
@@ -323,15 +322,22 @@ export default function App() {
             </div>
           </div>
         </header>
-        <div className="content">
-          <div className="synthetic-note compact-environment-badge">
-            SYNTHETIC PROTOTYPE · NO PORTAL WRITES · HUMAN SUBMISSION REQUIRED
-          </div>
+        <div className="content" id="product-content" tabIndex={-1}>
+          <Suspense fallback={<section className="panel" role="status">Loading {title}…</section>}>
           {page === "home" && <HomePage />}
+          {page === "work" && <WorkPage />}
           {page === "opportunities" && <OpportunitiesPage role={moduleRole} />}
           {page === "contract-mobilization" && <ContractMobilizationPage />}
           {page === "billing" && <BillingInvoicePage />}
           {page === "content-library" && <CurrentDashboard role={role} />}
+          {page === "engineering" && <EngineeringPage />}
+          {page === "regulatory" && <RegulatoryPage />}
+          {page === "committee" && <CommitteePage />}
+          {page === "construction" && <ConstructionPage />}
+          {page === "completion" && <CompletionPage />}
+          {page === "handover" && <HandoverPage />}
+          {page === "administration" && <AdministrationPage />}
+          </Suspense>
         </div>
       </main>
     </div>

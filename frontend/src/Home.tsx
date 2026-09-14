@@ -11,8 +11,8 @@ export function HomePage(_props?: { role?: string }) {
           <h2>Work across the active ProposalOps modules.</h2>
           <p>
             Start with the business context you need. Home keeps the current
-            four-module operating model visible without exposing future or
-            internal workspaces.
+            active business work visible without exposing technical or
+            diagnostic routes.
           </p>
         </div>
         <span className="tag">OWNER SHELL</span>

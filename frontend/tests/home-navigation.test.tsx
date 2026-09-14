@@ -16,8 +16,8 @@ describe("Home navigation workspace", () => {
   it("shows the four active modules in the Owner command center", () => {
     render(<HomePage role="SYSTEM_ADMIN" />);
     expect(screen.getByRole("heading", { name: "Work across the active ProposalOps modules." })).toBeVisible();
-    expect(screen.getAllByTestId("home-module-card")).toHaveLength(4);
-    expect(screen.getByRole("link", { name: /Billing \/ Invoice \/ Receivables \/ Collection/ })).toHaveAttribute("href", "/billing");
+    expect(screen.getAllByTestId("home-module-card")).toHaveLength(12);
+    expect(screen.getByRole("link", { name: /Billing & Receivables/ })).toHaveAttribute("href", "/billing");
     expect(screen.getByRole("link", { name: /Content Library/ })).toHaveAttribute("href", "/content-library");
     expect(screen.getByText("OWNER SHELL")).toBeVisible();
     expect(screen.queryByTestId("home-stage-card")).toBeNull();

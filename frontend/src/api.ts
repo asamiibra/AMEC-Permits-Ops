@@ -45,13 +45,41 @@ const API = import.meta.env.DEV
 export class ApiError extends Error {
   readonly status: number;
   readonly path: string;
+  readonly code?: string;
+  readonly blockingReason?: string;
+  readonly correlationId?: string;
+  readonly technicalDetail?: unknown;
 
-  constructor(message: string, status: number, path: string) {
+  constructor(message: string, status: number, path: string, detail: { code?: string; blockingReason?: string; correlationId?: string; technicalDetail?: unknown } = {}) {
     super(message);
     this.name = "ApiError";
     this.status = status;
     this.path = path;
+    Object.assign(this, detail);
   }
+}
+
+function humanErrorCode(code: string): string {
+  const messages: Record<string, string> = {
+    CONTRACT_FINALIZED_REVISION_IMMUTABLE: "This revision is finalized. Create a prospective revision to change its terms.",
+    TIMING_FACT_REVISION_MISMATCH: "The controlling Contract revision changed. Refresh before recording this date.",
+    TIMING_FACT_AUTHORITY_MISMATCH: "The timing clause or policy changed. Refresh and review the governing requirement.",
+    TIMING_SOURCE_LINEAGE_INVALID: "This document does not belong to the required Contract context. Select current supporting evidence.",
+    TIMING_REQUIREMENT_ALREADY_RECORDED: "This timing requirement is already recorded on the revision.",
+    CONTRACT_ACCEPTANCE_REQUIRED: "Accept the governing Contract revision before recording this event.",
+  };
+  return messages[code] || code.toLowerCase().replaceAll("_", " ").replace(/^./, c => c.toUpperCase());
+}
+
+export function responseError(payload: unknown, status: number, path: string, correlationId?: string): ApiError {
+  const envelope = payload && typeof payload === "object" ? payload as Record<string, unknown> : {};
+  const detail = envelope.detail ?? envelope;
+  const record = detail && typeof detail === "object" && !Array.isArray(detail) ? detail as Record<string, unknown> : {};
+  const code = typeof record.code === "string" ? record.code : typeof envelope.code === "string" ? envelope.code : undefined;
+  const blockingReason = typeof record.reason === "string" ? humanErrorCode(record.reason) : undefined;
+  const fallback = status === 403 ? "You do not have permission to perform this action." : status === 401 ? "Sign in again to continue." : status === 404 ? "This record could not be found." : status === 422 ? "Check the required fields and try again." : status >= 500 ? "The service could not complete the request. Please try again." : "The request could not be completed.";
+  const message = typeof record.message === "string" ? record.message : code ? humanErrorCode(code) : typeof detail === "string" && status < 500 ? humanErrorCode(detail) : fallback;
+  return new ApiError(message, status, path, { code, blockingReason, correlationId: correlationId || (typeof envelope.correlation_id === "string" ? envelope.correlation_id : undefined), technicalDetail: detail });
 }
 
 export async function api<T>(
@@ -205,25 +233,7 @@ export async function api<T>(
       );
     }
 
-    const detail =
-      payload
-      && typeof payload === "object"
-      && "detail" in payload
-        ? String(
-            payload.detail,
-          )
-        : "Request failed";
-
-    throw new ApiError(
-      `${detail} [${response.status} ${path}]`
-      + (
-        contentType
-          ? ` (${contentType})`
-          : ""
-      ),
-      response.status,
-      path,
-    );
+    throw responseError(payload, response.status, path, response.headers.get("x-correlation-id") || undefined);
   }
 
   if (

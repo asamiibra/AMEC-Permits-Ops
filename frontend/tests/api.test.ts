@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { api, validateApiOrigin } from "../src/api";
+import { api, responseError, validateApiOrigin } from "../src/api";
 
 function response(status: number, contentType: string, body: string) {
   return {
@@ -34,7 +34,14 @@ describe("API client", () => {
   it("surfaces a JSON FastAPI error with its status and endpoint", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response(500, "application/json", '{"detail":"Database not initialized"}')));
 
-    await expect(api("/api/dashboard")).rejects.toThrow("Database not initialized [500 /api/dashboard]");
+    await expect(api("/api/dashboard")).rejects.toMatchObject({ message: "The service could not complete the request. Please try again.", status: 500, path: "/api/dashboard", technicalDetail: "Database not initialized" });
+  });
+
+  it("preserves structured blocker and support context without rendering an object", () => {
+    const error = responseError({ detail: { code: "TIMING_FACT_REVISION_MISMATCH", reason: "STALE_REVISION" } }, 409, "/api/admin/contracts/c/timing-facts/CONTRACT_DURATION_START", "support-1");
+    expect(error.message).toContain("controlling Contract revision changed");
+    expect(error).toMatchObject({ code: "TIMING_FACT_REVISION_MISMATCH", blockingReason: "Stale revision", correlationId: "support-1", status: 409 });
+    expect(error.message).not.toContain("[object Object]");
   });
 
   it("does not report a non-JSON Vercel response as a JSON parse error", async () => {

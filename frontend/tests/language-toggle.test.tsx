@@ -26,7 +26,7 @@ describe("operating-guide-only language boundary", () => {
     expect(document.documentElement.lang).toBe("en");
     expect(document.documentElement.dir).toBe("ltr");
     expect(document.querySelector(".global-language-switch")).toBeNull();
-    expect(localStorage.getItem("permitops.locale")).toBeNull();
+    expect(localStorage.getItem("permitops.locale")).toBe("ar-EG");
     expect(document.body.textContent).not.toMatch(/[\u0600-\u06FF]/);
   });
 
