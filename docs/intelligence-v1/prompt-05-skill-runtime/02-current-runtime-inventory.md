@@ -1,0 +1,3 @@
+# Current runtime inventory
+
+Observed: the existing provider is `AzureOpenAIResponsesProvider` using raw Azure OpenAI Responses REST, `httpx`, managed identity, `store=false`, no redirects, bounded timeouts, and `tools=[]`. Existing `limits.py`, `ledger.py`, `structured_output.py`, and citation helpers were reused. P02 entities are `AIExecutionLedger`, `ContextSnapshot`, `ContextDependency`, `AIWorkProduct`, and `IntelligenceCitation`. P04's `compile_context` is the generalized runtime context boundary. The D3 public route remains a compatibility adapter and now uses the shared Model Gateway for provider execution.

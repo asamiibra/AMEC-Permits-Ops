@@ -23,6 +23,8 @@ from .ledger import finalize_failure, finalize_success, reserve_audit
 from .limits import reserve_execution
 from .provider import AIProvider, AIProviderRequest, AzureOpenAIResponsesProvider
 from .runtime_binding import AIRuntimeBinding
+from .gateway import ModelGateway
+from .skill_registry import COMPATIBILITY_SKILL
 from .structured_output import output_fingerprint, validate_draft
 
 
@@ -115,7 +117,11 @@ def execute_technical_methodology(db: Session, principal: AuthenticatedPrincipal
     # Phase C: no SQL session or SQL transaction is used below this line.
     try:
         active_provider = provider or AzureOpenAIResponsesProvider(settings)
-        result = active_provider.execute_structured(AIProviderRequest(provider_input=provider_input, max_output_tokens=settings.ai_max_output_tokens))
+        result = ModelGateway(settings, provider=active_provider).execute(
+            COMPATIBILITY_SKILL,
+            provider_input=provider_input,
+            max_output_tokens=settings.ai_max_output_tokens,
+        )
         draft = validate_draft(result.payload)
         citation_map = validate_citations(draft, manifest)
         estimated_cost = (result.usage.input_tokens * settings.ai_input_price_usd_per_1m_tokens / 1_000_000) + (result.usage.output_tokens * settings.ai_output_price_usd_per_1m_tokens / 1_000_000)
@@ -123,7 +129,7 @@ def execute_technical_methodology(db: Session, principal: AuthenticatedPrincipal
     except AIError as exc:
         final_db = SessionLocal()
         try:
-            finalize_failure(final_db, ledger_id=reservation.ledger.id, correlation_id=correlation_id, actor_id=principal.user_id, actor_type="ENTRA_USER" if principal.auth_mode == "ENTRA" else "DEV_USER", code=exc.code)
+            finalize_failure(final_db, ledger_id=reservation.ledger.id, correlation_id=correlation_id, actor_id=principal.user_id, actor_type="ENTRA_USER" if principal.auth_mode == "ENTRA" else "DEV_USER", code=exc.code, reservation_owner_token=reservation.owner_token, reservation_generation=reservation.generation)
             final_db.commit()
         except Exception as final_exc:
             final_db.rollback()
@@ -134,7 +140,7 @@ def execute_technical_methodology(db: Session, principal: AuthenticatedPrincipal
     except Exception as exc:
         final_db = SessionLocal()
         try:
-            finalize_failure(final_db, ledger_id=reservation.ledger.id, correlation_id=correlation_id, actor_id=principal.user_id, actor_type="ENTRA_USER" if principal.auth_mode == "ENTRA" else "DEV_USER", code="AI_PROVIDER_RESPONSE_INVALID")
+            finalize_failure(final_db, ledger_id=reservation.ledger.id, correlation_id=correlation_id, actor_id=principal.user_id, actor_type="ENTRA_USER" if principal.auth_mode == "ENTRA" else "DEV_USER", code="AI_PROVIDER_RESPONSE_INVALID", reservation_owner_token=reservation.owner_token, reservation_generation=reservation.generation)
             final_db.commit()
         except Exception as final_exc:
             final_db.rollback()
@@ -147,7 +153,7 @@ def execute_technical_methodology(db: Session, principal: AuthenticatedPrincipal
     # returning the transient draft to the browser.
     final_db = SessionLocal()
     try:
-        finalize_success(final_db, ledger_id=reservation.ledger.id, correlation_id=correlation_id, actor_id=principal.user_id, actor_type="ENTRA_USER" if principal.auth_mode == "ENTRA" else "DEV_USER", usage=result.usage, estimated_cost=estimated_cost, output_fingerprint=fingerprint, citation_count=len(citation_map), provider_response_id=result.response_id)
+        finalize_success(final_db, ledger_id=reservation.ledger.id, correlation_id=correlation_id, actor_id=principal.user_id, actor_type="ENTRA_USER" if principal.auth_mode == "ENTRA" else "DEV_USER", usage=result.usage, estimated_cost=estimated_cost, output_fingerprint=fingerprint, citation_count=len(citation_map), provider_response_id=result.response_id, reservation_owner_token=reservation.owner_token, reservation_generation=reservation.generation)
         final_db.commit()
     except Exception as exc:
         final_db.rollback()

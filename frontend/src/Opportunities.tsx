@@ -1,8 +1,8 @@
-import { BDProposalOwnerSessionPage } from "./BDProposalOwnerSession";
+import { ProposalRoutes } from "./features/proposals/ProposalRoutes";
 
 type Role = "SYSTEM_ADMIN" | "OWNER_SPONSOR" | "PROCESS_CHAMPION" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER";
 
-/** Compatibility route: /bd and /opportunities now open the canonical Proposal Intake surface. */
+/** Compatibility entry point: legacy Opportunity callers now render the canonical Proposal routes. */
 export function OpportunitiesPage({ role }: { role: Role }) {
-  return <BDProposalOwnerSessionPage role={role} />;
+  return <ProposalRoutes role={role} />;
 }

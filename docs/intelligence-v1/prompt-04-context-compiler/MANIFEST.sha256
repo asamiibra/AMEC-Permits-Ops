@@ -1,0 +1,13 @@
+7d8e2c81f52acbc8194023efb487dd52b924cd0ac603ffe2d743cd02e22a575b  docs/intelligence-v1/prompt-04-context-compiler/00-entry-baseline.json
+cb2888a34bd4d4cce43559f81ea63133d0f7ad24865103b78bb98b02295814b6  docs/intelligence-v1/prompt-04-context-compiler/01-existing-context-contract-reuse-map.md
+461e116d44c913b751c235ffbe3585e4d6acd70d2791a822a5b1e3a10a674d11  docs/intelligence-v1/prompt-04-context-compiler/02-governed-context-compiler-contract.md
+b840a3443f5b62dd7d3a94cff790a932c468b0be9b196cc01797aa9fba0ff5df  docs/intelligence-v1/prompt-04-context-compiler/03-context-source-resolver-map.json
+4cd6f9f40d75f07cc5721c2e7a33844d16d58af742b9f002b6239d5791fd5747  docs/intelligence-v1/prompt-04-context-compiler/04-trust-currentness-authorization-policy.md
+46b9cbf77ae8b3a06d33ccef6c5c8578c9442e3d6706f2ff68cc50dd4f5f807a  docs/intelligence-v1/prompt-04-context-compiler/05-context-hash-idempotency-proof.json
+734cc962332b625360b01f3e8120df76334af5b6763edc82b039c86ed5f4772e  docs/intelligence-v1/prompt-04-context-compiler/06-scope-security-negative-matrix.json
+524817529c35df1d421ab9f16d58f8a8a2472c5a04f8e13467dd90bbc13d6027  docs/intelligence-v1/prompt-04-context-compiler/07-atomicity-rollback-proof.json
+77d6d1efa999707d27d509cb2a512f3f8db23e04287f99d787180d6cadde19ce  docs/intelligence-v1/prompt-04-context-compiler/08-p03-preservation-p07-noninterference.md
+8cd25e8a620d4fef97b04bbd1095984bf40ffcde0328b9961e2ffb6663bde482  docs/intelligence-v1/prompt-04-context-compiler/09-focused-test-report.md
+46876b8188101222fa3f5a8a59658a3711c56b48a9561a30371bbc596f535a59  docs/intelligence-v1/prompt-04-context-compiler/10-full-regression-report.md
+40800a047d0212773a6cf71de2bcfa25630f617f3b0621a2499264252c9d5740  docs/intelligence-v1/prompt-04-context-compiler/11-schema-migration-state.json
+2732fc9d38ab32be759266355bb8f5ef491d3361c982900448858230f107eff4  docs/intelligence-v1/prompt-04-context-compiler/12-final-seal.md
