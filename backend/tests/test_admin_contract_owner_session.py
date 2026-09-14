@@ -1,5 +1,6 @@
 """Administration Contract owner-session acceptance coverage."""
 
+import hashlib
 import pytest
 from uuid import uuid4
 
@@ -11,7 +12,7 @@ from backend.app.models import (
     Opportunity, Project, ProjectActivation, ProposalAcceptedRevision,
     ProposalIntakeArtifact, ProposalOutputArtifact, ProposalSourceEvidence, ProposalSourceLink,
     Quotation, QuotationRevision, WorkflowTask,
-    DocumentVersion,
+    Document, DocumentApprovalState, DocumentType, DocumentVersion, MasterContentItem, MasterContentSourceProvenance,
     BillingPlan, BillingPlanRevision, BillingMilestone, BillingMilestoneEligibility,
     Invoice, InvoiceRevision, InvoiceMilestone, InvoiceApproval, InvoiceRequirementDecision,
     InvoiceLineItem, InvoiceReference, InvoiceApprovalRecord, InvoiceAcceptRecord,
@@ -209,6 +210,65 @@ def clean_owner_fixture():
         db.commit()
 
 
+def _repair_stale_master_fixture(item):
+    """Repair only a disposable test fixture whose document lineage was removed."""
+    with SessionLocal() as db:
+        model_item = db.get(MasterContentItem, item["id"])
+        if model_item:
+            # These refs are owned by this synthetic owner-session fixture;
+            # restore its active/test-visible overlay if another test reused
+            # the row for a negative lifecycle case.
+            model_item.status = "ACTIVE"
+            model_item.needs_review = False
+        document = db.get(Document, model_item.document_id) if model_item else None
+        if model_item and document is None:
+            document = Document(document_type=DocumentType.OTHER, logical_name="CT-TEST-001", language="en", source_system="MASTER_CONTENT")
+            db.add(document)
+            db.flush()
+            model_item.document_id = document.id
+        current = db.get(DocumentVersion, model_item.current_document_version_id) if model_item and model_item.current_document_version_id else None
+        repair_needed = bool(
+            model_item and document and (
+                not current
+                or document.current_version_id != current.id
+                or current.approval_state not in {DocumentApprovalState.REVIEWED, DocumentApprovalState.APPROVED}
+                or (current.metadata_json or {}).get("master_status") != "CURRENT"
+                or current.source_path_or_reference == "PENDING"
+            )
+        )
+        if repair_needed:
+            content = f"canonical synthetic content for {model_item.ref}".encode()
+            latest_number = max((row.version_number for row in db.query(DocumentVersion).filter(DocumentVersion.document_id == document.id).all()), default=0)
+            repaired = DocumentVersion(
+                document_id=document.id,
+                version_number=latest_number + 1,
+                source_filename=f"{model_item.ref}.txt",
+                source_path_or_reference=f"synthetic://master-fixture/{model_item.ref}",
+                sha256=hashlib.sha256(content).hexdigest(),
+                mime_type="text/plain",
+                file_size=len(content),
+                language="en",
+                approval_state=DocumentApprovalState.REVIEWED,
+                source_system="MASTER_CONTENT",
+                metadata_json={"master_status": "CURRENT", "content_type": model_item.content_type, "business_ref": model_item.ref, "change_kind": "TEST_FIXTURE_REPAIR"},
+                synthetic_content=content,
+            )
+            db.add(repaired)
+            db.flush()
+            document.current_version_id = repaired.id
+            model_item.current_document_version_id = repaired.id
+        db.commit()
+    # Proposal/Contract purpose bindings require exact current-version
+    # provenance as part of governance readiness.  Keep that prerequisite
+    # explicit for these synthetic canonical fixtures.
+    with SessionLocal() as db:
+        model_item = db.get(MasterContentItem, item["id"])
+        current = db.get(DocumentVersion, model_item.current_document_version_id) if model_item and model_item.current_document_version_id else None
+        if current and not db.query(MasterContentSourceProvenance).filter(MasterContentSourceProvenance.document_version_id == current.id).first():
+            db.add(MasterContentSourceProvenance(document_version_id=current.id, obtained_from="synthetic owner-session fixture", obtained_by="owner-session-test", source_reference=f"synthetic://master-fixture/{model_item.ref}", provenance_note="Synthetic canonical template fixture"))
+            db.commit()
+
+
 def ensure_contract_template(client):
     rows = client.get("/api/master-content", params={"q": "CT-TEST-001"}, headers=headers("SYSTEM_ADMIN"))
     item = next((row for row in rows.json() if row["ref"] == "CT-TEST-001"), None)
@@ -216,6 +276,11 @@ def ensure_contract_template(client):
         response = client.post("/api/master-content", data={"content_type": "FORM", "ref": "CT-TEST-001", "title": "Resolver Contract Template", "description": "Canonical synthetic Contract Template", "used_in": '["ADMIN"]'}, files={"file": ("CT-TEST-001.txt", b"canonical contract template", "text/plain")}, headers=headers("SYSTEM_ADMIN"))
         assert response.status_code == 200, response.text
         item = response.json()
+    # This shared synthetic ref is intentionally reused by several owner
+    # session tests.  If an unrelated test removed its current version, heal
+    # only the disposable fixture before exercising the contract resolver;
+    # production code must continue to reject the stale pointer.
+    _repair_stale_master_fixture(item)
     governed = client.patch(f"/api/master-content/{item['id']}/governance", json={"content_ownership_class": "AMEC_OWNED", "artifact_kind": "AMEC_FORM", "language_profile": "EN"}, headers=headers("SYSTEM_ADMIN"))
     assert governed.status_code == 200, governed.text
     binding = client.put(f"/api/master-content/{item['id']}/module-bindings", json=[{"module": "ADMIN", "usage_type": "CONTRACT_TEMPLATE"}], headers=headers("SYSTEM_ADMIN"))
@@ -230,6 +295,7 @@ def make_accepted_proposal(client, name="Skyline Factory Industrial"):
             created = client.post("/api/master-content", data={"content_type": "FORM", "ref": ref, "title": title, "description": title, "used_in": '["BD"]'}, files={"file": (f"{ref}.txt", b"proposal content", "text/plain")}, headers=headers("SYSTEM_ADMIN"))
             assert created.status_code == 200, created.text
             item = created.json()
+        _repair_stale_master_fixture(item)
         governed = client.patch(f"/api/master-content/{item['id']}/governance", json={"content_ownership_class": "AMEC_OWNED", "artifact_kind": "AMEC_FORM", "language_profile": "EN"}, headers=headers("SYSTEM_ADMIN"))
         assert governed.status_code == 200, governed.text
         assert client.put(f"/api/master-content/{item['id']}/module-bindings", json=[{"module": "BD", "usage_type": usage}], headers=headers("SYSTEM_ADMIN")).status_code == 200

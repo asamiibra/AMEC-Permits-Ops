@@ -46,7 +46,8 @@ def test_v2_module_bindings_metadata_patch_and_ai_disabled(client):
     bindings = client.put(f"/api/master-content/{item['id']}/module-bindings", json=[{"module": "REPORTS", "usage_type": "REPORT_SOURCE"}, {"module": "ENGINEERING", "usage_type": "REFERENCE"}], headers={"X-Dev-Role": "SYSTEM_ADMIN"})
     assert bindings.status_code == 200, bindings.text
     assert bindings.json()["used_in"] == ["ENGINEERING", "REPORTS"]
-    assert client.get("/api/master-content", params={"content_type": "REPORT", "module": "REPORTS"}).json()[0]["id"] == item["id"]
+    report_rows = client.get("/api/master-content", params={"content_type": "REPORT", "module": "REPORTS"}).json()
+    assert any(row["id"] == item["id"] for row in report_rows)
 
     patched = client.patch(f"/api/master-content/{item['id']}/metadata", json={"description": "Updated meaning", "used_in": ["REPORTS"], "change_reason": "Owner metadata correction"}, headers={"X-Dev-Role": "SYSTEM_ADMIN", "Idempotency-Key": str(uuid4())})
     assert patched.status_code == 200, patched.text
