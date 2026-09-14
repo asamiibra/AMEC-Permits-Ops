@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { HomePage } from "../src/Home";
 
@@ -13,13 +13,13 @@ beforeEach(() => {
 });
 
 describe("Home navigation workspace", () => {
-  it("shows all seven stages, the parallel Finance lane, and canonical summaries", async () => {
+  it("shows the four active modules in the Owner command center", () => {
     render(<HomePage role="SYSTEM_ADMIN" />);
-    expect(screen.getByRole("heading", { name: "Home" })).toBeVisible();
-    expect(screen.getAllByTestId("home-stage-card")).toHaveLength(7);
-    expect(screen.getByRole("link", { name: /Finance workspace/ })).toHaveAttribute("href", "/billing");
-    await waitFor(() => expect(screen.getByText("Needs action")).toBeVisible());
-    expect(screen.getByText("Open issues")).toBeVisible();
-    expect(screen.getByText(/Activity remains in the canonical stage workspaces/)).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Work across the active ProposalOps modules." })).toBeVisible();
+    expect(screen.getAllByTestId("home-module-card")).toHaveLength(4);
+    expect(screen.getByRole("link", { name: /Billing \/ Invoice \/ Receivables \/ Collection/ })).toHaveAttribute("href", "/billing");
+    expect(screen.getByRole("link", { name: /Content Library/ })).toHaveAttribute("href", "/content-library");
+    expect(screen.getByText("OWNER SHELL")).toBeVisible();
+    expect(screen.queryByTestId("home-stage-card")).toBeNull();
   });
 });

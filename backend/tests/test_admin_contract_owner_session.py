@@ -11,7 +11,7 @@ from backend.app.models import (
     Opportunity, Project, ProjectActivation, ProposalAcceptedRevision,
     ProposalIntakeArtifact, ProposalOutputArtifact, ProposalSourceEvidence, ProposalSourceLink,
     Quotation, QuotationRevision, WorkflowTask,
-    DocumentVersion, MasterContentItem, MasterContentModuleBinding,
+    DocumentVersion,
     BillingPlan, BillingPlanRevision, BillingMilestone, BillingMilestoneEligibility,
     Invoice, InvoiceRevision, InvoiceMilestone, InvoiceApproval, InvoiceRequirementDecision,
     InvoiceLineItem, InvoiceReference, InvoiceApprovalRecord, InvoiceAcceptRecord,
@@ -212,14 +212,6 @@ def clean_owner_fixture():
 def ensure_contract_template(client):
     rows = client.get("/api/master-content", params={"q": "CT-TEST-001"}, headers=headers("SYSTEM_ADMIN"))
     item = next((row for row in rows.json() if row["ref"] == "CT-TEST-001"), None)
-    if item:
-        with SessionLocal() as db:
-            candidate = db.get(MasterContentItem, item["id"])
-            current_id = candidate.current_document_version_id if candidate else None
-            if not current_id or not db.get(DocumentVersion, current_id):
-                candidate.ref = f"STALE-CT-TEST-001-{candidate.id[:8]}"
-                db.commit()
-                item = None
     if not item:
         response = client.post("/api/master-content", data={"content_type": "FORM", "ref": "CT-TEST-001", "title": "Resolver Contract Template", "description": "Canonical synthetic Contract Template", "used_in": '["ADMIN"]'}, files={"file": ("CT-TEST-001.txt", b"canonical contract template", "text/plain")}, headers=headers("SYSTEM_ADMIN"))
         assert response.status_code == 200, response.text
@@ -228,32 +220,12 @@ def ensure_contract_template(client):
     assert governed.status_code == 200, governed.text
     binding = client.put(f"/api/master-content/{item['id']}/module-bindings", json=[{"module": "ADMIN", "usage_type": "CONTRACT_TEMPLATE"}], headers=headers("SYSTEM_ADMIN"))
     assert binding.status_code == 200, binding.text
-    with SessionLocal() as db:
-        competing = db.query(MasterContentModuleBinding).filter(
-            MasterContentModuleBinding.module == "ADMIN",
-            MasterContentModuleBinding.usage_type == "CONTRACT_TEMPLATE",
-            MasterContentModuleBinding.active.is_(True),
-            MasterContentModuleBinding.master_content_id != item["id"],
-        ).all()
-        for binding in competing:
-            candidate = db.get(MasterContentItem, binding.master_content_id)
-            if candidate and candidate.status == "ACTIVE":
-                candidate.status = "ARCHIVED"
-        db.commit()
 
 
 def make_accepted_proposal(client, name="Skyline Factory Industrial"):
     for ref, title, usage in (("F-0003", "Test Proposal Template", "PROPOSAL_TEMPLATE"), ("F-0004", "Test Proposal Checklist", "PROPOSAL_CHECKLIST")):
         rows = client.get("/api/master-content", params={"q": ref}, headers=headers("SYSTEM_ADMIN"))
         item = next((row for row in rows.json() if row["ref"] == ref), None)
-        if item:
-            with SessionLocal() as db:
-                candidate = db.get(MasterContentItem, item["id"])
-                current_id = candidate.current_document_version_id if candidate else None
-                if not current_id or not db.get(DocumentVersion, current_id):
-                    candidate.ref = f"STALE-{ref}-{candidate.id[:8]}"
-                    db.commit()
-                    item = None
         if not item:
             created = client.post("/api/master-content", data={"content_type": "FORM", "ref": ref, "title": title, "description": title, "used_in": '["BD"]'}, files={"file": (f"{ref}.txt", b"proposal content", "text/plain")}, headers=headers("SYSTEM_ADMIN"))
             assert created.status_code == 200, created.text
@@ -261,18 +233,6 @@ def make_accepted_proposal(client, name="Skyline Factory Industrial"):
         governed = client.patch(f"/api/master-content/{item['id']}/governance", json={"content_ownership_class": "AMEC_OWNED", "artifact_kind": "AMEC_FORM", "language_profile": "EN"}, headers=headers("SYSTEM_ADMIN"))
         assert governed.status_code == 200, governed.text
         assert client.put(f"/api/master-content/{item['id']}/module-bindings", json=[{"module": "BD", "usage_type": usage}], headers=headers("SYSTEM_ADMIN")).status_code == 200
-        with SessionLocal() as db:
-            competing = db.query(MasterContentModuleBinding).filter(
-                MasterContentModuleBinding.module == "BD",
-                MasterContentModuleBinding.usage_type == usage,
-                MasterContentModuleBinding.active.is_(True),
-                MasterContentModuleBinding.master_content_id != item["id"],
-            ).all()
-            for binding in competing:
-                candidate = db.get(MasterContentItem, binding.master_content_id)
-                if candidate and candidate.status == "ACTIVE":
-                    candidate.status = "ARCHIVED"
-            db.commit()
     created = client.post("/api/bd/proposals", headers=headers("COMMERCIAL_APPROVER"), json={"proposal_description": name, "project_reference": "PRJ-DEMO-001", "client_name": "Skyline Synthetic Client"})
     assert created.status_code == 200, created.text
     proposal_id = created.json()["id"]
