@@ -68,15 +68,14 @@ Residual implementation evidence from this run:
 - Business-local timezone is deployment configuration. Reports fail closed when
   it is blank or invalid and expose `CONFIGURATION_REQUIRED`; no guessed
   timezone or YTD value is emitted.
-- Exact-head qualification at implementation SHA
+- Historical exact-head qualification at implementation SHA
   `69e57cd0d47e8c6f192e34be6fa0a4e52a1dc809` (tree
   `d7a7daf19d33b880bf7ea553c71ff2c41e6a33c9`) completed with focused backend
   finance/authority tests `51 passed, 1 warning`; frontend Vitest `117/117`
   passed; frontend production build passed; Python compile passed; and Alembic
   reported one head. The universal UI crawl completed all `312/312` cases over
   66 routes and ended `PROPOSALOPS_UI_CONFORMANCE_READY` with all 28 checks
-  true. A prior single `NOT_READY` replay was not reproducible on the repeat
-  exact-head crawl and is recorded as a harness flake, not a product repair.
+  true. This remains historical evidence only.
 - Required exact-head GitHub Actions passed: `backend-regression`,
   `frontend-regression`, `migration-head`, `policy-and-security`, and both
   `samba-contract` contexts. The backend Vercel preview remains
@@ -110,22 +109,32 @@ The code closure pass adds the following controls on this existing PR branch:
   Source 13 signer identity/capacity/authority evidence in its immutable source
   snapshot. Issue and Controls consume the same canonical Source 12 numbering
   decision-key contract.
+- Read scope algebra is explicit: persisted assignment rows are OR-ed, while
+  office/client/project dimensions inside one row are AND-ed. Client scope is
+  never expanded through every project or contract for that client, preventing
+  same-project cross-client leakage.
+- Source 13 production Issue resolves an active effective-dated governed
+  signatory authority record, canonical office/legal entity, required authority
+  evidence, and a project-linked signed/stamped invoice `DocumentVersion`;
+  caller-supplied signer strings cannot create authority.
 
-Fresh exact-head browser evidence was run after the read-side changes: 53/64
-real-stack tests passed, 10 failed, and 1 was not run. The failures are
-environment/legacy-contract cases (SQLite-vs-Postgres assertions, historical
-dashboard/contract expectations, Administration cleanup timeout, and one
-strict duplicate-text assertion); the Billing detail route itself rendered
-successfully. This is not a full browser qualification pass and the prior
-312/312 crawl remains historical only.
+The earlier exact-head browser rehearsal remains classified as 53/64 passed,
+10 failed, and 1 not run; its failures are environment/legacy-contract cases
+(SQLite-vs-Postgres assertions, historical dashboard/contract expectations,
+Administration cleanup timeout, and one strict duplicate-text assertion).
+After the current repairs, correctly configured isolated SQLite Billing browser
+checks passed 2/3: both Billing detail-route checks passed, while the separate
+invoice reconciliation screen had no seeded invoice to open. This is still not
+full browser qualification; the prior 312/312 crawl remains historical only.
 
 Post-hardening qualification at code head
-`e641df7674c7934d48898ac1e15f4abbdddb264a` (tree
-`72e8fe0f9beff5a9cd8afe82230c56e8b21ef52d`) also completed the full backend suite with
-`914 passed, 33 skipped, 4 warnings`, the focused Billing/auth suite with
-`32 passed, 1 warning`, migration-contract checks with `49 passed, 1 warning`,
-frontend Vitest with `117/117`, frontend production build, Python compile, and
-the single Alembic head check. SQL Server/Azure runtime evidence was not
+`fd75e0cf41e9da36f5516510d51c69ebe18e18a5` (tree
+`5935c6c60681b2e2298a3a37bdb1fb5782a41b89`) completed the full backend suite
+with `918 passed, 33 skipped, 4 warnings`, the focused Billing/auth closure
+suite with `15 passed, 1 warning`, migration-contract checks with `49 passed,
+1 warning`, frontend Vitest with `117/117`, frontend production build, Python
+compile, and the single Alembic head check. The Alembic sole head is
+`governed_signatory_authority_v1`. SQL Server/Azure runtime evidence was not
 available in this isolated synthetic environment and remains external.
 
 The scoped Finance authorization seam is implemented on the existing accepted
@@ -147,8 +156,8 @@ seed data contains explicit office-scoped grants solely for the seeded demo
 users. Live route tests prove no-grant denial, wrong-capability denial,
 wrong-project denial, exact project-scope success, and auditable revoke.
 
-The migrations `scoped_finance_capability_assignment_v1` and
-`billing_finance_production_hardening_v1` and
+The migrations `scoped_finance_capability_assignment_v1`,
+`billing_finance_production_hardening_v1`, and
 `governed_signatory_authority_v1` follow
 `billing_finance_experience_closure_v1`; `governed_signatory_authority_v1`
 is the sole repository head. The existing universal UI closure was not
