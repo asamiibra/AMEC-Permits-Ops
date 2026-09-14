@@ -56,3 +56,16 @@ export function isAllowedPublicRoute(pathname: string): boolean {
 export function canonicalPublicPath(pathname: string): string {
   return classifyPublicRoute(pathname).canonicalPath;
 }
+
+/**
+ * Keep legacy deep-link consumers inside the current public shell. Historical
+ * workspace components still import this helper, even though the Owner shell
+ * now renders only the positive public allowlist above.
+ */
+export function canonicalDomainRoute(
+  candidate: string | null | undefined,
+  fallback = "/home",
+): string {
+  const requested = candidate?.trim() || fallback;
+  return canonicalPublicPath(requested);
+}

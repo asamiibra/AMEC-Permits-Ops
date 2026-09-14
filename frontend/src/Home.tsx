@@ -1,6 +1,6 @@
 import { primaryNavigation } from "./featureAvailability";
 
-export function HomePage() {
+export function HomePage(_props?: { role?: string }) {
   const modules = primaryNavigation.filter((item) => item.id !== "home");
 
   return (
