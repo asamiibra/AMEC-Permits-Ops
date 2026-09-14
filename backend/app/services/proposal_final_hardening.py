@@ -115,3 +115,28 @@ def impacted_sections_for_source(source_type: str) -> list[str]:
         "CLIENT_DATA": ["client_contacts", "stakeholders", "site_property", "client_request", "readiness"],
         "SITE_PHOTO": ["site_property", "readiness"],
     }.get(source_type, ["readiness"])
+
+
+def causal_revalidation_blockers(db: Session, proposal: Opportunity, draft: ProposalRevision, active_events: list[ProposalStalenessEvent]) -> list[str]:
+    """Server-derived proof that a draft actually rebound every change."""
+    if draft.content_hash != stable_hash(draft.snapshot or {}):
+        return ["REVALIDATION_DRAFT_HASH_MISMATCH"]
+    summary = draft.change_summary or {}
+    rebound_dependencies = {str(item) for item in (summary.get("rebound_dependency_ids") or [])}
+    rebound_dependencies.update(str(item) for item in ((draft.snapshot or {}).get("rebound_dependency_ids") or []))
+    rebound_sections = {str(item) for item in (summary.get("rebound_sections") or [])}
+    rebound_sections.update(str(item) for item in ((draft.snapshot or {}).get("rebound_sections") or []))
+    rebound_source_ids = {str(item) for item in ((draft.snapshot or {}).get("source_ids") or [])}
+    current_sources = list(db.scalars(select(ProposalSourceEvidence).where(ProposalSourceEvidence.proposal_id == proposal.id, ProposalSourceEvidence.status == "CURRENT")).all())
+    current_by_trigger = {f"{item.source_type}:{item.content_hash}" for item in current_sources}
+    blockers: list[str] = []
+    for event in active_events:
+        trigger = str(event.trigger_reference or "")
+        dependency_rebound = trigger in rebound_dependencies or (trigger in current_by_trigger and any(item.id in rebound_source_ids for item in current_sources if f"{item.source_type}:{item.content_hash}" == trigger))
+        if not dependency_rebound:
+            blockers.append("REVALIDATION_DEPENDENCY_NOT_REBOUND")
+        if not set(event.impacted_sections or []).issubset(rebound_sections):
+            blockers.append("REVALIDATION_IMPACTED_SECTIONS_NOT_REBOUND")
+    if not current_sources or not rebound_source_ids.intersection({item.id for item in current_sources}):
+        blockers.append("REVALIDATION_CURRENT_EVIDENCE_REQUIRED")
+    return list(dict.fromkeys(blockers))

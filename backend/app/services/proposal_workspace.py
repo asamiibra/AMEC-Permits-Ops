@@ -495,6 +495,7 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
     # and the existing Proposal/Contract boundary remains authoritative.
     from ..models import ProposalAcceptanceVerification, ProposalCommercialRelease, ProposalContractHandoff, ProposalDistributionEvent, ProposalLpoReconciliation, ProposalScopeConfirmation, ProposalServiceEligibility, ProposalTechnicalAssessment
     from .proposal_commercial_controls import _projection as control_projection
+    from .proposal_commercial_controls import handoff_predicate
     assessment = db.scalar(select(ProposalTechnicalAssessment).where(ProposalTechnicalAssessment.proposal_id == proposal.id, ProposalTechnicalAssessment.status.in_(("PASS", "CONDITIONAL"))).order_by(ProposalTechnicalAssessment.assessed_at.desc()))
     scope = db.scalar(select(ProposalScopeConfirmation).where(ProposalScopeConfirmation.proposal_id == proposal.id, ProposalScopeConfirmation.status == "CURRENT").order_by(ProposalScopeConfirmation.confirmed_at.desc()))
     release = db.scalar(select(ProposalCommercialRelease).where(ProposalCommercialRelease.proposal_id == proposal.id).order_by(ProposalCommercialRelease.authorized_at.desc()))
@@ -502,6 +503,7 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
     acceptance_verification = db.scalar(select(ProposalAcceptanceVerification).where(ProposalAcceptanceVerification.proposal_id == proposal.id).order_by(ProposalAcceptanceVerification.verified_at.desc()))
     lpo = db.scalar(select(ProposalLpoReconciliation).where(ProposalLpoReconciliation.proposal_id == proposal.id).order_by(ProposalLpoReconciliation.compared_at.desc()))
     handoff = db.scalar(select(ProposalContractHandoff).where(ProposalContractHandoff.proposal_id == proposal.id).order_by(ProposalContractHandoff.handed_off_at.desc()))
+    handoff_readiness = handoff_predicate(db, proposal.id)
     commercial_controls = {
         "technical_assessment": control_projection(assessment) if assessment else None,
         "scope_confirmation": control_projection(scope) if scope else None,
@@ -566,7 +568,8 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
         "commercial_controls": commercial_controls,
         "stage_history": [{"event_type": event.event_type, "occurred_at": event.occurred_at.isoformat(), "actor": event.actor_id, "before": event.before_json, "after": event.after_json, "correlation_id": event.correlation_id} for event in stage_events],
         "ai_assist": validation["ai_assist"],
-        "contract_eligible": bool(current and validation["ready"]),
+        "contract_eligible": bool(current and handoff_readiness["eligible"]),
+        "contract_eligibility": handoff_readiness,
         "synthetic_only": synthetic_test_mode(),
     }
 
@@ -615,9 +618,9 @@ def output_bytes(revision: ProposalAcceptedRevision, artifact_type: str) -> byte
 def production_output_bytes(db: Session, revision: ProposalAcceptedRevision, artifact_type: str) -> tuple[bytes, dict[str, Any]]:
     """Render a production output from the exact governed source bytes.
 
-    The initial production renderer deliberately supports text/HTML templates
-    only. Unsupported binary template formats fail closed instead of silently
-    producing a synthetic or corrupted document.
+    The production renderer merges human-readable fields into an explicitly
+    governed text/HTML template. Unsupported binary formats fail closed until
+    the Owner-selected DOCX/PDF renderer is available.
     """
     from .master_content import read_master_content_bytes
 
@@ -642,7 +645,27 @@ def production_output_bytes(db: Session, revision: ProposalAcceptedRevision, art
         "fields": revision.snapshot.get("fields", {}),
         "source_ids": revision.snapshot.get("source_ids", []),
     }
-    rendered = content.rstrip() + b"\n\n--- AMEC PRODUCTION DATA ---\n" + json.dumps(payload, indent=2, sort_keys=True, default=str).encode() + b"\n"
+    try:
+        template_text = content.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise ValueError("PRODUCTION_RENDERER_TEMPLATE_ENCODING_UNSUPPORTED") from exc
+    replacements = {
+        "proposal_reference": str(payload["proposal_reference"] or ""),
+        "accepted_revision_id": str(payload["accepted_revision_id"]),
+        "revision_number": str(payload["revision_number"]),
+        "content_hash": str(payload["content_hash"]),
+        "client_account_id": str(payload["client_account_id"] or ""),
+        "title": str(revision.snapshot.get("title") or ""),
+        "scope_of_work": str((payload["fields"] or {}).get("scope_of_work") or (payload["fields"] or {}).get("sow") or ""),
+        "price": str((payload["fields"] or {}).get("price") or ""),
+        "currency": str((payload["fields"] or {}).get("currency") or ""),
+        "duration": str((payload["fields"] or {}).get("duration") or (payload["fields"] or {}).get("period") or ""),
+    }
+    for key, value in replacements.items():
+        template_text = template_text.replace("{{" + key + "}}", value)
+    if "{{" in template_text or "}}" in template_text:
+        raise ValueError("PRODUCTION_TEMPLATE_UNRESOLVED_PLACEHOLDER")
+    rendered = template_text.encode("utf-8")
     lineage = {
         "accepted_revision_id": revision.id,
         "template_version_id": revision.template_version_id,
@@ -651,7 +674,7 @@ def production_output_bytes(db: Session, revision: ProposalAcceptedRevision, art
         "checklist_hash": revision.checklist_hash,
         "governed_source_document_version_id": version.id,
         "governed_source_hash": version.sha256,
-        "renderer": "AMEC_GOVERNED_TEXT_RENDERER_V1",
+        "renderer": "AMEC_GOVERNED_TEXT_MERGE_RENDERER_V2",
         "format": "GOVERNED_TEXT",
     }
     return rendered, lineage

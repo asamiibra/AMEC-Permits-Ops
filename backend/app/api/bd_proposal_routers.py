@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from ..api.dependencies import authenticated_actor, current_user_role
+from ..api.dependencies import authenticated_actor, authenticated_principal_context, current_user_role
 from ..audit.service import audit
 from ..db import get_db
 from ..models import AssistantHandoff, AuditEvent, ClientAccount, ClientContact, ConsultancyOffice, Contract, ContractRevision, Document, DocumentApprovalState, DocumentType, DocumentVersion, EvidenceArtifact, ExternalBody, Jurisdiction, NotificationEvent, Opportunity, Party, ProposalAcceptedRevision, ProposalAcceptanceVerification, ProposalAssumption, ProposalClientResponse, ProposalCommercialOutcome, ProposalConflict, ProposalContactContext, ProposalContractHandoff, ProposalCommercialRelease, ProposalDistributionEvent, ProposalEngineeringContribution, ProposalExpectedInputPreview, ProposalExternalCostAssumption, ProposalIntakeArtifact, ProposalLpoReconciliation, ProposalMaterialAcknowledgment, ProposalOutputArtifact, ProposalOwnerSetting, ProposalRegulatoryScopeIntent, ProposalRevision, ProposalScopeConfirmation, ProposalServiceEligibility, ProposalServiceScopeItem, ProposalSiteContext, ProposalSourceEvidence, ProposalSourceLink, ProposalStakeholderIntent, ProposalStalenessEvent, ProposalTechnicalAssessment, ProposalUnknown, ProposalNote, Quotation, QuotationRevision, ReferenceNumber, Role, ServiceType, WorkflowTask, WorkflowTaskStatus
@@ -24,12 +24,12 @@ from ..services.backend_realignment import domain_error, require_capability
 from ..services.master_content import definition_lookup
 from ..services.proposal_workspace import SOURCE_TYPES, SOURCE_TO_SEMANTIC, ensure_owner_settings, master_content_purpose, output_bytes, production_output_bytes, owner_lane_definitions, proposal_configuration, proposal_projection, snapshot_for_accept, stable_hash, validate_proposal, intake_readiness
 from ..services.bd_proposal_forms_v2 import add_source_link, create_preview, set_contact, set_site_context, v2_readiness
-from ..services.proposal_final_hardening import hardening_projection, impacted_sections_for_source, material_fingerprint, now as hardening_now
+from ..services.proposal_final_hardening import causal_revalidation_blockers, hardening_projection, impacted_sections_for_source, material_fingerprint, now as hardening_now
 from ..services.proposal_reference import allocate_proposal_reference
-from ..services.proposal_production_boundary import production_mode, require_canonical_active_client, require_exact_document_version, reject_synthetic_value, synthetic_test_mode
+from ..services.proposal_production_boundary import production_mode, require_authorized_office, require_canonical_active_client, require_exact_document_version, require_proposal_scoped_evidence, reject_synthetic_value, synthetic_test_mode
 from ..services.proposals_sor import _safe_filename, ingest_provisional_intake_artifact, read_proposal_source_bytes
 from ..services.contract_workspace import accepted_revision as accepted_contract_revision, create_contract_from_proposal
-from ..services.proposal_commercial_controls import authorize_release, confirm_scope, create_handoff as create_proposal_handoff, record_distribution, record_eligibility, record_technical_assessment, reconcile_lpo, verify_acceptance
+from ..services.proposal_commercial_controls import authorize_release, confirm_scope, create_handoff as create_proposal_handoff, handoff_predicate, record_distribution, record_eligibility, record_technical_assessment, reconcile_lpo, verify_acceptance
 from ..services.owner_decisions import applied_runtime_decision_value, runtime_decision_value
 from ..storage import DocumentStorageService, StorageError, StorageTarget, create_binary_store
 
@@ -98,20 +98,21 @@ def _actor(role: Role, supplied: str | None = None) -> str:
 
 def _create_proposal_record(payload: ProposalCreate, request: Request, db: Session, role: Role) -> Opportunity:
     """Create the canonical Proposal row without committing a source transaction."""
-    if payload.idempotency_key:
-        existing = db.scalar(select(Opportunity).where(Opportunity.idempotency_key == payload.idempotency_key))
-        if existing:
-            return existing
-    office = db.scalar(select(ConsultancyOffice).order_by(ConsultancyOffice.office_code))
-    if not office:
-        raise HTTPException(503, "OFFICE_CONTEXT_REQUIRED")
+    principal = authenticated_principal_context()
     client_id = payload.client_account_id
     if production_mode():
         reject_synthetic_value(payload.proposal_description, code="CANONICAL_PROPOSAL_CONTEXT_REQUIRED")
         reject_synthetic_value(payload.project_reference, code="CANONICAL_PROPOSAL_CONTEXT_REQUIRED")
         client = require_canonical_active_client(db, client_id)
         client_id = client.id
-    elif not client_id and payload.client_name:
+    office = require_authorized_office(db, principal, project_id=payload.project_id)
+    if payload.idempotency_key:
+        existing = db.scalar(select(Opportunity).where(Opportunity.idempotency_key == payload.idempotency_key))
+        if existing:
+            if production_mode() and existing.office_id != office.id:
+                raise HTTPException(409, {"code": "OFFICE_CONTEXT_MISMATCH", "office_id": office.id})
+            return existing
+    if not production_mode() and not client_id and payload.client_name:
         client = ClientAccount(client_reference=f"AMEC-SYN-CLIENT-{db.query(ClientAccount).count() + 1:04d}", legal_name=payload.client_name.strip(), display_name=payload.client_name.strip(), client_type="COMPANY", data_classification="SYNTHETIC", status="ACTIVE")
         db.add(client)
         db.flush()
@@ -494,22 +495,44 @@ def revalidate_proposal_staleness(proposal_id: str, payload: dict[str, Any], req
     revision = db.scalar(select(ProposalRevision).where(ProposalRevision.id == revision_id, ProposalRevision.proposal_id == proposal.id, ProposalRevision.status == "DRAFT"))
     if not accepted or not revision or revision.base_accepted_revision_id != accepted.id:
         raise domain_error(409, "CAUSAL_REVALIDATION_REVISION_REQUIRED", accepted_revision_id=accepted.id if accepted else None)
-    result = str(payload.get("result") or "").upper()
-    if result != "PASS":
-        raise domain_error(409, "CAUSAL_REVALIDATION_PASS_REQUIRED")
     active = db.scalars(select(ProposalStalenessEvent).where(ProposalStalenessEvent.proposal_id == proposal.id, ProposalStalenessEvent.status == "ACTIVE")).all()
     requested_ids = set(payload.get("event_ids") or [item.id for item in active])
-    if not active or {item.id for item in active} - requested_ids:
+    if not active or {item.id for item in active} != requested_ids:
         raise domain_error(409, "ALL_ACTIVE_STALENESS_EVENTS_MUST_BE_REVALIDATED")
+    blockers = causal_revalidation_blockers(db, proposal, revision, active)
+    if blockers:
+        raise domain_error(409, blockers[0], blockers=blockers, server_derived_result="BLOCKED")
+    next_revision = ProposalAcceptedRevision(
+        proposal_id=proposal.id,
+        revision_number=accepted.revision_number + 1,
+        snapshot=dict(revision.snapshot or {}),
+        validation_snapshot={**(accepted.validation_snapshot or {}), "causal_revalidation": {"source_revision_id": revision.id, "event_ids": sorted(requested_ids), "server_derived_result": "PASS"}},
+        template_ref=accepted.template_ref,
+        template_version_id=accepted.template_version_id,
+        template_version=accepted.template_version,
+        template_hash=accepted.template_hash,
+        checklist_ref=accepted.checklist_ref,
+        checklist_version_id=accepted.checklist_version_id,
+        checklist_version=accepted.checklist_version,
+        checklist_hash=accepted.checklist_hash,
+        definition_refs=list(accepted.definition_refs or []),
+        content_hash=revision.content_hash,
+        accepted_by=_actor(role),
+        supersedes_revision_id=accepted.id,
+    )
+    db.add(next_revision)
+    revision.status = "ACCEPTED"
+    db.flush()
     for item in active:
         item.status = "CLEARED"
         item.cleared_by = _actor(role)
         item.cleared_at = hardening_now()
         item.revalidation_revision_id = revision.id
+        item.revalidation_accepted_revision_id = next_revision.id
         item.revalidated_by = _actor(role)
         item.revalidated_at = hardening_now()
-        item.revalidation_result = result
-    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_STALENESS_CAUSALLY_REVALIDATED", entity_type="Opportunity", entity_id=proposal.id, actor_id=_actor(role), after={"event_ids": sorted(requested_ids), "revalidation_revision_id": revision.id, "result": result})
+        item.revalidation_result = "PASS"
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_STALENESS_CAUSALLY_REVALIDATED", entity_type="Opportunity", entity_id=proposal.id, actor_id=_actor(role), after={"event_ids": sorted(requested_ids), "revalidation_revision_id": revision.id, "revalidation_accepted_revision_id": next_revision.id, "result": "PASS"})
     db.commit()
     return proposal_projection(db, proposal)
 
@@ -838,6 +861,8 @@ def accept(proposal_id: str, request: Request, db: Session = Depends(get_db), ro
     accept_authority = runtime_decision_value(db, "PROPOSAL_ACCEPT_AUTHORITY", "OWNER_OR_AUTHORIZED_COMMERCIAL_APPROVER")
     if accept_authority == "OWNER_ONLY" and role not in {Role.SYSTEM_ADMIN, Role.OWNER_SPONSOR}:
         raise domain_error(403, "PROPOSAL_ACCEPT_OWNER_ONLY")
+    if production_mode() and applied_runtime_decision_value(db, "PROPOSAL_OUTPUT_FORMAT_POLICY") is None:
+        raise domain_error(409, "OWNER_DECISION_REQUIRED", decision_key="PROPOSAL_OUTPUT_FORMAT_POLICY")
     item = db.scalar(select(Opportunity).where(Opportunity.id == proposal_id).with_for_update())
     if not item:
         raise HTTPException(404, "PROPOSAL_NOT_FOUND")
@@ -939,7 +964,12 @@ def record_client_response(proposal_id: str, payload: dict[str, Any], request: R
         contact = db.scalar(select(ClientContact).where(ClientContact.id == contact_id, ClientContact.client_account_id == client.id, ClientContact.status == "ACTIVE")) if contact_id else None
         if not contact:
             raise domain_error(409, "CLIENT_RESPONSE_CONTACT_REQUIRED")
+        if response_type == "ACCEPTED":
+            distributed = db.scalar(select(ProposalDistributionEvent).where(ProposalDistributionEvent.proposal_id == item.id, ProposalDistributionEvent.accepted_revision_id == accepted.id, ProposalDistributionEvent.delivery_status == "DELIVERED"))
+            if not distributed:
+                raise domain_error(409, "CLIENT_RESPONSE_DISTRIBUTION_REQUIRED")
         evidence_version = require_exact_document_version(db, payload.get("evidence_document_version_id"), code="CLIENT_RESPONSE_DOCUMENT_VERSION_REQUIRED")
+        require_proposal_scoped_evidence(db, proposal_id=item.id, version_id=evidence_version.id, source_roles=("CLIENT_RESPONSE", "CLIENT_ACCEPTANCE"), code="CLIENT_RESPONSE_DOCUMENT_VERSION_REQUIRED", client_account_id=client.id)
         evidence_reference = str(payload.get("evidence_reference") or f"document-version:{evidence_version.id}").strip()
         reject_synthetic_value(evidence_reference, code="CLIENT_RESPONSE_EVIDENCE_REQUIRED")
     else:
@@ -1122,22 +1152,10 @@ def download_output(proposal_id: str, artifact_type: str, db: Session = Depends(
 @router.get("/{proposal_id}/handoff/contract")
 def contract_handoff_preview(proposal_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "BD_PROPOSAL_READ")
-    revision = db.scalar(select(ProposalAcceptedRevision).where(ProposalAcceptedRevision.proposal_id == proposal_id).order_by(ProposalAcceptedRevision.revision_number.desc()))
-    if not revision:
+    predicate = handoff_predicate(db, proposal_id)
+    if not predicate.get("accepted_revision_id"):
         raise HTTPException(409, "ACCEPTED_REVISION_REQUIRED")
-    blockers: list[str] = []
-    if not db.scalar(select(ProposalCommercialRelease).where(ProposalCommercialRelease.proposal_id == proposal_id, ProposalCommercialRelease.accepted_revision_id == revision.id, ProposalCommercialRelease.status == "AUTHORIZED")):
-        blockers.append("COMMERCIAL_RELEASE_REQUIRED")
-    if not db.scalar(select(ProposalDistributionEvent).where(ProposalDistributionEvent.proposal_id == proposal_id, ProposalDistributionEvent.accepted_revision_id == revision.id)):
-        blockers.append("DISTRIBUTION_REQUIRED")
-    if not db.scalar(select(ProposalAcceptanceVerification).where(ProposalAcceptanceVerification.proposal_id == proposal_id, ProposalAcceptanceVerification.accepted_revision_id == revision.id, ProposalAcceptanceVerification.status == "VERIFIED")):
-        blockers.append("CLIENT_ACCEPTANCE_VERIFICATION_REQUIRED")
-    lpo = db.scalar(select(ProposalLpoReconciliation).where(ProposalLpoReconciliation.proposal_id == proposal_id, ProposalLpoReconciliation.accepted_revision_id == revision.id))
-    if not lpo:
-        blockers.append("LPO_RECONCILIATION_REQUIRED")
-    elif lpo.result not in {"PASS", "NOT_APPLICABLE"}:
-        blockers.append("LPO_RECONCILIATION_REQUIRED")
-    return {"eligible": not blockers, "blockers": blockers, "accepted_revision_id": revision.id, "revision_number": revision.revision_number, "content_hash": revision.content_hash, "contract_trigger": "OWNER_DECISION_REQUIRED", "machine_legal_contract": False, "project_activation_created": False}
+    return {**predicate, "contract_trigger": "OWNER_DECISION_REQUIRED", "machine_legal_contract": False, "project_activation_created": False}
 
 
 @router.post("/{proposal_id}/handoff/contract")
