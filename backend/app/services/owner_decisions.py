@@ -57,7 +57,7 @@ def _human(key: str) -> str:
     return key.replace("_", " ").title()
 
 
-def _spec(key: str, group: str, *, default: Any, blocking: str = "P2_SAFE_DEFAULT", decision_type: str = "BUSINESS_POLICY", options: list[Any] | None = None, modules: list[str] | None = None, question: str | None = None, why: str | None = None, system_fact_source: str | None = None) -> dict[str, Any]:
+def _spec(key: str, group: str, *, default: Any, blocking: str = "P2_SAFE_DEFAULT_AVAILABLE", decision_type: str = "BUSINESS_POLICY", options: list[Any] | None = None, modules: list[str] | None = None, question: str | None = None, why: str | None = None, system_fact_source: str | None = None) -> dict[str, Any]:
     return {
         "key": key,
         "group": group,
@@ -84,8 +84,8 @@ DECISION_SPECS: list[dict[str, Any]] = [
     _spec("REPORT_REFERENCE_POLICY", "MASTER_CONTENT_GOVERNANCE", default={"prefix": "R", "padding": 4, "renumber_existing": False}, modules=["Dashboard", "Reports"]),
     _spec("ENGINEERING_REFERENCE_POLICY", "MASTER_CONTENT_GOVERNANCE", default={"prefix": "E", "padding": 4, "renumber_existing": False}, modules=["Dashboard", "Engineering"]),
     _spec("DEFINITION_REFERENCE_POLICY", "MASTER_CONTENT_GOVERNANCE", default={"prefix": "D", "padding": 4, "renumber_existing": False}, modules=["Dashboard", "Definitions"]),
-    _spec("OFFICIAL_PROPOSAL_TEMPLATE", "MASTER_CONTENT_GOVERNANCE", default={"resolver": "BD/PROPOSAL_TEMPLATE", "selection": "OWNER_SELECTS_CANONICAL_FORM_VERSION"}, decision_type="CONTENT_BINDING", blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Dashboard", "BD/Proposal"]),
-    _spec("OFFICIAL_PROPOSAL_CHECKLIST", "MASTER_CONTENT_GOVERNANCE", default={"resolver": "BD/PROPOSAL_CHECKLIST", "selection": "OWNER_SELECTS_CANONICAL_FORM_VERSION"}, decision_type="CONTENT_BINDING", blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Dashboard", "BD/Proposal"]),
+    _spec("OFFICIAL_PROPOSAL_TEMPLATE", "MASTER_CONTENT_GOVERNANCE", default={"resolver": "BD/PROPOSAL_TEMPLATE", "selection": "OWNER_SELECTS_CANONICAL_FORM_VERSION"}, decision_type="CONTENT_BINDING", blocking="P0_GO_LIVE_BLOCKER", modules=["Dashboard", "BD/Proposal"]),
+    _spec("OFFICIAL_PROPOSAL_CHECKLIST", "MASTER_CONTENT_GOVERNANCE", default={"resolver": "BD/PROPOSAL_CHECKLIST", "selection": "OWNER_SELECTS_CANONICAL_FORM_VERSION"}, decision_type="CONTENT_BINDING", blocking="P0_GO_LIVE_BLOCKER", modules=["Dashboard", "BD/Proposal"]),
     _spec("OFFICIAL_CONTRACT_TEMPLATE", "MASTER_CONTENT_GOVERNANCE", default={"resolver": "ADMIN/CONTRACT_TEMPLATE", "selection": "OWNER_SELECTS_CANONICAL_FORM_VERSION"}, decision_type="CONTENT_BINDING", blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Dashboard", "Administration", "Contract"]),
     _spec("MASTER_CONTENT_WRITE_POLICY", "MASTER_CONTENT_GOVERNANCE", default={"owner": "OWNER_ONLY", "business_development": "READ_USE", "engineering": "READ_USE"}, blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Dashboard", "Administration", "RBAC"]),
     _spec("PROPOSAL_STAGE_POLICY", "PROPOSAL_COMMERCIAL", default={"stages": ["RECEIVED", "IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "READY_FOR_QUOTATION", "QUOTATION_IN_PROGRESS", "COMMERCIAL_REVIEW", "CLIENT_RESPONSE_PENDING", "ACCEPTED", "CLOSED"]}, modules=["Proposal", "My Work"]),
@@ -95,14 +95,14 @@ DECISION_SPECS: list[dict[str, Any]] = [
     _spec("PROPOSAL_ACTIVITY_SEMANTICS", "PROPOSAL_COMMERCIAL", default="APPEND_ONLY_HUMAN_AND_SYSTEM_ACTIVITY_WITH_CORRELATION", modules=["Proposal", "Audit"]),
     _spec("PROPOSAL_ATTN_CONTACT_SEMANTICS", "PROPOSAL_COMMERCIAL", default="CLIENT_CONTACT_CONTEXT_NOT_AUTHORITY", modules=["Proposal", "Client", "Contact"]),
     _spec("PROPOSAL_SCOPE_SEMANTICS", "PROPOSAL_COMMERCIAL", default="SEPARATE_AMEC_SCOPE_CLIENT_SCOPE_AND_PROCESS_OF_WORK", modules=["Proposal", "Contract"]),
-    _spec("PROPOSAL_ACCEPT_REQUIRED_FIELDS", "PROPOSAL_COMMERCIAL", default=["CLIENT", "CONTACT", "PROJECT_OPPORTUNITY_REFERENCE", "SCOPE", "AMOUNT", "CURRENCY", "DURATION", "ACCEPTED_REVISION"], blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Proposal", "Client", "Contract"]),
-    _spec("PROPOSAL_ACCEPT_AUTHORITY", "PROPOSAL_COMMERCIAL", default="OWNER_OR_AUTHORIZED_COMMERCIAL_APPROVER", blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Proposal", "RBAC", "Audit"]),
+    _spec("PROPOSAL_ACCEPT_REQUIRED_FIELDS", "PROPOSAL_COMMERCIAL", default=["CLIENT", "CONTACT", "PROJECT_OPPORTUNITY_REFERENCE", "SCOPE", "AMOUNT", "CURRENCY", "DURATION", "ACCEPTED_REVISION"], blocking="P0_GO_LIVE_BLOCKER", modules=["Proposal", "Client", "Contract"]),
+    _spec("PROPOSAL_ACCEPT_AUTHORITY", "PROPOSAL_COMMERCIAL", default="OWNER_OR_AUTHORIZED_COMMERCIAL_APPROVER", blocking="P0_GO_LIVE_BLOCKER", modules=["Proposal", "RBAC", "Audit"]),
     _spec("ENGINEERING_PROPOSAL_CONTRIBUTION_POLICY", "PROPOSAL_COMMERCIAL", default="ENGINEERING_MAY_CONTRIBUTE_TECHNICAL_CONTENT_BD_OWNS_COMMERCIAL_ACCEPTANCE", modules=["Proposal", "Engineering", "RBAC"]),
     _spec("PROPOSAL_REFERENCE_POLICY", "PROPOSAL_COMMERCIAL", default={"prefix": "P", "padding": 4, "renumber_existing": False}, modules=["Proposal", "Audit"]),
     _spec("PROJECT_OPPORTUNITY_REFERENCE_SEMANTICS", "PROPOSAL_COMMERCIAL", default="PROVISIONAL_UNTIL_CANONICAL_PROJECT_REFERENCE_EXISTS", modules=["Proposal", "Project"]),
-    _spec("PROPOSAL_OUTPUT_FORMAT_POLICY", "PROPOSAL_COMMERCIAL", default=["PDF", "DOCX"], modules=["Proposal", "Dashboard"]),
-    _spec("PROPOSAL_CHECKLIST_OUTPUT_POLICY", "PROPOSAL_COMMERCIAL", default="CANONICAL_CHECKLIST_VERSION_SNAPSHOT_WITH_PROPOSAL_OUTPUT", modules=["Proposal", "Dashboard"]),
-    _spec("PROPOSAL_TO_CONTRACT_POLICY", "PROPOSAL_COMMERCIAL", default="ACCEPT_MAKES_CONTRACT_ELIGIBLE_ADMIN_INITIATES", options=["ACCEPT_MAKES_CONTRACT_ELIGIBLE_ADMIN_INITIATES", "AUTO_CREATE_CONTRACT_ON_ACCEPT"], blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Proposal", "Contract", "RBAC"]),
+    _spec("PROPOSAL_OUTPUT_FORMAT_POLICY", "PROPOSAL_COMMERCIAL", default="PDF", modules=["Proposal", "Dashboard"]),
+    _spec("PROPOSAL_CHECKLIST_OUTPUT_POLICY", "PROPOSAL_COMMERCIAL", default="CANONICAL_CHECKLIST_VERSION_SNAPSHOT_WITH_PROPOSAL_OUTPUT", blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Proposal", "Dashboard"]),
+    _spec("PROPOSAL_TO_CONTRACT_POLICY", "PROPOSAL_COMMERCIAL", default="ACCEPT_MAKES_CONTRACT_ELIGIBLE_ADMIN_INITIATES", options=["ACCEPT_MAKES_CONTRACT_ELIGIBLE_ADMIN_INITIATES", "AUTO_CREATE_CONTRACT_ON_ACCEPT"], blocking="P0_GO_LIVE_BLOCKER", modules=["Proposal", "Contract", "RBAC"]),
     _spec("PROPOSAL_CLOSE_OUTCOME_POLICY", "PROPOSAL_COMMERCIAL", default=["WON", "LOST", "WITHDRAWN", "SUPERSEDED"], modules=["Proposal", "Audit"]),
     _spec("CONTRACT_STAGE_POLICY", "CONTRACT_ADMINISTRATION", default={"stages": ["DRAFT", "NEEDS_ACTION", "AUTHORITY_REVIEW", "READY", "ACTIVE", "CLOSED"]}, modules=["Contract", "My Work"]),
     _spec("CONTRACT_AUTHORITY_REVIEW_MEANING", "CONTRACT_ADMINISTRATION", default="OWNER_REVIEW_REQUIRED_NOT_LEGAL_EXECUTION", modules=["Contract", "RBAC", "Audit"]),
@@ -192,6 +192,12 @@ def ensure_register(db: Session) -> None:
             db.add(item)
             db.flush()
         else:
+            before = _snapshot(item)
+            changed_fields = []
+            if item.blocking_level != spec["blocking"]:
+                changed_fields.append(f"blocking_level {item.blocking_level!r}->{spec['blocking']!r}")
+            if item.proposed_default_json != spec["default"]:
+                changed_fields.append("proposed_default reconciled to canonical source")
             item.group_name = spec["group"]
             item.title = spec["title"]
             item.question = spec["question"]
@@ -202,6 +208,17 @@ def ensure_register(db: Session) -> None:
             item.options_json = spec["options"]
             item.affected_modules_json = spec["modules"]
             item.system_fact_source = spec.get("system_fact_source")
+            if changed_fields:
+                _history(
+                    db,
+                    item,
+                    "SPEC_RECONCILED",
+                    before=before,
+                    actor="system-go-live-reconciliation",
+                    role=Role.SYSTEM_ADMIN,
+                    note="Canonical Owner/go-live source reconciliation: " + "; ".join(changed_fields),
+                    correlation_id="owner-decision-canonical-reconcile",
+                )
         for legacy_key, (canonical, source) in LEGACY_ALIASES.items():
             if canonical != item.decision_key:
                 continue
@@ -328,6 +345,9 @@ def register_payload(db: Session) -> dict[str, Any]:
     contradiction = contradictions(db)
     p0 = [row for row in rows if row.blocking_level == "P0_GO_LIVE_BLOCKER"]
     p1 = [row for row in rows if row.blocking_level == "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION"]
+    invalid_blocking_level_count = sum(1 for row in rows if row.blocking_level not in BLOCKING_LEVELS)
+    runtime_mismatch_count = sum(1 for row in rows if row.apply_state == "DECISION_RUNTIME_MISMATCH")
+    duplicate_key_count = len(rows) - len({row.decision_key for row in rows})
     business_ready = all(row.status in CONFIRMED_STATUSES for row in [*p0, *p1]) and all(row.apply_state not in {"APPLY_FAILED", "DECISION_RUNTIME_MISMATCH"} for row in rows)
     content_ready = all(row["status"] == "READY" for row in content)
     software_ready = all(row["status"] == "PASS" for row in software)
@@ -342,14 +362,14 @@ def register_payload(db: Session) -> dict[str, Any]:
     else:
         overall = "BLOCKED"
     return {
-        "count": len(rows), "duplicate_key_count": len(rows) - len({row.decision_key for row in rows}), "items": items,
+        "count": len(rows), "duplicate_key_count": duplicate_key_count, "owner_decision_invalid_blocking_level_count": invalid_blocking_level_count, "owner_decision_runtime_mismatch_count": runtime_mismatch_count, "items": items,
         "groups": [{"key": key, "label": label, "items": [item for item in items if item["group"] == key]} for key, label in GROUP_LABELS.items()],
         "summary": {"confirmed": confirmed, "pending_defaults": pending_defaults, "p0": counts.get("P0_GO_LIVE_BLOCKER", 0), "p1": counts.get("P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", 0), "p2": counts.get("P2_SAFE_DEFAULT_AVAILABLE", 0), "p3": counts.get("P3_OPTIONAL_FUTURE", 0), "external_technical": counts.get("EXTERNAL_TECHNICAL", 0)},
         "content_readiness": content, "software_readiness": software, "contradictions": contradiction,
         "runtime_bindings": [{"key": row.decision_key, "status": row.status, "apply_state": row.apply_state, "effective_value": row.effective_value_json, "runtime_value": row.runtime_value_json} for row in rows],
         "go_live": {"business_decisions_ready": business_ready, "content_ready": content_ready, "software_ready": software_ready, "technical_ready": technical_ready, "overall": overall, "blockers": [f"{row.decision_key}: {row.status}" for row in rows if row.blocking_level in {"P0_GO_LIVE_BLOCKER", "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", "EXTERNAL_TECHNICAL"} and row.status not in CONFIRMED_STATUSES] + [row["key"] for row in content if row["status"] != "READY"] + [row["label"] for row in software if row["status"] != "PASS"] + [item["code"] for item in contradiction["unresolved"]]},
         "aliases": [{"legacy_key": row.legacy_key, "canonical_key": row.canonical_key, "source_module": row.source_module, "notes": row.notes} for row in db.scalars(select(OwnerDecisionAlias).order_by(OwnerDecisionAlias.legacy_key)).all()],
-        "truth_tokens": {"OWNER_DECISION_CANONICAL_COUNT_50": len(rows) == 50, "OWNER_DECISION_DUPLICATE_KEY_ZERO": len(rows) == len({row.decision_key for row in rows}), "OWNER_DECISION_DUPLICATE_TRUTH_ZERO": True, "SAFE_DEFAULT_FALSE_CONFIRMATION_ZERO": all(row.status != "OWNER_CONFIRMED" or row.confirmed_by for row in rows), "OWNER_DECISION_CONTRADICTION_DETECTION_PASS": contradiction["status"] == "PASS", "OWNER_DECISION_RUNTIME_MISMATCH_ZERO": not any(row.apply_state == "DECISION_RUNTIME_MISMATCH" for row in rows)},
+        "truth_tokens": {"OWNER_DECISION_CANONICAL_COUNT_50": len(rows) == 50, "OWNER_DECISION_DUPLICATE_KEY_ZERO": duplicate_key_count == 0, "OWNER_DECISION_DUPLICATE_TRUTH_ZERO": True, "OWNER_DECISION_INVALID_BLOCKING_LEVEL_ZERO": invalid_blocking_level_count == 0, "SAFE_DEFAULT_FALSE_CONFIRMATION_ZERO": all(row.status != "OWNER_CONFIRMED" or row.confirmed_by for row in rows), "OWNER_DECISION_CONTRADICTION_DETECTION_PASS": contradiction["status"] == "PASS", "OWNER_DECISION_RUNTIME_MISMATCH_ZERO": runtime_mismatch_count == 0},
     }
 
 
@@ -375,7 +395,7 @@ def apply_action(db: Session, item: OwnerDecision, *, action: str, value: Any, n
     before = _snapshot(item)
     if item.decision_key == "REAL_SYNOLOGY_CONNECTION":
         raise ValueError("SYNOLOGY_MANUAL_VERIFICATION_ZERO")
-    if action == "not_applicable" and item.blocking_level not in {"P2_SAFE_DEFAULT", "P3_OPTIONAL_FUTURE"}:
+    if action == "not_applicable" and item.blocking_level not in {"P2_SAFE_DEFAULT_AVAILABLE", "P3_OPTIONAL_FUTURE"}:
         raise ValueError("OWNER_DECISION_NOT_APPLICABLE_NOT_ALLOWED")
     if action == "reopen":
         item.status = "REOPENED"

@@ -1,7 +1,8 @@
 from sqlalchemy import func, select
 
 from backend.app.db import SessionLocal
-from backend.app.models import OwnerDecisionHistory
+from backend.app.models import OwnerDecision, OwnerDecisionHistory
+from backend.app.services.owner_decisions import BLOCKING_LEVELS, ensure_register
 
 
 def test_owner_decision_register_is_canonical_and_truthful(client):
@@ -15,6 +16,32 @@ def test_owner_decision_register_is_canonical_and_truthful(client):
     assert payload["truth_tokens"]["OWNER_DECISION_CANONICAL_COUNT_50"] is True
     assert payload["truth_tokens"]["SAFE_DEFAULT_FALSE_CONFIRMATION_ZERO"] is True
     assert payload["truth_tokens"]["OWNER_DECISION_RUNTIME_MISMATCH_ZERO"] is True
+    assert payload["truth_tokens"]["OWNER_DECISION_INVALID_BLOCKING_LEVEL_ZERO"] is True
+    assert all(item["blocking_level"] in BLOCKING_LEVELS for item in payload["items"])
+    assert {item["key"] for item in payload["items"] if item["blocking_level"] == "P0_GO_LIVE_BLOCKER"} >= {
+        "OFFICIAL_PROPOSAL_TEMPLATE",
+        "OFFICIAL_PROPOSAL_CHECKLIST",
+        "PROPOSAL_ACCEPT_REQUIRED_FIELDS",
+        "PROPOSAL_ACCEPT_AUTHORITY",
+        "PROPOSAL_TO_CONTRACT_POLICY",
+    }
+    assert next(item for item in payload["items"] if item["key"] == "PROPOSAL_OUTPUT_FORMAT_POLICY")["proposed_default"] == "PDF"
+
+
+def test_owner_decision_spec_reconciliation_preserves_history():
+    with SessionLocal() as db:
+        item = db.scalar(select(OwnerDecision).where(OwnerDecision.decision_key == "PROPOSAL_OUTPUT_FORMAT_POLICY"))
+        item.blocking_level = "P2_SAFE_DEFAULT"
+        item.proposed_default_json = ["PDF", "DOCX"]
+        db.commit()
+        ensure_register(db)
+        db.commit()
+        refreshed = db.scalar(select(OwnerDecision).where(OwnerDecision.decision_key == "PROPOSAL_OUTPUT_FORMAT_POLICY"))
+        history = db.scalars(select(OwnerDecisionHistory).where(OwnerDecisionHistory.decision_key == "PROPOSAL_OUTPUT_FORMAT_POLICY", OwnerDecisionHistory.event_type == "SPEC_RECONCILED")).all()
+        assert refreshed.blocking_level == "P2_SAFE_DEFAULT_AVAILABLE"
+        assert refreshed.proposed_default_json == "PDF"
+        assert history
+        assert history[-1].before_json["status"] == refreshed.status
 
 
 def test_owner_decision_authority_and_technical_fact_protection(client):
