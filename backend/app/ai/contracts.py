@@ -30,6 +30,7 @@ class AIExecutionMode(str, Enum):
 
 class AIPurpose(str, Enum):
     ENGINEERING_TECHNICAL_DRAFT = "ENGINEERING_TECHNICAL_DRAFT"
+    BILLING_INTELLIGENCE = "BILLING_INTELLIGENCE"
 
 
 class AITargetEntityType(str, Enum):

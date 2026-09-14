@@ -196,7 +196,7 @@ def seed(
             SignoffCProposal, Stage2ReviewAcknowledgement, Stage2Baseline, DeliveryAuthorityStatus, Phase0Decision, PilotCohort, PrecheckDecision, MunicipalityOperationDecision, DeliveryScenario, BusinessKpiTarget, BusinessBaseline, Tier2BacklogItem, Tier1Decision, AcceptanceCorpusDefinition, ThresholdDefinition, AdjudicationHistory, AdjudicationCase, PhaseBaseline,
             Representation, Authorization, PropertyOwnership, ExcelProjectionRule, ExcelProjectRow, SynologyProjectBootstrap, ProjectNumberReservation, ProjectInitiation, TargetRenderingRule, Party, Property, LegacyFixtureAlias, SyntheticFixtureSet,
             SpikeFieldResult, SpikeDocumentResult, ExtractionSpikeRun, GoldFieldLabel, GoldDocumentLabel, RealDocumentTestGate, MunicipalityDraft, MunicipalityConfig, Conflict, DrawingMetadataControl, AttachmentCategoryConfig, ApprovalDependency, RequirementConfig, FieldAuthorityRule, VerifiedAssertion, FieldObservation, DocumentClassification, DocumentVersion, Document, FieldDefinition, ScenarioConfig,
-            ExternalSystemLink, Project, User, ConsultancyOffice, DiscoveryDecision, BusinessCase, VolumeBaseline, MinistryInquiry, RaidItem,
+            ExternalSystemLink, Project, GovernedSignatoryAuthority, ScopedCapabilityAssignment, User, ConsultancyOffice, DiscoveryDecision, BusinessCase, VolumeBaseline, MinistryInquiry, RaidItem,
         ]
 
         if reset_existing:
@@ -221,6 +221,44 @@ def seed(
         db.add(office); db.flush()
         users = [("owner@amec.synthetic", "Maha Al-Khatri", Role.OWNER_SPONSOR), ("champion@amec.synthetic", "Yousef Nasser", Role.PROCESS_CHAMPION), ("steward@amec.synthetic", "Noura Salem", Role.REQUIREMENT_STEWARD), ("engineer@amec.synthetic", "Omar Haddad", Role.RESPONSIBLE_ENGINEER), ("preparer@amec.synthetic", "Rana Faisal", Role.PERMIT_PREPARER), ("submitter@amec.synthetic", "Khalid Mansour", Role.FINAL_SUBMITTER), ("admin@amec.synthetic", "Samir Qasem", Role.SYSTEM_ADMIN)]
         db.add_all([User(email=e, display_name=n, role=r, office_id=office.id) for e,n,r in users]); db.flush()
+        seeded_users = {item.email: item for item in db.scalars(select(User).where(User.email.in_([email for email, _name, _role in users]))).all()}
+        owner = seeded_users["owner@amec.synthetic"]
+        all_billing_capabilities = {
+            "BILLING_VIEW",
+            "BILLING_PLAN_MANAGE", "BILLING_PLAN_APPROVE", "BILLING_MILESTONE_REVIEW", "INVOICE_CREATE",
+            "INVOICE_REVISION_CREATE", "INVOICE_CALCULATE", "INVOICE_REFERENCE", "INVOICE_APPROVAL",
+            "INVOICE_DELIVERY", "INVOICE_ACKNOWLEDGMENT", "INVOICE_ACCEPT", "INVOICE_ISSUE",
+            "FINANCIAL_ACCOUNT_MANAGE", "FINANCIAL_ACCOUNT_APPROVE", "PAYMENT_RECORD", "PAYMENT_VERIFY",
+            "PAYMENT_ALLOCATE", "PAYMENT_REVERSE", "RECEIVABLE_NON_CASH_RESOLVE", "RECEIVABLE_FOLLOW_UP",
+            "BILLING_READINESS_REQUEST", "BILLING_FX_RATE_MANAGE", "PROJECT_EXPECTED_EXP_EDIT",
+        }
+        process_capabilities = {
+            "BILLING_VIEW",
+            "BILLING_PLAN_MANAGE", "BILLING_MILESTONE_REVIEW", "INVOICE_CREATE", "INVOICE_REVISION_CREATE",
+            "INVOICE_CALCULATE", "INVOICE_REFERENCE", "INVOICE_DELIVERY", "PAYMENT_RECORD", "RECEIVABLE_FOLLOW_UP",
+        }
+        readiness_capabilities = {"BILLING_VIEW", "BILLING_READINESS_REQUEST"}
+        assignment_specs = [
+            ("owner@amec.synthetic", all_billing_capabilities),
+            ("admin@amec.synthetic", all_billing_capabilities),
+            ("champion@amec.synthetic", process_capabilities),
+            ("engineer@amec.synthetic", readiness_capabilities),
+            ("steward@amec.synthetic", {"BILLING_VIEW"}),
+            ("preparer@amec.synthetic", {"BILLING_VIEW"}),
+        ]
+        db.add_all([
+            ScopedCapabilityAssignment(
+                user_id=seeded_users[email].id,
+                capability_code=capability,
+                office_id=office.id,
+                assignment_reference=f"SYNTHETIC_SEED_{email.split('@')[0].upper()}_{capability}",
+                reason="Explicit synthetic owner-demo capability assignment; not inferred from Role.",
+                granted_by=owner.id,
+            )
+            for email, capabilities in assignment_specs
+            for capability in sorted(capabilities)
+        ])
+        db.flush()
         projects = [Project(project_number=CANONICAL_PROJECT_IDS[0], project_name="Al Noor Villa", office_id=office.id, workstream="RESIDENTIAL", status="ACTIVE", municipality="Doha", permit_type="Building Permit", assigned_engineer="Omar Haddad"), Project(project_number=CANONICAL_PROJECT_IDS[1], project_name="West Bay Residence", office_id=office.id, workstream="RESIDENTIAL", status="ACTIVE", municipality="Doha", permit_type="Building Permit", assigned_engineer="Rana Faisal"), Project(project_number=CANONICAL_PROJECT_IDS[2], project_name="Lusail Office Annex", office_id=office.id, workstream="COMMERCIAL", status="ACTIVE", municipality="Lusail", permit_type="Fit-out Permit", assigned_engineer="Omar Haddad"), Project(project_number=CANONICAL_PROJECT_IDS[3], project_name="Pearl Community Clinic", office_id=office.id, workstream="COMMERCIAL", status="ON_HOLD", municipality="Doha", permit_type="Renovation Permit", assigned_engineer="Noura Salem")]
         db.add_all(projects); db.flush()
         apps = [PermitApplication(project_id=projects[0].id, authority="Permit Authority Simulator", municipality="Doha", permit_type="Building Permit", external_request_number=CANONICAL_APPLICATION_IDS[0], application_status=ApplicationStatus.DRAFT, repetition_count=0), PermitApplication(project_id=projects[1].id, authority="Permit Authority Simulator", municipality="Doha", permit_type="Building Permit", external_request_number=CANONICAL_APPLICATION_IDS[1], application_status=ApplicationStatus.RETURNED, repetition_count=2), PermitApplication(project_id=projects[2].id, authority="Permit Authority Simulator", municipality="Lusail", permit_type="Fit-out Permit", external_request_number=CANONICAL_APPLICATION_IDS[2], application_status=ApplicationStatus.UNDER_REVIEW, repetition_count=1), PermitApplication(project_id=projects[3].id, authority="Permit Authority Simulator", municipality="Doha", permit_type="Renovation Permit", external_request_number=CANONICAL_APPLICATION_IDS[3], application_status=ApplicationStatus.APPROVED, repetition_count=1)]

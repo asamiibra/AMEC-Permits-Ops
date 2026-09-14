@@ -1,0 +1,15 @@
+{
+  "hash_algorithm": "SHA256 via P02 stable_hash",
+  "canonicalization": "sorted compact JSON",
+  "context_hash_inputs": ["owning_module", "skill_id", "skill_version", "skill_manifest_hash", "scope_type", "scope_id", "project_id", "authorization_context_hash", "context_schema_version", "policy_version", "sorted item identities/projection hashes", "sorted optional omissions"],
+  "authorization_hash_inputs": ["actor_user_id", "stored_role", "derived_persona", "sorted_effective_capabilities", "scope_type", "scope_id", "owning_module", "policy_version"],
+  "snapshot_idempotency_key": "context:<context_hash>",
+  "same_compile": "PASS: same snapshot and no duplicate dependencies",
+  "source_order_independence": "PASS: items sorted by stable key/type/dependency identity",
+  "dependency_identity": "PASS: exact dependency type/id/version-or-hash recorded",
+  "optional_omission": "PASS: ABSENT omission participates in context hash",
+  "source_version_change": "PASS: new context hash and immutable new snapshot",
+  "authorization_change": "PASS: changed effective capability changes authorization and context hashes",
+  "policy_change": "PASS: changed policy version changes context hash",
+  "old_snapshot": "PASS: no update or stale mutation of previous snapshot"
+}

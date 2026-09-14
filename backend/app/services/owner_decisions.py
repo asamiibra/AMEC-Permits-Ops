@@ -31,6 +31,7 @@ GROUP_LABELS = {
     "CONTRACT_ADMINISTRATION": "Contract & Administration",
     "PROJECT_ACTIVATION": "Project Activation",
     "TECHNICAL_GO_LIVE": "Technical Go-Live",
+    "BILLING_FINANCE": "Billing & Finance",
 }
 STATUSES = {
     "UNANSWERED",
@@ -127,6 +128,20 @@ DECISION_SPECS: list[dict[str, Any]] = [
     _spec("REAL_SYNOLOGY_CONNECTION", "TECHNICAL_GO_LIVE", default="REAL_CONNECTION_AND_HEALTH_VERIFICATION_REQUIRED", blocking="EXTERNAL_TECHNICAL", decision_type="TECHNICAL_FACT", modules=["Synology", "Dashboard", "Contract"], system_fact_source="/api/adapters/health real Synology verification; Owner cannot set this fact"),
     _spec("PRODUCTION_FILE_POLICY", "TECHNICAL_GO_LIVE", default={"extensions": [".docx", ".pdf"], "source_of_record": "AMEC_SYNOLOGY", "versioning": "IMMUTABLE_DOCUMENT_VERSIONS"}, blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Synology", "Document", "Dashboard"]),
     _spec("PRODUCTION_GO_LIVE_SIGNOFF", "TECHNICAL_GO_LIVE", default="EXPLICIT_OWNER_SIGNOFF_AFTER_ALL_GATES", blocking="P0_GO_LIVE_BLOCKER", decision_type="GO_LIVE_SIGNOFF", modules=["Administration", "Dashboard", "BD/Proposal", "Contract"]),
+    _spec("FINANCE_SECRETARY_CAPABILITY_MAPPING", "BILLING_FINANCE", default="SCOPED_CAPABILITY_ASSIGNMENT_WITHIN_EXISTING_PERSONA_MODEL", modules=["Billing", "RBAC"]),
+    _spec("GLOBAL_INVOICE_NUMBERING_POLICY", "BILLING_FINANCE", default="CONTINUE_RECONCILED_HISTORICAL_AMEC_SEQUENCE_AND_FORMAT", modules=["Billing", "Invoice", "RBAC"]),
+    _spec("NON_QAR_QAR_CONVERSION_AND_PROVENANCE_POLICY", "BILLING_FINANCE", default="GOVERNED_OWNER_EDITABLE_FX_RATE_RECORD", modules=["Billing", "Project Finance"]),
+    _spec("EXPECTED_EXP_PERCENT_DEFINITION_AND_SOURCE", "BILLING_FINANCE", default="OWNER_APPROVED_EDITABLE_PROJECT_FINANCE_FIELD", modules=["Billing", "Project Finance"]),
+    _spec("FINANCE_YTD_REPORTING_YEAR_BOUNDARY", "BILLING_FINANCE", default="CALENDAR_YEAR", modules=["Billing", "Reports"]),
+    _spec("SOURCE13_GO_FORWARD_COMMERCIAL_AUTHORITY", "BILLING_FINANCE", default="ACCEPTED_CONTRACT_REQUIRED", modules=["Billing", "Invoice"]),
+    _spec("SOURCE13_LEGACY_QUOTATION_ONLY_BILLING_POLICY", "BILLING_FINANCE", default="UNSUPPORTED_IN_PRODUCTION", modules=["Billing", "Invoice"]),
+    _spec("SOURCE13_GLOBAL_SEQUENCE_YEAR_ROLLOVER", "BILLING_FINANCE", default="CONTINUE_WITHOUT_RESET", modules=["Billing", "Invoice"]),
+    _spec("SOURCE13_PRODUCTION_INVOICE_TEMPLATE_SOURCE", "BILLING_FINANCE", default="INV-Form.docx", decision_type="CONTENT_BINDING", modules=["Billing", "Invoice", "Document"]),
+    _spec("SOURCE13_PHYSICAL_INVOICE_SIGNING_POLICY", "BILLING_FINANCE", default="GENERAL_MANAGER_OR_OWNER_AUTHORIZED_RESPONSIBLE_ACCOUNTING_SIGNER", modules=["Billing", "Invoice", "RBAC"]),
+    _spec("SOURCE16_NON_CASH_RECEIVABLE_RESOLUTION_AUTHORITY", "BILLING_FINANCE", default="SCOPED_FINANCE_RECEIVABLE_RESOLUTION_CAPABILITY_WITHIN_EXISTING_PERSONA_MODEL", modules=["Billing", "Receivables", "RBAC"]),
+    _spec("SOURCE16_ISSUED_INVOICE_ARTIFACT_POLICY", "BILLING_FINANCE", default="PDF_CANONICAL_ISSUED_ARTIFACT_DOCX_GOVERNED_TEMPLATE_OR_WORKING_SOURCE", modules=["Billing", "Invoice", "Document"]),
+    _spec("SOURCE16_DOWNSTREAM_FINANCE_BOUNDARY", "BILLING_FINANCE", default="INTERNAL_GOVERNED_REPORTING_READ_MODELS_NO_EXTERNAL_ACCOUNTING_JOURNAL_INTEGRATION_THIS_RELEASE", modules=["Billing", "Reports"]),
+    _spec("ACCOUNTING_ERP_INTEGRATION", "BILLING_FINANCE", default="FORMALLY_DEFERRED", modules=["Billing", "Reports"]),
 ]
 
 DECISION_BY_KEY = {item["key"]: item for item in DECISION_SPECS}
@@ -349,7 +364,7 @@ def register_payload(db: Session) -> dict[str, Any]:
         "runtime_bindings": [{"key": row.decision_key, "status": row.status, "apply_state": row.apply_state, "effective_value": row.effective_value_json, "runtime_value": row.runtime_value_json} for row in rows],
         "go_live": {"business_decisions_ready": business_ready, "content_ready": content_ready, "software_ready": software_ready, "technical_ready": technical_ready, "overall": overall, "blockers": [f"{row.decision_key}: {row.status}" for row in rows if row.blocking_level in {"P0_GO_LIVE_BLOCKER", "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", "EXTERNAL_TECHNICAL"} and row.status not in CONFIRMED_STATUSES] + [row["key"] for row in content if row["status"] != "READY"] + [row["label"] for row in software if row["status"] != "PASS"] + [item["code"] for item in contradiction["unresolved"]]},
         "aliases": [{"legacy_key": row.legacy_key, "canonical_key": row.canonical_key, "source_module": row.source_module, "notes": row.notes} for row in db.scalars(select(OwnerDecisionAlias).order_by(OwnerDecisionAlias.legacy_key)).all()],
-        "truth_tokens": {"OWNER_DECISION_CANONICAL_COUNT_50": len(rows) == 50, "OWNER_DECISION_DUPLICATE_KEY_ZERO": len(rows) == len({row.decision_key for row in rows}), "OWNER_DECISION_DUPLICATE_TRUTH_ZERO": True, "SAFE_DEFAULT_FALSE_CONFIRMATION_ZERO": all(row.status != "OWNER_CONFIRMED" or row.confirmed_by for row in rows), "OWNER_DECISION_CONTRADICTION_DETECTION_PASS": contradiction["status"] == "PASS", "OWNER_DECISION_RUNTIME_MISMATCH_ZERO": not any(row.apply_state == "DECISION_RUNTIME_MISMATCH" for row in rows)},
+        "truth_tokens": {"OWNER_DECISION_CANONICAL_COUNT_64": len(rows) == 64, "OWNER_DECISION_DUPLICATE_KEY_ZERO": len(rows) == len({row.decision_key for row in rows}), "OWNER_DECISION_DUPLICATE_TRUTH_ZERO": True, "SAFE_DEFAULT_FALSE_CONFIRMATION_ZERO": all(row.status != "OWNER_CONFIRMED" or row.confirmed_by for row in rows), "OWNER_DECISION_CONTRADICTION_DETECTION_PASS": contradiction["status"] == "PASS", "OWNER_DECISION_RUNTIME_MISMATCH_ZERO": not any(row.apply_state == "DECISION_RUNTIME_MISMATCH" for row in rows)},
     }
 
 

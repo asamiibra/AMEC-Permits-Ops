@@ -1,0 +1,31 @@
+{
+  "candidate_head": "4802a7d",
+  "database": "proposalops_g6",
+  "sql_server": "SQL Server 2022 Developer, 16.0.4265.3",
+  "odbc_driver": "ODBC Driver 18.6.2.1",
+  "migration_head": "billing_intelligence_final_merge_v1",
+  "database_migration": "PASS",
+  "scope": "existing disposable native SQL Server qualification database; synthetic seed only",
+  "provider": "BillingDeterministicProvider through SkillRuntime and ModelGateway",
+  "skills": {
+    "billing.payment-match": "PASS",
+    "billing.collections-copilot": "PASS",
+    "billing.plan-builder": "PASS",
+    "billing.readiness-assessment": "PASS",
+    "billing.invoice-review": "PASS",
+    "billing.delivery-ack-extraction": "PASS"
+  },
+  "assertions": {
+    "all_work_products_cited": true,
+    "all_human_review_required": true,
+    "all_canonical_state_mutated": false,
+    "payment_and_due_date_mutation_tools_registered": false,
+    "cash_forecasting": "DEFERRED_PENDING_SUFFICIENT_HISTORY_AND_VALIDATED_NUMERIC_MODEL"
+  },
+  "not_proven": [
+    "Azure managed-identity provider reachability",
+    "independent acceptance",
+    "production deployment",
+    "owner UAT"
+  ]
+}

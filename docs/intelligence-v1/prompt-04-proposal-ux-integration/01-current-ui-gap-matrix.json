@@ -1,0 +1,25 @@
+{
+  "prompt": "P04_PROPOSAL_INTELLIGENCE_UX_INTEGRATION",
+  "source_of_truth": [
+    "frontend/src/App.tsx",
+    "frontend/src/BDProposalOwnerSession.tsx",
+    "frontend/src/ProposalWorkspaceStageAware.tsx",
+    "frontend/src/ProposalsContracts.tsx",
+    "backend/app/api/bd_proposal_routers.py"
+  ],
+  "canonical_ui_count_before": 0,
+  "canonical_ui_count_after": 1,
+  "canonical_routes": ["/proposals", "/proposals/new", "/proposals/:proposalId"],
+  "items": [
+    {"concept":"register","current_route":"/opportunities","current_component":"BDProposalOwnerSession.tsx","backend_support":"register endpoint with lanes","current_ui_state":"legacy table","owner_requirement":"Proposal-centric worklist","intelligence_relevance":"future read projection","disposition":"REDESIGN"},
+    {"concept":"new_proposal","current_route":"/opportunities/new","current_component":"BDProposalOwnerSession.tsx","backend_support":"JSON and multipart intake","current_ui_state":"generic form/upload","owner_requirement":"source-first intake","intelligence_relevance":"candidate observations only","disposition":"REDESIGN"},
+    {"concept":"proposal_workspace","current_route":"/opportunities/:id","current_component":"ProposalWorkspaceStageAware.tsx","backend_support":"detail, patch, staged commands","current_ui_state":"large mixed lifecycle page","owner_requirement":"stage-aware workspace","intelligence_relevance":"contextual outputs only","disposition":"REDESIGN"},
+    {"concept":"canonical_routes","current_route":"/proposals*","current_component":"ProposalsContractsPage","backend_support":"none required","current_ui_state":"route collision","owner_requirement":"one canonical Proposal UI","intelligence_relevance":"shared adapter","disposition":"ADD"},
+    {"concept":"source_evidence","current_route":"workspace","current_component":"BDProposalOwnerSession.tsx","backend_support":"source links/evidence/documents","current_ui_state":"presence cards","owner_requirement":"actual evidence records","intelligence_relevance":"candidate/verified boundaries","disposition":"REDESIGN"},
+    {"concept":"protected_controls","current_route":"workspace","current_component":"ProposalWorkspaceStageAware.tsx","backend_support":"technical/scope/eligibility/release/distribution/verification/LPO/handoff","current_ui_state":"internal boundary terminology","owner_requirement":"business objective controls","intelligence_relevance":"AI never acts","disposition":"REDESIGN"},
+    {"concept":"intelligence_surfaces","current_route":"none","current_component":"none","backend_support":"shared P01-P03 objects","current_ui_state":"not rendered","owner_requirement":"truthful future-ready rendering","intelligence_relevance":"core P04","disposition":"ADD"},
+    {"concept":"legacy_routes","current_route":"/bd,/bd/proposals,/opportunities*","current_component":"App.tsx","backend_support":"same Proposal APIs","current_ui_state":"ambiguous/duplicate","owner_requirement":"safe compatibility","intelligence_relevance":"none","disposition":"MOVE"}
+  ],
+  "orphaned_existing_field_count": 0,
+  "orphaned_existing_action_count": 0
+}

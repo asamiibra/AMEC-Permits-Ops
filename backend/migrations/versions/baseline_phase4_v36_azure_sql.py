@@ -8386,7 +8386,7 @@ def upgrade() -> None:
     op.create_index('uq_technical_rule_lineage', 'technical_rule_lineage', ['technical_rule_id', 'master_content_item_id', 'document_version_id', 'source_section_id'], unique=True, mssql_where=sa.text('source_section_id IS NOT NULL'))
 
     bind = op.get_bind()
-    bind.execute(sa.text("INSERT INTO master_content_reference_sequences (active, content_type, created_at, current_value, id, padding, prefix, scope, updated_at) SELECT :value_0, :value_1, CURRENT_TIMESTAMP, :value_3, :value_4, :value_5, :value_6, :value_7, CURRENT_TIMESTAMP WHERE NOT EXISTS (SELECT 1 FROM master_content_reference_sequences WHERE content_type = :value_1 AND scope = :value_7)"),
+    bind.execute(sa.text("INSERT INTO master_content_reference_sequences (active, content_type, created_at, current_value, id, padding, prefix, scope, updated_at) SELECT :value_0, CAST(:value_1 AS VARCHAR(80)), CURRENT_TIMESTAMP, :value_3, :value_4, :value_5, :value_6, CAST(:value_7 AS VARCHAR(80)), CURRENT_TIMESTAMP WHERE NOT EXISTS (SELECT 1 FROM master_content_reference_sequences WHERE content_type = CAST(:value_1 AS VARCHAR(80)) AND scope = CAST(:value_7 AS VARCHAR(80)))"),
         {'value_0': True, 'value_1': 'PROPOSAL_REFERENCE', 'value_3': 0, 'value_4': 'proposal-reference-sequence', 'value_5': 4, 'value_6': 'AMEC-SYN-PROP', 'value_7': 'GLOBAL'})
     # Control data source: accepted reference revision 0055; no business rows.
 

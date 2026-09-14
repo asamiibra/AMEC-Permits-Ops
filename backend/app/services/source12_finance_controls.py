@@ -159,6 +159,23 @@ def production_numbering_gate(*, legacy_finance_reconciled: bool, historical_glo
     return {"ready": all(controls.values()), "controls": controls}
 
 
+CANONICAL_NUMBERING_CONTROL_KEYS = {
+    "legacy_finance_reconciled": "SOURCE12_LEGACY_FINANCE_RECONCILIATION_CAPABILITY",
+    "historical_global_sequence_reconciled": "SOURCE12_HISTORICAL_GLOBAL_SEQUENCE_RECONCILED",
+    "next_global_sequence_exactly_derived": "SOURCE12_NEXT_GLOBAL_SEQUENCE_EXACTLY_DERIVED",
+}
+
+
+def canonical_numbering_gate(read_decision) -> dict[str, object]:
+    """Evaluate Issue and Controls from one canonical decision-key contract."""
+    return production_numbering_gate(
+        **{
+            argument: bool(read_decision(key, False))
+            for argument, key in CANONICAL_NUMBERING_CONTROL_KEYS.items()
+        }
+    )
+
+
 @dataclass
 class ProjectOrdinalAllocator:
     ordinals: dict[str, int] = field(default_factory=dict)

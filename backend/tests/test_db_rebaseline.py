@@ -26,9 +26,18 @@ def test_active_graph_and_legacy_archive_are_exact():
         "opportunity_proposal_idempotency_v1.py",
         "billing_module_closure_v8.py",
         "17c6ebd99c4a_merge_billing_and_opportunity_migration_.py",
+        "billing_finance_experience_v1.py",
+        "billing_finance_experience_closure_v1.py",
+        "scoped_finance_capability_assignment_v1.py",
+        "billing_finance_production_hardening_v1.py",
+        "governed_signatory_authority_v1.py",
+        "governed_signatory_authority_governance_v2.py",
         "source18_committee_implementation_v1.py",
         "source18_regulatory_current_state_v1.py",
         "step5_content_library_azure_sql_v2.py",
+        "intelligence_v1_shared_contracts.py",
+        "p07_intelligence_foundation_closure.py",
+        "billing_intelligence_final_merge_v1.py",
     }
     phase4_source = PHASE4.read_text(encoding="utf-8")
     assert 'revision = "phase4_corpus_app_integration_v1"' in phase4_source

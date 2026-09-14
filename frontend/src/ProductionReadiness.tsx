@@ -1158,8 +1158,8 @@ export const screenReadinessRegistry: ScreenReadinessDefinition[] = [
     "/admin/control-diagnostics",
   ),
   operational(
-    "Opportunities",
-    "opportunities",
+    "Proposals",
+    "proposals",
     "S25",
     "Show bounded RFQ/opportunity context and BD follow-up where the expansion prototype is enabled.",
     [
@@ -1171,7 +1171,7 @@ export const screenReadinessRegistry: ScreenReadinessDefinition[] = [
     ["Opportunity context", "BD tasks", "Quotation readiness signal"],
     req("PR-DATA-04", "PR-ID-02", "PR-FIN-01"),
     "IMPLEMENTED_PROTOTYPE",
-    "/opportunities",
+    "/proposals",
   ),
   operational(
     "Engineering & Closeout",

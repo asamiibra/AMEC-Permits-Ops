@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 
 from ..api.dependencies import AuthenticatedPrincipal
 from ..models import AuthorityCase, EngineeringProjectMember, Project, Role
+from ..services.finance_authorization import BillingAuthorizationContext, billing_view_authorized
 from ..services.backend_realignment import CAPABILITY_MATRIX, persona_for_role
 from .contracts import (
     AIExecutionMode,
@@ -71,9 +72,26 @@ ENGINEERING_TECHNICAL_DRAFT_POLICY = AIPurposePolicy(
     canonical_write_authority="ZERO",
 )
 
+BILLING_INTELLIGENCE_POLICY = AIPurposePolicy(
+    purpose_id=AIPurpose.BILLING_INTELLIGENCE,
+    policy_version="BILLING_INTELLIGENCE-1.0",
+    allowed_roles=frozenset({
+        Role.OWNER_SPONSOR, Role.SYSTEM_ADMIN, Role.PROCESS_CHAMPION,
+        Role.RESPONSIBLE_ENGINEER, Role.PERMIT_PREPARER, Role.REQUIREMENT_STEWARD,
+    }),
+    required_capabilities=("BILLING_VIEW",),
+    allowed_target_entity_types=frozenset({AITargetEntityType.PROJECT}),
+    allowed_execution_modes=frozenset({AIExecutionMode.INTERACTIVE, AIExecutionMode.BACKGROUND}),
+    allow_master_content=False, allow_transactional_evidence=True, allow_definitions=False,
+    allowed_sensitivity_classes=frozenset({"NONE", "SYNTHETIC"}), allow_historical=False,
+    allow_superseded=False, real_content_allowed=False,
+    protected_action_authority="ZERO", canonical_write_authority="ZERO",
+)
+
 
 AI_PURPOSE_POLICIES = {
     AIPurpose.ENGINEERING_TECHNICAL_DRAFT: ENGINEERING_TECHNICAL_DRAFT_POLICY,
+    AIPurpose.BILLING_INTELLIGENCE: BILLING_INTELLIGENCE_POLICY,
 }
 
 
@@ -176,13 +194,31 @@ def authorize_ai_request(
         raise ai_error(403, "AI_CONTEXT_SCOPE_MISMATCH")
     if principal.role not in policy.allowed_roles:
         raise ai_error(403, "AI_PURPOSE_NOT_AUTHORIZED")
-    if not all(_has_capability(principal.role, capability) for capability in policy.required_capabilities):
+    if not all(
+        (capability == "BILLING_VIEW" or _has_capability(principal.role, capability))
+        for capability in policy.required_capabilities
+    ):
         raise ai_error(403, "AI_PURPOSE_NOT_AUTHORIZED")
     if not synthetic_only or real_data_allowed:
         raise ai_error(403, "AI_REAL_CONTENT_NOT_AUTHORIZED")
 
     target = resolve_target(db, target_entity_type, target_entity_id)
-    if principal.role not in OWNER_ROLES:
+    billing_authorized = False
+    if purpose is AIPurpose.BILLING_INTELLIGENCE:
+        # The global persona/role gate above is necessary but not sufficient:
+        # Billing access is always an effective-dated persisted grant.
+        try:
+            billing_view_authorized(
+                db, principal,
+                context=BillingAuthorizationContext(
+                    office_id=db.get(Project, target.project_id).office_id if db.get(Project, target.project_id) else None,
+                    project_id=target.project_id,
+                ),
+            )
+            billing_authorized = True
+        except HTTPException as exc:
+            raise ai_error(403, "SCOPED_FINANCE_CAPABILITY_REQUIRED") from exc
+    if principal.role not in OWNER_ROLES and not billing_authorized:
         if not principal.user_id:
             raise ai_error(403, "PROJECT_SCOPE_NOT_PROVABLE")
         member = db.scalar(
