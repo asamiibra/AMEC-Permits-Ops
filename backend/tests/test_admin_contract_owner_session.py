@@ -46,7 +46,7 @@ def record_executed_evidence(client, contract_id: str, actor: str = "synthetic-c
 def clean_owner_fixture():
     yield
     with SessionLocal() as db:
-        proposals = db.query(Opportunity).filter(Opportunity.title.in_(["Skyline Factory Industrial", "Project Activation Fixture", "Contract Reconciliation Fixture", "Contract Page Owner Sketch Delta Fixture", "External Construction Agreement Boundary"])).all()
+        proposals = db.query(Opportunity).filter(Opportunity.title.in_(["Skyline Factory Industrial", "Client Prepayment Fixture", "Project Activation Fixture", "Contract Reconciliation Fixture", "Contract Page Owner Sketch Delta Fixture", "External Construction Agreement Boundary"])).all()
         proposal_ids = [item.id for item in proposals]
         contracts = db.query(Contract).filter(Contract.proposal_id.in_(proposal_ids)).all() if proposal_ids else []
         contract_ids = [item.id for item in contracts]
