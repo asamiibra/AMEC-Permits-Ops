@@ -227,11 +227,11 @@ def ensure_contract_template(client):
 
 def make_accepted_proposal(client, name="Skyline Factory Industrial"):
     for ref, canonical_ref, title, usage in (("F-0003", "BD-PROP-001", "Test Proposal Template", "PROPOSAL_TEMPLATE"), ("F-0004", "BD-CHK-001", "Test Proposal Checklist", "PROPOSAL_CHECKLIST")):
-        rows = client.get("/api/master-content", params={"q": ref, "include_archived": "true"}, headers=headers("SYSTEM_ADMIN"))
-        item = next((row for row in rows.json() if row["ref"] == ref and row.get("status") == "ACTIVE"), None)
+        canonical = client.get("/api/master-content", params={"q": canonical_ref}, headers=headers("SYSTEM_ADMIN"))
+        item = next((row for row in canonical.json() if row["ref"] == canonical_ref and row.get("status") == "ACTIVE"), None)
         if not item:
-            canonical = client.get("/api/master-content", params={"q": canonical_ref}, headers=headers("SYSTEM_ADMIN"))
-            item = next((row for row in canonical.json() if row["ref"] == canonical_ref and row.get("status") == "ACTIVE"), None)
+            rows = client.get("/api/master-content", params={"q": ref, "include_archived": "true"}, headers=headers("SYSTEM_ADMIN"))
+            item = next((row for row in rows.json() if row["ref"] == ref and row.get("status") == "ACTIVE"), None)
         if not item:
             created = client.post("/api/master-content", data={"content_type": "FORM", "ref": ref, "title": title, "description": title, "used_in": '["BD"]'}, files={"file": (f"{ref}.txt", b"proposal content", "text/plain")}, headers=headers("SYSTEM_ADMIN"))
             assert created.status_code == 200, created.text
