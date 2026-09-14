@@ -124,8 +124,8 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - run: python -m pip install --disable-pip-version-check -r backend/requirements.txt
-      - name: Upgrade exact migration head
-        run: alembic upgrade head
+      - name: Upgrade exact migration head through governed runner
+        run: python -m backend.app.migrate
       - name: Run PostgreSQL 16 proof
         run: python backend/scripts/batch3a_postgres16_proof.py
 
