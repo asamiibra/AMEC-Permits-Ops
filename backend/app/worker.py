@@ -9,7 +9,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import select
+from sqlalchemy import null, or_, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -276,6 +276,44 @@ def _release_reconciliation_lease(*, worker_id: str) -> None:
             db.commit()
 
 
+def _acquire_reconciliation_lease(
+    *,
+    worker_id: str,
+    now: datetime,
+    lease_seconds: int,
+) -> bool:
+    """Acquire the singleton lease with a database compare-and-set."""
+    lease_expires_at = now + timedelta(seconds=lease_seconds)
+    with SessionLocal() as db:
+        _ensure_reconciliation_scheduler_state(db)
+        # End the initialization/read transaction before the compare-and-set.
+        # This matters on SQLite, whose deferred snapshot can otherwise retain
+        # the pre-race lease row while the write lock is being acquired.
+        db.commit()
+        result = db.execute(
+            update(ContractReconciliationSchedulerState)
+            .where(
+                ContractReconciliationSchedulerState.id
+                == RECONCILIATION_SCHEDULER_ID,
+                or_(
+                    ContractReconciliationSchedulerState.lease_owner == null(),
+                    ContractReconciliationSchedulerState.lease_expires_at == null(),
+                    ContractReconciliationSchedulerState.lease_expires_at <= now,
+                ),
+            )
+            .values(
+                lease_owner=worker_id,
+                lease_expires_at=lease_expires_at,
+                updated_at=now,
+            )
+        )
+        if result.rowcount != 1:
+            db.rollback()
+            return False
+        db.commit()
+        return True
+
+
 def _advance_reconciliation_cursor(
     *,
     worker_id: str,
@@ -314,19 +352,15 @@ def reconcile_contract_exceptions_once(
     )
 
     now = utcnow()
+    if not _acquire_reconciliation_lease(
+        worker_id=worker_id,
+        now=now,
+        lease_seconds=lease_seconds,
+    ):
+        return 0, 0, 0, 0
+
     with SessionLocal() as db:
         state = _ensure_reconciliation_scheduler_state(db)
-        if (
-            state.lease_owner is not None
-            and _as_utc(state.lease_expires_at) is not None
-            and _as_utc(state.lease_expires_at) > now
-        ):
-            return 0, 0, 0, 0
-
-        state.lease_owner = worker_id
-        state.lease_expires_at = now + timedelta(seconds=lease_seconds)
-        state.updated_at = now
-        db.commit()
 
         contract_query = select(Contract.id).order_by(Contract.id)
         if state.last_contract_id is not None:

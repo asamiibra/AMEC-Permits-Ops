@@ -124,3 +124,10 @@ def test_canonical_front_door_uses_private_aca_origin_without_api_cache():
     assert "groupId: 'managedEnvironments'" in origin
     assert "empty(edgeCustomDomainName) ? 'Enabled' : 'Disabled'" in route
     assert "empty(edgeCustomDomainName) ? [{ id: edgeEndpoint.id }] : [{ id: edgeCustomDomain.id }]" in security
+    assert "param clamavImage string" in source
+    assert "name: 'clamav'" in source
+    assert "CONTRACT_UPLOAD_SCANNER', value: 'clamav'" in source
+    assert "CONTRACT_UPLOAD_CLAMAV_HOST', value: '127.0.0.1'" in source
+    assert "CONTRACT_UPLOAD_CLAMAV_PORT', value: '3310'" in source
+    assert "param workerContractReconciliationEnabled bool = true" in source
+    assert "WORKER_CONTRACT_RECONCILIATION_ENABLED', value: string(workerContractReconciliationEnabled)" in source

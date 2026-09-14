@@ -3,14 +3,44 @@ import {
   getApiAccessToken,
 } from "./auth";
 
-// Development uses the Vite same-origin proxy so a browser opened on any local
-// port cannot fail the API preflight just because the backend allow-list names
-// a different frontend origin. Non-DEV builds use the explicitly configured API.
-const API = (
-  import.meta.env.DEV
-    ? ""
-    : import.meta.env.VITE_API_URL || ""
-).replace(/\/+$/, "");
+// Development uses the Vite same-origin proxy. Every staged or production
+// build must name the canonical API explicitly so it cannot silently route to
+// a frontend host or an obsolete backend proxy.
+export function validateApiOrigin(value: string | undefined): string {
+  const raw = (value || "").trim();
+  if (!raw) {
+    throw new Error("VITE_API_URL is required outside development");
+  }
+
+  let parsed: URL;
+  try {
+    parsed = new URL(raw);
+  } catch {
+    throw new Error("VITE_API_URL must be an absolute HTTPS origin");
+  }
+
+  const hostname = parsed.hostname.toLowerCase();
+  if (
+    parsed.protocol !== "https:"
+    || parsed.username
+    || parsed.password
+    || parsed.search
+    || parsed.hash
+    || !["", "/"].includes(parsed.pathname)
+    || ["localhost", "127.0.0.1", "::1"].includes(hostname)
+    || hostname.includes("*")
+  ) {
+    throw new Error(
+      "VITE_API_URL must be an absolute HTTPS origin without credentials, query, fragment, path, wildcard, or localhost",
+    );
+  }
+
+  return parsed.origin;
+}
+
+const API = import.meta.env.DEV
+  ? ""
+  : validateApiOrigin(import.meta.env.VITE_API_URL);
 
 export async function api<T>(
   path: string,

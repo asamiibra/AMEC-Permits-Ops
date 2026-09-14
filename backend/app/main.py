@@ -593,6 +593,26 @@ def health_ready(request: Request | None = None):
         )
 
     try:
+        from .services.upload_scanner import configured_upload_scanner
+        scanner = configured_upload_scanner(synthetic=settings.synthetic_only)
+        if not scanner.health():
+            return JSONResponse(
+                status_code=503,
+                content={
+                    "status": "not_ready",
+                    "failure_class": "SCANNER_UNAVAILABLE",
+                },
+            )
+    except Exception:
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "not_ready",
+                "failure_class": "SCANNER_UNAVAILABLE",
+            },
+        )
+
+    try:
         settings.validate_environment()
     except Exception:
         return JSONResponse(

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { api } from "../src/api";
+import { api, validateApiOrigin } from "../src/api";
 
 function response(status: number, contentType: string, body: string) {
   return {
@@ -13,6 +13,14 @@ function response(status: number, contentType: string, body: string) {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("API client", () => {
+  it("requires a canonical HTTPS origin outside development", () => {
+    expect(() => validateApiOrigin(undefined)).toThrow("VITE_API_URL");
+    expect(() => validateApiOrigin("http://api.example.com")).toThrow("HTTPS");
+    expect(() => validateApiOrigin("https://api.example.com/v1")).toThrow("origin");
+    expect(() => validateApiOrigin("https://user:pass@api.example.com")).toThrow("credentials");
+    expect(validateApiOrigin("https://www.amecidsystem.com/")).toBe("https://www.amecidsystem.com");
+  });
+
   it("uses the same-origin /api path and parses JSON responses", async () => {
     const fetchMock = vi.fn().mockResolvedValue(response(200, "application/json", '{"status":"ok"}'));
     vi.stubGlobal("fetch", fetchMock);

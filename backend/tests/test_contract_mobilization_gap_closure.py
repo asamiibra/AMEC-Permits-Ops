@@ -1,4 +1,6 @@
+from concurrent.futures import ThreadPoolExecutor
 from datetime import timedelta
+from threading import Barrier, Event
 from uuid import uuid4
 
 from sqlalchemy import select
@@ -377,3 +379,63 @@ def test_reconciliation_scheduler_is_fair_restart_safe_and_failure_isolated(tmp_
     with scheduler_session() as db:
         state = db.get(ContractReconciliationSchedulerState, "contract-exceptions")
         assert state and state.cycle_number == 1
+
+
+def test_reconciliation_scheduler_lease_race_has_one_winner(tmp_path, monkeypatch):
+    """Separate sessions racing for one free lease produce one page owner."""
+    engine = create_engine(
+        f"sqlite:///{tmp_path / 'scheduler-race.db'}",
+        connect_args={"check_same_thread": False, "timeout": 10},
+    )
+    Base.metadata.create_all(engine)
+    scheduler_session = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
+    monkeypatch.setattr(worker, "SessionLocal", scheduler_session)
+
+    with scheduler_session() as db:
+        db.add(Contract(
+            id=str(uuid4()),
+            client_account_id="client-account",
+            quotation_id="quotation",
+            contract_reference="SCHED-RACE",
+        ))
+        db.add(ContractReconciliationSchedulerState(
+            id="contract-exceptions",
+            cycle_number=0,
+        ))
+        db.commit()
+
+    barrier = Barrier(2)
+    evaluator_entered = Event()
+    evaluator_release = Event()
+    acquire = worker._acquire_reconciliation_lease
+
+    def synchronized_acquire(**kwargs):
+        barrier.wait(timeout=10)
+        return acquire(**kwargs)
+
+    def blocked_evaluator(db, contract, **kwargs):
+        evaluator_entered.set()
+        assert evaluator_release.wait(timeout=10)
+        return {"created": [], "resolved": 0}
+
+    monkeypatch.setattr(worker, "_acquire_reconciliation_lease", synchronized_acquire)
+    monkeypatch.setattr(worker, "evaluate_contract_exceptions", blocked_evaluator)
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        futures = [
+            executor.submit(
+                worker.reconcile_contract_exceptions_once,
+                worker_id=f"race-worker-{index}",
+                limit=1,
+                lease_seconds=30,
+            )
+            for index in range(2)
+        ]
+        assert evaluator_entered.wait(timeout=15)
+        evaluator_release.set()
+        results = [future.result(timeout=15) for future in futures]
+
+    assert sum(result[0] for result in results) == 1
+    assert sum(result == (0, 0, 0, 0) for result in results) == 1
+    with scheduler_session() as db:
+        state = db.get(ContractReconciliationSchedulerState, "contract-exceptions")
+        assert state and state.last_contract_id is not None

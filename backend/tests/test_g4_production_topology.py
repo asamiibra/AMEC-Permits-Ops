@@ -8,6 +8,7 @@ from backend.app.config.settings import Settings
 ROOT = Path(__file__).resolve().parents[2]
 CANONICAL = ROOT / "infra" / "azure" / "canonical" / "main.bicep"
 PREPROD_PROFILE = ROOT / "infra" / "azure" / "canonical" / "preprod.bicepparam"
+PRODUCTION_PROFILE = ROOT / "infra" / "azure" / "canonical" / "production.bicepparam"
 
 
 def _prod_with_blob(**overrides) -> Settings:
@@ -33,6 +34,9 @@ def _prod_with_blob(**overrides) -> Settings:
         "bridge_audience": "22222222-2222-4222-8222-222222222222",
         "managed_artifact_store_required": True,
         "storage_provider": "azure_blob",
+        "contract_upload_scanner": "clamav",
+        "contract_upload_clamav_host": "127.0.0.1",
+        "contract_upload_clamav_port": 3310,
         "azure_blob_account_url": "https://stproposalopsproduction.blob.core.windows.net",
         "azure_blob_container": "managed-artifacts",
         "azure_blob_uami_client_id": "88888888-8888-4888-8888-888888888888",
@@ -43,6 +47,19 @@ def _prod_with_blob(**overrides) -> Settings:
 
 def test_prod_azure_blob_is_a_separate_managed_artifact_boundary():
     _prod_with_blob().validate_environment()
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("contract_upload_scanner", "synthetic"),
+        ("contract_upload_clamav_host", ""),
+        ("contract_upload_clamav_port", 0),
+    ],
+)
+def test_prod_requires_real_clamav_endpoint(field, value):
+    with pytest.raises(ValueError, match="(?i)clamav"):
+        _prod_with_blob(**{field: value}).validate_environment()
 
 
 @pytest.mark.parametrize(
@@ -120,6 +137,7 @@ def test_canonical_preprod_profile_is_synthetic_and_namespaced():
         "param deriveApiOriginHostName = true",
         "param sqlServerAdministratorLogin = 'proposalops_g8_sqladmin'",
         "param apiImage = readEnvironmentVariable(",
+        "param clamavImage = readEnvironmentVariable(",
         "param sqlAdministratorPassword = readEnvironmentVariable(",
     )
     missing = [marker for marker in required if marker not in source]
@@ -127,3 +145,27 @@ def test_canonical_preprod_profile_is_synthetic_and_namespaced():
     assert "param appEnvironment = 'PROD'" not in source
     assert "param syntheticOnly = false" not in source
     assert "param realDataAllowed = true" not in source
+
+
+def test_canonical_production_profile_pins_owner_hostname_and_clamav_contract():
+    source = PRODUCTION_PROFILE.read_text(encoding="utf-8")
+    required = (
+        "param location = 'uaenorth'",
+        "param environmentName = 'production'",
+        "param resourceNamePrefix = 'production'",
+        "param appEnvironment = 'PROD'",
+        "param syntheticOnly = false",
+        "param realDataAllowed = false",
+        "param sourceIntakeMode = 'BRIDGE'",
+        "param synologyMode = 'BRIDGE'",
+        "param azureDirectSynologySmb = false",
+        "param storageProvider = 'azure_blob'",
+        "param managedArtifactStoreRequired = true",
+        "param apiIngressExternal = true",
+        "param deriveApiOriginHostName = true",
+        "param edgeCustomDomainName = 'www.amecidsystem.com'",
+        "param frontendOrigin = 'https://amecidsystem.com'",
+        "param workerContinuous = true",
+        "param clamavImage = readEnvironmentVariable(",
+    )
+    assert not [marker for marker in required if marker not in source]

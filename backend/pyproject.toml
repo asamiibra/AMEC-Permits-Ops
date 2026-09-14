@@ -16,6 +16,7 @@ dependencies = [
   "smbprotocol==1.15.0",
   "azure-identity>=1.19,<2",
   "azure-storage-blob>=12.24,<13",
+  "clamd==1.0.2",
 ]
 
 [tool.vercel]

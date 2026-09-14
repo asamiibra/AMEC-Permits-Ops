@@ -51,6 +51,9 @@ param workerImage string
 @description('Exact immutable migration image reference, including digest.')
 param migrationImage string
 
+@description('Exact immutable ClamAV sidecar image reference, including digest.')
+param clamavImage string
+
 @minValue(5)
 @maxValue(3600)
 @description('Operational polling interval for the continuously running canonical worker, in seconds; not an Owner SLA.')
@@ -58,6 +61,9 @@ param workerPollIntervalSeconds int = 60
 
 @description('Run the canonical worker continuously so time-dependent reconciliation is revisited without a user request.')
 param workerContinuous bool = true
+
+@description('Enable durable Contract exception reconciliation in the canonical worker.')
+param workerContractReconciliationEnabled bool = true
 
 @description('Optional HTTPS hostname used by Azure Front Door to reach the API origin.')
 param apiOriginHostName string = ''
@@ -475,6 +481,9 @@ resource apiApp 'Microsoft.App/containerApps@2024-03-01' = {
           { name: 'FRONTEND_ORIGINS', value: frontendOrigin }
           { name: 'STORAGE_PROVIDER', value: storageProvider }
           { name: 'MANAGED_ARTIFACT_STORE_REQUIRED', value: string(managedArtifactStoreRequired) }
+          { name: 'CONTRACT_UPLOAD_SCANNER', value: 'clamav' }
+          { name: 'CONTRACT_UPLOAD_CLAMAV_HOST', value: '127.0.0.1' }
+          { name: 'CONTRACT_UPLOAD_CLAMAV_PORT', value: '3310' }
           { name: 'AZURE_BLOB_ACCOUNT_URL', value: 'https://${artifactStorage.name}.blob.core.windows.net' }
           { name: 'AZURE_BLOB_CONTAINER', value: artifactContainer.name }
           { name: 'AZURE_BLOB_UAMI_CLIENT_ID', value: apiIdentity.properties.clientId }
@@ -493,6 +502,13 @@ resource apiApp 'Microsoft.App/containerApps@2024-03-01' = {
         resources: {
           cpu: 1
           memory: '2Gi'
+        }
+      }, {
+        name: 'clamav'
+        image: clamavImage
+        resources: {
+          cpu: 1
+          memory: '1Gi'
         }
       }]
       scale: { minReplicas: 2, maxReplicas: 10 }
@@ -552,7 +568,7 @@ resource workerApp 'Microsoft.App/containerApps@2024-03-01' = {
           { name: 'AI_REAL_CONTENT_ALLOWED', value: 'false' }
           { name: 'WORKER_CONTINUOUS', value: string(workerContinuous) }
           { name: 'WORKER_POLL_INTERVAL_SECONDS', value: string(workerPollIntervalSeconds) }
-          { name: 'WORKER_CONTRACT_RECONCILIATION_ENABLED', value: 'true' }
+          { name: 'WORKER_CONTRACT_RECONCILIATION_ENABLED', value: string(workerContractReconciliationEnabled) }
         ]
         resources: {
           cpu: 1
