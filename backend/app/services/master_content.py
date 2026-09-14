@@ -256,6 +256,17 @@ def master_content_scan_is_clean(version: DocumentVersion) -> bool:
     return master_content_scan_state(version) == "CLEAN"
 
 
+def master_content_synthetic_fallback_allowed(version: DocumentVersion) -> bool:
+    """Allow legacy fixture text only in the explicitly synthetic TEST mode."""
+    settings = get_settings()
+    provider = str((version.metadata_json or {}).get("storage_provider") or "").strip().lower()
+    return (
+        bool(getattr(settings, "synthetic_only", False))
+        and str(getattr(settings, "app_env", "")).upper() == "TEST"
+        and provider != "azure-blob"
+    )
+
+
 def _mapping() -> dict[str, str]:
     try:
         mapping = json.loads(get_settings().master_sor_mapping_json)

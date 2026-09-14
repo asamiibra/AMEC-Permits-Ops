@@ -18,7 +18,7 @@ from ..models import (AssertionStatus, DefinitionEntry, DefinitionRevision, Docu
     DocumentClassification, DocumentVersion, FieldObservation,
     MasterContentGovernanceProfile, MasterContentItem, MasterContentModuleBinding,
     MasterContentSourceProvenance, Role, VerifiedAssertion)
-from .master_content import master_content_scan_is_clean, read_master_content_bytes
+from .master_content import master_content_scan_is_clean, master_content_synthetic_fallback_allowed, read_master_content_bytes
 
 RETRIEVAL_CONTRACT_VERSION = "1.0"
 RETRIEVAL_CANONICAL_WRITE_COUNT = 0
@@ -143,7 +143,15 @@ def _content(db: Session, item: MasterContentItem, version: DocumentVersion, acc
     if not access.may_read_master(item): raise UnauthorizedRetrieval("master content is outside caller scope")
     if not master_content_scan_is_clean(version):
         raise UnauthorizedRetrieval("master content malware scan is not clean")
-    payload = read_master_content_bytes(db, version)
+    try:
+        payload = read_master_content_bytes(db, version)
+    except Exception:
+        # Only un-managed synthetic TEST fixtures may use their durable
+        # fixture text. Azure-managed artifacts must propagate read/hash/
+        # storage failures and never substitute synthetic content.
+        if not master_content_synthetic_fallback_allowed(version):
+            raise
+        payload = str((version.metadata_json or {}).get("synthetic_text", "")).encode()
     return payload.decode("utf-8", errors="replace")
 
 def _master(db: Session, item: MasterContentItem, version: DocumentVersion, access: RetrievalAccessContext, query: RetrievalQuery, *, profile=None, provenance=None, bindings=None, prefetched=False):
