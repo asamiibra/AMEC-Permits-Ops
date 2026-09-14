@@ -46,7 +46,7 @@
     "exact_head_contract_suite": "71 passed, 1 skipped, 1 warning (Billing/auth/migration/SQL-port contracts)",
     "signatory_authority_provisioning_governance": "PASS",
     "billing_browser_acceptance": "PASS",
-    "exact_head_required_ci": "NOT_RERUN_AFTER_FINAL_TIP"
+    "exact_head_required_ci": "PASS: backend-regression, frontend-regression, migration-head, policy-and-security, and both samba-contract contexts"
   },
   "historical_allowed_results": [
     "PASS",
