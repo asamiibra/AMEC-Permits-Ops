@@ -42,6 +42,18 @@ const API = import.meta.env.DEV
   ? ""
   : validateApiOrigin(import.meta.env.VITE_API_URL);
 
+export class ApiError extends Error {
+  readonly status: number;
+  readonly path: string;
+
+  constructor(message: string, status: number, path: string) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.path = path;
+  }
+}
+
 export async function api<T>(
   path: string,
   init?: RequestInit,
@@ -184,10 +196,12 @@ export async function api<T>(
           "application/json",
         )
     ) {
-      throw new Error(
+      throw new ApiError(
         `API returned ${response.status} `
         + `${contentType || "unknown content type"} `
         + `for ${path}`,
+        response.status,
+        path,
       );
     }
 
@@ -200,13 +214,15 @@ export async function api<T>(
           )
         : "Request failed";
 
-    throw new Error(
+    throw new ApiError(
       `${detail} [${response.status} ${path}]`
       + (
         contentType
           ? ` (${contentType})`
           : ""
       ),
+      response.status,
+      path,
     );
   }
 
@@ -217,10 +233,12 @@ export async function api<T>(
         "application/json",
       )
   ) {
-    throw new Error(
+    throw new ApiError(
       `API returned ${response.status} `
       + `${contentType || "unknown content type"} `
       + `for ${path}`,
+      response.status,
+      path,
     );
   }
 
@@ -229,9 +247,11 @@ export async function api<T>(
       body,
     ) as T;
   } catch {
-    throw new Error(
+    throw new ApiError(
       `API returned invalid JSON for ${path} `
       + `[${response.status}]`,
+      response.status,
+      path,
     );
   }
 }

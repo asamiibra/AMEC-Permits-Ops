@@ -205,6 +205,8 @@ body { background: var(--color-background-page); color: var(--color-text-primary
 }
 
 @media (max-width: 700px) {
+  .app-shell .top-actions { display: flex; }
+  .app-shell .top-actions .avatar { display: grid; }
   .app-shell .topbar h1 { font-size: 18px; }
   .app-shell .page-intro h2,
   .app-shell .dashboard-page-header h2,
@@ -216,3 +218,24 @@ body { background: var(--color-background-page); color: var(--color-text-primary
 /* Keep transient and source-context text readable while preserving the shared muted token. */
 .app-shell .home-source-badge,
 .app-shell .loading { color: var(--color-text-muted); }
+
+/* Current-user control: identity is readable, role is visibly separate, and
+   the sign-out action remains reachable without exposing token details. */
+.app-shell .account-control { position: relative; display: inline-flex; }
+.app-shell .avatar { display: grid; place-items: center; cursor: pointer; border: 1px solid #b9d3db; box-shadow: 0 0 0 3px #f1f8f9; }
+.app-shell .avatar:hover { background: #c9e5e5; }
+.app-shell .account-menu { position: absolute; z-index: 30; top: calc(100% + 10px); right: 0; width: min(320px, calc(100vw - 32px)); padding: 16px; color: var(--color-text-primary); background: var(--color-background-surface); border: 1px solid var(--color-border-default); border-radius: var(--ui-radius-surface); box-shadow: 0 18px 44px #17324d22; }
+.app-shell .account-menu-heading { display: grid; gap: 4px; padding-bottom: 14px; border-bottom: 1px solid var(--color-border-subtle); }
+.app-shell .account-menu-heading strong { font-size: 16px; }
+.app-shell .account-menu-heading small { color: var(--color-text-secondary); overflow-wrap: anywhere; }
+.app-shell .account-menu-row { display: grid; gap: 3px; padding: 12px 0; border-bottom: 1px solid var(--color-border-subtle); }
+.app-shell .account-menu-row span { color: var(--color-text-secondary); font-size: 11px; }
+.app-shell .account-menu-row b { font-size: 12px; }
+.app-shell .account-menu-signout { width: 100%; margin-top: 14px; padding: 10px 12px; color: var(--color-interactive-default); background: var(--color-interactive-selected); border: 1px solid #bfe2db; border-radius: 7px; font-weight: 800; cursor: pointer; }
+.app-shell .account-menu-signout:hover { background: #dff3ef; }
+.app-shell .account-menu-signout:disabled { cursor: wait; opacity: .65; }
+.app-shell .account-menu-error { margin: 12px 0 0; color: var(--color-semantic-danger); font-size: 12px; }
+
+@media (max-width: 700px) {
+  .app-shell .account-menu { position: fixed; top: 74px; right: 16px; }
+}
