@@ -8,6 +8,15 @@
     "head": "31b169e5519d70c9ae34baaeafdd24fe3f074110",
     "test_count": 14,
     "initial_result": {"passed": 12, "failed": 2, "errors": 3},
+    "failed_nodes": [
+      "backend/tests/test_billing_read_scope_algebra.py::test_client_grant_does_not_expand_through_shared_project",
+      "backend/tests/test_billing_read_scope_algebra.py::test_each_grant_keeps_dimensions_conjunctive_and_temporal"
+    ],
+    "failure_type": "SQL_SERVER_FIXTURE_REFERENTIAL_INTEGRITY_AND_COLUMN_BOUNDARY",
+    "root_cause_evidence": [
+      "synthetic client identifiers exceeded billing_plans.client_account_id VARCHAR(36)",
+      "cleanup fixture omitted Client Prepayment Fixture, leaving payment_receipts rows before contract deletion"
+    ],
     "repair_scope": "test fixtures only; no shared Billing runtime or schema behavior changed",
     "directly_affected_retry": {"nodes": 5, "passed": 5},
     "teardown_diagnosis": "G6_TESTCLIENT_DETERMINISTIC_TEARDOWN_DEFECT=DISPROVEN",
