@@ -17,6 +17,7 @@ from backend.app.models import (
     InvoiceLineItem, InvoiceReference, InvoiceApprovalRecord, InvoiceAcceptRecord,
     InvoiceIssueEvent, InvoiceDeliveryEvent, InvoiceAcknowledgment,
     PaymentReceipt, InvoicePaymentAllocation, PaymentReversalEvent, ReceivableFollowUp, ReceivableResolution, AccountingHandoff, FinanceEvidence,
+    MasterContentItem, MasterContentModuleBinding,
 )
 
 
@@ -226,14 +227,23 @@ def ensure_contract_template(client):
 
 
 def make_accepted_proposal(client, name="Skyline Factory Industrial"):
+    with SessionLocal() as db:
+        prior_synthetic = db.query(MasterContentItem).filter(MasterContentItem.ref.like("SYN-STEP5-%"), MasterContentItem.status == "ACTIVE").all()
+        prior_ids = [item.id for item in prior_synthetic]
+        for item in prior_synthetic:
+            item.status = "ARCHIVED"
+        if prior_ids:
+            db.query(MasterContentModuleBinding).filter(MasterContentModuleBinding.master_content_id.in_(prior_ids)).update({"active": False}, synchronize_session=False)
+        db.commit()
     for ref, canonical_ref, title, usage in (("F-0003", "BD-PROP-001", "Test Proposal Template", "PROPOSAL_TEMPLATE"), ("F-0004", "BD-CHK-001", "Test Proposal Checklist", "PROPOSAL_CHECKLIST")):
-        canonical = client.get("/api/master-content", params={"q": canonical_ref}, headers=headers("SYSTEM_ADMIN"))
-        item = next((row for row in canonical.json() if row["ref"] == canonical_ref and row.get("status") == "ACTIVE"), None)
+        resolution = client.get(f"/api/master-content/resolvers/BD/{usage}", headers=headers("SYSTEM_ADMIN"))
+        resolved = resolution.json() if resolution.status_code == 200 else {}
+        item = resolved.get("item") if resolved.get("status") == "RESOLVED" else None
+        if item and item.get("ref") not in {canonical_ref, ref}:
+            item = None
         if not item:
-            rows = client.get("/api/master-content", params={"q": ref, "include_archived": "true"}, headers=headers("SYSTEM_ADMIN"))
-            item = next((row for row in rows.json() if row["ref"] == ref and row.get("status") == "ACTIVE"), None)
-        if not item:
-            created = client.post("/api/master-content", data={"content_type": "FORM", "ref": ref, "title": title, "description": title, "used_in": '["BD"]'}, files={"file": (f"{ref}.txt", b"proposal content", "text/plain")}, headers=headers("SYSTEM_ADMIN"))
+            create_ref = f"SYN-STEP5-{uuid4().hex[:12].upper()}"
+            created = client.post("/api/master-content", data={"content_type": "FORM", "ref": create_ref, "title": title, "description": title, "used_in": '["BD"]'}, files={"file": (f"{create_ref}.txt", b"proposal content", "text/plain")}, headers=headers("SYSTEM_ADMIN"))
             assert created.status_code == 200, created.text
             item = created.json()
         governed = client.patch(f"/api/master-content/{item['id']}/governance", json={"content_ownership_class": "AMEC_OWNED", "artifact_kind": "AMEC_FORM", "language_profile": "EN"}, headers=headers("SYSTEM_ADMIN"))
