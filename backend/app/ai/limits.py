@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 from dataclasses import dataclass
+from uuid import uuid4
 
 from sqlalchemy import func, select
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm import Session
 
 from ..config.settings import Settings
@@ -18,6 +19,8 @@ from .errors import AIError
 class Reservation:
     ledger: AIExecutionLedger
     maximum_cost: float
+    owner_token: str = ""
+    generation: int = 1
 
 
 def input_upper_bound(provider_input: str) -> int:
@@ -30,7 +33,13 @@ def _count(db: Session, *, where) -> int:
 
 def _cost(db: Session, *, started_after: datetime) -> float:
     rows = db.scalars(select(AIExecutionLedger).where(AIExecutionLedger.started_at >= started_after)).all()
-    return sum(float(row.reserved_cost_usd or 0) if row.status == "RESERVED" else float(row.estimated_cost_usd or row.reserved_cost_usd or 0) for row in rows)
+    now = datetime.now(timezone.utc)
+    return sum(
+        float(row.reserved_cost_usd or 0)
+        if row.status == "RESERVED" and not (row.reservation_lease_expires_at and row.reservation_lease_expires_at <= now)
+        else float(row.estimated_cost_usd or row.reserved_cost_usd or 0)
+        for row in rows
+    )
 
 
 def reserve_execution(
@@ -68,6 +77,23 @@ def reserve_execution(
     if existing is not None:
         if existing.request_fingerprint != request_fingerprint or existing.actor_user_id != actor_user_id:
             raise AIError("AI_IDEMPOTENCY_CONFLICT", status_code=409)
+        lease_expires_at = existing.reservation_lease_expires_at
+        if lease_expires_at is not None and lease_expires_at.tzinfo is None:
+            # SQLite returns timezone-aware DateTime values as naive values.
+            # Treat those persisted UTC timestamps consistently with the
+            # PostgreSQL path before evaluating lease expiry.
+            lease_expires_at = lease_expires_at.replace(tzinfo=timezone.utc)
+        if (
+            existing.status == "RESERVED"
+            and lease_expires_at is not None
+            and lease_expires_at <= datetime.now(timezone.utc)
+        ):
+            existing.reservation_generation = int(existing.reservation_generation or 1) + 1
+            existing.reservation_owner_token = uuid4().hex
+            existing.reserved_at = datetime.now(timezone.utc)
+            existing.reservation_lease_expires_at = existing.reserved_at + timedelta(seconds=int(getattr(settings, "ai_reservation_lease_seconds", 300)))
+            existing.reservation_reclaimed_at = existing.reserved_at
+            return Reservation(existing, float(existing.reserved_cost_usd or 0), existing.reservation_owner_token, existing.reservation_generation)
         code = "AI_REQUEST_IN_PROGRESS" if existing.status == "RESERVED" else "AI_REQUEST_ALREADY_COMPLETED"
         raise AIError(code, status_code=409)
 
@@ -94,6 +120,8 @@ def reserve_execution(
     if _cost(db, started_after=day) + maximum_cost > settings.ai_max_estimated_cost_usd_per_day:
         raise AIError("AI_COST_BUDGET_EXCEEDED", status_code=429)
 
+    reservation_owner_token = uuid4().hex
+    reserved_at = datetime.now(timezone.utc)
     ledger = AIExecutionLedger(
         idempotency_key=idempotency_key, correlation_id=correlation_id, actor_user_id=actor_user_id, auth_mode=auth_mode,
         purpose=purpose, execution_mode=execution_mode, project_id=project_id, target_entity_type=target_entity_type,
@@ -105,10 +133,21 @@ def reserve_execution(
         status="RESERVED", input_token_upper_bound=upper_bound, input_rate_usd_per_1m=settings.ai_input_price_usd_per_1m_tokens,
         output_rate_usd_per_1m=settings.ai_output_price_usd_per_1m_tokens, pricing_source_reference=settings.ai_pricing_source_reference,
         reserved_cost_usd=maximum_cost, citation_count=citation_count, synthetic_only=True,
+        reservation_owner_token=reservation_owner_token, reservation_generation=1,
+        reserved_at=reserved_at,
+        reservation_lease_expires_at=reserved_at + timedelta(seconds=int(getattr(settings, "ai_reservation_lease_seconds", 300))),
     )
     db.add(ledger)
     try:
         db.flush()
     except IntegrityError as exc:
         raise AIError("AI_REQUEST_IN_PROGRESS", status_code=409) from exc
-    return Reservation(ledger=ledger, maximum_cost=maximum_cost)
+    except OperationalError as exc:
+        # SQLite serializes concurrent writers instead of consistently
+        # surfacing the idempotency unique-key conflict.  A loser blocked by
+        # that writer is still the same-key in-progress case; preserve the
+        # public contract while allowing unrelated database errors through.
+        if "database is locked" in str(exc).lower():
+            raise AIError("AI_REQUEST_IN_PROGRESS", status_code=409) from exc
+        raise
+    return Reservation(ledger=ledger, maximum_cost=maximum_cost, owner_token=reservation_owner_token, generation=1)

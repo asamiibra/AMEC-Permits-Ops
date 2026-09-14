@@ -15,6 +15,7 @@ from typing import Any, Callable
 from pydantic import BaseModel, ConfigDict, Field
 from fastapi import HTTPException
 from sqlalchemy import select
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 
 from ..api.dependencies import AuthenticatedPrincipal
@@ -34,6 +35,8 @@ from .errors import AIError
 from .gateway import ModelGateway
 from .ledger import finalize_failure, finalize_success, reserve_audit
 from .limits import reserve_execution
+from ..services.intelligence_foundation import P07_CONTEXT_CHANGED, P07_STALE_REPLAY, bind_work_product_dependencies, finalize_current_work_product
+from ..audit.service import audit
 from .skill_registry import SKILL_REGISTRY, SkillDefinition, SkillRegistry
 
 
@@ -141,14 +144,19 @@ def _verify_snapshot(db: Session, request: SkillExecutionRequest, skill: SkillDe
         (dep.dependency_type, dep.dependency_id, dep.dependency_version_or_hash): dep
         for dep in dependencies
     }
-    if len(by_identity) != len(compiled.items):
-        raise AIError("AI_CONTEXT_DEPENDENCY_SET_MISMATCH", status_code=409)
     for item in compiled.items:
         dependency = by_identity.get((item.dependency_type, item.dependency_id, item.dependency_version_or_hash))
         if dependency is None:
             raise AIError("AI_CONTEXT_DEPENDENCY_SET_MISMATCH", status_code=409)
         if dependency.trust_state != item.trust_state or dependency.currentness_state_at_capture != item.currentness_state:
             raise AIError("AI_CONTEXT_DEPENDENCY_IDENTITY_MISMATCH", status_code=409)
+        if dependency.currentness_state_at_capture != "CURRENT":
+            raise AIError("AI_CONTEXT_DEPENDENCY_NOT_CURRENT", status_code=409)
+    if not any(dep.dependency_type == "SKILL_MANIFEST" and dep.dependency_version_or_hash == skill.manifest.manifest_hash for dep in dependencies):
+        raise AIError("AI_CONTEXT_GOVERNANCE_DEPENDENCY_MISSING", status_code=409)
+    if not any(dep.dependency_type == "POLICY_VERSION" and dep.dependency_version_or_hash for dep in dependencies):
+        raise AIError("AI_CONTEXT_GOVERNANCE_DEPENDENCY_MISSING", status_code=409)
+    for dependency in dependencies:
         if dependency.currentness_state_at_capture != "CURRENT":
             raise AIError("AI_CONTEXT_DEPENDENCY_NOT_CURRENT", status_code=409)
 
@@ -177,6 +185,8 @@ def _replay_if_possible(
     )
     if work_product is None:
         raise AIError("AI_IDEMPOTENCY_REPLAY_INCOMPLETE", status_code=500)
+    if str(work_product.state) != "CURRENT":
+        raise AIError(P07_STALE_REPLAY, status_code=409)
     return {
         "execution_id": existing.id,
         "work_product_id": work_product.id,
@@ -324,6 +334,8 @@ class SkillRuntime:
             raise
         except Exception as exc:
             reservation_db.rollback()
+            if isinstance(exc, OperationalError) and "database is locked" in str(exc).lower():
+                raise AIError("AI_REQUEST_IN_PROGRESS", status_code=409) from exc
             raise AIError("AI_LEDGER_RESERVATION_FAILED", status_code=503) from exc
         finally:
             reservation_db.close()
@@ -346,10 +358,10 @@ class SkillRuntime:
                 + result.usage.output_tokens * settings.ai_output_price_usd_per_1m_tokens / 1_000_000
             )
         except AIError as exc:
-            self._finalize_failure(reservation.ledger.id, request, principal, exc.code)
+            self._finalize_failure(reservation.ledger.id, request, principal, exc.code, reservation.owner_token, reservation.generation)
             raise
         except Exception as exc:
-            self._finalize_failure(reservation.ledger.id, request, principal, "AI_PROVIDER_RESPONSE_INVALID")
+            self._finalize_failure(reservation.ledger.id, request, principal, "AI_PROVIDER_RESPONSE_INVALID", reservation.owner_token, reservation.generation)
             raise AIError("AI_PROVIDER_RESPONSE_INVALID") from exc
 
         final_db = self.dependencies.session_factory()
@@ -382,11 +394,36 @@ class SkillRuntime:
                     "citation_count": len(citations),
                 },
             )
+            bind_work_product_dependencies(final_db, work_product)
             for citation in citations:
                 citation_payload = dict(citation)
                 citation_payload["work_product_id"] = work_product.id
                 citation_payload["citation_hash"] = stable_hash(citation_payload)
                 record_intelligence_citation(final_db, citation_payload)
+            try:
+                finalize_current_work_product(final_db, work_product=work_product)
+            except IntelligenceContractError as exc:
+                # Preserve the valid provider response as historical evidence,
+                # but never expose it as a current result.
+                work_product.state = "STALE"
+                ledger.error_code = exc.code
+                audit(final_db, correlation_id=request.correlation_id, event_type="AI_CONTEXT_CHANGED_DURING_EXECUTION", entity_type="AIWorkProduct", entity_id=work_product.id, actor_id=principal.user_id, metadata={"ledger_id": ledger.id, "provider_response_valid": True, "currentness_lost": True})
+                finalize_success(
+                    final_db,
+                    ledger_id=ledger.id,
+                    correlation_id=request.correlation_id,
+                    actor_id=principal.user_id,
+                    actor_type="ENTRA_USER" if principal.auth_mode == "ENTRA" else "DEV_USER",
+                    usage=result.usage,
+                    estimated_cost=estimated_cost,
+                    output_fingerprint=output_hash,
+                    citation_count=len(citations),
+                    provider_response_id=result.response_id,
+                    reservation_owner_token=reservation.owner_token,
+                    reservation_generation=reservation.generation,
+                )
+                final_db.commit()
+                raise AIError(P07_CONTEXT_CHANGED, status_code=409) from exc
             finalize_success(
                 final_db,
                 ledger_id=ledger.id,
@@ -398,19 +435,23 @@ class SkillRuntime:
                 output_fingerprint=output_hash,
                 citation_count=len(citations),
                 provider_response_id=result.response_id,
+                reservation_owner_token=reservation.owner_token,
+                reservation_generation=reservation.generation,
             )
             final_db.commit()
         except IntelligenceContractError as exc:
             final_db.rollback()
-            self._finalize_failure(reservation.ledger.id, request, principal, exc.code)
+            self._finalize_failure(reservation.ledger.id, request, principal, exc.code, reservation.owner_token, reservation.generation)
             raise AIError(exc.code, status_code=500) from exc
-        except AIError:
+        except AIError as exc:
             final_db.rollback()
-            self._finalize_failure(reservation.ledger.id, request, principal, "AI_LEDGER_FINALIZATION_FAILED")
+            if getattr(exc, "code", None) == P07_CONTEXT_CHANGED:
+                raise
+            self._finalize_failure(reservation.ledger.id, request, principal, "AI_LEDGER_FINALIZATION_FAILED", reservation.owner_token, reservation.generation)
             raise
         except Exception as exc:
             final_db.rollback()
-            self._finalize_failure(reservation.ledger.id, request, principal, "AI_LEDGER_FINALIZATION_FAILED")
+            self._finalize_failure(reservation.ledger.id, request, principal, "AI_LEDGER_FINALIZATION_FAILED", reservation.owner_token, reservation.generation)
             raise AIError("AI_LEDGER_FINALIZATION_FAILED", status_code=500) from exc
         finally:
             final_db.close()
@@ -441,6 +482,8 @@ class SkillRuntime:
         request: SkillExecutionRequest,
         principal: AuthenticatedPrincipal,
         code: str,
+        owner_token: str,
+        generation: int,
     ) -> None:
         final_db = self.dependencies.session_factory()
         try:
@@ -451,6 +494,8 @@ class SkillRuntime:
                 actor_id=principal.user_id,
                 actor_type="ENTRA_USER" if principal.auth_mode == "ENTRA" else "DEV_USER",
                 code=code,
+                reservation_owner_token=owner_token,
+                reservation_generation=generation,
             )
             final_db.commit()
         except Exception as exc:

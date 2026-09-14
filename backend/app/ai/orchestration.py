@@ -129,7 +129,7 @@ def execute_technical_methodology(db: Session, principal: AuthenticatedPrincipal
     except AIError as exc:
         final_db = SessionLocal()
         try:
-            finalize_failure(final_db, ledger_id=reservation.ledger.id, correlation_id=correlation_id, actor_id=principal.user_id, actor_type="ENTRA_USER" if principal.auth_mode == "ENTRA" else "DEV_USER", code=exc.code)
+            finalize_failure(final_db, ledger_id=reservation.ledger.id, correlation_id=correlation_id, actor_id=principal.user_id, actor_type="ENTRA_USER" if principal.auth_mode == "ENTRA" else "DEV_USER", code=exc.code, reservation_owner_token=reservation.owner_token, reservation_generation=reservation.generation)
             final_db.commit()
         except Exception as final_exc:
             final_db.rollback()
@@ -140,7 +140,7 @@ def execute_technical_methodology(db: Session, principal: AuthenticatedPrincipal
     except Exception as exc:
         final_db = SessionLocal()
         try:
-            finalize_failure(final_db, ledger_id=reservation.ledger.id, correlation_id=correlation_id, actor_id=principal.user_id, actor_type="ENTRA_USER" if principal.auth_mode == "ENTRA" else "DEV_USER", code="AI_PROVIDER_RESPONSE_INVALID")
+            finalize_failure(final_db, ledger_id=reservation.ledger.id, correlation_id=correlation_id, actor_id=principal.user_id, actor_type="ENTRA_USER" if principal.auth_mode == "ENTRA" else "DEV_USER", code="AI_PROVIDER_RESPONSE_INVALID", reservation_owner_token=reservation.owner_token, reservation_generation=reservation.generation)
             final_db.commit()
         except Exception as final_exc:
             final_db.rollback()
@@ -153,7 +153,7 @@ def execute_technical_methodology(db: Session, principal: AuthenticatedPrincipal
     # returning the transient draft to the browser.
     final_db = SessionLocal()
     try:
-        finalize_success(final_db, ledger_id=reservation.ledger.id, correlation_id=correlation_id, actor_id=principal.user_id, actor_type="ENTRA_USER" if principal.auth_mode == "ENTRA" else "DEV_USER", usage=result.usage, estimated_cost=estimated_cost, output_fingerprint=fingerprint, citation_count=len(citation_map), provider_response_id=result.response_id)
+        finalize_success(final_db, ledger_id=reservation.ledger.id, correlation_id=correlation_id, actor_id=principal.user_id, actor_type="ENTRA_USER" if principal.auth_mode == "ENTRA" else "DEV_USER", usage=result.usage, estimated_cost=estimated_cost, output_fingerprint=fingerprint, citation_count=len(citation_map), provider_response_id=result.response_id, reservation_owner_token=reservation.owner_token, reservation_generation=reservation.generation)
         final_db.commit()
     except Exception as exc:
         final_db.rollback()

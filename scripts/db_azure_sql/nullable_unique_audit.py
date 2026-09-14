@@ -207,7 +207,19 @@ def audit(mode: str) -> dict[str, object]:
         migration = migration_by_key.get(key)
         nullable = list(model["nullable_key_columns"])
         references = list(model["foreign_key_references"])
-        expected_filter = _normalize_filter(" AND ".join(f"{column} IS NOT NULL" for column in nullable)) if nullable else None
+        required_nullable_filter = _normalize_filter(" AND ".join(f"{column} IS NOT NULL" for column in nullable)) if nullable else None
+        expected_filter = required_nullable_filter
+        if model["model_filter"] is not None and required_nullable_filter is not None:
+            required_terms = [
+                _normalize_filter(f"{column} IS NOT NULL")
+                for column in nullable
+            ]
+            if all(term in model["model_filter"] for term in required_terms):
+                # Some filtered unique indexes intentionally add a state
+                # predicate (for example, uniqueness among CURRENT rows).
+                # Preserve that governed predicate while still requiring all
+                # nullable key columns to be excluded from the index.
+                expected_filter = model["model_filter"]
         if model["all_key_columns_non_null"]:
             classification = NON_NULL_CLASSIFICATION
             reason = "All unique key columns are NOT NULL."
