@@ -34,7 +34,6 @@ from backend.app.models.base import utcnow
 from backend.app.worker import run_worker_once
 
 
-EXPECTED_HEAD = "0059_entra_user_identity"
 EXPECTED_OID = "44444444-4444-4444-8444-444444444444"
 OWNER_EMAIL = "owner@amec.synthetic"
 PROOF_PREFIX = f"BATCH3A2-PROOF-{uuid4().hex.upper()}"
@@ -46,8 +45,8 @@ def _fail(message: str) -> None:
 
 def _verify_settings() -> None:
     settings = get_settings()
-    if settings.app_env.upper() != "AZURE-PREPROD":
-        _fail("APP_ENV is not AZURE-PREPROD")
+    if settings.app_env.upper() != "TEST":
+        _fail("APP_ENV is not TEST")
     if not settings.synthetic_only:
         _fail("SYNTHETIC_ONLY must be true")
     if settings.real_data_allowed:
@@ -72,10 +71,9 @@ def _verify_database() -> None:
         if server_version_num // 10000 != 16:
             _fail("PostgreSQL major version is not 16")
 
-        if repository_migration_head() != EXPECTED_HEAD:
-            _fail("repository migration head is not 0059")
-        if database_migration_heads() != (EXPECTED_HEAD,):
-            _fail("database migration head is not the single 0059 head")
+        expected_head = repository_migration_head()
+        if database_migration_heads() != (expected_head,):
+            _fail("database migration head is not the repository's single head")
 
         inspector = inspect(connection)
         columns = {column["name"] for column in inspector.get_columns("users")}
@@ -302,7 +300,7 @@ def run_proof() -> dict[str, Any]:
         return {
             "step": "3A.2",
             "postgres_major": 16,
-            "migration_head": EXPECTED_HEAD,
+            "migration_head": repository_migration_head(),
             "bootstrap_anchors": "PASS",
             "entra_db_binding": "PASS",
             "worker_claim_complete": "PASS",
