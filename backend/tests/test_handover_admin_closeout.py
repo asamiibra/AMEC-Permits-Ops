@@ -4,7 +4,7 @@ from uuid import uuid4
 from sqlalchemy import select
 
 from backend.app.db import SessionLocal
-from backend.app.models import Contract, ContractRevision, Document, DocumentVersion, Project, ProjectActivation
+from backend.app.models import Contract, ContractAdminEvidence, ContractRevision, Document, DocumentApprovalState, DocumentType, DocumentVersion, Project, ProjectActivation
 
 
 def _seed_refs():
@@ -29,6 +29,18 @@ def _seed_refs():
             activation.accepted_proposal_revision_id = contract.accepted_proposal_revision_id
         else:
             db.add(ProjectActivation(contract_id=contract.id, contract_revision_id=revision.id, accepted_proposal_revision_id=contract.accepted_proposal_revision_id, project_id=project.id, project_code=f"SYN-HO-{uuid4().hex[:8].upper()}", start_date=project.start_date or date.today(), original_start_date=project.start_date or date.today(), activated_by="synthetic-handover-owner", idempotency_key=f"synthetic-handover-activation:{contract.id}"))
+        for role in ("EXISTING_DRAWINGS", "PROJECT_SKETCH", "TITLE_DEED", "OWNER_CLIENT_ID"):
+            logical_name = f"synthetic-handover:{contract.id}:{role}"
+            dossier = db.scalar(select(Document).where(Document.logical_name == logical_name))
+            if not dossier:
+                dossier = Document(project_id=None, document_type=DocumentType.OTHER, logical_name=logical_name, language="EN", source_system="TEST")
+                db.add(dossier)
+                db.flush()
+            version = DocumentVersion(document_id=dossier.id, version_number=1, source_filename=f"{role.lower()}.txt", source_path_or_reference=f"synthetic://handover/{contract.id}/{role.lower()}", sha256=("0" * 63) + str(len(role)), mime_type="text/plain", file_size=1, language="EN", approval_state=DocumentApprovalState.WORKING, source_system="TEST", synthetic_content=b"x", metadata_json={"contract_id": contract.id, "client_account_id": contract.client_account_id, "project_id": project.id, "source_role": role, "read_back_verified": True, "synthetic_only": True})
+            db.add(version)
+            db.flush()
+            dossier.current_version_id = version.id
+            db.add(ContractAdminEvidence(contract_id=contract.id, contract_revision_id=revision.id, evidence_type=role, source_role=role, document_version_id=version.id, source_reference=version.source_path_or_reference, content_hash=version.sha256, status="RECEIVED", recorded_by="synthetic-handover-owner", metadata_json={"synthetic_only": True}))
         db.commit()
         return project.id, contract.id, revision.id, document.id
 

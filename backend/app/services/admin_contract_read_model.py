@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import select, true
 from sqlalchemy.orm import Session
 
 from ..models import ClientAccount, ClientContact, Contract, ContractAdminEvidence, ContractClientInputRequirement, ContractDeliverableCommitment, ContractPaymentTerm, ContractRevision, ContractTemplateSnapshot, Document, DocumentVersion, FormAutomationProfile, MasterContentItem, MasterContentModuleBinding, Opportunity, ProposalAcceptedRevision, ProposalContactContext
@@ -53,14 +53,14 @@ def _contract_forms_package(db: Session, contract: Contract) -> dict[str, Any]:
     rows = db.scalars(
         select(MasterContentItem)
         .join(MasterContentModuleBinding, MasterContentModuleBinding.master_content_id == MasterContentItem.id)
-        .where(MasterContentItem.content_type == "FORM", MasterContentItem.status == "ACTIVE", MasterContentModuleBinding.module == "CONTRACT", MasterContentModuleBinding.active.is_(True))
+        .where(MasterContentItem.content_type == "FORM", MasterContentItem.status == "ACTIVE", MasterContentModuleBinding.module == "CONTRACT", MasterContentModuleBinding.active == true())
         .order_by(MasterContentItem.ref)
     ).all()
     items = []
     for item in rows:
         version_id = item.current_document_version_id or (item.document.current_version_id if item.document else None)
         version = db.get(DocumentVersion, version_id) if version_id else None
-        binding = db.scalar(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == item.id, MasterContentModuleBinding.module == "CONTRACT", MasterContentModuleBinding.active.is_(True)).order_by(MasterContentModuleBinding.created_at.desc()))
+        binding = db.scalar(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == item.id, MasterContentModuleBinding.module == "CONTRACT", MasterContentModuleBinding.active == true()).order_by(MasterContentModuleBinding.created_at.desc()))
         usage = str(binding.usage_type).upper() if binding else "AVAILABLE"
         applicability = "REQUIRED" if usage in {"REQUIRED", "CONTRACT_REQUIRED"} else "OWNER_INPUT_REQUIRED"
         items.append({"form_id": item.id, "ref": item.ref, "title": item.title, "applicability": applicability, "status": "OWNER_INPUT_REQUIRED" if applicability == "OWNER_INPUT_REQUIRED" else "REQUIRED", "current_document_version_id": version.id if version else None, "current_version": version.version_number if version else None, "current_sha256": version.sha256 if version else None, "prefill_state": "PREFILL_NOT_ENABLED_FOR_CONTRACT", "draft_state": "NOT_STARTED", "review_state": "PENDING", "signature_state": "HUMAN_SIGNATURE_POLICY_REQUIRED", "signed_evidence_state": "NOT_RECORDED", "delivery_state": "NOT_STARTED", "downstream_reuse_state": "NOT_AVAILABLE", "governing_service_basis": "CONTRACT_MODULE_BINDING", "canonical_library_route": "/admin/forms"})
