@@ -25,6 +25,7 @@ from .api.e5_e6_routers import router as e5_e6_router
 from .api.expansion_routers import router as expansion_router
 from .api.handover_closeout_routers import router as handover_closeout_router
 from .api.master_content_routers import router as master_content_router
+from .api.content_library_intelligence_routers import router as content_library_intelligence_router
 from .api.owner_decision_routers import router as owner_decision_router
 from .api.phase4_routers import router as phase4_router
 from .api.phase5 import router as phase5_router
@@ -1135,6 +1136,10 @@ app.include_router(
 
 app.include_router(
     master_content_router,
+    dependencies=API_AUTH_DEPENDENCIES,
+)
+app.include_router(
+    content_library_intelligence_router,
     dependencies=API_AUTH_DEPENDENCIES,
 )
 

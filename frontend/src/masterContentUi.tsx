@@ -1,5 +1,6 @@
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { Icon } from "./Icon";
+import { api } from "./api";
 
 export type ContentType = "FORM" | "REPORT" | "ENGINEERING_WORK" | "DEFINITION";
 
@@ -60,8 +61,41 @@ export function UsedInPicker({ type, value, onChange }: { type: ContentType; val
   </fieldset>;
 }
 
-export function AIAssistCompact() {
-  return <section className="ai-assist-compact" aria-label="AI Assist"><div><strong>✨ AI Assist</strong><span>Coming soon</span></div><p>Future help for category suggestions, description writing, and gap checks.</p><div className="ai-assist-compact-actions"><button type="button" disabled>Suggest category</button><button type="button" disabled>Improve description</button><button type="button" disabled>Highlight gaps</button></div><small>Suggestions will always require your review before applying.</small></section>;
+export function AIAssistCompact({ itemId, onUseDescription }: { itemId?: string; onUseDescription?: (value: string) => void }) {
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState("");
+  const [result, setResult] = useState<Record<string, unknown> | null>(null);
+  const run = async (operation: string) => {
+    if (!itemId || busy) return;
+    setBusy(true);
+    setMessage("");
+    try {
+      const response = await api<{ output?: { summary?: string; recommended_next_actions?: string[]; findings?: { statement: string }[] } }>(
+        "/api/master-content/" + itemId + "/intelligence/" + operation,
+        { method: "POST", headers: { "Idempotency-Key": crypto.randomUUID() } },
+      );
+      setResult((response.output || null) as Record<string, unknown> | null);
+      setMessage("Analysis ready for human review.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "AI analysis unavailable.");
+    } finally {
+      setBusy(false);
+    }
+  };
+  const draft = typeof result?.summary === "string" ? result.summary : "";
+  return <section className="ai-assist-compact" aria-label="Content Library Intelligence">
+    <div><strong>✦ Content Library Intelligence</strong><span>{itemId ? "Advisory only" : "Save this item first"}</span></div>
+    <p>Use the shared governed skills for bounded source-grounded analysis. Nothing is saved automatically.</p>
+    <div className="ai-assist-compact-actions">
+      <button type="button" disabled={!itemId || busy} onClick={() => void run("intake-governance-analysis")}>Intake signals</button>
+      <button type="button" disabled={!itemId || busy} onClick={() => void run("quality-gap-analysis")}>Highlight gaps</button>
+      <button type="button" disabled={!itemId || busy} onClick={() => void run("source-grounded-assist")}>Explain source</button>
+    </div>
+    {busy && <small role="status">Preparing governed evidence…</small>}
+    {message && <small role="status">{message}</small>}
+    {draft && <div className="ai-assist-result"><strong>Suggested summary</strong><p>{String(draft)}</p>{onUseDescription && <button type="button" className="button-secondary" onClick={() => onUseDescription(String(draft))}>Use suggestion</button>}</div>}
+    <small>AI cannot approve, sign, stamp, release, submit, or change canonical Content Library state.</small>
+  </section>;
 }
 
 export function Drawer({ title, eyebrow, children, footer, onClose, wide = false }: { title: string; eyebrow: string; children: ReactNode; footer: ReactNode; onClose: () => void; wide?: boolean }) {

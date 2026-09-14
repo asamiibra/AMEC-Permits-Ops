@@ -30,11 +30,13 @@ class AIExecutionMode(str, Enum):
 
 class AIPurpose(str, Enum):
     ENGINEERING_TECHNICAL_DRAFT = "ENGINEERING_TECHNICAL_DRAFT"
+    CONTENT_LIBRARY_INTELLIGENCE = "CONTENT_LIBRARY_INTELLIGENCE"
 
 
 class AITargetEntityType(str, Enum):
     PROJECT = "PROJECT"
     AUTHORITY_CASE = "AUTHORITY_CASE"
+    MASTER_CONTENT_ITEM = "MASTER_CONTENT_ITEM"
 
 
 class AIArchitectureContract(BaseModel):

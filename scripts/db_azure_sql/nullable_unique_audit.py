@@ -31,6 +31,24 @@ def _normalize_filter(value: str | None) -> str | None:
     return normalized
 
 
+def _filter_satisfies_required_filter(actual: str | None, required: str | None) -> bool:
+    """Accept required null-exclusion predicates plus narrower business scopes.
+
+    A filtered unique index may legitimately add a state predicate.  For
+    example, candidate assertions are unique only for the CURRENT row in a
+    family, while still requiring the nullable family key to be non-null.
+    The audit must verify the required null exclusion without incorrectly
+    treating that narrower, intentional scope as an unfiltered index.
+    """
+    if required is None:
+        return actual is None
+    if actual is None:
+        return False
+    actual_clauses = {clause.strip() for clause in actual.split(" and ")}
+    required_clauses = {clause.strip() for clause in required.split(" and ")}
+    return required_clauses.issubset(actual_clauses)
+
+
 def _literal(node: ast.AST):
     if isinstance(node, ast.Constant):
         return node.value
@@ -234,11 +252,11 @@ def audit(mode: str) -> dict[str, object]:
             if migration_kind != model["object_kind"] or migration_columns != model["ordered_key_columns"]:
                 parity_mismatch += 1
         if classification == SAFE_CLASSIFICATION:
-            if model["model_filter"] != expected_filter:
+            if not _filter_satisfies_required_filter(model["model_filter"], expected_filter):
                 model_nullable_unfiltered += 1
-            if migration is None or migration_filter != expected_filter:
+            if migration is None or not _filter_satisfies_required_filter(migration_filter, expected_filter):
                 migration_nullable_unfiltered += 1
-            if model["model_filter"] == expected_filter and migration is not None and migration_filter == expected_filter:
+            if _filter_satisfies_required_filter(model["model_filter"], expected_filter) and migration is not None and _filter_satisfies_required_filter(migration_filter, expected_filter):
                 implemented += 1
             else:
                 open_repairs += 1
@@ -276,10 +294,10 @@ def audit(mode: str) -> dict[str, object]:
     for item in objects:
         if item["classification"] == UNSAFE_CLASSIFICATION:
             failures.append(f"unsafe object {item['object_name']}")
-        if item["classification"] == SAFE_CLASSIFICATION and item["model_filter"] != item["expected_mssql_filter"]:
+        if item["classification"] == SAFE_CLASSIFICATION and not _filter_satisfies_required_filter(item["model_filter"], item["expected_mssql_filter"]):
             if mode == "post":
                 failures.append(f"unfiltered ORM nullable unique object {item['object_name']}")
-        if item["classification"] == SAFE_CLASSIFICATION and item["migration_filter"] != item["expected_mssql_filter"]:
+        if item["classification"] == SAFE_CLASSIFICATION and not _filter_satisfies_required_filter(item["migration_filter"], item["expected_mssql_filter"]):
             if mode == "post":
                 failures.append(f"unfiltered migration nullable unique object {item['object_name']}")
     if unclassified or parity_mismatch or duplicate_logical or unsafe:

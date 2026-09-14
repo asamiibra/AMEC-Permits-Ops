@@ -1476,6 +1476,18 @@ def _verify_and_promote(
     event = MasterContentChangeEvent(master_content_id=item.id, previous_version_id=previous.id if previous else None, new_version_id=version.id, change_type="MASTER_CONTENT_VERSION_PROMOTED", status="APPLIED", correlation_id=correlation_id, actor_or_system=actor, metadata_json={"content_type": item.content_type, "ref": item.ref, "version_number": version.version_number, "source_surface": source_surface, "used_in": item.used_in or []}, event_type="MASTER_CONTENT_CREATED" if previous is None else "MASTER_CONTENT_VERSION_PROMOTED", content_type=item.content_type, business_ref=item.ref, category_snapshot={"id": category.id, "code": category.code, "label": category.label} if category else {}, change_kind=(version.metadata_json or {}).get("change_kind", "MODIFY"), change_reason=change_reason, materiality=_materiality(item, previous, version, category_changed or used_in_changed), source_hash=version.sha256)
     db.add(event)
     db.flush()
+    if previous:
+        # AI products are invalidated causally for the superseded exact
+        # version; unrelated Content Library items remain current.
+        from .intelligence_foundation import invalidate_dependency
+        invalidate_dependency(
+            db,
+            dependency_type="MASTER_CONTENT_VERSION",
+            dependency_id=previous.id,
+            superseding_version_or_hash=version.sha256,
+            source_event_id=event.id,
+            reason_code="MASTER_CONTENT_VERSION_SUPERSEDED",
+        )
     propagate_master_change(db, event, item, version)
     audit(db, correlation_id=correlation_id, event_type="SOR_READBACK_VERIFIED", entity_type="MasterContentItem", entity_id=item.id, actor_id=actor, metadata={"ref": item.ref, "version": version.version_number, "source_surface": source_surface})
     audit(db, correlation_id=correlation_id, event_type="MASTER_CONTENT_VERSION_PROMOTED", entity_type="MasterContentItem", entity_id=item.id, actor_id=actor, before={"version": previous.version_number if previous else None}, after={"version": version.version_number, "status": "CURRENT"}, metadata={"ref": item.ref, "source_surface": source_surface})
@@ -1664,6 +1676,16 @@ def emit_definition_revision_event(db: Session, *, definition: DefinitionEntry, 
     event = MasterContentChangeEvent(definition_id=definition.id, previous_version_id=previous.id if previous else None, new_version_id=revision.id, change_type="DEFINITION_REVISION_PROMOTED", status="PROCESSED", correlation_id=correlation_id, actor_or_system=actor, metadata_json={"term": revision.term, "revision": revision.revision_number, "version_number": revision.revision_number}, event_type="DEFINITION_REVISION_PROMOTED", content_type="DEFINITION", business_ref=definition.ref or revision.term, change_kind="CREATE" if previous is None else "MODIFY", change_reason=revision.change_reason, materiality="MATERIAL", source_hash=digest)
     db.add(event)
     db.flush()
+    if previous:
+        from .intelligence_foundation import invalidate_dependency
+        invalidate_dependency(
+            db,
+            dependency_type="DEFINITION_REVISION",
+            dependency_id=previous.id,
+            superseding_version_or_hash=revision.id,
+            source_event_id=event.id,
+            reason_code="DEFINITION_REVISION_SUPERSEDED",
+        )
     for role in ("OWNER", "BUSINESS_DEVELOPMENT", "ENGINEERING"):
         if not _delivery_exists(db, event.id, "NOTIFICATION", "ROLE", role, role):
             db.add(NotificationEvent(recipient_role=role, channel="IN_APP", event_type="DEFINITION_REVISION_PROMOTED", status="PENDING", subject=f"Definition updated: {revision.term}", body_preview=f"Definition revision {revision.revision_number} is current.", correlation_id=correlation_id, domain="MASTER_CONTENT", audience=[role], actor=actor, deep_link="/dashboard"))

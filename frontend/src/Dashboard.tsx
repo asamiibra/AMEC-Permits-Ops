@@ -903,7 +903,7 @@ function MasterEditor({
             </label>
           </section>
         )}
-        <AIAssistCompact />
+        <AIAssistCompact itemId={item?.id} onUseDescription={setDescription} />
       </form>
     </Drawer>
   );
@@ -1026,7 +1026,7 @@ function DefinitionEditor({
             </label>
           </section>
         )}
-        <AIAssistCompact />
+        <AIAssistCompact itemId={item?.id} onUseDescription={setDescription} />
       </form>
     </Drawer>
   );

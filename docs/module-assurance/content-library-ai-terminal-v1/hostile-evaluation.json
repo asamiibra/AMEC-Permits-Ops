@@ -1,0 +1,17 @@
+{
+  "contract": "content-library-ai-terminal-v1",
+  "prompt_injection_fixture": "UNTRUSTED_SOURCE_TEXT_ONLY",
+  "prompt_injection_instruction_execution": false,
+  "client_manifest_model_tool_override": "REJECTED_BY_SERVER_OWNED_OPERATION_RESOLUTION",
+  "client_raw_text_or_bytes_selector": "REJECTED_BY_CONTEXT_COMPILER",
+  "client_predecessor_selector": "REJECTED_BY_SERVER_RESOLVER",
+  "managed_content_malware_state": "MUST_BE_TRUSTED_CLEAN_BEFORE_AI_CONTEXT",
+  "source18": "READ_ONLY_ANALYSIS_CONTROLS",
+  "registered_tools": [],
+  "canonical_write_authority": "NONE",
+  "protected_action_authority": "NONE",
+  "human_review_required": true,
+  "canonical_state_mutated_by_ai_execution": false,
+  "real_model_hostile_acceptance": "NOT_RUN_EXTERNAL_GATE",
+  "result": "LOCAL_NEGATIVE_BOUNDARY_TESTS_PASS; EXTERNAL_RUNTIME ACCEPTANCE NOT PROVEN"
+}
