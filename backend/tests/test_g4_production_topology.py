@@ -164,7 +164,7 @@ def test_canonical_production_profile_pins_owner_hostname_and_clamav_contract():
         "param apiIngressExternal = true",
         "param deriveApiOriginHostName = true",
         "param edgeCustomDomainName = 'www.amecidsystem.com'",
-            "param frontendOrigin = 'https://www.amecidsystem.com'",
+            "param frontendOrigin = 'https://amecidsystem.com'",
         "param workerContinuous = true",
         "param clamavImage = readEnvironmentVariable(",
     )
