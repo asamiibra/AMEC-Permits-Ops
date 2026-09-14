@@ -31,6 +31,7 @@ def test_active_graph_and_legacy_archive_are_exact():
         "step5_content_library_azure_sql_v2.py",
         "proposal_production_hardening_v1.py",
         "intelligence_v1_shared_contracts.py",
+        "p07_intelligence_foundation_closure.py",
     }
     phase4_source = PHASE4.read_text(encoding="utf-8")
     assert 'revision = "phase4_corpus_app_integration_v1"' in phase4_source

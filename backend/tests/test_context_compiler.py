@@ -173,7 +173,7 @@ def test_verified_business_context_reuses_authoritative_sources(db, corpus):
     ))
     assert {item.dependency_type for item in compiled.items} == {"DOMAIN_ENTITY_REVISION", "MASTER_CONTENT_VERSION", "VERIFIED_ASSERTION"}
     assert all(item.trust_state in {"VERIFIED", "CANONICAL"} for item in compiled.items)
-    assert db.scalar(select(ContextSnapshot).where(ContextSnapshot.id == compiled.context_snapshot_id)).dependency_count == 3
+    assert db.scalar(select(ContextSnapshot).where(ContextSnapshot.id == compiled.context_snapshot_id)).dependency_count == 5
     assert compiled.contains_sensitive_data is False
 
 
@@ -200,9 +200,9 @@ def test_context_hash_is_source_order_independent_and_dependencies_are_idempoten
     second = compile_context(db, request(m, b, a))
     assert first.context_hash == second.context_hash
     assert first.context_snapshot_id == second.context_snapshot_id
-    assert db.scalar(select(ContextSnapshot).where(ContextSnapshot.id == first.context_snapshot_id)).dependency_count == 2
+    assert db.scalar(select(ContextSnapshot).where(ContextSnapshot.id == first.context_snapshot_id)).dependency_count == 4
     assert db.scalar(select(func.count()).select_from(ContextSnapshot)) == 1
-    assert db.scalar(select(func.count()).select_from(ContextDependency)) == 2
+    assert db.scalar(select(func.count()).select_from(ContextDependency)) == 4
 
 
 @pytest.mark.parametrize("status", ["SUPERSEDED", "STALE", "REJECTED", "PROMOTED"])

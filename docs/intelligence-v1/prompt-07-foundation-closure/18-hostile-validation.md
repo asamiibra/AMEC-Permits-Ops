@@ -1,0 +1,3 @@
+# Hostile validation
+
+`HOSTILE_SELF_REVIEW` is represented by the five focused tests: selective/idempotent invalidation, finalization currentness loss, expired lease and late-worker fence, authenticated human review capability, and read-only tool schema/registration/mutation controls. The live Samba role and integrity tests also passed (17 tests). The repaired P05 same-key race and D2/D3 reservation-fence regressions passed. PostgreSQL 16 migration proof reached the exact P07 head after the portability repairs. No independent review is claimed, and final P07 PASS remains withheld because the authoritative full backend result did not complete with recoverable final output.
