@@ -391,6 +391,8 @@ def _content_readiness(db: Session) -> list[dict[str, Any]]:
             reasons.append("DURABLE_SOURCE_REFERENCE_MISSING")
         if not version or version.synthetic_content is not None or str(version.source_path_or_reference).startswith(("synthetic-", "synthetic:", "synthetic-db://")) or (version.metadata_json or {}).get("storage_provider") in {"synthetic", "synthetic-db"}:
             reasons.append("SYNTHETIC_CONTENT_NOT_ADMISSIBLE")
+        if get_settings().synthetic_only:
+            reasons.append("SYNTHETIC_ONLY_RUNTIME_NOT_PRODUCTION")
         if not version or len(str(version.sha256)) != 64 or any(char not in "0123456789abcdefABCDEF" for char in str(version.sha256)) or (version.file_size or 0) <= 0:
             reasons.append("HASH_BOUND_FILE_METADATA_INVALID")
         if item and version and db.get(Document, item.document_id) and db.get(Document, item.document_id).current_version_id != version.id:
