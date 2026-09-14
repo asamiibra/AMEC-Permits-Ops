@@ -1592,7 +1592,7 @@ def create_master_content_version(
     return item_projection(db, item, include_history=True)
 
 
-def reconcile_item(db: Session, item_id: str, correlation_id: str) -> dict[str, Any]:
+def reconcile_item(db: Session, item_id: str, correlation_id: str, *, actor: str) -> dict[str, Any]:
     item = db.get(MasterContentItem, item_id)
     if not item or not item.current_document_version_id:
         raise _error("CONTENT_NOT_FOUND", 404)
@@ -1602,7 +1602,7 @@ def reconcile_item(db: Session, item_id: str, correlation_id: str) -> dict[str, 
     else:
         actual = _adapter().verify_artifact(version.source_path_or_reference, version.sha256, version.file_size)
     if not actual.get("verified"):
-        audit(db, correlation_id=correlation_id, event_type="EXTERNAL_MUTATION_DETECTED", entity_type="MasterContentItem", entity_id=item.id, after={"ref": item.ref, "version": version.version_number}, metadata={"code": "SOR_EXTERNAL_MUTATION"})
+        audit(db, correlation_id=correlation_id, event_type="EXTERNAL_MUTATION_DETECTED", entity_type="MasterContentItem", entity_id=item.id, actor_id=actor, after={"ref": item.ref, "version": version.version_number}, metadata={"code": "SOR_EXTERNAL_MUTATION"})
         db.commit()
         raise _error("SOR_EXTERNAL_MUTATION", 409)
     return item_projection(db, item, include_history=True)

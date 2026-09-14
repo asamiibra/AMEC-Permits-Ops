@@ -82,6 +82,52 @@ def test_content_library_entra_actor_is_persisted_and_header_cannot_spoof(client
         app.dependency_overrides.pop(current_user_role, None)
 
 
+def test_content_library_reconcile_audit_uses_trusted_entra_actor(client, monkeypatch):
+    created = client.post(
+        "/api/master-content",
+        data={"content_type": "FORM", "ref": f"TRUSTED-RECONCILE-{uuid4().hex[:8].upper()}", "title": "Trusted reconcile actor"},
+        files={"file": ("trusted-reconcile.txt", b"synthetic", "text/plain")},
+        headers={"X-Dev-Role": "SYSTEM_ADMIN"},
+    )
+    assert created.status_code == 200, created.text
+    item_id = created.json()["id"]
+    with SessionLocal() as db:
+        version = db.get(DocumentVersion, created.json()["current_version_id"])
+        version.sha256 = "0" * 64
+        db.commit()
+    monkeypatch.setattr(
+        master_content,
+        "_adapter",
+        lambda: SimpleNamespace(verify_artifact=lambda path, expected_sha256, expected_size: {"verified": False}),
+    )
+
+    def entra_override(request: Request):
+        request.state.authenticated_principal = AuthenticatedPrincipal(
+            auth_mode="ENTRA", role=Role.SYSTEM_ADMIN, user_id="reconcile-user-A", object_id="reconcile-object-A"
+        )
+        return Role.SYSTEM_ADMIN
+
+    app.dependency_overrides[current_user_role] = entra_override
+    try:
+        response = client.post(
+            f"/api/master-content/{item_id}/reconcile",
+            headers={"X-Dev-Role": "SYSTEM_ADMIN", "X-Dev-Actor": "reconcile-user-B"},
+        )
+        assert response.status_code == 409, response.text
+        with SessionLocal() as db:
+            event = db.scalar(
+                select(AuditEvent).where(
+                    AuditEvent.event_type == "EXTERNAL_MUTATION_DETECTED",
+                    AuditEvent.entity_id == item_id,
+                ).order_by(AuditEvent.id.desc())
+            )
+            assert event is not None
+            assert event.actor_id == "reconcile-user-A"
+            assert event.metadata_json["actor_role"] == "SYSTEM_ADMIN"
+    finally:
+        app.dependency_overrides.pop(current_user_role, None)
+
+
 def test_historical_binary_download_is_owner_only(client):
     ref = f"HISTORY-AUTHZ-{uuid4().hex[:8].upper()}"
     created = client.post(

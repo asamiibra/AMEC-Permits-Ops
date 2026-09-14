@@ -848,7 +848,7 @@ def archive_content(item_id: str, request: Request, db: Session = Depends(get_db
 def reconcile(item_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "MASTER_CONTENT_RECONCILE")
     _authorized_item(db, item_id, role, action="RECONCILE")
-    return reconcile_item(db, item_id, request.state.correlation_id)
+    return reconcile_item(db, item_id, request.state.correlation_id, actor=_actor(request, role))
 
 
 @router.get("/definitions")
