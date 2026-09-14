@@ -107,7 +107,7 @@ def _verify_database() -> None:
                 0,
             )
         ]:
-            _fail("migration-owned baseline is not exact")
+            _fail(f"migration-owned baseline is not exact: {baseline!r}")
 
 
 def _verify_identity_binding() -> None:
