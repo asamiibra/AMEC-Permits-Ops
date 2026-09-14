@@ -5,6 +5,7 @@ import json
 import os
 import socket
 import sys
+import time
 from dataclasses import dataclass
 
 from sqlalchemy import select
@@ -16,10 +17,12 @@ from .db import (
     verify_database_migration_head,
 )
 from .models import (
+    Contract,
     DocumentVersion,
     StorageOutboxEvent,
 )
 from .models.base import utcnow
+from .services.contract_workspace import evaluate_contract_exceptions
 from .storage.outbox import (
     claim_pending_events,
     complete_event,
@@ -38,6 +41,10 @@ class WorkerResult:
     claimed: int
     processed: int
     failed: int
+    contracts_reconciled: int = 0
+    contract_reconciliation_failed: int = 0
+    exceptions_created: int = 0
+    exceptions_resolved: int = 0
 
 
 def _default_worker_id() -> str:
@@ -214,6 +221,59 @@ def _process_event(
         )
 
 
+def reconcile_contract_exceptions_once(
+    *,
+    worker_id: str,
+    limit: int = 50,
+) -> tuple[int, int, int, int]:
+    """Reconcile a bounded batch of Contracts against the canonical work queue."""
+    if not 1 <= limit <= MAX_BATCH_SIZE:
+        raise ValueError(
+            "contract reconciliation limit must be between 1 and "
+            f"{MAX_BATCH_SIZE}."
+        )
+
+    with SessionLocal() as db:
+        contract_ids = list(
+            db.scalars(
+                select(Contract.id)
+                .order_by(Contract.id)
+                .limit(limit)
+            ).all()
+        )
+
+    reconciled = 0
+    failed = 0
+    created = 0
+    resolved = 0
+
+    for contract_id in contract_ids:
+        with SessionLocal() as db:
+            try:
+                contract = db.get(Contract, contract_id)
+                if contract is None:
+                    continue
+                result = evaluate_contract_exceptions(
+                    db,
+                    contract,
+                    actor=f"worker:{worker_id}",
+                    correlation_id=(
+                        f"worker:{worker_id}:contract:{contract_id}"
+                    )[:100],
+                )
+                db.commit()
+            except Exception:
+                db.rollback()
+                failed += 1
+                continue
+
+            reconciled += 1
+            created += len(result.get("created", []))
+            resolved += int(result.get("resolved", 0))
+
+    return reconciled, failed, created, resolved
+
+
 def run_worker_once(
     *,
     worker_id: str | None = None,
@@ -316,11 +376,34 @@ def run_worker_once(
 
             processed += 1
 
+    contracts_reconciled = 0
+    contract_reconciliation_failed = 0
+    exceptions_created = 0
+    exceptions_resolved = 0
+    if getattr(
+        settings,
+        "worker_contract_reconciliation_enabled",
+        True,
+    ):
+        (
+            contracts_reconciled,
+            contract_reconciliation_failed,
+            exceptions_created,
+            exceptions_resolved,
+        ) = reconcile_contract_exceptions_once(
+            worker_id=resolved_worker_id,
+            limit=limit,
+        )
+
     return WorkerResult(
         recovered=recovered,
         claimed=len(event_ids),
         processed=processed,
         failed=failed,
+        contracts_reconciled=contracts_reconciled,
+        contract_reconciliation_failed=contract_reconciliation_failed,
+        exceptions_created=exceptions_created,
+        exceptions_resolved=exceptions_resolved,
     )
 
 
@@ -358,62 +441,114 @@ def main(
     args = _parser().parse_args(
         argv
     )
-
+    continuous = os.getenv(
+        "WORKER_CONTINUOUS",
+        "false",
+    ).strip().lower() in {"1", "true", "yes"}
     try:
-        result = run_worker_once(
-            worker_id=args.worker_id,
-            limit=args.limit,
-            lease_seconds=(
-                args.lease_seconds
+        poll_interval = int(
+            os.getenv(
+                "WORKER_POLL_INTERVAL_SECONDS",
+                "60",
+            )
+        )
+    except ValueError:
+        print(
+            json.dumps(
+                {
+                    "event": "proposalops_outbox_worker",
+                    "status": "FAILED",
+                    "error_class": "INVALID_WORKER_POLL_INTERVAL",
+                },
+                sort_keys=True,
             ),
+            file=sys.stderr,
+        )
+        return 1
+    if not 5 <= poll_interval <= 3600:
+        print(
+            json.dumps(
+                {
+                    "event": "proposalops_outbox_worker",
+                    "status": "FAILED",
+                    "error_class": "WORKER_POLL_INTERVAL_OUT_OF_RANGE",
+                },
+                sort_keys=True,
+            ),
+            file=sys.stderr,
+        )
+        return 1
+
+    while True:
+        try:
+            result = run_worker_once(
+                worker_id=args.worker_id,
+                limit=args.limit,
+                lease_seconds=(
+                    args.lease_seconds
+                ),
+            )
+
+        except Exception as exc:
+            print(
+                json.dumps(
+                    {
+                        "event": (
+                            "proposalops_outbox_worker"
+                        ),
+                        "status": "FAILED",
+                        "error_class": (
+                            type(exc).__name__
+                        ),
+                    },
+                    sort_keys=True,
+                ),
+                file=sys.stderr,
+            )
+
+            return 1
+
+        status = (
+            "SUCCEEDED"
+            if (
+                result.failed == 0
+                and result.contract_reconciliation_failed == 0
+            )
+            else "PARTIAL_FAILURE"
         )
 
-    except Exception as exc:
         print(
             json.dumps(
                 {
                     "event": (
                         "proposalops_outbox_worker"
                     ),
-                    "status": "FAILED",
-                    "error_class": (
-                        type(exc).__name__
+                    "status": status,
+                    "recovered": result.recovered,
+                    "claimed": result.claimed,
+                    "processed": result.processed,
+                    "failed": result.failed,
+                    "contracts_reconciled": (
+                        result.contracts_reconciled
+                    ),
+                    "contract_reconciliation_failed": (
+                        result.contract_reconciliation_failed
+                    ),
+                    "exceptions_created": (
+                        result.exceptions_created
+                    ),
+                    "exceptions_resolved": (
+                        result.exceptions_resolved
                     ),
                 },
                 sort_keys=True,
-            ),
-            file=sys.stderr,
+            )
         )
 
-        return 1
+        if not continuous:
+            return 0 if status == "SUCCEEDED" else 1
 
-    status = (
-        "SUCCEEDED"
-        if result.failed == 0
-        else "PARTIAL_FAILURE"
-    )
-
-    print(
-        json.dumps(
-            {
-                "event": (
-                    "proposalops_outbox_worker"
-                ),
-                "status": status,
-                "recovered": result.recovered,
-                "claimed": result.claimed,
-                "processed": result.processed,
-                "failed": result.failed,
-            },
-            sort_keys=True,
-        )
-    )
-
-    return (
-        0
-        if result.failed == 0
-        else 1
-    )
+        time.sleep(poll_interval)
 
 
 if __name__ == "__main__":

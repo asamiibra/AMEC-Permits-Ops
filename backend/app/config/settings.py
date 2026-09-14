@@ -92,6 +92,12 @@ class Settings(BaseSettings):
     monitoring_mode: str = "DISABLED"
     applicationinsights_connection_string: str = ""
 
+    # Canonical ACA worker controls. The cadence is operational polling
+    # configuration, not an Owner business deadline or SLA.
+    worker_continuous: bool = False
+    worker_poll_interval_seconds: int = 60
+    worker_contract_reconciliation_enabled: bool = True
+
     # AI-D2/D3 has two independent deployment gates. The feature may be
     # present in the product while external inference remains disabled until
     # the separately governed D4 commissioning record is present.

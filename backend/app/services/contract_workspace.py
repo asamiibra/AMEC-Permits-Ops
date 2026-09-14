@@ -1262,7 +1262,20 @@ def evaluate_contract_exceptions(db: Session, contract: Contract, *, actor: str,
         conditions.append({"key": "SCHEDULE:OVERDUE", "title": "Review Contract schedule risk", "description": "A Contract action or milestone is overdue.", "priority": "HIGH", "next_action": "REVIEW_SCHEDULE_RISK"})
     if projection["controls"]["required_input_state"] == "OPEN_REQUIRED_INPUTS":
         cutoff = now() - timedelta(days=7)
-        if any(item.created_at and item.created_at <= cutoff for item in db.scalars(select(ContractClientInputRequirement).where(ContractClientInputRequirement.contract_id == contract.id)).all()):
+        if any(
+            item.created_at
+            and (
+                item.created_at.replace(tzinfo=timezone.utc)
+                if item.created_at.tzinfo is None
+                else item.created_at
+            )
+            <= cutoff
+            for item in db.scalars(
+                select(ContractClientInputRequirement).where(
+                    ContractClientInputRequirement.contract_id == contract.id
+                )
+            ).all()
+        ):
             conditions.append({"key": "INPUTS:AGED_REQUIRED_DOCUMENTS", "title": "Follow up aged Contract inputs", "description": "Required Contract inputs have remained unresolved under the governed age policy.", "priority": "HIGH", "next_action": "FOLLOW_UP_REQUIRED_INPUTS"})
     if projection["controls"]["earned_not_invoiced_state"] == "EARNED_BUT_NOT_INVOICED":
         conditions.append({"key": "BILLING:EARNED_NOT_INVOICED", "title": "Review earned milestone not invoiced", "description": "A governed billing milestone is earned but has no issued invoice.", "priority": "HIGH", "next_action": "REVIEW_EARNED_MILESTONE"})

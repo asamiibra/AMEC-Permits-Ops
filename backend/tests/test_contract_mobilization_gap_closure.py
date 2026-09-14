@@ -1,9 +1,12 @@
+from datetime import timedelta
 from uuid import uuid4
 
 from sqlalchemy import select
 
 from backend.app.db import SessionLocal
-from backend.app.models import AuditEvent, Contract, ContractAdminEvidence, ContractRevision, NotificationEvent, Project, ProjectActivation, ServiceEngagement, WorkflowTask
+from backend.app.models import AuditEvent, Contract, ContractAdminEvidence, ContractClientInputRequirement, ContractRevision, NotificationEvent, Project, ProjectActivation, ServiceEngagement, WorkflowTask
+from backend.app import worker
+from backend.app.models.base import utcnow
 from backend.tests.test_admin_contract_owner_session import ensure_contract_template, make_accepted_proposal, record_authority, record_checker
 
 
@@ -226,3 +229,61 @@ def test_exception_stage_transition_is_idempotent(client):
         transition_tasks = [item for item in db.query(WorkflowTask).filter(WorkflowTask.context_type == "CONTRACT", WorkflowTask.context_id == contract_id, WorkflowTask.task_type == "CONTRACT_EXCEPTION_REVIEW").all() if str((item.evidence_summary or {}).get("condition_key", "")).startswith("STAGE_TRANSITION:")]
         assert len(transition_tasks) == 2
         assert any(item.id == first_transition_id and str(item.status).upper() == "COMPLETED" for item in transition_tasks)
+
+
+def test_canonical_worker_discovers_aged_contract_input_exception(client):
+    suffix = uuid4().hex[:8]
+    ensure_contract_template(client)
+    proposal_id, _ = make_accepted_proposal(client, f"Worker time reconciliation {suffix}")
+    created = client.post("/api/admin/contracts", headers=headers("OWNER_SPONSOR", "worker-maker"), json={"proposal_id": proposal_id})
+    assert created.status_code == 200, created.text
+    contract_id = created.json()["id"]
+    revision_id = created.json()["current_revision"]["id"]
+    input_response = client.post(
+        f"/api/admin/contracts/{contract_id}/client-inputs",
+        headers=headers("OWNER_SPONSOR", "worker-owner"),
+        json={"sequence": 1, "title": "Synthetic aged client document", "source_type": "CLIENT_DOCUMENT"},
+    )
+    assert input_response.status_code == 200, input_response.text
+
+    with SessionLocal() as db:
+        requirement = db.scalar(
+            select(ContractClientInputRequirement).where(
+                ContractClientInputRequirement.contract_id == contract_id,
+                ContractClientInputRequirement.contract_revision_id == revision_id,
+            )
+        )
+        assert requirement
+        requirement.created_at = utcnow() - timedelta(days=8)
+        db.commit()
+
+    reconciled = worker.reconcile_contract_exceptions_once(
+        worker_id="synthetic-time-worker",
+        limit=50,
+    )
+    assert reconciled[0] >= 1
+    assert reconciled[1] == 0
+    assert reconciled[2] >= 1
+
+    repeated = worker.reconcile_contract_exceptions_once(
+        worker_id="synthetic-time-worker",
+        limit=50,
+    )
+    assert repeated[0] >= 1
+    assert repeated[1] == 0
+    assert repeated[2] == 0
+
+    with SessionLocal() as db:
+        tasks = db.scalars(
+            select(WorkflowTask).where(
+                WorkflowTask.context_type == "CONTRACT",
+                WorkflowTask.context_id == contract_id,
+                WorkflowTask.task_type == "CONTRACT_EXCEPTION_REVIEW",
+            )
+        ).all()
+        aged = [
+            item for item in tasks
+            if (item.evidence_summary or {}).get("condition_key")
+            == "INPUTS:AGED_REQUIRED_DOCUMENTS"
+        ]
+        assert len(aged) == 1

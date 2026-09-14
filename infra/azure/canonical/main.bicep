@@ -51,6 +51,14 @@ param workerImage string
 @description('Exact immutable migration image reference, including digest.')
 param migrationImage string
 
+@minValue(5)
+@maxValue(3600)
+@description('Operational polling interval for the continuously running canonical worker, in seconds; not an Owner SLA.')
+param workerPollIntervalSeconds int = 60
+
+@description('Run the canonical worker continuously so time-dependent reconciliation is revisited without a user request.')
+param workerContinuous bool = true
+
 @description('Optional HTTPS hostname used by Azure Front Door to reach the API origin.')
 param apiOriginHostName string = ''
 
@@ -532,6 +540,9 @@ resource workerApp 'Microsoft.App/containerApps@2024-03-01' = {
           { name: 'AI_FEATURE_ENABLED', value: 'false' }
           { name: 'AI_EXTERNAL_INFERENCE_ENABLED', value: 'false' }
           { name: 'AI_REAL_CONTENT_ALLOWED', value: 'false' }
+          { name: 'WORKER_CONTINUOUS', value: string(workerContinuous) }
+          { name: 'WORKER_POLL_INTERVAL_SECONDS', value: string(workerPollIntervalSeconds) }
+          { name: 'WORKER_CONTRACT_RECONCILIATION_ENABLED', value: 'true' }
         ]
         resources: {
           cpu: 1
