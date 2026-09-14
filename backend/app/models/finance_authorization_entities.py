@@ -55,7 +55,7 @@ class GovernedSignatoryAuthority(Base, TimestampMixin):
     __tablename__ = "governed_signatory_authorities"
     __table_args__ = (
         CheckConstraint("effective_to IS NULL OR effective_to >= effective_from", name="ck_signatory_authority_effective_interval"),
-        CheckConstraint("status IN ('ACTIVE', 'REVOKED', 'EXPIRED', 'SUPERSEDED')", name="ck_signatory_authority_status"),
+        CheckConstraint("status IN ('PENDING_APPROVAL', 'ACTIVE', 'REVOKED', 'EXPIRED', 'SUPERSEDED')", name="ck_signatory_authority_status"),
         Index("ix_signatory_authority_user_status", "user_id", "status"),
         Index("ix_signatory_authority_entity_status", "legal_entity_ref", "status"),
     )
@@ -68,13 +68,13 @@ class GovernedSignatoryAuthority(Base, TimestampMixin):
     authority_type: Mapped[str] = mapped_column(String(120), nullable=False)
     effective_from: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     effective_to: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    status: Mapped[str] = mapped_column(String(30), default="ACTIVE", nullable=False)
+    status: Mapped[str] = mapped_column(String(30), default="PENDING_APPROVAL", nullable=False)
     owner_authorization_reference: Mapped[str] = mapped_column(String(240), nullable=False)
     authority_evidence_document_version_id: Mapped[str | None] = mapped_column(ForeignKey("document_versions.id"), index=True)
     authority_evidence_reference: Mapped[str | None] = mapped_column(String(500))
     created_by: Mapped[str] = mapped_column(String(36), nullable=False)
-    approved_by: Mapped[str] = mapped_column(String(36), nullable=False)
-    approved_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    approved_by: Mapped[str | None] = mapped_column(String(36))
+    approved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     revoked_by: Mapped[str | None] = mapped_column(String(36))
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     superseded_by_id: Mapped[str | None] = mapped_column(String(36))

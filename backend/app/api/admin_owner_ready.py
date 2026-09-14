@@ -24,6 +24,7 @@ from ..models import (
     Opportunity, Project, ProjectNumberReservation, ProposalIntakeArtifact,
     Quotation, RequirementConfig, Role, ScenarioConfig, SynologyProjectBootstrap,
     TargetRenderingRule, TemplateDefinition, TemplateVersion, User, WorkflowTask, ScopedCapabilityAssignment, ConsultancyOffice,
+    GovernedSignatoryAuthority, Document, DocumentVersion, FinancialAccountMaster,
 )
 from ..services.proposals_sor import ACTION_CONFIG, SEMANTIC_FOLDER_CONFIG
 from ..storage.factory import create_binary_store
@@ -102,6 +103,59 @@ def _assignment_row(item: ScopedCapabilityAssignment, db: Session) -> dict[str, 
         "revoked_by": item.revoked_by,
         "revoked_at": item.revoked_at.isoformat() if item.revoked_at else None,
     }
+
+
+def _authenticated_owner(db: Session, principal: AuthenticatedPrincipal) -> User:
+    if principal.role not in {Role.SYSTEM_ADMIN, Role.OWNER_SPONSOR} or not principal.user_id:
+        raise HTTPException(403, {"code": "AUTHENTICATED_OWNER_REQUIRED"})
+    user = db.get(User, principal.user_id)
+    if not user or not user.active:
+        raise HTTPException(403, {"code": "AUTHENTICATED_OWNER_REQUIRED"})
+    return user
+
+
+def _reject_protected_signatory_fields(payload: dict[str, Any]) -> None:
+    protected = {"created_by", "approved_by", "approved_at", "status", "revoked_by", "revoked_at"}
+    if protected.intersection(payload):
+        raise HTTPException(422, {"code": "SIGNATORY_PROTECTED_FIELDS_SERVER_OWNED", "fields": sorted(protected.intersection(payload))})
+
+
+def _signatory_row(item: GovernedSignatoryAuthority, db: Session) -> dict[str, Any]:
+    user = db.get(User, item.user_id)
+    return {
+        "id": item.id,
+        "user_id": item.user_id,
+        "user_name": user.display_name if user else None,
+        "user_email": user.email if user else None,
+        "office_id": item.office_id,
+        "legal_entity_ref": item.legal_entity_ref,
+        "capacity": item.capacity,
+        "authority_type": item.authority_type,
+        "effective_from": item.effective_from.isoformat() if item.effective_from else None,
+        "effective_to": item.effective_to.isoformat() if item.effective_to else None,
+        "status": item.status,
+        "owner_authorization_reference": item.owner_authorization_reference,
+        "authority_evidence_document_version_id": item.authority_evidence_document_version_id,
+        "authority_evidence_reference": item.authority_evidence_reference,
+        "created_by": item.created_by,
+        "approved_by": item.approved_by,
+        "approved_at": item.approved_at.isoformat() if item.approved_at else None,
+        "revoked_by": item.revoked_by,
+        "revoked_at": item.revoked_at.isoformat() if item.revoked_at else None,
+        "superseded_by_id": item.superseded_by_id,
+        "created_at": item.created_at.isoformat() if item.created_at else None,
+        "updated_at": item.updated_at.isoformat() if item.updated_at else None,
+    }
+
+
+def _parse_signatory_datetime(value: Any, field: str) -> datetime | None:
+    if not value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        return parsed.replace(tzinfo=timezone.utc) if parsed.tzinfo is None else parsed
+    except ValueError as exc:
+        raise HTTPException(422, {"code": "SIGNATORY_DATE_INVALID", "field": field}) from exc
 
 
 def _readable(value: Any, fallback: str = "Needs AMEC Input") -> str:
@@ -315,6 +369,167 @@ def revoke_capability_assignment(
     audit(db, correlation_id=getattr(getattr(request, "state", None), "correlation_id", "missing-correlation-id"), event_type="SCOPED_CAPABILITY_REVOKED", entity_type="ScopedCapabilityAssignment", entity_id=item.id, actor_id=item.revoked_by, after={"status": item.status, "revoked_by": item.revoked_by})
     db.commit()
     return _assignment_row(item, db)
+
+
+@router.get("/signatory-authorities")
+def list_signatory_authorities(
+    db: Session = Depends(get_db),
+    _role: Role = Depends(owner_admin),
+):
+    rows = db.scalars(select(GovernedSignatoryAuthority).order_by(GovernedSignatoryAuthority.created_at.desc())).all()
+    return {"items": [_signatory_row(item, db) for item in rows], "history_retained": True}
+
+
+@router.post("/signatory-authorities")
+def create_signatory_authority(
+    payload: dict[str, Any],
+    request: Request,
+    db: Session = Depends(get_db),
+    _role: Role = Depends(owner_admin),
+    principal: AuthenticatedPrincipal = Depends(current_principal),
+):
+    creator = _authenticated_owner(db, principal)
+    _reject_protected_signatory_fields(payload)
+    target = db.get(User, str(payload.get("user_id") or "").strip())
+    if not target or not target.active:
+        raise HTTPException(404, {"code": "SIGNATORY_TARGET_USER_NOT_FOUND"})
+    office_id = str(payload.get("office_id") or "").strip()
+    office = db.get(ConsultancyOffice, office_id)
+    if not office:
+        raise HTTPException(404, {"code": "SIGNATORY_OFFICE_NOT_FOUND"})
+    if target.office_id != office.id:
+        raise HTTPException(422, {"code": "SIGNATORY_USER_OFFICE_MISMATCH"})
+    capacity = str(payload.get("capacity") or "").strip().upper().replace(" ", "_")
+    if capacity not in {"GENERAL_MANAGER", "RESPONSIBLE_ACCOUNTING_SIGNER"}:
+        raise HTTPException(422, {"code": "SIGNATORY_CAPACITY_NOT_AUTHORIZED"})
+    authority_type = str(payload.get("authority_type") or "").strip().upper().replace(" ", "_")
+    if authority_type != "GOVERNED":
+        raise HTTPException(422, {"code": "SIGNATORY_AUTHORITY_TYPE_REQUIRED"})
+    legal_entity_ref = str(payload.get("legal_entity_ref") or "").strip()
+    if not legal_entity_ref:
+        raise HTTPException(422, {"code": "SIGNATORY_LEGAL_ENTITY_REQUIRED"})
+    canonical_entity = db.scalar(select(FinancialAccountMaster.id).where(
+        FinancialAccountMaster.office_id == office.id,
+        FinancialAccountMaster.legal_entity_ref == legal_entity_ref,
+        FinancialAccountMaster.status == "ACTIVE",
+    ))
+    if not canonical_entity:
+        raise HTTPException(422, {"code": "SIGNATORY_LEGAL_ENTITY_NOT_CANONICAL"})
+    owner_reference = str(payload.get("owner_authorization_reference") or "").strip()
+    if not owner_reference:
+        raise HTTPException(422, {"code": "OWNER_SIGNER_AUTHORIZATION_REQUIRED"})
+    evidence_id = str(payload.get("authority_evidence_document_version_id") or "").strip() or None
+    evidence_reference = str(payload.get("authority_evidence_reference") or "").strip() or None
+    evidence_version = db.get(DocumentVersion, evidence_id) if evidence_id else None
+    if evidence_id and (not evidence_version or not db.get(Document, evidence_version.document_id)):
+        raise HTTPException(404, {"code": "SIGNATORY_AUTHORITY_EVIDENCE_NOT_FOUND"})
+    if not evidence_version and not evidence_reference:
+        raise HTTPException(422, {"code": "SIGNATORY_AUTHORITY_EVIDENCE_REQUIRED"})
+    effective_from = _parse_signatory_datetime(payload.get("effective_from"), "effective_from") or datetime.now(timezone.utc)
+    effective_to = _parse_signatory_datetime(payload.get("effective_to"), "effective_to")
+    if effective_to and effective_to < effective_from:
+        raise HTTPException(422, {"code": "SIGNATORY_EFFECTIVE_INTERVAL_INVALID"})
+    item = GovernedSignatoryAuthority(
+        user_id=target.id,
+        office_id=office.id,
+        legal_entity_ref=legal_entity_ref,
+        capacity=capacity,
+        authority_type=authority_type,
+        effective_from=effective_from,
+        effective_to=effective_to,
+        status="PENDING_APPROVAL",
+        owner_authorization_reference=owner_reference,
+        authority_evidence_document_version_id=evidence_version.id if evidence_version else None,
+        authority_evidence_reference=evidence_reference,
+        created_by=creator.id,
+        approved_by=None,
+        approved_at=None,
+    )
+    db.add(item); db.flush()
+    audit(db, correlation_id=getattr(request.state, "correlation_id", "missing-correlation-id"), event_type="SIGNATORY_AUTHORITY_CREATED", entity_type="GovernedSignatoryAuthority", entity_id=item.id, actor_id=creator.id, after=_signatory_row(item, db), metadata={"status": item.status})
+    db.commit()
+    return _signatory_row(item, db)
+
+
+@router.post("/signatory-authorities/{authority_id}/approve")
+def approve_signatory_authority(
+    authority_id: str,
+    payload: dict[str, Any],
+    request: Request,
+    db: Session = Depends(get_db),
+    _role: Role = Depends(owner_admin),
+    principal: AuthenticatedPrincipal = Depends(current_principal),
+):
+    approver = _authenticated_owner(db, principal)
+    _reject_protected_signatory_fields(payload)
+    item = db.scalar(select(GovernedSignatoryAuthority).where(GovernedSignatoryAuthority.id == authority_id).with_for_update())
+    if not item:
+        raise HTTPException(404, {"code": "SIGNATORY_AUTHORITY_NOT_FOUND"})
+    if item.status == "ACTIVE":
+        return _signatory_row(item, db)
+    if item.status != "PENDING_APPROVAL":
+        raise HTTPException(409, {"code": "SIGNATORY_AUTHORITY_NOT_PENDING"})
+    if approver.id == item.user_id or approver.id == item.created_by:
+        raise HTTPException(403, {"code": "SIGNATORY_SELF_APPROVAL_DENIED"})
+    target = db.get(User, item.user_id)
+    if not target or not target.active:
+        raise HTTPException(409, {"code": "SIGNATORY_TARGET_USER_NOT_ACTIVE"})
+    item.status = "ACTIVE"; item.approved_by = approver.id; item.approved_at = datetime.now(timezone.utc)
+    audit(db, correlation_id=getattr(request.state, "correlation_id", "missing-correlation-id"), event_type="SIGNATORY_AUTHORITY_APPROVED", entity_type="GovernedSignatoryAuthority", entity_id=item.id, actor_id=approver.id, after=_signatory_row(item, db))
+    db.commit()
+    return _signatory_row(item, db)
+
+
+@router.post("/signatory-authorities/{authority_id}/revoke")
+def revoke_signatory_authority(
+    authority_id: str,
+    payload: dict[str, Any],
+    request: Request,
+    db: Session = Depends(get_db),
+    _role: Role = Depends(owner_admin),
+    principal: AuthenticatedPrincipal = Depends(current_principal),
+):
+    owner = _authenticated_owner(db, principal)
+    _reject_protected_signatory_fields(payload)
+    item = db.scalar(select(GovernedSignatoryAuthority).where(GovernedSignatoryAuthority.id == authority_id).with_for_update())
+    if not item:
+        raise HTTPException(404, {"code": "SIGNATORY_AUTHORITY_NOT_FOUND"})
+    if item.status == "REVOKED":
+        return _signatory_row(item, db)
+    if item.status == "SUPERSEDED":
+        raise HTTPException(409, {"code": "SIGNATORY_AUTHORITY_ALREADY_SUPERSEDED"})
+    item.status = "REVOKED"; item.revoked_by = owner.id; item.revoked_at = datetime.now(timezone.utc)
+    audit(db, correlation_id=getattr(request.state, "correlation_id", "missing-correlation-id"), event_type="SIGNATORY_AUTHORITY_REVOKED", entity_type="GovernedSignatoryAuthority", entity_id=item.id, actor_id=owner.id, before={"status": "ACTIVE"}, after=_signatory_row(item, db), metadata={"reason": str(payload.get("reason") or "Owner revocation")})
+    db.commit()
+    return _signatory_row(item, db)
+
+
+@router.post("/signatory-authorities/{authority_id}/supersede")
+def supersede_signatory_authority(
+    authority_id: str,
+    payload: dict[str, Any],
+    request: Request,
+    db: Session = Depends(get_db),
+    _role: Role = Depends(owner_admin),
+    principal: AuthenticatedPrincipal = Depends(current_principal),
+):
+    owner = _authenticated_owner(db, principal)
+    _reject_protected_signatory_fields(payload)
+    item = db.scalar(select(GovernedSignatoryAuthority).where(GovernedSignatoryAuthority.id == authority_id).with_for_update())
+    replacement_id = str(payload.get("replacement_authority_id") or "").strip()
+    replacement = db.get(GovernedSignatoryAuthority, replacement_id) if replacement_id else None
+    if not item or not replacement:
+        raise HTTPException(404, {"code": "SIGNATORY_AUTHORITY_NOT_FOUND"})
+    if item.id == replacement.id:
+        raise HTTPException(422, {"code": "SIGNATORY_SUPERSEDE_TARGET_INVALID"})
+    if item.status != "ACTIVE" or replacement.status != "ACTIVE":
+        raise HTTPException(409, {"code": "SIGNATORY_SUPERSEDE_REQUIRES_ACTIVE_AUTHORITY"})
+    if (item.office_id, item.legal_entity_ref) != (replacement.office_id, replacement.legal_entity_ref):
+        raise HTTPException(409, {"code": "SIGNATORY_SUPERSEDE_SCOPE_MISMATCH"})
+    item.status = "SUPERSEDED"; item.superseded_by_id = replacement.id
+    audit(db, correlation_id=getattr(request.state, "correlation_id", "missing-correlation-id"), event_type="SIGNATORY_AUTHORITY_SUPERSEDED", entity_type="GovernedSignatoryAuthority", entity_id=item.id, actor_id=owner.id, before={"status": "ACTIVE"}, after=_signatory_row(item, db), metadata={"replacement_authority_id": replacement.id})
+    db.commit()
+    return {"superseded": _signatory_row(item, db), "replacement": _signatory_row(replacement, db), "history_retained": True}
 
 
 @router.get("/permissions")

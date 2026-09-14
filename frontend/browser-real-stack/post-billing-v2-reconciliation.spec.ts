@@ -21,6 +21,6 @@ test("Billing V2 real stack renders project-safe invoice context and communicati
   await page.getByRole("button", { name: "Open", exact: true }).first().click();
   await expect(page.getByRole("heading", { name: /INV-|Not allocated/ })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Delivery & Acknowledgment", level: 3 })).toBeVisible();
-  await expect(page.getByText(/Issued ≠ Delivered ≠ Acknowledged ≠ Paid/)).toBeVisible();
+  await expect(page.getByText(/Issued ≠ Delivered ≠ Acknowledged ≠ Paid/).first()).toBeVisible();
   await expect(page.locator("body")).not.toContainText(/accounting journal|financial settlement performed/i);
 });
