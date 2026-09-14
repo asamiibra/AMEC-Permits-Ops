@@ -13,6 +13,8 @@ from backend.app.services.proposal_intelligence import (
 from backend.app.services.intelligence_foundation import dependency_current, invalidate_dependency
 from backend.app.models import ContextDependency, AIWorkProduct
 from backend.app.ai.skill_registry import PROPOSAL_SKILLS
+from backend.app.services import backend_realignment
+from backend.app.services.intelligence_contracts import IntelligenceContractError
 
 
 def test_proposal_skill_pack_is_exact_and_strict():
@@ -94,4 +96,56 @@ def test_proposal_review_duplicate_and_conflicting_decision_are_fail_closed(tmp_
             assert "PROPOSAL_REVIEW" in str(exc)
         else:
             raise AssertionError("completed Proposal review unexpectedly accepted a second decision")
+    engine.dispose()
+
+
+def test_owner_review_override_and_skill_specific_reviewer_routing(tmp_path, monkeypatch):
+    engine = create_engine(f"sqlite:///{tmp_path / 'p08-owner-review-routing.db'}")
+    Base.metadata.create_all(engine)
+    with Session(engine) as db:
+        office = ConsultancyOffice(id="p08-owner-office", office_code="P08O", name_en="P08 Owner", name_ar="P08 Owner")
+        owner = User(id="p08-owner", email="owner@example.test", display_name="Owner", role=Role.OWNER_SPONSOR, office_id=office.id, active=True)
+        bd = User(id="p08-bd", email="bd@example.test", display_name="BD", role=Role.PROCESS_CHAMPION, office_id=office.id, active=True)
+        engineer = User(id="p08-engineer", email="engineer@example.test", display_name="Engineer", role=Role.RESPONSIBLE_ENGINEER, office_id=office.id, active=True)
+        proposal = Opportunity(id="p08-owner-proposal", office_id=office.id, opportunity_reference="P08-OWNER-001", title="Synthetic Owner Proposal", status="ACCEPTED", source_type="TEST")
+        revision = ProposalAcceptedRevision(id="p08-owner-revision", proposal_id=proposal.id, revision_number=1, snapshot={"title": proposal.title}, validation_snapshot={}, content_hash="c" * 64, accepted_by=owner.id, status="ACCEPTED")
+        db.add_all([office, owner, bd, engineer, proposal, revision])
+        db.commit()
+        owner_principal = AuthenticatedPrincipal(auth_mode="TEST", role=Role.OWNER_SPONSOR, user_id=owner.id, office_id=office.id)
+        bd_principal = AuthenticatedPrincipal(auth_mode="TEST", role=Role.PROCESS_CHAMPION, user_id=bd.id, office_id=office.id)
+        engineer_principal = AuthenticatedPrincipal(auth_mode="TEST", role=Role.RESPONSIBLE_ENGINEER, user_id=engineer.id, office_id=office.id)
+
+        intake = execute_proposal_intelligence(db, proposal_id=proposal.id, operation="intake-analysis", principal=owner_principal, idempotency_key="owner-intake", correlation_id="owner-intake-corr", settings=_settings(), provider=ProposalDeterministicProvider())
+        intake_binding = db.scalar(select(ProposalIntelligenceReviewBinding).where(ProposalIntelligenceReviewBinding.work_product_id == intake["work_product_id"]))
+        assert intake_binding.required_persona == "BUSINESS_DEVELOPMENT"
+        owner_decision = submit_proposal_review(db, proposal_id=proposal.id, binding_id=intake_binding.id, decision="ACCEPT", idempotency_key="owner-intake-review", principal=owner_principal, correlation_id="owner-intake-review-corr", precondition_version=intake_binding.precondition_version)
+        assert owner_decision["protected_action_executed"] is False
+
+        bd_intake = execute_proposal_intelligence(db, proposal_id=proposal.id, operation="intake-analysis", principal=owner_principal, idempotency_key="bd-intake", correlation_id="bd-intake-corr", settings=_settings(), provider=ProposalDeterministicProvider())
+        bd_binding = db.scalar(select(ProposalIntelligenceReviewBinding).where(ProposalIntelligenceReviewBinding.work_product_id == bd_intake["work_product_id"]))
+        bd_decision = submit_proposal_review(db, proposal_id=proposal.id, binding_id=bd_binding.id, decision="DEFER", idempotency_key="bd-intake-review", principal=bd_principal, correlation_id="bd-intake-review-corr", precondition_version=bd_binding.precondition_version)
+        assert bd_decision["decision"] == "DEFER"
+
+        technical = execute_proposal_intelligence(db, proposal_id=proposal.id, operation="scope-technical-analysis", principal=owner_principal, idempotency_key="owner-technical", correlation_id="owner-technical-corr", settings=_settings(), provider=ProposalDeterministicProvider())
+        technical_binding = db.scalar(select(ProposalIntelligenceReviewBinding).where(ProposalIntelligenceReviewBinding.work_product_id == technical["work_product_id"]))
+        assert technical_binding.required_persona == "ENGINEERING"
+        try:
+            submit_proposal_review(db, proposal_id=proposal.id, binding_id=technical_binding.id, decision="ACCEPT", idempotency_key="bd-technical-review", principal=bd_principal, correlation_id="bd-technical-review-corr", precondition_version=technical_binding.precondition_version)
+        except IntelligenceContractError as exc:
+            assert str(exc) == "PROPOSAL_REVIEW_PERSONA_DENIED"
+        else:
+            raise AssertionError("BD incorrectly reviewed an Engineering-routed Proposal analysis")
+        engineer_decision = submit_proposal_review(db, proposal_id=proposal.id, binding_id=technical_binding.id, decision="DEFER", idempotency_key="engineer-technical-review", principal=engineer_principal, correlation_id="engineer-technical-review-corr", precondition_version=technical_binding.precondition_version)
+        assert engineer_decision["decision"] == "DEFER"
+
+        readiness = execute_proposal_intelligence(db, proposal_id=proposal.id, operation="readiness-explanation", principal=owner_principal, idempotency_key="owner-readiness", correlation_id="owner-readiness-corr", settings=_settings(), provider=ProposalDeterministicProvider())
+        readiness_binding = db.scalar(select(ProposalIntelligenceReviewBinding).where(ProposalIntelligenceReviewBinding.work_product_id == readiness["work_product_id"]))
+        owner_capabilities = backend_realignment.CAPABILITY_MATRIX["OWNER"]
+        monkeypatch.setitem(backend_realignment.CAPABILITY_MATRIX, "OWNER", owner_capabilities - {"BD_PROPOSAL_INTELLIGENCE_REVIEW"})
+        try:
+            submit_proposal_review(db, proposal_id=proposal.id, binding_id=readiness_binding.id, decision="ACCEPT", idempotency_key="owner-no-cap-review", principal=owner_principal, correlation_id="owner-no-cap-review-corr", precondition_version=readiness_binding.precondition_version)
+        except Exception as exc:
+            assert "CAPABILITY" in str(exc)
+        else:
+            raise AssertionError("Owner without review capability was accepted")
     engine.dispose()
