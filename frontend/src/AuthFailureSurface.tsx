@@ -3,7 +3,7 @@ export function AuthFailureSurface() {
     <main className="auth-failure-shell" aria-labelledby="auth-failure-title">
       <section className="auth-failure-card" role="alert" aria-live="assertive">
         <span className="eyebrow">SECURE ACCESS</span>
-        <h1 id="auth-failure-title">ProposalOps couldn’t start sign-in</h1>
+        <h1 id="auth-failure-title">AMEC System couldn’t start sign-in</h1>
         <p>
           Try again to continue. If the problem continues, contact your system
           administrator.
@@ -19,4 +19,3 @@ export function AuthFailureSurface() {
     </main>
   );
 }
-

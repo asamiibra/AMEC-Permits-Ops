@@ -6,7 +6,7 @@ import { CurrentDashboard } from "./Dashboard";
 import { BillingInvoicePage } from "./BillingInvoice";
 import { HomePage } from "./Home";
 import { AmecLogo } from "./AmecLogo";
-import { browserAuthMode } from "./auth";
+import { browserAuthMode, signOut } from "./auth";
 import { readDemoRole } from "./rebrand";
 import { classifyPublicRoute, type PublicPage } from "./domainOwnershipRoutes";
 import { getPrimaryNavigation } from "./featureAvailability";
@@ -20,11 +20,32 @@ type AuthSession = {
     user_id: string | null;
     tenant_id: string | null;
     object_id: string | null;
+    display_name: string | null;
+    preferred_username: string | null;
     role: string;
   };
 };
 
 type DemoRole = "SYSTEM_ADMIN" | "OWNER_SPONSOR" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER";
+
+export function userInitials(displayName: string | null | undefined, preferredUsername: string | null | undefined): string {
+  const name = displayName?.trim();
+  if (name) {
+    const parts = name.split(/\s+/).filter(Boolean);
+    if (parts.length > 1) return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+    return parts[0].slice(0, 2).toUpperCase();
+  }
+  const username = preferredUsername?.trim().split("@")[0] || "";
+  if (username) return username.slice(0, 2).toUpperCase();
+  return "•";
+}
+
+function roleLabel(role: string | null | undefined): string {
+  return (role || "Role pending")
+    .toLowerCase()
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
 
 function pageFromPath(): PublicPage {
   return classifyPublicRoute(window.location.pathname).page;
@@ -33,8 +54,11 @@ function pageFromPath(): PublicPage {
 export default function App() {
   const [page, setPage] = useState<PublicPage>(pageFromPath);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
+  const [signOutError, setSignOutError] = useState<string | null>(null);
   const [role, setRole] = useState<string>(() => (
-    browserAuthMode() === "DEV_HEADER" ? readDemoRole() : "OWNER_SPONSOR"
+    browserAuthMode() === "DEV_HEADER" ? readDemoRole() : ""
   ));
   const [authSession, setAuthSession] = useState<AuthSession | null>(null);
 
@@ -54,6 +78,17 @@ export default function App() {
       // The application remains English/LTR when browser storage is unavailable.
     }
   }, []);
+
+  useEffect(() => {
+    if (!accountMenuOpen && !mobileNavOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setAccountMenuOpen(false);
+      setMobileNavOpen(false);
+    };
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [accountMenuOpen, mobileNavOpen]);
 
   useEffect(() => {
     if (browserAuthMode() === "DEV_HEADER") {
@@ -102,6 +137,22 @@ export default function App() {
   const visibleNavigation = getPrimaryNavigation(role);
   const title = visibleNavigation.find((item) => item.page === page)?.label || "Home";
   const moduleRole = role as DemoRole;
+  const displayName = authSession?.identity.display_name?.trim() || "";
+  const preferredUsername = authSession?.identity.preferred_username?.trim() || "";
+  const identityLabel = displayName || preferredUsername || (browserAuthMode() === "DEV_HEADER" ? "Local development user" : "Signed-in user");
+  const initials = userInitials(displayName, preferredUsername);
+
+  const handleSignOut = async () => {
+    setSignOutError(null);
+    setSigningOut(true);
+    try {
+      await signOut();
+      setAccountMenuOpen(false);
+    } catch (error) {
+      setSigningOut(false);
+      setSignOutError(error instanceof Error ? error.message : "Sign out could not be completed.");
+    }
+  };
 
   return (
     <div
@@ -115,7 +166,7 @@ export default function App() {
         <div className="brand">
           <AmecLogo size="sm" className="sidebar-amec-logo" />
           <div className="brand-product">
-            <b>AMEC Works</b>
+            <b>AMEC System</b>
             <small>PROPOSALOPS WORKSPACE</small>
           </div>
         </div>
@@ -152,7 +203,7 @@ export default function App() {
           <div className="mobile-nav-backdrop" role="presentation" onClick={() => setMobileNavOpen(false)}>
             <aside className="mobile-nav-drawer" role="dialog" aria-modal="true" aria-label="Mobile primary navigation" onClick={(event) => event.stopPropagation()}>
               <div className="mobile-nav-drawer-head">
-                <div><b>AMEC Works</b><small>PROPOSALOPS WORKSPACE</small></div>
+                <div><b>AMEC System</b><small>PROPOSALOPS WORKSPACE</small></div>
                 <button className="mobile-nav-close" type="button" aria-label="Close navigation" onClick={() => setMobileNavOpen(false)}>×</button>
               </div>
               <nav aria-label="Mobile primary navigation">
@@ -199,7 +250,40 @@ export default function App() {
                 </select>
               </label>
             )}
-            <button className="avatar" type="button" aria-label="Current user">SA</button>
+            <div className="account-control">
+              <button
+                className="avatar"
+                type="button"
+                aria-label={`Account: ${identityLabel}`}
+                aria-expanded={accountMenuOpen}
+                aria-haspopup="menu"
+                aria-controls="account-menu"
+                onClick={() => setAccountMenuOpen((open) => !open)}
+              >
+                {initials}
+              </button>
+              {accountMenuOpen && (
+                <section className="account-menu" id="account-menu" role="menu" aria-label="Signed-in account">
+                  <div className="account-menu-heading">
+                    <span className="eyebrow">SIGNED-IN IDENTITY</span>
+                    <strong>{identityLabel}</strong>
+                    {preferredUsername && preferredUsername !== displayName && <small>{preferredUsername}</small>}
+                  </div>
+                  <div className="account-menu-row">
+                    <span>Authentication</span>
+                    <b>{browserAuthMode() === "ENTRA" ? "Microsoft Entra ID" : "Local development"}</b>
+                  </div>
+                  <div className="account-menu-row">
+                    <span>AMEC System role</span>
+                    <b>{roleLabel(authSession?.identity.role || (browserAuthMode() === "DEV_HEADER" ? role : ""))}</b>
+                  </div>
+                  {signOutError && <p className="account-menu-error" role="alert">{signOutError}</p>}
+                  <button className="account-menu-signout" type="button" role="menuitem" onClick={() => void handleSignOut()} disabled={signingOut}>
+                    {signingOut ? "Signing out…" : "Sign out"}
+                  </button>
+                </section>
+              )}
+            </div>
           </div>
         </header>
         <div className="content">

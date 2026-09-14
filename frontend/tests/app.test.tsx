@@ -12,7 +12,7 @@ describe("ProposalOps shell", () => {
     window.history.replaceState({}, "", "/home");
     render(<App />);
     expect(screen.getAllByRole("img", { name: "AMEC — Art Mark Engineering Consultant" })).toHaveLength(2);
-    expect(screen.getAllByText("AMEC Works").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("AMEC System").length).toBeGreaterThan(0);
     expect(screen.getByText("AMEC Engineering")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Work across the active ProposalOps modules." })).toBeTruthy();
     expect(screen.getAllByTestId("home-module-card")).toHaveLength(4);
@@ -24,6 +24,7 @@ describe("ProposalOps shell", () => {
     expect(screen.queryByText("Inputs & Go-Live")).toBeNull();
     expect(screen.queryByRole("button", { name: "Admin" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Notifications" })).toBeNull();
+    expect(screen.queryByText("SA", { exact: true })).toBeNull();
   });
 
   it("provides the same five-module navigation on mobile", () => {

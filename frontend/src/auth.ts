@@ -370,3 +370,23 @@ export async function getApiAccessToken(): Promise<string> {
   }
 }
 
+/**
+ * End the current browser session through the same MSAL client that owns the
+ * active account. Application role state is never used as a logout source.
+ */
+export async function signOut(): Promise<void> {
+  if (browserAuthMode() === "DEV_HEADER") {
+    sessionStorage.removeItem("proposalops-role");
+    sessionStorage.removeItem("permitops-role");
+    return;
+  }
+
+  const { tenantId } = entraConfiguration();
+  const client = await initializedMsalClient();
+  const account = activeAccountForTenant(client, tenantId);
+
+  await client.logoutRedirect({
+    ...(account ? { account } : {}),
+    postLogoutRedirectUri: `${window.location.origin}/redirect.html`,
+  });
+}

@@ -64,7 +64,7 @@ function rewriteTextNodes(root: Node) {
 }
 
 function rewriteAttributes() {
-  document.title = "ProposalOps · Proposal & Contract Workflow";
+  document.title = "AMEC System · Proposal & Contract Workflow";
   document.querySelectorAll<HTMLElement>("[aria-label], [title], input[placeholder]").forEach((element) => {
     ["aria-label", "title", "placeholder"].forEach((attribute) => {
       const value = element.getAttribute(attribute);
