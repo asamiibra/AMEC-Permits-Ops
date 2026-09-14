@@ -90,6 +90,15 @@ class AzureBlobBinaryStore(BinaryStorePort):
         except Exception as exc:
             raise self._map_error(exc, "Azure Blob stat failed") from exc
 
+    def scan_result(self, locator: StorageLocator) -> dict[str, str]:
+        """Read Defender's supported Blob index-tag result channel."""
+        try:
+            response = self._blob(locator.relative_path).get_blob_tags()
+            tags = response.get("tags", response)
+            return {str(key): str(value) for key, value in tags.items()}
+        except Exception as exc:
+            raise self._map_error(exc, "Azure Blob scan-result tag read failed") from exc
+
     def open_read(self, locator: StorageLocator, *, offset: int | None = None, length: int | None = None) -> BinaryIO:
         try:
             stream = self._blob(locator.relative_path).download_blob(offset=offset, length=length)

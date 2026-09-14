@@ -66,6 +66,10 @@ from ..services.forms_governance import (
     update_governance,
 )
 from ..services.source18_form_projection import resolve_source18_official_form, source18_official_form_projection
+from ..storage.azure_blob import AzureBlobBinaryStore
+from ..storage.errors import StorageError
+from ..storage.factory import create_binary_store
+from ..storage.port import StorageLocator
 
 router = APIRouter(prefix="/api", tags=["master-content"])
 
@@ -746,6 +750,52 @@ def record_malware_scan(item_id: str, payload: MalwareScanPayload, request: Requ
         "malware_scan_recorded_by": _actor(request, role),
     }
     audit(db, correlation_id=request.state.correlation_id, event_type="MASTER_CONTENT_MALWARE_SCAN_RECORDED", entity_type="DocumentVersion", entity_id=version.id, actor_id=_actor(request, role), after={"master_content_id": item.id, "malware_scan_state": state, "malware_scan_result_source": payload.result_source, "malware_scan_sha256": payload.scanned_sha256}, metadata={"evidence_reference": payload.evidence_reference, "fail_closed_until_clean": state != "CLEAN"})
+    db.commit()
+    return item_projection(db, item, include_history=True)
+
+
+@router.post("/master-content/{item_id}/malware-scan/reconcile/{version_id}")
+def reconcile_malware_scan(item_id: str, version_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    """Reconcile state from Defender's Blob index-tag channel, never from caller claims."""
+    require_capability(role, "MASTER_SOURCE_MANAGE_QUALITY")
+    item = _authorized_item(db, item_id, role, action="QUALITY_WRITE")
+    version = db.get(DocumentVersion, version_id)
+    if not version or version.document_id != item.document_id:
+        raise HTTPException(404, {"code": "VERSION_NOT_FOUND"})
+    metadata = version.metadata_json or {}
+    if str(metadata.get("storage_provider") or "").lower() != "azure-blob":
+        raise HTTPException(409, {"code": "MALWARE_SCAN_REQUIRES_AZURE_BLOB"})
+    try:
+        provider, container, relative = version.source_path_or_reference.removeprefix("storage://").split("/", 2)
+        store = create_binary_store()
+        if not isinstance(store, AzureBlobBinaryStore) or provider != "azure-blob" or container != store.config.container:
+            raise StorageError("MALWARE_SCAN_STORAGE_LOCATOR_INVALID")
+        tags = store.scan_result(StorageLocator(provider, container, relative))
+        result = tags.get("Malware scanning scan result", "").strip().lower()
+        state = {
+            "no threats found": "CLEAN",
+            "malicious": "MALICIOUS",
+            "error": "SCAN_FAILED",
+            "not scanned": "SCAN_UNAVAILABLE",
+        }.get(result, "SCAN_PENDING")
+        if state == "CLEAN" and store.stat(StorageLocator(provider, container, relative)).sha256 != version.sha256:
+            state = "SCAN_FAILED"
+            result = "hash mismatch"
+        evidence = f"blob-index-tags:{tags.get('Malware scanning scan time', 'UNAVAILABLE')}"
+    except StorageError as exc:
+        raise HTTPException(503, {"code": "MALWARE_SCAN_RESULT_UNAVAILABLE", "reason": exc.code.value}) from exc
+    except (ValueError, AttributeError) as exc:
+        raise HTTPException(503, {"code": "MALWARE_SCAN_RESULT_UNAVAILABLE"}) from exc
+    version.metadata_json = {
+        **metadata,
+        "malware_scan_state": state,
+        "malware_scan_provider": "DEFENDER_FOR_STORAGE",
+        "malware_scan_result_source": "DEFENDER_FOR_STORAGE_INDEX_TAG",
+        "malware_scan_evidence_reference": evidence,
+        "malware_scan_sha256": version.sha256 if state == "CLEAN" else None,
+        "malware_scan_recorded_by": _actor(request, role),
+    }
+    audit(db, correlation_id=request.state.correlation_id, event_type="MASTER_CONTENT_MALWARE_SCAN_RECONCILED", entity_type="DocumentVersion", entity_id=version.id, actor_id=_actor(request, role), after={"master_content_id": item.id, "malware_scan_state": state, "malware_scan_result": result, "malware_scan_sha256": version.sha256 if state == "CLEAN" else None}, metadata={"evidence_reference": evidence, "result_source": "DEFENDER_FOR_STORAGE_INDEX_TAG", "fail_closed_until_clean": state != "CLEAN"})
     db.commit()
     return item_projection(db, item, include_history=True)
 

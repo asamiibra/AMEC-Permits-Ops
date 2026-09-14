@@ -95,6 +95,7 @@ var commonEnvironment = [
   { name: 'MANAGED_ARTIFACT_STORE_REQUIRED', value: 'true' }
   { name: 'AZURE_BLOB_ACCOUNT_URL', value: 'https://${artifactStorage.name}.blob.core.windows.net' }
   { name: 'AZURE_BLOB_CONTAINER', value: 'managed-artifacts' }
+  { name: 'AZURE_BLOB_UAMI_CLIENT_ID', value: runtimeIdentity.properties.clientId }
 ]
 
 resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
