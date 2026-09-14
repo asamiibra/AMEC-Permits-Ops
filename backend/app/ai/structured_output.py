@@ -5,7 +5,8 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from typing import Literal
+from dataclasses import dataclass
+from typing import Any, Callable, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -57,6 +58,164 @@ class TechnicalMethodologyDraft(BaseModel):
         return self
 
 
+class ProposalIntakeAnalysis(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    summary: str = Field(min_length=1, max_length=4000)
+    missing_information: list[str] = Field(default_factory=list, max_length=30)
+    contradictions: list[str] = Field(default_factory=list, max_length=30)
+    unresolved_candidate_facts: list[str] = Field(default_factory=list, max_length=30)
+    source_currentness_issues: list[str] = Field(default_factory=list, max_length=30)
+    citation_keys: list[str] = Field(min_length=1, max_length=30)
+
+
+class ProposalRequirementCandidate(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    requirement: str = Field(min_length=1, max_length=2000)
+    proposal_section: str = Field(min_length=1, max_length=240)
+    supporting_facts: list[str] = Field(default_factory=list, max_length=20)
+    evidence_candidates: list[str] = Field(default_factory=list, max_length=20)
+    conflicting_evidence: list[str] = Field(default_factory=list, max_length=20)
+    missing_evidence: list[str] = Field(default_factory=list, max_length=20)
+    explanation: str = Field(min_length=1, max_length=2000)
+    confidence: float = Field(ge=0, le=1)
+    citation_keys: list[str] = Field(min_length=1, max_length=16)
+
+
+class ProposalRequirementEvidenceAnalysis(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    summary: str = Field(min_length=1, max_length=4000)
+    requirement_candidates: list[ProposalRequirementCandidate] = Field(default_factory=list, max_length=50)
+    open_questions: list[str] = Field(default_factory=list, max_length=30)
+    citation_keys: list[str] = Field(min_length=1, max_length=30)
+
+
+class ProposalSectionDraft(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    section_type: str = Field(min_length=1, max_length=120)
+    draft_content: str = Field(min_length=1, max_length=16000)
+    approved_content_used: list[str] = Field(default_factory=list, max_length=30)
+    canonical_facts_used: list[str] = Field(default_factory=list, max_length=30)
+    open_questions: list[str] = Field(default_factory=list, max_length=30)
+    assumptions: list[str] = Field(default_factory=list, max_length=30)
+    unsupported_claims: list[str] = Field(default_factory=list, max_length=30)
+    citation_keys: list[str] = Field(min_length=1, max_length=30)
+    draft_only: Literal[True] = True
+
+
+class ProposalCommercialVariance(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    field: str = Field(min_length=1, max_length=160)
+    proposal_value: str = Field(max_length=1000)
+    source_value: str = Field(max_length=1000)
+    candidate_classification: Literal["POSSIBLE_MATERIAL_VARIANCE"] = "POSSIBLE_MATERIAL_VARIANCE"
+    citation_keys: list[str] = Field(min_length=1, max_length=16)
+
+
+class ProposalCommercialConsistencyReview(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    summary: str = Field(min_length=1, max_length=4000)
+    variances: list[ProposalCommercialVariance] = Field(default_factory=list, max_length=50)
+    open_questions: list[str] = Field(default_factory=list, max_length=30)
+    citation_keys: list[str] = Field(min_length=1, max_length=30)
+
+
+class ProposalHandoffPreflight(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    summary: str = Field(min_length=1, max_length=4000)
+    deterministic_state: Literal["READY", "BLOCKED", "UNKNOWN"]
+    deterministic_blockers: list[str] = Field(default_factory=list, max_length=50)
+    candidate_issues: list[str] = Field(default_factory=list, max_length=30)
+    next_permissible_human_actions: list[str] = Field(default_factory=list, max_length=30)
+    citation_keys: list[str] = Field(min_length=1, max_length=30)
+
+
+class ProposalScopeTechnicalAnalysis(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    summary: str = Field(min_length=1, max_length=4000)
+    assumptions: list[str] = Field(default_factory=list, max_length=30)
+    exclusions: list[str] = Field(default_factory=list, max_length=30)
+    unresolved_technical_questions: list[str] = Field(default_factory=list, max_length=30)
+    eligibility_dependencies: list[str] = Field(default_factory=list, max_length=30)
+    recommendation_notes: list[str] = Field(default_factory=list, max_length=30)
+    citation_keys: list[str] = Field(min_length=1, max_length=30)
+
+
+class ProposalLpoDifference(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    field: str = Field(min_length=1, max_length=160)
+    proposal_value: str = Field(max_length=1000)
+    lpo_value: str = Field(max_length=1000)
+    evidence_key: str = Field(min_length=1, max_length=30)
+
+
+class ProposalLpoVarianceAnalysis(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    summary: str = Field(min_length=1, max_length=4000)
+    accepted_revision_id: str = Field(min_length=1, max_length=36)
+    lpo_evidence_id: str | None = Field(default=None, min_length=1, max_length=36)
+    differences: list[ProposalLpoDifference] = Field(default_factory=list, max_length=50)
+    citation_keys: list[str] = Field(min_length=1, max_length=30)
+
+
+class ProposalReadinessExplanation(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    explanation: str = Field(min_length=1, max_length=4000)
+    blockers: list[str] = Field(default_factory=list, max_length=30)
+    stale_dependencies: list[str] = Field(default_factory=list, max_length=30)
+    missing_information: list[str] = Field(default_factory=list, max_length=30)
+    next_permissible_human_actions: list[str] = Field(default_factory=list, max_length=30)
+    citation_keys: list[str] = Field(min_length=1, max_length=30)
+
+
+def _proposal_citation_keys(value: BaseModel) -> tuple[str, ...]:
+    return tuple(value.citation_keys)
+
+
+def _validate_proposal(model: type[BaseModel], value: object) -> BaseModel:
+    try:
+        return model.model_validate(value)
+    except Exception as exc:
+        raise AIError("AI_STRUCTURED_OUTPUT_VALIDATION_FAILED", status_code=502) from exc
+
+
+def _strict_schema(model: type[BaseModel]) -> dict[str, Any]:
+    schema = model.model_json_schema()
+    def close(node: Any) -> Any:
+        if isinstance(node, dict):
+            if node.get("type") == "object":
+                node["additionalProperties"] = False
+            for value in node.values():
+                close(value)
+        elif isinstance(node, list):
+            for value in node:
+                close(value)
+        return node
+    return close(schema)
+
+
+@dataclass(frozen=True)
+class StructuredOutputDefinition:
+    """Server-registered strict output behavior for one executable skill."""
+
+    schema_name: str
+    schema_version: str
+    output_class: str
+    provider_schema: dict[str, Any]
+    validator: Callable[[object], BaseModel]
+    citation_keys: Callable[[BaseModel], tuple[str, ...]]
+    requires_grounding: bool = True
+
+
+def _technical_citation_keys(value: BaseModel) -> tuple[str, ...]:
+    draft = value
+    keys: list[str] = []
+    for section in draft.sections:
+        keys.extend(section.citation_keys)
+    for assumption in draft.assumptions:
+        keys.extend(assumption.citation_keys)
+    return tuple(keys)
+
+
 PROVIDER_JSON_SCHEMA = {
     "type": "object",
     "properties": {
@@ -83,3 +242,64 @@ def validate_draft(payload: object) -> TechnicalMethodologyDraft:
 def output_fingerprint(draft: TechnicalMethodologyDraft) -> str:
     canonical = json.dumps(draft.model_dump(mode="json"), ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
     return hashlib.sha256(canonical).hexdigest()
+
+
+# Bind the compatibility definition after the historical schema and validator
+# exist.  This keeps the old public helpers stable while giving the registry a
+# generic, server-owned output definition.
+TECHNICAL_METHODOLOGY_OUTPUT = StructuredOutputDefinition(
+    schema_name="technical_methodology_draft",
+    schema_version="1",
+    output_class="DRAFT",
+    provider_schema=PROVIDER_JSON_SCHEMA,
+    validator=validate_draft,
+    citation_keys=_technical_citation_keys,
+    requires_grounding=True,
+)
+
+PROPOSAL_INTAKE_ANALYSIS_OUTPUT = StructuredOutputDefinition(
+    schema_name="proposal_intake_analysis", schema_version="1", output_class="ANALYSIS",
+    provider_schema=_strict_schema(ProposalIntakeAnalysis), validator=lambda value: _validate_proposal(ProposalIntakeAnalysis, value),
+    citation_keys=_proposal_citation_keys, requires_grounding=True,
+)
+PROPOSAL_SCOPE_TECHNICAL_ANALYSIS_OUTPUT = StructuredOutputDefinition(
+    schema_name="proposal_scope_technical_analysis", schema_version="1", output_class="RECOMMENDATION",
+    provider_schema=_strict_schema(ProposalScopeTechnicalAnalysis), validator=lambda value: _validate_proposal(ProposalScopeTechnicalAnalysis, value),
+    citation_keys=_proposal_citation_keys, requires_grounding=True,
+)
+PROPOSAL_LPO_VARIANCE_ANALYSIS_OUTPUT = StructuredOutputDefinition(
+    schema_name="proposal_lpo_variance_analysis", schema_version="1", output_class="ANALYSIS",
+    provider_schema=_strict_schema(ProposalLpoVarianceAnalysis), validator=lambda value: _validate_proposal(ProposalLpoVarianceAnalysis, value),
+    citation_keys=_proposal_citation_keys, requires_grounding=True,
+)
+PROPOSAL_READINESS_EXPLANATION_OUTPUT = StructuredOutputDefinition(
+    schema_name="proposal_readiness_explanation", schema_version="1", output_class="ANALYSIS",
+    provider_schema=_strict_schema(ProposalReadinessExplanation), validator=lambda value: _validate_proposal(ProposalReadinessExplanation, value),
+    citation_keys=_proposal_citation_keys, requires_grounding=True,
+)
+
+PROPOSAL_TENDER_INTAKE_ANALYSIS_OUTPUT = StructuredOutputDefinition(
+    schema_name="proposal_tender_intake_analysis", schema_version="1", output_class="ANALYSIS",
+    provider_schema=_strict_schema(ProposalIntakeAnalysis), validator=lambda value: _validate_proposal(ProposalIntakeAnalysis, value),
+    citation_keys=_proposal_citation_keys, requires_grounding=True,
+)
+PROPOSAL_REQUIREMENT_EVIDENCE_ANALYSIS_OUTPUT = StructuredOutputDefinition(
+    schema_name="proposal_requirement_evidence_analysis", schema_version="1", output_class="ANALYSIS",
+    provider_schema=_strict_schema(ProposalRequirementEvidenceAnalysis), validator=lambda value: _validate_proposal(ProposalRequirementEvidenceAnalysis, value),
+    citation_keys=_proposal_citation_keys, requires_grounding=True,
+)
+PROPOSAL_SECTION_DRAFT_OUTPUT = StructuredOutputDefinition(
+    schema_name="proposal_section_draft", schema_version="1", output_class="DRAFT",
+    provider_schema=_strict_schema(ProposalSectionDraft), validator=lambda value: _validate_proposal(ProposalSectionDraft, value),
+    citation_keys=_proposal_citation_keys, requires_grounding=True,
+)
+PROPOSAL_COMMERCIAL_CONSISTENCY_REVIEW_OUTPUT = StructuredOutputDefinition(
+    schema_name="proposal_commercial_consistency_review", schema_version="1", output_class="ANALYSIS",
+    provider_schema=_strict_schema(ProposalCommercialConsistencyReview), validator=lambda value: _validate_proposal(ProposalCommercialConsistencyReview, value),
+    citation_keys=_proposal_citation_keys, requires_grounding=True,
+)
+PROPOSAL_HANDOFF_PREFLIGHT_OUTPUT = StructuredOutputDefinition(
+    schema_name="proposal_handoff_preflight", schema_version="1", output_class="ANALYSIS",
+    provider_schema=_strict_schema(ProposalHandoffPreflight), validator=lambda value: _validate_proposal(ProposalHandoffPreflight, value),
+    citation_keys=_proposal_citation_keys, requires_grounding=True,
+)

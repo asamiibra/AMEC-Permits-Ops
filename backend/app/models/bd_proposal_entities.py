@@ -216,6 +216,48 @@ class ProposalStalenessEvent(Base, TimestampMixin):
     detected_by: Mapped[str] = mapped_column(String(200), nullable=False)
     cleared_by: Mapped[str | None] = mapped_column(String(200))
     cleared_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    revalidation_revision_id: Mapped[str | None] = mapped_column(ForeignKey("proposal_revisions.id"))
+    revalidation_accepted_revision_id: Mapped[str | None] = mapped_column(ForeignKey("proposal_accepted_revisions.id"), index=True)
+    revalidated_by: Mapped[str | None] = mapped_column(String(200))
+    revalidated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    revalidation_result: Mapped[str | None] = mapped_column(String(40))
+
+
+class ProposalIntelligenceReviewBinding(Base):
+    """Proposal-owned pin for a canonical WorkflowTask review item.
+
+    This is a binding record, not a queue or a second task lifecycle.  The
+    task remains the canonical work item; this row preserves the exact
+    immutable subject/currentness identity needed by Proposal review.
+    """
+
+    __tablename__ = "proposal_intelligence_review_bindings"
+    __table_args__ = (
+        UniqueConstraint("workflow_task_id", name="uq_proposal_intelligence_review_task"),
+        UniqueConstraint("idempotency_key", name="uq_proposal_intelligence_review_idempotency"),
+        Index("ix_proposal_intelligence_review_proposal", "proposal_id", "actionable"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    workflow_task_id: Mapped[str] = mapped_column(ForeignKey("workflow_tasks.id"), nullable=False, index=True)
+    proposal_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id"), nullable=False, index=True)
+    review_subject_type: Mapped[str] = mapped_column(String(80), nullable=False)
+    review_subject_id: Mapped[str] = mapped_column(String(160), nullable=False)
+    candidate_assertion_id: Mapped[str | None] = mapped_column(ForeignKey("candidate_assertions.id"), index=True)
+    work_product_id: Mapped[str | None] = mapped_column(ForeignKey("ai_work_products.id"), index=True)
+    context_snapshot_id: Mapped[str | None] = mapped_column(ForeignKey("context_snapshots.id"), index=True)
+    dependency_type: Mapped[str] = mapped_column(String(80), nullable=False)
+    dependency_id: Mapped[str] = mapped_column(String(200), nullable=False)
+    dependency_version_or_hash: Mapped[str] = mapped_column(String(200), nullable=False)
+    required_persona: Mapped[str] = mapped_column(String(80), nullable=False)
+    required_capability: Mapped[str] = mapped_column(String(160), nullable=False)
+    correlation_id: Mapped[str] = mapped_column(String(100), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(String(200), nullable=False)
+    precondition_version: Mapped[str] = mapped_column(String(200), nullable=False)
+    actionable: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, index=True)
+    stale_reason: Mapped[str | None] = mapped_column(String(160))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow, nullable=False)
 
 
 class ProposalRevision(Base):
@@ -245,8 +287,12 @@ class ProposalClientResponse(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
     proposal_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id"), nullable=False, index=True)
     accepted_revision_id: Mapped[str | None] = mapped_column(String(36), index=True)
+    client_account_id: Mapped[str | None] = mapped_column(ForeignKey("client_accounts.id"), index=True)
+    client_contact_id: Mapped[str | None] = mapped_column(ForeignKey("client_contacts.id"), index=True)
     response_type: Mapped[str] = mapped_column(String(50), nullable=False)
     evidence_reference: Mapped[str | None] = mapped_column(String(600))
+    evidence_document_version_id: Mapped[str | None] = mapped_column(ForeignKey("document_versions.id"), index=True)
+    evidence_sha256: Mapped[str | None] = mapped_column(String(64))
     notes: Mapped[str | None] = mapped_column(Text)
     recorded_by: Mapped[str] = mapped_column(String(200), nullable=False)
     recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
@@ -394,6 +440,12 @@ class ProposalServiceEligibility(Base):
     capability_reference: Mapped[str | None] = mapped_column(String(300))
     policy_reference: Mapped[str | None] = mapped_column(String(300))
     evidence_document_version_id: Mapped[str | None] = mapped_column(ForeignKey("document_versions.id"))
+    evidence_sha256: Mapped[str | None] = mapped_column(String(64))
+    scope_confirmation_id: Mapped[str | None] = mapped_column(ForeignKey("proposal_scope_confirmations.id"), index=True)
+    scope_revision_hash: Mapped[str | None] = mapped_column(String(64))
+    authority_snapshot: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    policy_version: Mapped[str | None] = mapped_column(String(100))
+    as_of: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     decision_note: Mapped[str | None] = mapped_column(Text)
     decided_by: Mapped[str] = mapped_column(String(200), nullable=False)
     decided_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
@@ -434,6 +486,11 @@ class ProposalDistributionEvent(Base):
     recipient_contact_reference: Mapped[str | None] = mapped_column(String(300))
     evidence_document_version_id: Mapped[str | None] = mapped_column(ForeignKey("document_versions.id"))
     evidence_reference: Mapped[str] = mapped_column(String(600), nullable=False)
+    delivery_status: Mapped[str] = mapped_column(String(40), nullable=False, default="EXTERNAL_EVIDENCE_RECORDED")
+    receipt_reference: Mapped[str | None] = mapped_column(String(600))
+    output_artifact_id: Mapped[str | None] = mapped_column(ForeignKey("proposal_output_artifacts.id"), index=True)
+    output_artifact_hash: Mapped[str | None] = mapped_column(String(64))
+    evidence_sha256: Mapped[str | None] = mapped_column(String(64))
     sent_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
     sent_by: Mapped[str] = mapped_column(String(200), nullable=False)
     audit_correlation_id: Mapped[str] = mapped_column(String(200), nullable=False)
@@ -451,6 +508,7 @@ class ProposalAcceptanceVerification(Base):
     status: Mapped[str] = mapped_column(String(30), nullable=False, default="VERIFIED")
     evidence_reference: Mapped[str] = mapped_column(String(600), nullable=False)
     evidence_document_version_id: Mapped[str | None] = mapped_column(ForeignKey("document_versions.id"))
+    evidence_sha256: Mapped[str | None] = mapped_column(String(64))
     verified_by: Mapped[str] = mapped_column(String(200), nullable=False)
     verification_note: Mapped[str | None] = mapped_column(Text)
     verified_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
@@ -473,6 +531,13 @@ class ProposalLpoReconciliation(Base):
     fields_compared: Mapped[list[str]] = mapped_column(JSON, default=list, nullable=False)
     variances: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list, nullable=False)
     result: Mapped[str] = mapped_column(String(40), nullable=False)
+    comparator_version: Mapped[str] = mapped_column(String(40), nullable=False, default="SERVER_LPO_COMPARATOR_V1")
+    source_sha256: Mapped[str | None] = mapped_column(String(64))
+    mapping_version: Mapped[str | None] = mapped_column(String(80))
+    mapped_fields: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+    mapper_identity: Mapped[str | None] = mapped_column(String(200))
+    mapped_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    accepted_revision_hash: Mapped[str | None] = mapped_column(String(64))
     adjudication_note: Mapped[str | None] = mapped_column(Text)
     adjudicated_by: Mapped[str | None] = mapped_column(String(200))
     adjudicated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

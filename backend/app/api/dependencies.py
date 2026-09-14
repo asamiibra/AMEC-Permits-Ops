@@ -1,3 +1,4 @@
+from contextvars import ContextVar
 from dataclasses import dataclass
 
 from fastapi import Depends, Header, HTTPException, Request
@@ -40,6 +41,39 @@ class AuthenticatedPrincipal:
     preferred_username: str | None = None
 
 
+_principal_context: ContextVar[AuthenticatedPrincipal | None] = ContextVar(
+    "proposalops_authenticated_principal", default=None
+)
+_request_context: ContextVar[Request | None] = ContextVar(
+    "proposalops_request", default=None
+)
+
+
+def bind_request_context(request: Request) -> None:
+    _request_context.set(request)
+
+
+def clear_request_context() -> None:
+    """Prevent an authenticated principal leaking into a later request task."""
+    _principal_context.set(None)
+    _request_context.set(None)
+
+
+def authenticated_principal_context() -> AuthenticatedPrincipal | None:
+    request = _request_context.get()
+    request_principal = getattr(request.state, "authenticated_principal", None) if request else None
+    if request_principal is not None:
+        return request_principal
+    return _principal_context.get()
+
+
+def authenticated_actor() -> str | None:
+    principal = authenticated_principal_context()
+    if principal is None:
+        return None
+    return principal.user_id or f"dev-role:{principal.role.value}"
+
+
 def _resolve_dev_role(
     x_dev_role: str | None,
 ) -> Role:
@@ -70,10 +104,12 @@ def current_principal(
     auth_mode = settings.auth_mode.upper()
 
     if auth_mode == "DEV_HEADER":
-        return AuthenticatedPrincipal(
+        principal = AuthenticatedPrincipal(
             auth_mode="DEV_HEADER",
             role=_resolve_dev_role(x_dev_role),
         )
+        _principal_context.set(principal)
+        return principal
 
     if auth_mode != "ENTRA":
         raise HTTPException(
@@ -120,7 +156,7 @@ def current_principal(
             detail="ProposalOps access is not authorized",
         )
 
-    return AuthenticatedPrincipal(
+    principal = AuthenticatedPrincipal(
         auth_mode="ENTRA",
         role=user.role,
         user_id=user.id,
@@ -130,6 +166,8 @@ def current_principal(
         display_name=identity.display_name,
         preferred_username=identity.preferred_username,
     )
+    _principal_context.set(principal)
+    return principal
 
 
 def trusted_current_principal(
@@ -150,10 +188,15 @@ def trusted_current_principal(
 
 
 def current_user_role(
+    request: Request,
     principal: AuthenticatedPrincipal = Depends(
         current_principal
     ),
 ) -> Role:
+    # Proposal routers depend on this lightweight role dependency directly;
+    # bind the verified principal to the request so actor/audit resolution
+    # cannot reuse a ContextVar from an earlier request.
+    request.state.authenticated_principal = principal
     return principal.role
 
 

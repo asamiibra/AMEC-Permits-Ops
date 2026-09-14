@@ -76,6 +76,7 @@ class ProposalOutputArtifact(Base):
     content_type: Mapped[str] = mapped_column(String(120), nullable=False)
     content_hash: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     storage_reference: Mapped[str] = mapped_column(String(600), nullable=False)
+    document_version_id: Mapped[str | None] = mapped_column(ForeignKey("document_versions.id"), index=True)
     lineage: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
     file_size: Mapped[int] = mapped_column(Integer, nullable=False)
     synthetic_only: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)

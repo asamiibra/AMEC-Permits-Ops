@@ -175,6 +175,12 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
         "source18_committee_implementation_v1.py",
         "source18_regulatory_current_state_v1.py",
         "step5_content_library_azure_sql_v2.py",
+        "proposal_production_hardening_v1.py",
+        "intelligence_v1_shared_contracts.py",
+        "p07_intelligence_foundation_closure.py",
+        "p08_proposal_intelligence.py",
+        "proposal_intelligence_combined_merge_v1.py",
+        "proposal_owner_test_profile_v1.py",
     }
     by_revision = {
         re.search(r'^revision = "([^"]+)"$', path.read_text(encoding="utf-8"), re.MULTILINE).group(1): path
@@ -190,6 +196,12 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
         "opportunity_proposal_idempotency_v1",
         "billing_module_closure_v8",
         "17c6ebd99c4a",
+        "proposal_production_hardening_v1",
+        "intelligence_v1_shared_contracts",
+        "p07_intelligence_foundation_closure",
+        "p08_proposal_intelligence",
+        "proposal_intelligence_combined_merge_v1",
+        "proposal_owner_test_profile_v1",
     }
     source = by_revision["baseline_phase4_v36_azure_sql"].read_text(encoding="utf-8")
     assert 'revision = "baseline_phase4_v36_azure_sql"' in source
@@ -206,6 +218,9 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
     billing = by_revision["billing_module_closure_v8"].read_text(encoding="utf-8")
     assert 'revision = "billing_module_closure_v8"' in billing
     assert 'down_revision = "source18_committee_implementation_v1"' in billing
+    p07 = by_revision["p07_intelligence_foundation_closure"].read_text(encoding="utf-8")
+    assert 'revision = "p07_intelligence_foundation_closure"' in p07
+    assert 'down_revision = "intelligence_v1_shared_contracts"' in p07
     merge_point = by_revision["17c6ebd99c4a"].read_text(encoding="utf-8")
     assert "billing_module_closure_v8" in merge_point
     assert "opportunity_proposal_idempotency_v1" in merge_point
@@ -218,6 +233,9 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
     assert 'down_revision = "step5_content_azure_sql_v2"' in ledger.read_text(encoding="utf-8")
     assert 'down_revision = "source18_committee_implementation_v1"' in by_revision["opportunity_commercial_controls_v1"].read_text(encoding="utf-8")
     assert 'down_revision = "opportunity_commercial_controls_v1"' in by_revision["opportunity_proposal_idempotency_v1"].read_text(encoding="utf-8")
+    hardening = by_revision["proposal_production_hardening_v1"].read_text(encoding="utf-8")
+    assert 'down_revision = "17c6ebd99c4a"' in hardening
+    assert "Proposal output history or document bytes" in hardening
 
 
 def test_sqlserver_driver_dependency_metadata_consistent():
@@ -618,12 +636,12 @@ def test_sqlserver_gate_azsql025_is_deterministic_and_conflict_exact():
 
 def test_sqlserver_nullable_unique_inventory_is_fully_classified():
     result = nullable_unique_audit("post")
-    assert result["unique_object_total_count"] == result["unique_object_classified_count"] == 243
+    assert result["unique_object_total_count"] == result["unique_object_classified_count"] == 258
     assert result["unclassified_unique_object_count"] == 0
     assert result["unsafe_fk_or_semantic_review_required_count"] == 0
-    assert result["nullable_unique_filter_required_count"] == 19
+    assert result["nullable_unique_filter_required_count"] == 20
     assert result["nullable_unique_filter_required_open_count"] == 0
-    assert result["nullable_unique_filter_implemented_count"] == 19
+    assert result["nullable_unique_filter_implemented_count"] == 20
     objects = {item["object_name"]: item for item in result["objects"]}
     for name in (
         "uq_proposal_service_eligibility_offering",
@@ -644,10 +662,10 @@ def test_sqlserver_nullable_unique_inventory_is_fully_classified():
     assert objects["ix_opportunities_idempotency_key"]["model_filter"] == "idempotency_key is not null"
     assert objects["ix_opportunities_idempotency_key"]["migration_filter"] == "idempotency_key is not null"
     assert result["result"] == "PASS"
-    print("UNIQUE_OBJECT_TOTAL_COUNT=243")
+    print("UNIQUE_OBJECT_TOTAL_COUNT=256")
     print("UNCLASSIFIED_UNIQUE_OBJECT_COUNT=0")
     print("UNSAFE_FK_OR_SEMANTIC_REVIEW_REQUIRED_COUNT=0")
-    print("NULLABLE_UNIQUE_FILTER_IMPLEMENTED_COUNT=19")
+    print("NULLABLE_UNIQUE_FILTER_IMPLEMENTED_COUNT=20")
 
 
 def test_sqlserver_nullable_unique_filters_match_orm_and_migration():
@@ -688,7 +706,7 @@ def test_sqlserver_known_nullable_unique_indexes_compile_filtered():
 def test_sqlserver_nullable_unique_objects_are_not_fk_target_rewrites():
     result = nullable_unique_audit("post")
     safe_nullable = [item for item in result["objects"] if item["classification"] == "NULLABLE_UNIQUE_FILTER_REQUIRED"]
-    assert len(safe_nullable) == 19
+    assert len(safe_nullable) == 20
     assert next(item for item in safe_nullable if item["object_name"] == "ix_opportunities_idempotency_key")["expected_mssql_filter"] == "idempotency_key is not null"
     assert all(item["foreign_key_target_usage"] is False for item in safe_nullable)
     assert all(item["foreign_key_references"] == [] for item in safe_nullable)

@@ -15,21 +15,23 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from ..api.dependencies import current_user_role
+from ..api.dependencies import authenticated_actor, authenticated_principal_context, current_user_role
 from ..audit.service import audit
 from ..db import get_db
-from ..models import AssistantHandoff, AuditEvent, ClientAccount, ConsultancyOffice, Contract, ContractRevision, Document, DocumentApprovalState, DocumentType, DocumentVersion, ExternalBody, Jurisdiction, NotificationEvent, Opportunity, Party, ProposalAcceptedRevision, ProposalAcceptanceVerification, ProposalAssumption, ProposalClientResponse, ProposalCommercialOutcome, ProposalConflict, ProposalContactContext, ProposalContractHandoff, ProposalCommercialRelease, ProposalDistributionEvent, ProposalEngineeringContribution, ProposalExpectedInputPreview, ProposalExternalCostAssumption, ProposalIntakeArtifact, ProposalLpoReconciliation, ProposalMaterialAcknowledgment, ProposalOutputArtifact, ProposalOwnerSetting, ProposalRegulatoryScopeIntent, ProposalRevision, ProposalScopeConfirmation, ProposalServiceEligibility, ProposalServiceScopeItem, ProposalSiteContext, ProposalSourceEvidence, ProposalSourceLink, ProposalStakeholderIntent, ProposalStalenessEvent, ProposalTechnicalAssessment, ProposalUnknown, ProposalNote, Quotation, QuotationRevision, ReferenceNumber, Role, ServiceType, WorkflowTask, WorkflowTaskStatus
+from ..models import AssistantHandoff, AuditEvent, ClientAccount, ClientContact, ConsultancyOffice, Contract, ContractRevision, Document, DocumentApprovalState, DocumentType, DocumentVersion, EvidenceArtifact, ExternalBody, Jurisdiction, NotificationEvent, Opportunity, Party, ProposalAcceptedRevision, ProposalAcceptanceVerification, ProposalAssumption, ProposalClientResponse, ProposalCommercialOutcome, ProposalConflict, ProposalContactContext, ProposalContractHandoff, ProposalCommercialRelease, ProposalDistributionEvent, ProposalEngineeringContribution, ProposalExpectedInputPreview, ProposalExternalCostAssumption, ProposalIntakeArtifact, ProposalLpoReconciliation, ProposalMaterialAcknowledgment, ProposalOutputArtifact, ProposalOwnerSetting, ProposalRegulatoryScopeIntent, ProposalRevision, ProposalScopeConfirmation, ProposalServiceEligibility, ProposalServiceScopeItem, ProposalSiteContext, ProposalSourceEvidence, ProposalSourceLink, ProposalStakeholderIntent, ProposalStalenessEvent, ProposalTechnicalAssessment, ProposalUnknown, ProposalNote, Quotation, QuotationRevision, ReferenceNumber, Role, ServiceType, WorkflowTask, WorkflowTaskStatus
 from ..config.settings import get_settings as app_settings
 from ..services.backend_realignment import domain_error, require_capability
 from ..services.master_content import definition_lookup
-from ..services.proposal_workspace import SOURCE_TYPES, SOURCE_TO_SEMANTIC, ensure_owner_settings, master_content_purpose, output_bytes, owner_lane_definitions, proposal_configuration, proposal_projection, snapshot_for_accept, stable_hash, validate_proposal, intake_readiness
+from ..services.proposal_workspace import SOURCE_TYPES, SOURCE_TO_SEMANTIC, ensure_owner_settings, master_content_purpose, output_bytes, production_output_bytes, owner_lane_definitions, proposal_configuration, proposal_projection, snapshot_for_accept, stable_hash, validate_proposal, intake_readiness
 from ..services.bd_proposal_forms_v2 import add_source_link, create_preview, set_contact, set_site_context, v2_readiness
-from ..services.proposal_final_hardening import hardening_projection, impacted_sections_for_source, material_fingerprint, now as hardening_now
+from ..services.proposal_final_hardening import causal_revalidation_blockers, hardening_projection, impacted_sections_for_source, material_fingerprint, now as hardening_now
 from ..services.proposal_reference import allocate_proposal_reference
+from ..services.proposal_production_boundary import production_mode, require_authorized_office, require_canonical_active_client, require_exact_document_version, require_proposal_scoped_evidence, reject_synthetic_value, synthetic_test_mode
 from ..services.proposals_sor import _safe_filename, ingest_provisional_intake_artifact, read_proposal_source_bytes
 from ..services.contract_workspace import accepted_revision as accepted_contract_revision, create_contract_from_proposal
-from ..services.proposal_commercial_controls import authorize_release, confirm_scope, create_handoff as create_proposal_handoff, record_distribution, record_eligibility, record_technical_assessment, reconcile_lpo, verify_acceptance
+from ..services.proposal_commercial_controls import authorize_release, confirm_scope, create_handoff as create_proposal_handoff, handoff_predicate, record_distribution, record_eligibility, record_technical_assessment, reconcile_lpo, verify_acceptance
 from ..services.owner_decisions import applied_runtime_decision_value, runtime_decision_value
+from ..storage import DocumentStorageService, StorageError, StorageTarget, create_binary_store
 
 router = APIRouter(prefix="/api/bd/proposals", tags=["bd-proposal-owner-session"])
 
@@ -89,26 +91,34 @@ class ProposalRegisterResponse(BaseModel):
 
 
 def _actor(role: Role, supplied: str | None = None) -> str:
-    return supplied or getattr(role, "value", str(role))
+    # The compatibility parameter is intentionally ignored. Consequential
+    # audit identity comes from the authenticated request principal.
+    return authenticated_actor() or getattr(role, "value", str(role))
 
 
 def _create_proposal_record(payload: ProposalCreate, request: Request, db: Session, role: Role) -> Opportunity:
     """Create the canonical Proposal row without committing a source transaction."""
+    principal = authenticated_principal_context()
+    client_id = payload.client_account_id
+    if production_mode():
+        reject_synthetic_value(payload.proposal_description, code="CANONICAL_PROPOSAL_CONTEXT_REQUIRED")
+        reject_synthetic_value(payload.project_reference, code="CANONICAL_PROPOSAL_CONTEXT_REQUIRED")
+        client = require_canonical_active_client(db, client_id)
+        client_id = client.id
+    office = require_authorized_office(db, principal, project_id=payload.project_id)
     if payload.idempotency_key:
         existing = db.scalar(select(Opportunity).where(Opportunity.idempotency_key == payload.idempotency_key))
         if existing:
+            if production_mode() and existing.office_id != office.id:
+                raise HTTPException(409, {"code": "OFFICE_CONTEXT_MISMATCH", "office_id": office.id})
             return existing
-    office = db.scalar(select(ConsultancyOffice).order_by(ConsultancyOffice.office_code))
-    if not office:
-        raise HTTPException(503, "OFFICE_CONTEXT_REQUIRED")
-    client_id = payload.client_account_id
-    if not client_id and payload.client_name:
+    if not production_mode() and not client_id and payload.client_name:
         client = ClientAccount(client_reference=f"AMEC-SYN-CLIENT-{db.query(ClientAccount).count() + 1:04d}", legal_name=payload.client_name.strip(), display_name=payload.client_name.strip(), client_type="COMPANY", data_classification="SYNTHETIC", status="ACTIVE")
         db.add(client)
         db.flush()
         client_id = client.id
     reference = allocate_proposal_reference(db)
-    fields = {"client_name": payload.client_name, "project_reference": payload.project_reference, "provenance": {"client_name": "manual", "project_reference": "manual"}}
+    fields = {"intake_client_name": payload.client_name, "project_reference": payload.project_reference, "provenance": {"intake_client_name": "manual", "project_reference": "manual"}}
     fields = {key: value for key, value in fields.items() if value is not None}
     item = Opportunity(office_id=office.id, client_account_id=client_id, opportunity_reference=reference, title=payload.proposal_description.strip(), status="IN_REVIEW", source_type="BD_WORKSPACE", project_id=payload.project_id, reference_state="CANONICAL" if payload.project_id else "PROVISIONAL", proposal_fields_json=fields, idempotency_key=payload.idempotency_key, provisional_reference=reference, canonical_project_reference=payload.project_reference)
     db.add(item)
@@ -126,7 +136,7 @@ def _list_row(db: Session, item: Opportunity) -> dict[str, Any]:
     location = site.get("location_text") or fields.get("location") or site.get("site_description") or ""
     activity = fields.get("project_description") or fields.get("activity") or item.title
     search_text = " ".join(str(value or "") for value in (item.title, item.opportunity_reference, projection["project_reference"], client_label, activity, fields.get("client_scope_of_work"), fields.get("scope_of_work") or fields.get("sow"), location, projection["stage_label"], item.status)).lower()
-    return {"id": item.id, "proposal_reference": item.opportunity_reference, "proposal": item.title, "project_ref": projection["project_reference"], "client": client_label, "activity": activity, "stage": projection["stage_label"], "stage_code": item.status, "amount": projection["amount"], "last_activity": projection["last_activity"], "location": location or None, "current_owner": projection["current_owner"], "next_action": projection["next_action"], "owner_lane": projection["owner_lane"], "contract_eligible": projection["contract_eligible"], "validation": projection["validation"], "_search_text": search_text}
+    return {"id": item.id, "proposal_reference": item.opportunity_reference, "proposal": item.title, "project_ref": projection["project_reference"], "client": client_label, "activity": activity, "stage": projection["stage_label"], "stage_code": item.status, "amount": projection["amount"], "last_activity": projection["last_activity"], "location": location or None, "current_owner": projection["current_owner"], "next_action": projection["next_action"], "owner_lane": projection["owner_lane"], "contract_eligible": projection["contract_eligible"], "validation": projection["validation"], "fixture_classification": item.fixture_classification, "_search_text": search_text}
 
 
 def _register_predicate(rows: list[dict[str, Any]], *, q: str, stage: str | None, lane: str | None, client: str | None, activity: str | None, location: str | None) -> tuple[list[dict[str, Any]], dict[str, int]]:
@@ -221,7 +231,7 @@ def list_proposals(q: str = "", stage: str | None = None, lane: str | None = Non
     rows, lane_counts = _register_predicate([_list_row(db, item) for item in db.scalars(select(Opportunity).order_by(Opportunity.updated_at.desc(), Opportunity.opportunity_reference)).all()], q=q, stage=stage, lane=lane, client=client, activity=activity, location=location)
     for row in rows:
         row.pop("_search_text", None)
-    return {"items": rows, "rows": rows, "count": len(rows), "lane_counts": lane_counts, "lane_options": owner_lane_definitions(), "predicate_version": "bd-proposal-register-v2", "filters": {"q": q, "stage": stage, "lane": lane, "client": client, "activity": activity, "location": location}, "stage_options": ["RECEIVED", "IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "READY_FOR_QUOTATION", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS", "CLIENT_RESPONSE_PENDING", "ACCEPTED", "CONTRACT_HANDOVER", "CLOSED"], "amount_source": "proposal_fields.price", "last_activity_source": "Opportunity.updated_at material Proposal activity timestamp", "search_fields": ["client_name", "proposal.title", "project_description", "client_scope_of_work", "scope_of_work", "site_context.location_text", "site_context.site_description", "proposal_reference", "project_reference", "stage"], "synthetic_only": True}
+    return {"items": rows, "rows": rows, "count": len(rows), "lane_counts": lane_counts, "lane_options": owner_lane_definitions(), "predicate_version": "bd-proposal-register-v2", "filters": {"q": q, "stage": stage, "lane": lane, "client": client, "activity": activity, "location": location}, "stage_options": ["RECEIVED", "IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "READY_FOR_QUOTATION", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS", "CLIENT_RESPONSE_PENDING", "ACCEPTED", "CONTRACT_HANDOVER", "CLOSED"], "amount_source": "proposal_fields.price", "last_activity_source": "Opportunity.updated_at material Proposal activity timestamp", "search_fields": ["client_name", "proposal.title", "project_description", "client_scope_of_work", "scope_of_work", "site_context.location_text", "site_context.site_description", "proposal_reference", "project_reference", "stage"], "synthetic_only": any(row.get("fixture_classification") == "SYNTHETIC_OWNER_TEST" for row in rows)}
 
 
 @router.post("")
@@ -465,11 +475,64 @@ def review_proposal_staleness(proposal_id: str, request: Request, db: Session = 
     require_capability(role, "BD_PROPOSAL_WRITE")
     proposal = _proposal_or_404(proposal_id, db)
     active = db.scalars(select(ProposalStalenessEvent).where(ProposalStalenessEvent.proposal_id == proposal.id, ProposalStalenessEvent.status == "ACTIVE")).all()
+    if production_mode():
+        raise domain_error(409, "CAUSAL_REVALIDATION_REQUIRED", active_event_ids=[item.id for item in active])
     for item in active:
         item.status = "CLEARED"
         item.cleared_by = _actor(role)
         item.cleared_at = hardening_now()
     audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_STALENESS_REVIEWED", entity_type="Opportunity", entity_id=proposal.id, actor_id=_actor(role), after={"cleared_event_ids": [item.id for item in active]})
+    db.commit()
+    return proposal_projection(db, proposal)
+
+
+@router.post("/{proposal_id}/staleness/revalidate")
+def revalidate_proposal_staleness(proposal_id: str, payload: dict[str, Any], request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    require_capability(role, "BD_PROPOSAL_WRITE")
+    proposal = _proposal_or_404(proposal_id, db)
+    accepted = db.scalar(select(ProposalAcceptedRevision).where(ProposalAcceptedRevision.proposal_id == proposal.id).order_by(ProposalAcceptedRevision.revision_number.desc()))
+    revision_id = payload.get("revision_id")
+    revision = db.scalar(select(ProposalRevision).where(ProposalRevision.id == revision_id, ProposalRevision.proposal_id == proposal.id, ProposalRevision.status == "DRAFT"))
+    if not accepted or not revision or revision.base_accepted_revision_id != accepted.id:
+        raise domain_error(409, "CAUSAL_REVALIDATION_REVISION_REQUIRED", accepted_revision_id=accepted.id if accepted else None)
+    active = db.scalars(select(ProposalStalenessEvent).where(ProposalStalenessEvent.proposal_id == proposal.id, ProposalStalenessEvent.status == "ACTIVE")).all()
+    requested_ids = set(payload.get("event_ids") or [item.id for item in active])
+    if not active or {item.id for item in active} != requested_ids:
+        raise domain_error(409, "ALL_ACTIVE_STALENESS_EVENTS_MUST_BE_REVALIDATED")
+    blockers = causal_revalidation_blockers(db, proposal, revision, active)
+    if blockers:
+        raise domain_error(409, blockers[0], blockers=blockers, server_derived_result="BLOCKED")
+    next_revision = ProposalAcceptedRevision(
+        proposal_id=proposal.id,
+        revision_number=accepted.revision_number + 1,
+        snapshot=dict(revision.snapshot or {}),
+        validation_snapshot={**(accepted.validation_snapshot or {}), "causal_revalidation": {"source_revision_id": revision.id, "event_ids": sorted(requested_ids), "server_derived_result": "PASS"}},
+        template_ref=accepted.template_ref,
+        template_version_id=accepted.template_version_id,
+        template_version=accepted.template_version,
+        template_hash=accepted.template_hash,
+        checklist_ref=accepted.checklist_ref,
+        checklist_version_id=accepted.checklist_version_id,
+        checklist_version=accepted.checklist_version,
+        checklist_hash=accepted.checklist_hash,
+        definition_refs=list(accepted.definition_refs or []),
+        content_hash=revision.content_hash,
+        accepted_by=_actor(role),
+        supersedes_revision_id=accepted.id,
+    )
+    db.add(next_revision)
+    revision.status = "ACCEPTED"
+    db.flush()
+    for item in active:
+        item.status = "CLEARED"
+        item.cleared_by = _actor(role)
+        item.cleared_at = hardening_now()
+        item.revalidation_revision_id = revision.id
+        item.revalidation_accepted_revision_id = next_revision.id
+        item.revalidated_by = _actor(role)
+        item.revalidated_at = hardening_now()
+        item.revalidation_result = "PASS"
+    audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_STALENESS_CAUSALLY_REVALIDATED", entity_type="Opportunity", entity_id=proposal.id, actor_id=_actor(role), after={"event_ids": sorted(requested_ids), "revalidation_revision_id": revision.id, "revalidation_accepted_revision_id": next_revision.id, "result": "PASS"})
     db.commit()
     return proposal_projection(db, proposal)
 
@@ -542,7 +605,14 @@ def patch_proposal(proposal_id: str, payload: ProposalFieldsPatch, request: Requ
         if actual and actual != expected:
             raise domain_error(409, "PROPOSAL_DRAFT_CHANGED", expected_updated_at=payload.expected_updated_at, actual_updated_at=actual.isoformat())
     current = dict(item.proposal_fields_json or {})
-    current.update(payload.fields or {})
+    incoming_fields = dict(payload.fields or {})
+    if production_mode() and "client_account_id" in incoming_fields:
+        if str(incoming_fields.pop("client_account_id")) != str(item.client_account_id):
+            raise domain_error(409, "CANONICAL_CLIENT_ID_IMMUTABLE", client_account_id=item.client_account_id)
+    if "client_name" in incoming_fields:
+        current["intake_client_name"] = incoming_fields.pop("client_name")
+        current["provenance"] = {**(current.get("provenance") or {}), "intake_client_name": "manual"}
+    current.update(incoming_fields)
     if payload.amec_input is not None:
         current["amec_input"] = payload.amec_input
     if payload.provenance is not None:
@@ -614,12 +684,39 @@ async def _register_source_content(*, proposal: Opportunity, request: Request, s
         raise HTTPException(422, {"code": "SOURCE_TYPE_REQUIRED", "allowed": list(SOURCE_TYPES)})
     semantic = SOURCE_TO_SEMANTIC[source_type]
     digest = hashlib.sha256(content).hexdigest()
+    operation_key = idempotency_key or f"proposal-source:{proposal.id}:{source_type}:{digest}"
+    prior_intake = db.scalar(select(ProposalIntakeArtifact).where(ProposalIntakeArtifact.idempotency_key == operation_key))
+    if prior_intake:
+        prior_evidence = db.scalar(select(ProposalSourceEvidence).where(ProposalSourceEvidence.proposal_id == proposal.id, ProposalSourceEvidence.content_hash == digest, ProposalSourceEvidence.source_type == source_type).order_by(ProposalSourceEvidence.created_at.desc()))
+        if prior_evidence:
+            return {"source": {"id": prior_evidence.id, "source_type": prior_evidence.source_type, "content_hash": prior_evidence.content_hash, "verification_state": prior_evidence.verification_state, "status": prior_evidence.status, "source_reference": prior_evidence.source_reference}}
+    production_version = None
+    production_document = None
+    # Production sources use the same verified provider-neutral storage service
+    # as generated outputs. The legacy local/Synology adapter remains confined
+    # to synthetic TEST fixtures.
+    if production_mode():
+        require_canonical_active_client(db, proposal.client_account_id)
+        store = create_binary_store()
+        target = StorageTarget(store.provider_id, getattr(getattr(store, "config", None), "container", None) or getattr(getattr(store, "config", None), "share", ""), f"proposal-intake/{proposal.id}/{source_type.lower()}")
+        production_document = Document(project_id=proposal.project_id, document_type=DocumentType.OTHER, logical_name=f"{proposal.opportunity_reference}:{source_type}:{digest}", language="EN", source_system="PROPOSAL_INTAKE")
+        db.add(production_document)
+        db.flush()
+        try:
+            stored = DocumentStorageService(store).store_version(db, document=production_document, content=content, filename=source_filename, mime_type=content_type, target=target, actor=actor, correlation_id=request.state.correlation_id, idempotency_key=operation_key, source_system="PROPOSAL_INTAKE", metadata={"proposal_id": proposal.id, "source_type": source_type, "source_revision": source_revision})
+        except StorageError as exc:
+            raise domain_error(503, "PRODUCTION_SOURCE_STORAGE_FAILED", storage_code=exc.code.value) from exc
+        production_version = stored.version
+        intake = ProposalIntakeArtifact(opportunity_id=proposal.id, project_id=proposal.project_id, opportunity_reference=proposal.opportunity_reference, artifact_type=source_type, semantic_class=semantic, source_filename=source_filename, stored_filename=source_filename, sor_path=production_version.source_path_or_reference, content_hash=digest, content_type=content_type or "application/octet-stream", file_size=len(content), uploaded_by=actor, source_revision=source_revision, idempotency_key=operation_key, verification_state="READ_BACK_VERIFIED", status="REGISTERED", metadata_json={"document_version_id": production_version.id, "storage_provider": store.provider_id, "correlation_id": request.state.correlation_id})
+        db.add(intake)
+        db.flush()
+        result = {"id": intake.id, "source_filename": source_filename, "sor_path": production_version.source_path_or_reference, "content_hash": digest, "verification_state": "READ_BACK_VERIFIED", "semantic_class": semantic}
     # Vercel TEST has durable PostgreSQL but a read-only deployment bundle.
     # Preserve the verified source index and hash there; local TEST continues
     # to exercise the MockSynologyAdapter filesystem path.
-    if app_settings().app_env.upper() == "TEST" and os.environ.get("VERCEL"):
+    if production_version is None and app_settings().app_env.upper() == "TEST" and os.environ.get("VERCEL"):
         result = {"id": str(uuid4()), "source_filename": source_filename, "sor_path": f"synthetic://proposal-source/{proposal.opportunity_reference}/{source_type.lower()}/{digest}", "content_hash": digest, "verification_state": "READ_BACK_VERIFIED", "semantic_class": semantic}
-    else:
+    elif production_version is None:
         result = ingest_provisional_intake_artifact(db, opportunity=proposal, semantic_class=semantic, source_filename=source_filename, content_type=content_type, content=content, actor=actor, source_revision=source_revision, idempotency_key=idempotency_key, correlation_id=request.state.correlation_id)
     existing = db.scalar(select(ProposalSourceEvidence).where(ProposalSourceEvidence.proposal_id == proposal.id, ProposalSourceEvidence.source_type == source_type, ProposalSourceEvidence.status == "CURRENT").order_by(ProposalSourceEvidence.created_at.desc()))
     if existing and existing.content_hash != digest:
@@ -631,7 +728,7 @@ async def _register_source_content(*, proposal: Opportunity, request: Request, s
         db.add(evidence)
         db.flush()
     document = db.scalar(select(Document).where(Document.logical_name == f"{proposal.opportunity_reference}:{source_type}:{digest}"))
-    if not document:
+    if not document and production_document is None:
         document = Document(project_id=proposal.project_id, document_type=DocumentType.OTHER, logical_name=f"{proposal.opportunity_reference}:{source_type}:{digest}", language="EN", source_system="PROPOSAL_INTAKE", current_version_id=None)
         db.add(document)
         db.flush()
@@ -639,6 +736,9 @@ async def _register_source_content(*, proposal: Opportunity, request: Request, s
         db.add(version)
         db.flush()
         document.current_version_id = version.id
+    elif production_version is not None:
+        document = production_document
+        version = production_version
     else:
         version = db.scalar(select(DocumentVersion).where(DocumentVersion.document_id == document.id, DocumentVersion.sha256 == digest))
         if not version:
@@ -725,12 +825,19 @@ def read_source_content(proposal_id: str, source_id: str, db: Session = Depends(
         or artifact.content_hash != version.sha256
     ):
         raise HTTPException(409, "PROPOSAL_SOURCE_READBACK_LINKAGE_MISMATCH")
-    content = read_proposal_source_bytes(
-        opportunity_reference=proposal.opportunity_reference,
-        sor_path=artifact.sor_path,
-        expected_sha256=version.sha256,
-        expected_file_size=version.file_size,
-    )
+    if version.source_path_or_reference.startswith("storage://"):
+        try:
+            with DocumentStorageService(create_binary_store()).read_verified(version) as readback:
+                content = readback.read()
+        except StorageError as exc:
+            raise domain_error(503, "PROPOSAL_SOURCE_READBACK_UNAVAILABLE", storage_code=exc.code.value) from exc
+    else:
+        content = read_proposal_source_bytes(
+            opportunity_reference=proposal.opportunity_reference,
+            sor_path=artifact.sor_path,
+            expected_sha256=version.sha256,
+            expected_file_size=version.file_size,
+        )
     filename = Path(artifact.source_filename or evidence.source_filename or "source.bin").name
     return Response(
         content=content,
@@ -761,6 +868,8 @@ def accept(proposal_id: str, request: Request, db: Session = Depends(get_db), ro
     accept_authority = runtime_decision_value(db, "PROPOSAL_ACCEPT_AUTHORITY", "OWNER_OR_AUTHORIZED_COMMERCIAL_APPROVER")
     if accept_authority == "OWNER_ONLY" and role not in {Role.SYSTEM_ADMIN, Role.OWNER_SPONSOR}:
         raise domain_error(403, "PROPOSAL_ACCEPT_OWNER_ONLY")
+    if production_mode() and applied_runtime_decision_value(db, "PROPOSAL_OUTPUT_FORMAT_POLICY") is None:
+        raise domain_error(409, "OWNER_DECISION_REQUIRED", decision_key="PROPOSAL_OUTPUT_FORMAT_POLICY")
     item = db.scalar(select(Opportunity).where(Opportunity.id == proposal_id).with_for_update())
     if not item:
         raise HTTPException(404, "PROPOSAL_NOT_FOUND")
@@ -786,9 +895,28 @@ def accept(proposal_id: str, request: Request, db: Session = Depends(get_db), ro
         draft.status = "ACCEPTED"
         draft.snapshot = snapshot
         draft.content_hash = content_hash
-    for artifact_type, filename in (("PROPOSAL", f"{item.opportunity_reference}-r{revision_number}-proposal.txt"), ("CHECKLIST", f"{item.opportunity_reference}-r{revision_number}-checklist.txt")):
-        content = output_bytes(revision, artifact_type)
-        db.add(ProposalOutputArtifact(revision_id=revision.id, proposal_id=item.id, artifact_type=artifact_type, filename=filename, content_type="text/plain", content_hash=hashlib.sha256(content).hexdigest(), storage_reference=f"synthetic://proposal-output/{revision.id}/{artifact_type.lower()}", lineage={"accepted_revision_id": revision.id, "proposal_content_hash": content_hash, "template_version_id": revision.template_version_id, "checklist_version_id": revision.checklist_version_id, "source_ids": snapshot["source_ids"], "format": "SYNTHETIC_TEXT", "renderer": "SYNTHETIC_JSON_RENDERER_V1", "generated_by": _actor(role, actor), "read_back_verified": True}, file_size=len(content), synthetic_only=True))
+    for artifact_type, filename in (("PROPOSAL", f"{item.opportunity_reference}-r{revision_number}-proposal.pdf"), ("CHECKLIST", f"{item.opportunity_reference}-r{revision_number}-checklist.pdf")):
+        if synthetic_test_mode():
+            content = output_bytes(revision, artifact_type)
+            db.add(ProposalOutputArtifact(revision_id=revision.id, proposal_id=item.id, artifact_type=artifact_type, filename=filename, content_type="text/plain", content_hash=hashlib.sha256(content).hexdigest(), storage_reference=f"synthetic://proposal-output/{revision.id}/{artifact_type.lower()}", lineage={"accepted_revision_id": revision.id, "proposal_content_hash": content_hash, "template_version_id": revision.template_version_id, "checklist_version_id": revision.checklist_version_id, "source_ids": snapshot["source_ids"], "format": "SYNTHETIC_TEXT", "renderer": "SYNTHETIC_JSON_RENDERER_V1", "generated_by": _actor(role, actor), "read_back_verified": True}, file_size=len(content), synthetic_only=True))
+            continue
+        try:
+            content, render_lineage = production_output_bytes(db, revision, artifact_type)
+            store = create_binary_store()
+            target = StorageTarget(store.provider_id, getattr(getattr(store, "config", None), "container", None) or getattr(getattr(store, "config", None), "share", ""), f"proposal-outputs/{item.id}/{revision.id}/{artifact_type.lower()}")
+            document = Document(project_id=item.project_id, document_type=DocumentType.OTHER, logical_name=f"{item.opportunity_reference}:{artifact_type}:r{revision_number}", language="EN", source_system="PROPOSAL_OUTPUT")
+            db.add(document)
+            db.flush()
+            stored = DocumentStorageService(store).store_version(db, document=document, content=content, filename=filename, mime_type="application/pdf", target=target, actor=_actor(role, actor), correlation_id=request.state.correlation_id, idempotency_key=f"proposal-output:{revision.id}:{artifact_type}", source_system="PROPOSAL_OUTPUT", metadata={"proposal_id": item.id, "accepted_revision_id": revision.id, "renderer": render_lineage["renderer"]})
+            with DocumentStorageService(store).read_verified(stored.version) as readback:
+                readback_bytes = readback.read()
+            if hashlib.sha256(readback_bytes).hexdigest() != hashlib.sha256(content).hexdigest() or len(readback_bytes) != len(content):
+                raise ValueError("PRODUCTION_ARTIFACT_READBACK_MISMATCH")
+            db.add(ProposalOutputArtifact(revision_id=revision.id, proposal_id=item.id, artifact_type=artifact_type, filename=filename, content_type="application/pdf", content_hash=hashlib.sha256(content).hexdigest(), storage_reference=stored.version.source_path_or_reference, document_version_id=stored.version.id, lineage={**render_lineage, "proposal_content_hash": content_hash, "source_ids": snapshot["source_ids"], "read_back_verified": True, "storage_operation_id": stored.operation.id}, file_size=len(content), synthetic_only=False))
+        except StorageError as exc:
+            raise domain_error(503, "PRODUCTION_ARTIFACT_STORAGE_FAILED", storage_code=exc.code.value) from exc
+        except ValueError as exc:
+            raise domain_error(503, str(exc)) from exc
     item.status = "ACCEPTED"
     audit(db, correlation_id=request.state.correlation_id, event_type="BD_PROPOSAL_HUMAN_ACCEPTED", entity_type="Opportunity", entity_id=item.id, actor_id=_actor(role, actor), after={"accepted_revision_id": revision.id, "revision_number": revision_number, "content_hash": content_hash, "machine_accept": False})
     db.commit()
@@ -829,11 +957,46 @@ def record_client_response(proposal_id: str, payload: dict[str, Any], request: R
     if response_type not in allowed:
         raise HTTPException(422, {"code": "CLIENT_RESPONSE_TYPE_INVALID", "allowed": sorted(allowed)})
     idempotency_key = str(payload.get("idempotency_key") or f"client-response:{item.id}:{response_type}:{payload.get('evidence_reference') or ''}")
+    accepted = db.scalar(select(ProposalAcceptedRevision).where(ProposalAcceptedRevision.proposal_id == item.id).order_by(ProposalAcceptedRevision.revision_number.desc()))
+    if production_mode():
+        if not accepted:
+            raise domain_error(409, "ACCEPTED_REVISION_REQUIRED")
+        if payload.get("accepted_revision_id") != accepted.id:
+            raise domain_error(409, "CLIENT_RESPONSE_REVISION_REQUIRED", accepted_revision_id=accepted.id)
+        client = require_canonical_active_client(db, item.client_account_id)
+        client_account_id = payload.get("client_account_id")
+        if client_account_id != client.id:
+            raise domain_error(409, "CLIENT_RESPONSE_CLIENT_MISMATCH", client_account_id=client.id)
+        contact_id = payload.get("client_contact_id")
+        contact = db.scalar(select(ClientContact).where(ClientContact.id == contact_id, ClientContact.client_account_id == client.id, ClientContact.status == "ACTIVE")) if contact_id else None
+        if not contact:
+            raise domain_error(409, "CLIENT_RESPONSE_CONTACT_REQUIRED")
+        if response_type == "ACCEPTED":
+            distributed = db.scalar(select(ProposalDistributionEvent).where(ProposalDistributionEvent.proposal_id == item.id, ProposalDistributionEvent.accepted_revision_id == accepted.id, ProposalDistributionEvent.delivery_status == "DELIVERED"))
+            if not distributed:
+                raise domain_error(409, "CLIENT_RESPONSE_DISTRIBUTION_REQUIRED")
+        evidence_version = require_exact_document_version(db, payload.get("evidence_document_version_id"), code="CLIENT_RESPONSE_DOCUMENT_VERSION_REQUIRED")
+        require_proposal_scoped_evidence(db, proposal_id=item.id, version_id=evidence_version.id, source_roles=("CLIENT_RESPONSE", "CLIENT_ACCEPTANCE"), code="CLIENT_RESPONSE_DOCUMENT_VERSION_REQUIRED", client_account_id=client.id)
+        evidence_reference = str(payload.get("evidence_reference") or f"document-version:{evidence_version.id}").strip()
+        reject_synthetic_value(evidence_reference, code="CLIENT_RESPONSE_EVIDENCE_REQUIRED")
+    else:
+        client_account_id = payload.get("client_account_id")
+        contact_id = payload.get("client_contact_id")
+        evidence_version = None
+        evidence_reference = payload.get("evidence_reference")
     existing = db.scalar(select(ProposalClientResponse).where(ProposalClientResponse.idempotency_key == idempotency_key))
     if existing:
+        if (
+            existing.proposal_id != item.id
+            or existing.accepted_revision_id != (accepted.id if accepted else None)
+            or existing.response_type != response_type
+            or existing.client_account_id != client_account_id
+            or existing.client_contact_id != contact_id
+            or existing.evidence_document_version_id != (evidence_version.id if evidence_version else payload.get("evidence_document_version_id"))
+        ):
+            raise domain_error(409, "IDEMPOTENCY_KEY_SCOPE_MISMATCH")
         return {"result": "IDEMPOTENT", "response": {"id": existing.id, "response_type": existing.response_type, "recorded_by": existing.recorded_by, "recorded_at": existing.recorded_at.isoformat()}, "proposal": proposal_projection(db, item)}
-    accepted = db.scalar(select(ProposalAcceptedRevision).where(ProposalAcceptedRevision.proposal_id == item.id).order_by(ProposalAcceptedRevision.revision_number.desc()))
-    row = ProposalClientResponse(proposal_id=item.id, accepted_revision_id=accepted.id if accepted else None, response_type=response_type, evidence_reference=payload.get("evidence_reference"), notes=payload.get("notes"), recorded_by=_actor(role), idempotency_key=idempotency_key)
+    row = ProposalClientResponse(proposal_id=item.id, accepted_revision_id=accepted.id if accepted else None, client_account_id=client_account_id, client_contact_id=contact_id, response_type=response_type, evidence_reference=evidence_reference, evidence_document_version_id=evidence_version.id if evidence_version else payload.get("evidence_document_version_id"), evidence_sha256=evidence_version.sha256 if evidence_version else payload.get("evidence_sha256"), notes=payload.get("notes"), recorded_by=_actor(role), idempotency_key=idempotency_key)
     db.add(row)
     if response_type in {"PENDING", "CHANGE_REQUESTED"}:
         item.status = "CLIENT_RESPONSE_PENDING"
@@ -963,7 +1126,7 @@ def reconcile_proposal_lpo(proposal_id: str, payload: dict[str, Any], request: R
 @router.get("/{proposal_id}/outputs")
 def outputs(proposal_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "BD_PROPOSAL_READ")
-    return {"items": [{"id": item.id, "artifact_type": item.artifact_type, "filename": item.filename, "content_hash": item.content_hash, "lineage": item.lineage, "download": f"/api/bd/proposals/{proposal_id}/outputs/{item.artifact_type.lower()}"} for item in db.scalars(select(ProposalOutputArtifact).where(ProposalOutputArtifact.proposal_id == proposal_id).order_by(ProposalOutputArtifact.created_at.desc())).all()]}
+    return {"items": [{"id": item.id, "artifact_type": item.artifact_type, "filename": item.filename, "content_hash": item.content_hash, "document_version_id": item.document_version_id, "storage_reference": item.storage_reference, "synthetic_only": item.synthetic_only, "lineage": item.lineage, "download": f"/api/bd/proposals/{proposal_id}/outputs/{item.artifact_type.lower()}"} for item in db.scalars(select(ProposalOutputArtifact).where(ProposalOutputArtifact.proposal_id == proposal_id).order_by(ProposalOutputArtifact.created_at.desc())).all()]}
 
 
 @router.get("/{proposal_id}/outputs/{artifact_type}")
@@ -973,8 +1136,22 @@ def download_output(proposal_id: str, artifact_type: str, db: Session = Depends(
     revision = db.get(ProposalAcceptedRevision, artifact.revision_id) if artifact else None
     if not artifact or not revision:
         raise HTTPException(404, "OUTPUT_NOT_FOUND")
-    content = output_bytes(revision, artifact.artifact_type)
-    if hashlib.sha256(content).hexdigest() != artifact.content_hash:
+    if artifact.synthetic_only:
+        if not synthetic_test_mode():
+            raise HTTPException(409, "SYNTHETIC_OUTPUT_FORBIDDEN")
+        content = output_bytes(revision, artifact.artifact_type)
+    else:
+        if not artifact.document_version_id:
+            raise HTTPException(409, "OUTPUT_DOCUMENT_VERSION_REQUIRED")
+        version = db.get(DocumentVersion, artifact.document_version_id)
+        if not version:
+            raise HTTPException(409, "OUTPUT_DOCUMENT_VERSION_REQUIRED")
+        try:
+            with DocumentStorageService(create_binary_store()).read_verified(version) as readback:
+                content = readback.read()
+        except StorageError as exc:
+            raise domain_error(503, "OUTPUT_STORAGE_READBACK_FAILED", storage_code=exc.code.value) from exc
+    if hashlib.sha256(content).hexdigest() != artifact.content_hash or len(content) != artifact.file_size:
         raise HTTPException(409, "OUTPUT_LINEAGE_MISMATCH")
     return StreamingResponse(iter([content]), media_type=artifact.content_type, headers={"Content-Disposition": f'attachment; filename="{artifact.filename}"', "X-Proposal-Revision": str(revision.revision_number), "X-Artifact-Hash": artifact.content_hash})
 
@@ -982,22 +1159,10 @@ def download_output(proposal_id: str, artifact_type: str, db: Session = Depends(
 @router.get("/{proposal_id}/handoff/contract")
 def contract_handoff_preview(proposal_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "BD_PROPOSAL_READ")
-    revision = db.scalar(select(ProposalAcceptedRevision).where(ProposalAcceptedRevision.proposal_id == proposal_id).order_by(ProposalAcceptedRevision.revision_number.desc()))
-    if not revision:
+    predicate = handoff_predicate(db, proposal_id)
+    if not predicate.get("accepted_revision_id"):
         raise HTTPException(409, "ACCEPTED_REVISION_REQUIRED")
-    blockers: list[str] = []
-    if not db.scalar(select(ProposalCommercialRelease).where(ProposalCommercialRelease.proposal_id == proposal_id, ProposalCommercialRelease.accepted_revision_id == revision.id, ProposalCommercialRelease.status == "AUTHORIZED")):
-        blockers.append("COMMERCIAL_RELEASE_REQUIRED")
-    if not db.scalar(select(ProposalDistributionEvent).where(ProposalDistributionEvent.proposal_id == proposal_id, ProposalDistributionEvent.accepted_revision_id == revision.id)):
-        blockers.append("DISTRIBUTION_REQUIRED")
-    if not db.scalar(select(ProposalAcceptanceVerification).where(ProposalAcceptanceVerification.proposal_id == proposal_id, ProposalAcceptanceVerification.accepted_revision_id == revision.id, ProposalAcceptanceVerification.status == "VERIFIED")):
-        blockers.append("CLIENT_ACCEPTANCE_VERIFICATION_REQUIRED")
-    lpo = db.scalar(select(ProposalLpoReconciliation).where(ProposalLpoReconciliation.proposal_id == proposal_id, ProposalLpoReconciliation.accepted_revision_id == revision.id))
-    if not lpo:
-        blockers.append("LPO_RECONCILIATION_REQUIRED")
-    elif lpo.result not in {"PASS", "NOT_APPLICABLE"}:
-        blockers.append("LPO_RECONCILIATION_REQUIRED")
-    return {"eligible": not blockers, "blockers": blockers, "accepted_revision_id": revision.id, "revision_number": revision.revision_number, "content_hash": revision.content_hash, "contract_trigger": "OWNER_DECISION_REQUIRED", "machine_legal_contract": False, "project_activation_created": False}
+    return {**predicate, "contract_trigger": "OWNER_DECISION_REQUIRED", "machine_legal_contract": False, "project_activation_created": False}
 
 
 @router.post("/{proposal_id}/handoff/contract")

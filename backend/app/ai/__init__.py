@@ -11,6 +11,9 @@ from .contracts import (
     AIPurpose,
     AITargetEntityType,
 )
+from .gateway import ModelGateway
+from .skill_registry import SkillDefinition, SkillRegistry
+from .skill_runtime import SkillExecutionRequest, SkillRuntime, execute_skill
 
 __all__ = [
     "AIArchitectureContract",
@@ -18,4 +21,10 @@ __all__ = [
     "AIExecutionMode",
     "AIPurpose",
     "AITargetEntityType",
+    "ModelGateway",
+    "SkillDefinition",
+    "SkillRegistry",
+    "SkillExecutionRequest",
+    "SkillRuntime",
+    "execute_skill",
 ]

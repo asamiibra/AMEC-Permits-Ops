@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 from datetime import datetime, timezone
 from typing import Any
@@ -12,6 +13,7 @@ from sqlalchemy.orm import Session
 
 from ..models import (
     AuditEvent,
+    ClientAccount,
     DefinitionEntry,
     DefinitionRevision,
     MasterContentModuleBinding,
@@ -23,11 +25,13 @@ from ..models import (
     ProposalSourceEvidence,
     ProposalNote,
     ProposalIntakeArtifact,
+    DocumentVersion,
 )
 from .master_content import canonical_master_content_candidates, definition_lookup, resolve_master_content_purpose
 from .master_content import definition_projection, governance_projection
 from .bd_proposal_forms_v2 import forms_v2_projection, snapshot_forms_v2, v2_readiness
 from .owner_decisions import runtime_decision_value
+from .proposal_production_boundary import synthetic_test_mode
 
 SOURCE_TYPES = ("TENDER_DOCUMENT", "TENDER_EMAIL", "TENDER_PHOTO", "CLIENT_DATA")
 SOURCE_TO_SEMANTIC = {
@@ -47,6 +51,16 @@ DEFAULT_OWNER_SETTINGS = {
 
 def stable_hash(value: Any) -> str:
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":"), default=str).encode()).hexdigest()
+
+
+def canonical_client_presentation(db: Session, client_account_id: str | None) -> dict[str, Any] | None:
+    """Return current ClientAccount presentation; intake wording is not identity."""
+    if not client_account_id:
+        return None
+    client = db.get(ClientAccount, client_account_id)
+    if not client or client.status != "ACTIVE":
+        return None
+    return {"id": client.id, "reference": client.client_reference, "name": client.display_name or client.legal_name}
 
 
 def _now() -> datetime:
@@ -493,6 +507,7 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
     # and the existing Proposal/Contract boundary remains authoritative.
     from ..models import ProposalAcceptanceVerification, ProposalCommercialRelease, ProposalContractHandoff, ProposalDistributionEvent, ProposalLpoReconciliation, ProposalScopeConfirmation, ProposalServiceEligibility, ProposalTechnicalAssessment
     from .proposal_commercial_controls import _projection as control_projection
+    from .proposal_commercial_controls import handoff_predicate
     assessment = db.scalar(select(ProposalTechnicalAssessment).where(ProposalTechnicalAssessment.proposal_id == proposal.id, ProposalTechnicalAssessment.status.in_(("PASS", "CONDITIONAL"))).order_by(ProposalTechnicalAssessment.assessed_at.desc()))
     scope = db.scalar(select(ProposalScopeConfirmation).where(ProposalScopeConfirmation.proposal_id == proposal.id, ProposalScopeConfirmation.status == "CURRENT").order_by(ProposalScopeConfirmation.confirmed_at.desc()))
     release = db.scalar(select(ProposalCommercialRelease).where(ProposalCommercialRelease.proposal_id == proposal.id).order_by(ProposalCommercialRelease.authorized_at.desc()))
@@ -500,6 +515,7 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
     acceptance_verification = db.scalar(select(ProposalAcceptanceVerification).where(ProposalAcceptanceVerification.proposal_id == proposal.id).order_by(ProposalAcceptanceVerification.verified_at.desc()))
     lpo = db.scalar(select(ProposalLpoReconciliation).where(ProposalLpoReconciliation.proposal_id == proposal.id).order_by(ProposalLpoReconciliation.compared_at.desc()))
     handoff = db.scalar(select(ProposalContractHandoff).where(ProposalContractHandoff.proposal_id == proposal.id).order_by(ProposalContractHandoff.handed_off_at.desc()))
+    handoff_readiness = handoff_predicate(db, proposal.id)
     commercial_controls = {
         "technical_assessment": control_projection(assessment) if assessment else None,
         "scope_confirmation": control_projection(scope) if scope else None,
@@ -510,13 +526,17 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
         "lpo_reconciliation": control_projection(lpo) if lpo else None,
         "contract_handoff": control_projection(handoff) if handoff else None,
     }
+    canonical_client = canonical_client_presentation(db, proposal.client_account_id)
+    display_fields = dict(fields)
+    if canonical_client:
+        display_fields["client_name"] = canonical_client["name"]
     return {
         "id": proposal.id,
         "proposal_reference": proposal.opportunity_reference,
         "project_reference": proposal.canonical_project_reference or proposal.provisional_reference,
         "project_id": proposal.project_id,
         "client_account_id": proposal.client_account_id,
-        "client_name": fields.get("client_name"),
+        "client_name": canonical_client["name"] if canonical_client else None,
         "title": proposal.title,
         "stage": proposal.status,
         "stage_label": stage_labels.get(proposal.status, proposal.status.replace("_", " ").title()),
@@ -527,7 +547,7 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
         "amount": fields.get("price"),
         "last_activity": proposal.updated_at.isoformat() if proposal.updated_at else None,
         "updated_at": proposal.updated_at.isoformat() if proposal.updated_at else None,
-        "fields": fields,
+        "fields": display_fields,
         "provenance": fields.get("provenance", {}),
         "amec_input": fields.get("amec_input", {}),
         "additional_information": fields.get("additional_information"),
@@ -545,8 +565,8 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
         "owner_lane": lanes,
         "outputs": {
             "available": bool(current and outputs),
-            "proposal": next(({"id": row.id, "filename": row.filename, "content_hash": row.content_hash, "lineage": row.lineage, "created_at": row.created_at.isoformat()} for row in outputs if row.artifact_type == "PROPOSAL"), None),
-            "checklist": next(({"id": row.id, "filename": row.filename, "content_hash": row.content_hash, "lineage": row.lineage, "created_at": row.created_at.isoformat()} for row in outputs if row.artifact_type == "CHECKLIST"), None),
+            "proposal": next(({"id": row.id, "filename": row.filename, "content_hash": row.content_hash, "document_version_id": row.document_version_id, "storage_reference": row.storage_reference, "synthetic_only": row.synthetic_only, "lineage": row.lineage, "created_at": row.created_at.isoformat()} for row in outputs if row.artifact_type == "PROPOSAL"), None),
+            "checklist": next(({"id": row.id, "filename": row.filename, "content_hash": row.content_hash, "document_version_id": row.document_version_id, "storage_reference": row.storage_reference, "synthetic_only": row.synthetic_only, "lineage": row.lineage, "created_at": row.created_at.isoformat()} for row in outputs if row.artifact_type == "CHECKLIST"), None),
             "pre_accept_message": "Available after human Proposal Accept" if not current else None,
         },
         "current_revision": {
@@ -564,13 +584,15 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
         "commercial_controls": commercial_controls,
         "stage_history": [{"event_type": event.event_type, "occurred_at": event.occurred_at.isoformat(), "actor": event.actor_id, "before": event.before_json, "after": event.after_json, "correlation_id": event.correlation_id} for event in stage_events],
         "ai_assist": validation["ai_assist"],
-        "contract_eligible": bool(current and validation["ready"]),
-        "synthetic_only": True,
+        "contract_eligible": bool(current and handoff_readiness["eligible"]),
+        "contract_eligibility": handoff_readiness,
+        "synthetic_only": synthetic_test_mode(),
     }
 
 
 def snapshot_for_accept(db: Session, proposal: Opportunity, validation: dict[str, Any]) -> dict[str, Any]:
     fields = dict(proposal.proposal_fields_json or {})
+    intake_client_name = fields.pop("client_name", None)
     fields.pop("provenance", None)
     fields.pop("amec_input", None)
     source_ids = [item.id for item in _sources(db, proposal.id) if item.status == "CURRENT"]
@@ -579,15 +601,17 @@ def snapshot_for_accept(db: Session, proposal: Opportunity, validation: dict[str
     hardening = hardening_projection(db, proposal, forms_snapshot)
     return {
         "proposal_id": proposal.id,
+        "fixture_classification": proposal.fixture_classification,
         "proposal_reference": proposal.opportunity_reference,
         "title": proposal.title,
         "project_reference": proposal.canonical_project_reference or proposal.provisional_reference,
         "client_account_id": proposal.client_account_id,
+        "client_name": (canonical_client_presentation(db, proposal.client_account_id) or {}).get("name"),
         "fields": fields,
         "amec_input": (proposal.proposal_fields_json or {}).get("amec_input", {}),
         "additional_information": (proposal.proposal_fields_json or {}).get("additional_information"),
         "proposal_breakdown": proposal_breakdown(db, proposal),
-        "provenance": (proposal.proposal_fields_json or {}).get("provenance", {}),
+        "provenance": {**(proposal.proposal_fields_json or {}).get("provenance", {}), **({"intake_client_name": "manual"} if intake_client_name else {})},
         "source_ids": source_ids,
         "template": validation["template"]["item"],
         "checklist": validation["checklist"]["item"],
@@ -608,6 +632,96 @@ def output_bytes(revision: ProposalAcceptedRevision, artifact_type: str) -> byte
         body = {"proposal_reference": revision.snapshot.get("proposal_reference"), "revision": revision.revision_number, "checklist": revision.snapshot.get("checklist"), "validation": revision.validation_snapshot, "source_ids": revision.snapshot.get("source_ids", [])}
         title = "AMEC Proposal Checklist"
     return (title + "\n" + json.dumps(body, indent=2, sort_keys=True, default=str) + "\n").encode()
+
+
+def production_output_bytes(db: Session, revision: ProposalAcceptedRevision, artifact_type: str) -> tuple[bytes, dict[str, Any]]:
+    """Render a production output from the exact governed source bytes.
+
+    The production renderer merges human-readable fields into an explicitly
+    governed text/HTML template. Unsupported binary formats fail closed until
+    the Owner-selected DOCX/PDF renderer is available.
+    """
+    from .master_content import read_master_content_bytes
+
+    artifact_type = artifact_type.upper()
+    source_id = revision.template_version_id if artifact_type == "PROPOSAL" else revision.checklist_version_id
+    source_hash = revision.template_hash if artifact_type == "PROPOSAL" else revision.checklist_hash
+    version = db.get(DocumentVersion, source_id) if source_id else None
+    if not version or not source_hash or version.sha256 != source_hash:
+        raise ValueError("PRODUCTION_TEMPLATE_DOCUMENT_VERSION_REQUIRED")
+    fixture_classification = str((revision.snapshot or {}).get("fixture_classification") or "NON_SYNTHETIC")
+    synthetic_owner_test_source = (
+        fixture_classification == "SYNTHETIC_OWNER_TEST"
+        and bool((version.metadata_json or {}).get("synthetic_owner_test_only"))
+        and bool((version.metadata_json or {}).get("not_official_production_content"))
+    )
+    if version.source_path_or_reference.startswith(("synthetic://", "synthetic-db://")) and not synthetic_owner_test_source:
+        raise ValueError("SYNTHETIC_GOVERNED_SOURCE_FORBIDDEN")
+    content = read_master_content_bytes(db, version)
+    mime = (version.mime_type or "").lower()
+    if not (mime.startswith("text/") or mime in {"application/json", "application/xhtml+xml"}):
+        raise ValueError("PRODUCTION_RENDERER_UNSUPPORTED_TEMPLATE_FORMAT")
+    payload = {
+        "proposal_reference": revision.snapshot.get("proposal_reference"),
+        "accepted_revision_id": revision.id,
+        "revision_number": revision.revision_number,
+        "content_hash": revision.content_hash,
+        "client_account_id": revision.snapshot.get("client_account_id"),
+        "fields": revision.snapshot.get("fields", {}),
+        "source_ids": revision.snapshot.get("source_ids", []),
+    }
+    try:
+        template_text = content.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise ValueError("PRODUCTION_RENDERER_TEMPLATE_ENCODING_UNSUPPORTED") from exc
+    replacements = {
+        "proposal_reference": str(payload["proposal_reference"] or ""),
+        "accepted_revision_id": str(payload["accepted_revision_id"]),
+        "revision_number": str(payload["revision_number"]),
+        "content_hash": str(payload["content_hash"]),
+        "client_account_id": str(payload["client_account_id"] or ""),
+        "title": str(revision.snapshot.get("title") or ""),
+        "scope_of_work": str((payload["fields"] or {}).get("scope_of_work") or (payload["fields"] or {}).get("sow") or ""),
+        "price": str((payload["fields"] or {}).get("price") or ""),
+        "currency": str((payload["fields"] or {}).get("currency") or ""),
+        "duration": str((payload["fields"] or {}).get("duration") or (payload["fields"] or {}).get("period") or ""),
+    }
+    for key, value in replacements.items():
+        template_text = template_text.replace("{{" + key + "}}", value)
+    if "{{" in template_text or "}}" in template_text:
+        raise ValueError("PRODUCTION_TEMPLATE_UNRESOLVED_PLACEHOLDER")
+    from reportlab.lib.pagesizes import A4
+    from reportlab.pdfgen.canvas import Canvas
+
+    output = io.BytesIO()
+    canvas = Canvas(output, pagesize=A4)
+    width, height = A4
+    cursor_y = height - 54
+    canvas.setTitle(str(revision.snapshot.get("title") or "AMEC Proposal"))
+    canvas.setFont("Helvetica", 10)
+    for line in template_text.splitlines() or [""]:
+        if cursor_y < 48:
+            canvas.showPage()
+            canvas.setFont("Helvetica", 10)
+            cursor_y = height - 54
+        canvas.drawString(48, cursor_y, line[:140])
+        cursor_y -= 14
+    canvas.save()
+    rendered = output.getvalue()
+    lineage = {
+        "accepted_revision_id": revision.id,
+        "template_version_id": revision.template_version_id,
+        "template_hash": revision.template_hash,
+        "checklist_version_id": revision.checklist_version_id,
+        "checklist_hash": revision.checklist_hash,
+        "governed_source_document_version_id": version.id,
+        "governed_source_hash": version.sha256,
+        "renderer": "AMEC_GOVERNED_PDF_MERGE_RENDERER_V1",
+        "format": "PDF",
+        "content_type": "application/pdf",
+        "owner_test_only": fixture_classification == "SYNTHETIC_OWNER_TEST",
+    }
+    return rendered, lineage
 
 
 def ensure_owner_settings(db: Session, actor: str = "owner-demo-seed") -> list[ProposalOwnerSetting]:

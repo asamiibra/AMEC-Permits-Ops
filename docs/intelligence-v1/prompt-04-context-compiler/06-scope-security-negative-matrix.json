@@ -1,0 +1,10 @@
+{
+  "prompt": "P04_GOVERNED_CONTEXT_COMPILER",
+  "entry_controls": {"wrong_entry": "BLOCKED_BY_PRE_IMPLEMENTATION_GATE", "architecture_hash_checked": true, "manifest_authority_non_none": "DENIED"},
+  "actor_controls": {"missing": "DENIED", "inactive": "DENIED", "persona_spoof": "DENIED", "capability_spoof": "DENIED", "capability_change_hash": "PROVEN"},
+  "scope_controls": {"project_id_mismatch": "DENIED", "candidate_other_project": "DENIED", "document_other_project": "DENIED", "verified_other_project": "DENIED", "domain_entity_other_project": "DENIED", "read_all_bypass": "DENIED"},
+  "manifest_controls": {"scope_not_allowed": "DENIED", "context_not_allowed": "DENIED", "candidate_above_floor": "DENIED", "unsupported_selector": "DENIED", "arbitrary_sql_model_payload": "DENIED"},
+  "currentness_controls": {"candidate_non_current": "DENIED", "document_non_current": "DENIED", "verified_non_current": "DENIED", "definition_non_current": "DENIED", "master_ambiguous_or_unavailable": "DENIED", "optional_bad_source": "DENIED"},
+  "privacy_controls": {"raw_source_text": "DENIED", "source_bytes": "NOT_RESOLVED_OR_PERSISTED", "auth_tokens_secrets": "NOT_ACCEPTED_OR_PERSISTED"},
+  "authority_controls": {"verified_assertion_created": false, "typed_projection_created": false, "review_decision_created": false, "central_queue_created": false, "workflow_task_created": false, "notification_created": false, "protected_transition_executed": false}
+}
