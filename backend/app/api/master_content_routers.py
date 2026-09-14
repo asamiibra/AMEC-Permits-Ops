@@ -413,7 +413,13 @@ async def create_content(
 ):
     content_type = content_type.upper()
     require_capability(role, _write_capability(content_type))
-    payload = await file.read()
+    max_bytes = get_settings().master_sor_max_file_size
+    declared_length = request.headers.get("content-length")
+    if declared_length and declared_length.isdigit() and int(declared_length) > max_bytes + 1024 * 1024:
+        raise HTTPException(413, {"code": "FILE_TOO_LARGE", "max_bytes": max_bytes})
+    payload = await file.read(max_bytes + 1)
+    if len(payload) > max_bytes:
+        raise HTTPException(413, {"code": "FILE_TOO_LARGE", "max_bytes": max_bytes})
     parsed_metadata = _json_object(engineering_metadata)
     return create_master_content(db, content_type=content_type, ref=ref, title=title, category_id=category_id, description=description, filename=file.filename or "document.bin", mime_type=file.content_type or "application/octet-stream", content=payload, actor=_actor(role), idempotency_key=idempotency_key or str(uuid.uuid4()), correlation_id=request.state.correlation_id, source_surface=source_surface.upper() if source_surface.upper() in {"DASHBOARD", "ADMINISTRATION"} else "DASHBOARD", used_in=used_in, source_type_code=source_type_code, engineering_metadata=parsed_metadata, needs_review=needs_review, review_note=review_note)
 

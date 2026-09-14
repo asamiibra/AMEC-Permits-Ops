@@ -5,6 +5,7 @@ from fastapi import HTTPException
 from starlette.requests import Request
 
 from backend.app.api.source18_routers import _actor
+from backend.app.api import master_content_routers
 from backend.app.api.dependencies import AuthenticatedPrincipal
 from backend.app.models import Role
 from backend.app.services import master_content
@@ -15,6 +16,20 @@ def test_upload_gate_rejects_pdf_signature_mismatch(monkeypatch):
     with pytest.raises(HTTPException) as caught:
         master_content._allowed_file("sample.pdf", b"not a pdf")
     assert caught.value.detail["code"] == "FILE_SIGNATURE_MISMATCH"
+
+
+def test_create_upload_is_bounded_before_service_persistence(client, monkeypatch):
+    settings = SimpleNamespace(master_sor_allowed_extensions=".txt", master_sor_max_file_size=4)
+    monkeypatch.setattr(master_content, "get_settings", lambda: settings)
+    monkeypatch.setattr(master_content_routers, "get_settings", lambda: settings)
+    response = client.post(
+        "/api/master-content",
+        data={"content_type": "FORM", "ref": "BOUND-CREATE-TEST", "title": "Bounded create"},
+        files={"file": ("bounded.txt", b"12345", "text/plain")},
+        headers={"X-Dev-Role": "SYSTEM_ADMIN"},
+    )
+    assert response.status_code == 413
+    assert response.json()["detail"]["code"] == "FILE_TOO_LARGE"
 
 
 def test_upload_gate_rejects_dangerous_archive_member(monkeypatch):
