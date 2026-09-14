@@ -5,7 +5,7 @@ from fastapi.security import (
     HTTPAuthorizationCredentials,
     HTTPBearer,
 )
-from sqlalchemy import select
+from sqlalchemy import select, true
 from sqlalchemy.orm import Session
 
 from ..auth.entra import (
@@ -83,7 +83,7 @@ def current_principal(
                 select(User).where(
                     (User.id == supplied_dev_user)
                     | (User.email == supplied_dev_user),
-                    User.active.is_(True),
+                    User.active == true(),
                 )
             )
         elif x_dev_role is not None:
@@ -105,7 +105,7 @@ def current_principal(
                 user = db.scalar(
                     select(User).where(
                         User.email == seeded_email,
-                        User.active.is_(True),
+                        User.active == true(),
                     )
                 )
         if user is not None and user.role != role:
