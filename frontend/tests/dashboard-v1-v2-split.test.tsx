@@ -40,9 +40,10 @@ describe("current Dashboard V2 root identity", () => {
     expect(screen.getByTestId("dashboard-source-authority-panel")).toBeVisible();
     await waitFor(() => expect(screen.getByRole("heading", { name: "Content Library", level: 2 })).toBeVisible());
     await waitFor(() => expect(screen.getByText("Shared synthetic form")).toBeVisible());
-    expect(screen.getByText("Advanced governance filters")).toBeVisible();
-    screen.getByText("Advanced governance filters").click();
-    expect(screen.getByText("Content ownership")).toBeVisible();
+    expect(screen.getByLabelText("Search master content")).toBeVisible();
+    expect(screen.getByLabelText("Filter by status")).toBeVisible();
+    expect(screen.queryByText("Advanced governance filters")).toBeNull();
+    expect(screen.queryByText("Content ownership")).toBeNull();
     expect(screen.queryByRole("link", { name: "Inputs & Go-Live" })).not.toBeInTheDocument();
     expect(screen.getByRole("cell", { name: "Current" })).toBeVisible();
     expect(screen.getByRole("cell", { name: "Business Development" })).toBeVisible();

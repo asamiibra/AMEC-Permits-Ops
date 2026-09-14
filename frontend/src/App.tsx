@@ -42,6 +42,17 @@ export default function App() {
     document.documentElement.lang = "en";
     document.documentElement.dir = "ltr";
     document.body.dir = "ltr";
+    try {
+      [
+        "permitops.locale",
+        "permitops-locale",
+        "permitops-language",
+        "language",
+        "locale",
+      ].forEach((key) => window.localStorage.removeItem(key));
+    } catch {
+      // The application remains English/LTR when browser storage is unavailable.
+    }
   }, []);
 
   useEffect(() => {
