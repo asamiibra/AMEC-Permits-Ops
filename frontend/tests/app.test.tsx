@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import App from "../src/App";
 
 vi.stubGlobal("fetch", vi.fn((url:string) => Promise.resolve({ok:true,json:async()=>url.endsWith("/projects")?[]:url.endsWith("/applications")?[]:{}})));
@@ -24,5 +24,15 @@ describe("ProposalOps shell", () => {
     expect(screen.queryByText("Inputs & Go-Live")).toBeNull();
     expect(screen.queryByRole("button", { name: "Admin" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Notifications" })).toBeNull();
+  });
+
+  it("provides the same five-module navigation on mobile", () => {
+    window.history.replaceState({}, "", "/home");
+    render(<App />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Open navigation" }));
+    const mobileNavigation = screen.getByRole("navigation", { name: "Mobile primary navigation" });
+    expect(mobileNavigation.querySelectorAll("button")).toHaveLength(5);
+    expect(screen.getByRole("button", { name: "Close navigation" })).toBeTruthy();
   });
 });

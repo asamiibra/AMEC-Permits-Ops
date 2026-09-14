@@ -5,6 +5,7 @@ import {
   isDisabledTopLevelRoute,
   ownerShellAcceptance,
 } from "../src/featureAvailability";
+import { classifyPublicRoute } from "../src/domainOwnershipRoutes";
 
 describe("Owner shell feature registry", () => {
   it("keeps exactly four active modules and Home", () => {
@@ -30,5 +31,23 @@ describe("Owner shell feature registry", () => {
     expect(isDisabledTopLevelRoute("/dashboard/inputs-go-live")).toBe(true);
     expect(isDisabledTopLevelRoute("/notifications")).toBe(true);
     expect(isDisabledTopLevelRoute("/construction/exec-1")).toBe(true);
+  });
+
+  it("enforces the positive public route allowlist", () => {
+    expect(classifyPublicRoute("/home")).toMatchObject({ page: "home", allowed: true });
+    expect(classifyPublicRoute("/opportunities/example")).toMatchObject({ page: "opportunities", allowed: true });
+    expect(classifyPublicRoute("/contract-mobilization/contracts/example")).toMatchObject({ page: "contract-mobilization", allowed: true });
+    expect(classifyPublicRoute("/billing/invoices/example")).toMatchObject({ page: "billing", allowed: true });
+    expect(classifyPublicRoute("/master-content/forms")).toMatchObject({ page: "content-library", allowed: true });
+    for (const path of [
+      "/permits",
+      "/engineering",
+      "/issues/example",
+      "/admin/contracts",
+      "/dashboard/inputs-go-live",
+      "/unknown-route",
+    ]) {
+      expect(classifyPublicRoute(path)).toMatchObject({ page: "home", canonicalPath: "/home", allowed: false });
+    }
   });
 });

@@ -6,6 +6,8 @@ export type DemoRole =
 
 export type Persona = "OWNER" | "BUSINESS_DEVELOPMENT" | "ENGINEERING";
 
+import { isAllowedPublicRoute } from "./domainOwnershipRoutes";
+
 /**
  * The single release-visibility registry for the Owner shell.
  *
@@ -143,7 +145,7 @@ const disabledTopLevelPatterns: RegExp[] = [
 ];
 
 export function isDisabledTopLevelRoute(pathname: string): boolean {
-  return disabledTopLevelPatterns.some((pattern) => pattern.test(pathname));
+  return !isAllowedPublicRoute(pathname) || disabledTopLevelPatterns.some((pattern) => pattern.test(pathname));
 }
 
 export const ownerShellAcceptance = {

@@ -216,3 +216,4 @@ body { background: var(--color-background-page); color: var(--color-text-primary
 /* Keep transient and source-context text readable while preserving the shared muted token. */
 .app-shell .home-source-badge,
 .app-shell .loading { color: var(--color-text-muted); }
+
