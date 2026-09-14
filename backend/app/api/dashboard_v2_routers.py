@@ -60,7 +60,7 @@ from ..services.dashboard_v2_governance import (
     transition_release,
     validate_release,
 )
-from ..services.master_content import canonical_master_content_read
+from ..services.master_content import authorize_master_content_access, canonical_master_content_read
 from ..services.shared_domains import projection, projections
 
 
@@ -69,6 +69,12 @@ router = APIRouter(prefix="/api/dashboard-v2", tags=["dashboard-v2-governance"])
 
 def _correlation(request: Request) -> str:
     return getattr(request.state, "correlation_id", "dashboard-v2")
+
+
+def _authorized_form(db: Session, item_id: str, role: Role, *, action: str) -> MasterContentItem:
+    item = _form(db, item_id)
+    authorize_master_content_access(db, item, role, action=action)
+    return item
 
 
 @router.get("/catalogs")
@@ -105,7 +111,7 @@ def get_v2_form(item_id: str, db: Session = Depends(get_db), role: Role = Depend
 @router.get("/forms/{item_id}/applicability")
 def get_applicability(item_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_reader(role)
-    _form(db, item_id)
+    _authorized_form(db, item_id, role, action="APPLICABILITY_READ")
     return list_applicability(db, item_id)
 
 
@@ -133,7 +139,7 @@ def patch_applicability(applicability_id: str, payload: dict[str, Any] = Body(de
 @router.get("/forms/{item_id}/policy-lineage")
 def get_policy_lineage(item_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_reader(role)
-    _form(db, item_id)
+    _authorized_form(db, item_id, role, action="POLICY_LINEAGE_READ")
     return list_policy_lineage(db, item_id)
 
 
@@ -158,7 +164,7 @@ def patch_policy_lineage(lineage_id: str, payload: dict[str, Any] = Body(default
 @router.get("/forms/{item_id}/technical-lineage")
 def get_technical_lineage(item_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_reader(role)
-    _form(db, item_id)
+    _authorized_form(db, item_id, role, action="TECHNICAL_LINEAGE_READ")
     return list_technical_lineage(db, item_id)
 
 
@@ -202,7 +208,7 @@ def resolve_source(external_body_id: str, service_type_id: str, jurisdiction_id:
 @router.get("/forms/{item_id}/automation")
 def get_automation(item_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_reader(role)
-    _form(db, item_id)
+    _authorized_form(db, item_id, role, action="AUTOMATION_READ")
     profiles = list(db.scalars(select(FormAutomationProfile).where(FormAutomationProfile.master_content_item_id == item_id)).all())
     result = []
     for profile in profiles:

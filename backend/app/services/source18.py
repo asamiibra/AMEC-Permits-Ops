@@ -142,6 +142,22 @@ def validate_source18_official_form_version(db: Session, version_id: str | None)
 def validate_source_currentness(db: Session, transaction: Source18WorkflowTransaction) -> None:
     if transaction.currentness_state != "CURRENT":
         raise HTTPException(409, {"code": "SOURCE18_SOURCE_NOT_CURRENT", "currentness_state": transaction.currentness_state})
+    case = db.get(AuthorityCase, transaction.authority_case_id)
+    if not case:
+        raise HTTPException(409, {"code": "SOURCE18_AUTHORITY_CASE_NOT_FOUND"})
+    if case.official_form_version_id != transaction.official_form_version_id:
+        raise HTTPException(409, {"code": "SOURCE18_CASE_TRANSACTION_FORM_BINDING_MISMATCH"})
+    if not case.currentness_control_implemented:
+        raise HTTPException(409, {"code": "SOURCE18_CASE_CURRENTNESS_CONTROL_REQUIRED"})
+    policy_state = str(case.current_authority_policy_verified or "UNKNOWN").upper()
+    if policy_state not in {"TRUE", "CURRENT", "VERIFIED_CURRENT"}:
+        raise HTTPException(409, {"code": "SOURCE18_AUTHORITY_POLICY_NOT_CURRENT"})
+    if transaction.official_form_version_id:
+        form_state = str(case.current_official_form_verified or "UNKNOWN").upper()
+        if form_state not in {"TRUE", "CURRENT", "VERIFIED_CURRENT"}:
+            raise HTTPException(409, {"code": "SOURCE18_OFFICIAL_FORM_NOT_CURRENT"})
+    if str(case.live_action_eligibility or "").upper() not in {"ALLOWED", "READY_FOR_HUMAN_ACTION"} or case.g5_blocking_currentness_gap:
+        raise HTTPException(409, {"code": "SOURCE18_CASE_LIVE_ACTION_BLOCKED"})
     if transaction.current_policy_version_id:
         policy = db.get(Source18PolicyVersion, transaction.current_policy_version_id)
         if not policy or policy.status != "CURRENT":

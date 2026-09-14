@@ -156,12 +156,17 @@ def create_official_form_version(payload: dict[str, Any], request: Request, role
         raise HTTPException(409, {"code": "SOURCE18_DOCUMENT_VERSION_REQUIRED"})
     currentness = str(payload.get("currentness_state") or "UNKNOWN").upper()
     status = str(payload.get("status") or "UNKNOWN").upper()
+    if currentness != "CURRENT":
+        raise HTTPException(422, {"code": "SOURCE18_OFFICIAL_FORM_MUST_BE_CURRENT"})
+    if status not in {"CURRENT", "ACTIVE"}:
+        raise HTTPException(422, {"code": "SOURCE18_OFFICIAL_FORM_STATUS_INVALID"})
     document = db.get(Document, item.document_id)
-    if currentness == "CURRENT" and (not document or item.approval_state not in {DocumentApprovalState.REVIEWED, DocumentApprovalState.APPROVED}):
+    if not document or str(document.source_system or "").upper() != "SOURCE18" or item.approval_state not in {DocumentApprovalState.REVIEWED, DocumentApprovalState.APPROVED}:
         raise HTTPException(409, {"code": "SOURCE18_FORM_VERSION_NOT_READY"})
     prior_current: list[dict[str, Any]] = []
     # Lock the canonical Source18 version rows for this promotion transaction;
     # the current document pointer and supersession updates commit together.
+    db.scalars(select(Document).where(Document.source_system == "SOURCE18").with_for_update()).all()
     candidates = db.scalars(select(DocumentVersion).where(DocumentVersion.source_system == "SOURCE18").with_for_update()).all()
     for candidate in candidates:
         if str(candidate.source_system or "").upper() != "SOURCE18":
@@ -360,7 +365,7 @@ def create_packet(transaction_id: str, payload: dict[str, Any], request: Request
 @router.post("/packets/{packet_id}/release")
 def release_packet(packet_id: str, request: Request, role: Role = Depends(current_user_role), db: Session = Depends(get_db)):
     require_capability(role, "OWNER_INTERNAL_PACKET_RELEASE")
-    packet = db.get(CommitteePacketRevision, packet_id)
+    packet = db.scalar(select(CommitteePacketRevision).where(CommitteePacketRevision.id == packet_id).with_for_update())
     if not packet or not packet.source18_transaction_id:
         raise HTTPException(404, {"code": "SOURCE18_PACKET_NOT_FOUND"})
     if packet.status != "DRAFT" or packet.signature_state != "COMPLETE" or packet.stamp_state != "COMPLETE" or packet.packet_hash != _hash({"manifest": packet.manifest_json, "required_signers": packet.required_signers_json}):
@@ -419,14 +424,15 @@ def record_physical_original_custody(packet_id: str, payload: dict[str, Any], re
 @router.post("/packets/{packet_id}/submit")
 def submit_packet(packet_id: str, payload: dict[str, Any], request: Request, role: Role = Depends(current_user_role), db: Session = Depends(get_db)):
     require_capability(role, "AUTHORIZE_EXTERNAL_SUBMISSION")
-    packet = db.get(CommitteePacketRevision, packet_id)
+    packet = db.scalar(select(CommitteePacketRevision).where(CommitteePacketRevision.id == packet_id).with_for_update())
     if not packet:
         raise HTTPException(404, {"code": "SOURCE18_PACKET_NOT_FOUND"})
     if packet.status != "RELEASED" or packet.internal_release_state != "RELEASED" or packet.signature_state != "COMPLETE" or packet.stamp_state != "COMPLETE":
         raise HTTPException(409, {"code": "OWNER_INTERNAL_RELEASE_SIGNATURE_STAMP_REQUIRED"})
-    tx = db.get(Source18WorkflowTransaction, packet.source18_transaction_id)
+    tx = db.scalar(select(Source18WorkflowTransaction).where(Source18WorkflowTransaction.id == packet.source18_transaction_id).with_for_update())
     if not tx:
         raise HTTPException(409, {"code": "SOURCE18_TRANSACTION_NOT_FOUND"})
+    db.scalar(select(AuthorityCase).where(AuthorityCase.id == tx.authority_case_id).with_for_update())
     idempotency_key = str(payload.get("idempotency_key") or "").strip()
     if not idempotency_key:
         raise HTTPException(422, {"code": "IDEMPOTENCY_KEY_REQUIRED"})

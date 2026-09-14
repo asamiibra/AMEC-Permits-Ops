@@ -60,3 +60,17 @@ def test_source18_official_forms_are_read_only_typed_projections(client):
     assert item["authority_owner"] == "SOURCE18"
     assert item["reuse"]["allowed"] is True
     assert client.get("/api/master-content/official-forms/resolve", headers={"X-Dev-Role": "SYSTEM_ADMIN"}).status_code == 200
+
+
+def test_dashboard_v2_direct_form_reads_enforce_persona_applicability(client):
+    response = client.post(
+        "/api/master-content",
+        data={"content_type": "FORM", "ref": "V2-AUTHZ-DIRECT-TEST", "title": "Administration-only direct read", "used_in": '["ADMIN"]'},
+        files={"file": ("v2-authz-direct.txt", b"synthetic", "text/plain")},
+        headers={"X-Dev-Role": "SYSTEM_ADMIN"},
+    )
+    assert response.status_code == 200, response.text
+    item_id = response.json()["id"]
+    for suffix in ("applicability", "policy-lineage", "technical-lineage", "automation"):
+        denied = client.get(f"/api/dashboard-v2/forms/{item_id}/{suffix}", headers={"X-Dev-Role": "PROCESS_CHAMPION"})
+        assert denied.status_code == 403, (suffix, denied.text)
