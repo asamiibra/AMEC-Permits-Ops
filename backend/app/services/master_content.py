@@ -511,6 +511,8 @@ def evaluate_master_content_reuse_eligibility(
     if version and _status(version) != "CURRENT": reasons.append("DOCUMENT_VERSION_NOT_CURRENT")
     if version and version.approval_state != DocumentApprovalState.REVIEWED: reasons.append("DOCUMENT_VERSION_NOT_REVIEWED")
     if version and (not version.source_path_or_reference or version.source_path_or_reference == "PENDING"): reasons.append("MASTER_CONTENT_SOURCE_UNAVAILABLE")
+    if version and str((version.metadata_json or {}).get("storage_provider") or "").lower() == "azure-blob" and str((version.metadata_json or {}).get("malware_scan_state") or "SCAN_PENDING").upper() != "CLEAN":
+        reasons.append("MALWARE_SCAN_NOT_CLEAN")
     if source18_authority_binding(db, item): reasons.append("SOURCE18_AUTHORITY_FORM_ORDINARY_REUSE_FORBIDDEN")
     governance = governance_projection(db, item)["profile"] if item else {}
     if governance.get("content_ownership_class") in {"EXTERNAL_OFFICIAL", "AUTHORITY_FORM"} or governance.get("artifact_kind") == "AUTHORITY_FORM":
@@ -1404,7 +1406,7 @@ def _verify_and_promote(
             version.rendition_sha256 = None
             version.rendition_mime_type = None
             version.rendition_file_size = None
-        version.metadata_json = {**(version.metadata_json or {}), "master_status": "VERIFIED", "read_back_verified": True, "storage_provider": "synthetic-db"}
+        version.metadata_json = {**(version.metadata_json or {}), "master_status": "VERIFIED", "read_back_verified": True, "storage_provider": "synthetic-db", "malware_scan_state": "CLEAN", "malware_scan_provider": "SYNTHETIC_TEST_BYPASS"}
         db.flush()
     else:
         try:
@@ -1430,7 +1432,7 @@ def _verify_and_promote(
             version.rendition_sha256 = None
             version.rendition_mime_type = None
             version.rendition_file_size = None
-        version.metadata_json = {**(version.metadata_json or {}), "master_status": "VERIFIED", "read_back_verified": True, "storage_provider": getattr(store, "provider_id", "storage")}
+        version.metadata_json = {**(version.metadata_json or {}), "master_status": "VERIFIED", "read_back_verified": True, "storage_provider": getattr(store, "provider_id", "storage"), "malware_scan_state": "SCAN_PENDING", "malware_scan_provider": "DEFENDER_FOR_STORAGE_REQUIRED"}
         db.flush()
 
     if previous:
