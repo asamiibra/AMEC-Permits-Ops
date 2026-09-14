@@ -24,6 +24,7 @@ Repository Alembic head is `17c6ebd99c4a` (read from the repository migration gr
 
 ## Final branch position
 
-- Final hardening commit: `b47263a9ef86e472f34d218c2f255cf6d0dd73f1`, tree `fc4c3bd05436c7ac5559ed8bfc814fb9eaaca93b`.
-- Final branch remains `module/opportunity-proposal-client-tender`, 1 commit ahead of protected `main` and 18 commits ahead of the remote PR41 head; merge base with `main` is `594b313a15cc6ade3f0505de395a5817c6337268`.
+- Hardening implementation commit: `b47263a9ef86e472f34d218c2f255cf6d0dd73f1`, tree `fc4c3bd05436c7ac5559ed8bfc814fb9eaaca93b`.
+- Evidence-seal commit: `63fb1a94358f6710cb1ef538328c94abd8679d37`, tree `28ae5f89baa1aaa9c1c14372938013319180eeae`.
+- Final branch remains `module/opportunity-proposal-client-tender`, 2 commits ahead of protected `main` and 19 commits ahead of the remote PR41 head; merge base with `main` is `594b313a15cc6ade3f0505de395a5817c6337268`.
 - PR41 accepted SHA `dbd54c8e208e7347c959364b0bffd0f513eb81c7` and merge `e3af5e8d5c8abc996f1039aaae394bb734cc0193` remain immutable ancestors/provenance; no new Proposal branch was created.
