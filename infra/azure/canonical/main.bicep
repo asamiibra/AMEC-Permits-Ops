@@ -404,14 +404,24 @@ resource sqlLongTermRetention 'Microsoft.Sql/servers/databases/backupLongTermRet
   properties: { weeklyRetention: 'P1W', monthlyRetention: 'P12M', yearlyRetention: 'P5Y', weekOfYear: 1 }
 }
 
-resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' = {
+resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2025-07-01' = {
   name: acaEnvironmentName
   location: location
   tags: tags
   properties: {
     zoneRedundant: true
+    // Front Door Premium reaches the environment through its managed private
+    // endpoint. The environment must not expose a public ACA origin.
+    publicNetworkAccess: 'Disabled'
+    workloadProfiles: [{
+      name: 'Consumption'
+      workloadProfileType: 'Consumption'
+      minimumCount: 0
+      maximumCount: 0
+    }]
     vnetConfiguration: {
       infrastructureSubnetId: resourceId(resourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', vnetName, 'aca-infrastructure')
+      internal: true
     }
     appLogsConfiguration: {
       destination: 'log-analytics'
@@ -702,7 +712,7 @@ resource edgeOriginGroup 'Microsoft.Cdn/profiles/originGroups@2024-02-01' = {
   properties: {
     healthProbeSettings: {
       probeIntervalInSeconds: 30
-      probePath: '/health/live'
+      probePath: '/health/ready'
       probeProtocol: 'Https'
       probeRequestType: 'GET'
     }
@@ -722,6 +732,16 @@ resource edgeOrigin 'Microsoft.Cdn/profiles/originGroups/origins@2024-02-01' = {
     httpsPort: 443
     originHostHeader: resolvedApiOriginHostName
     priority: 1
+    // Azure Front Door Premium creates the private endpoint request on the
+    // ACA managed environment. Approval is an explicit deployment-boundary
+    // action by the environment owner.
+    sharedPrivateLinkResource: {
+      groupId: 'managedEnvironments'
+      privateLink: { id: containerAppsEnvironment.id }
+      privateLinkLocation: location
+      requestMessage: 'Approve the ProposalOps Front Door private link to ACA.'
+      status: 'Pending'
+    }
     weight: 1000
   }
 }
@@ -743,12 +763,11 @@ resource edgeRoute 'Microsoft.Cdn/profiles/afdEndpoints/routes@2024-02-01' = {
   parent: edgeEndpoint
   dependsOn: [edgeOrigin]
   properties: {
-    cacheConfiguration: { compressionSettings: { isCompressionEnabled: true, contentTypesToCompress: ['application/json', 'text/plain'] }, queryStringCachingBehavior: 'IgnoreQueryString' }
     customDomains: empty(edgeCustomDomainName) ? [] : [{ id: edgeCustomDomain.id }]
     enabledState: 'Enabled'
     forwardingProtocol: 'HttpsOnly'
     httpsRedirect: 'Enabled'
-    linkToDefaultDomain: 'Enabled'
+    linkToDefaultDomain: empty(edgeCustomDomainName) ? 'Enabled' : 'Disabled'
     originGroup: { id: edgeOriginGroup.id }
     patternsToMatch: ['/*']
     ruleSets: []
@@ -780,7 +799,7 @@ resource edgeSecurityPolicy 'Microsoft.Cdn/profiles/securityPolicies@2024-02-01'
     parameters: {
       type: 'WebApplicationFirewall'
       associations: [{
-        domains: [{ id: edgeEndpoint.id }]
+        domains: empty(edgeCustomDomainName) ? [{ id: edgeEndpoint.id }] : [{ id: edgeCustomDomain.id }]
         patternsToMatch: ['/*']
       }]
       wafPolicy: { id: edgeWafPolicy.id }

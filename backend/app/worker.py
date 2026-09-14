@@ -7,8 +7,10 @@ import socket
 import sys
 import time
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from .config.settings import get_settings
@@ -18,6 +20,7 @@ from .db import (
 )
 from .models import (
     Contract,
+    ContractReconciliationSchedulerState,
     DocumentVersion,
     StorageOutboxEvent,
 )
@@ -33,6 +36,13 @@ from .storage.outbox import (
 MAX_BATCH_SIZE = 100
 MIN_LEASE_SECONDS = 30
 MAX_LEASE_SECONDS = 900
+RECONCILIATION_SCHEDULER_ID = "contract-exceptions"
+
+
+def _as_utc(value: datetime | None) -> datetime | None:
+    if value is None:
+        return None
+    return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value
 
 
 @dataclass(frozen=True)
@@ -221,26 +231,126 @@ def _process_event(
         )
 
 
+def _ensure_reconciliation_scheduler_state(
+    db: Session,
+) -> ContractReconciliationSchedulerState:
+    """Return the singleton scheduler row, tolerating concurrent first use."""
+    state = db.get(
+        ContractReconciliationSchedulerState,
+        RECONCILIATION_SCHEDULER_ID,
+    )
+    if state is None:
+        try:
+            with db.begin_nested():
+                db.add(
+                    ContractReconciliationSchedulerState(
+                        id=RECONCILIATION_SCHEDULER_ID,
+                        cycle_number=0,
+                    )
+                )
+        except IntegrityError:
+            pass
+        state = db.get(
+            ContractReconciliationSchedulerState,
+            RECONCILIATION_SCHEDULER_ID,
+        )
+    if state is None:
+        raise RuntimeError("Contract reconciliation scheduler state is unavailable.")
+    return state
+
+
+def _release_reconciliation_lease(*, worker_id: str) -> None:
+    with SessionLocal() as db:
+        state = db.scalar(
+            select(ContractReconciliationSchedulerState)
+            .where(
+                ContractReconciliationSchedulerState.id
+                == RECONCILIATION_SCHEDULER_ID
+            )
+            .with_for_update()
+        )
+        if state is not None and state.lease_owner == worker_id:
+            state.lease_owner = None
+            state.lease_expires_at = None
+            state.updated_at = utcnow()
+            db.commit()
+
+
+def _advance_reconciliation_cursor(
+    *,
+    worker_id: str,
+    contract_id: str,
+    lease_seconds: int,
+) -> None:
+    """Advance after a failed item so one bad contract cannot starve later items."""
+    with SessionLocal() as db:
+        state = db.scalar(
+            select(ContractReconciliationSchedulerState)
+            .where(
+                ContractReconciliationSchedulerState.id
+                == RECONCILIATION_SCHEDULER_ID
+            )
+            .with_for_update()
+        )
+        if state is None or state.lease_owner != worker_id:
+            return
+        state.last_contract_id = contract_id
+        state.lease_expires_at = utcnow() + timedelta(seconds=lease_seconds)
+        state.updated_at = utcnow()
+        db.commit()
+
+
 def reconcile_contract_exceptions_once(
     *,
     worker_id: str,
     limit: int = 50,
+    lease_seconds: int = 60,
 ) -> tuple[int, int, int, int]:
-    """Reconcile a bounded batch of Contracts against the canonical work queue."""
-    if not 1 <= limit <= MAX_BATCH_SIZE:
-        raise ValueError(
-            "contract reconciliation limit must be between 1 and "
-            f"{MAX_BATCH_SIZE}."
-        )
+    """Reconcile one fair, leased page of Contracts against the canonical queue."""
+    _validate_worker_options(
+        worker_id=worker_id,
+        limit=limit,
+        lease_seconds=lease_seconds,
+    )
 
+    now = utcnow()
     with SessionLocal() as db:
-        contract_ids = list(
-            db.scalars(
+        state = _ensure_reconciliation_scheduler_state(db)
+        if (
+            state.lease_owner is not None
+            and _as_utc(state.lease_expires_at) is not None
+            and _as_utc(state.lease_expires_at) > now
+        ):
+            return 0, 0, 0, 0
+
+        state.lease_owner = worker_id
+        state.lease_expires_at = now + timedelta(seconds=lease_seconds)
+        state.updated_at = now
+        db.commit()
+
+        contract_query = select(Contract.id).order_by(Contract.id)
+        if state.last_contract_id is not None:
+            contract_query = contract_query.where(
+                Contract.id > state.last_contract_id
+            )
+        contract_ids = list(db.scalars(contract_query.limit(limit)).all())
+
+        if not contract_ids and state.last_contract_id is not None:
+            wrapped_query = (
                 select(Contract.id)
                 .order_by(Contract.id)
                 .limit(limit)
-            ).all()
-        )
+            )
+            wrapped_ids = list(db.scalars(wrapped_query).all())
+            if wrapped_ids:
+                contract_ids.extend(wrapped_ids)
+                state.cycle_number += 1
+                state.updated_at = utcnow()
+                db.commit()
+
+    if not contract_ids:
+        _release_reconciliation_lease(worker_id=worker_id)
+        return 0, 0, 0, 0
 
     reconciled = 0
     failed = 0
@@ -250,8 +360,22 @@ def reconcile_contract_exceptions_once(
     for contract_id in contract_ids:
         with SessionLocal() as db:
             try:
+                state = db.scalar(
+                    select(ContractReconciliationSchedulerState)
+                    .where(
+                        ContractReconciliationSchedulerState.id
+                        == RECONCILIATION_SCHEDULER_ID
+                    )
+                    .with_for_update()
+                )
+                if state is None or state.lease_owner != worker_id:
+                    break
+                state.lease_expires_at = utcnow() + timedelta(seconds=lease_seconds)
                 contract = db.get(Contract, contract_id)
                 if contract is None:
+                    state.last_contract_id = contract_id
+                    state.updated_at = utcnow()
+                    db.commit()
                     continue
                 result = evaluate_contract_exceptions(
                     db,
@@ -261,9 +385,16 @@ def reconcile_contract_exceptions_once(
                         f"worker:{worker_id}:contract:{contract_id}"
                     )[:100],
                 )
+                state.last_contract_id = contract_id
+                state.updated_at = utcnow()
                 db.commit()
             except Exception:
                 db.rollback()
+                _advance_reconciliation_cursor(
+                    worker_id=worker_id,
+                    contract_id=contract_id,
+                    lease_seconds=lease_seconds,
+                )
                 failed += 1
                 continue
 
@@ -271,6 +402,7 @@ def reconcile_contract_exceptions_once(
             created += len(result.get("created", []))
             resolved += int(result.get("resolved", 0))
 
+    _release_reconciliation_lease(worker_id=worker_id)
     return reconciled, failed, created, resolved
 
 
@@ -393,6 +525,7 @@ def run_worker_once(
         ) = reconcile_contract_exceptions_once(
             worker_id=resolved_worker_id,
             limit=limit,
+            lease_seconds=lease_seconds,
         )
 
     return WorkerResult(

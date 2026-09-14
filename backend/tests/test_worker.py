@@ -600,19 +600,10 @@ def test_failed_event_causes_partial_failure(
 def test_worker_reconciles_bounded_contract_batch(
     monkeypatch,
 ):
-    contract = SimpleNamespace(id="contract-1")
-    contexts = iter(
-        [
-            _Context(_DB()),
-            _Context(_DB(contracts=["contract-1"])),
-            _Context(_DB(contract=contract)),
-        ]
-    )
-
     monkeypatch.setattr(
         worker,
         "SessionLocal",
-        lambda: next(contexts),
+        lambda: _Context(_DB()),
     )
     monkeypatch.setattr(
         worker,
@@ -639,10 +630,10 @@ def test_worker_reconciles_bounded_contract_batch(
     calls = []
     monkeypatch.setattr(
         worker,
-        "evaluate_contract_exceptions",
-        lambda db, item, **kwargs: (
-            calls.append((item.id, kwargs["actor"]))
-            or {"created": ["task-1"], "resolved": 1}
+        "reconcile_contract_exceptions_once",
+        lambda **kwargs: (
+            calls.append(kwargs)
+            or (1, 0, 1, 1)
         ),
     )
 
@@ -651,7 +642,11 @@ def test_worker_reconciles_bounded_contract_batch(
         limit=1,
     )
 
-    assert calls == [("contract-1", "worker:test-worker")]
+    assert calls == [{
+        "worker_id": "test-worker",
+        "limit": 1,
+        "lease_seconds": 60,
+    }]
     assert result.contracts_reconciled == 1
     assert result.contract_reconciliation_failed == 0
     assert result.exceptions_created == 1

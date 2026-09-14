@@ -2,9 +2,11 @@ from datetime import timedelta
 from uuid import uuid4
 
 from sqlalchemy import select
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 from backend.app.db import SessionLocal
-from backend.app.models import AuditEvent, Contract, ContractAdminEvidence, ContractClientInputRequirement, ContractRevision, NotificationEvent, Project, ProjectActivation, ServiceEngagement, WorkflowTask
+from backend.app.models import AuditEvent, Base, Contract, ContractAdminEvidence, ContractClientInputRequirement, ContractReconciliationSchedulerState, ContractRevision, NotificationEvent, Project, ProjectActivation, ServiceEngagement, WorkflowTask
 from backend.app import worker
 from backend.app.models.base import utcnow
 from backend.tests.test_admin_contract_owner_session import ensure_contract_template, make_accepted_proposal, record_authority, record_checker
@@ -287,3 +289,91 @@ def test_canonical_worker_discovers_aged_contract_input_exception(client):
             == "INPUTS:AGED_REQUIRED_DOCUMENTS"
         ]
         assert len(aged) == 1
+
+
+def test_reconciliation_scheduler_is_fair_restart_safe_and_failure_isolated(tmp_path, monkeypatch):
+    """A leased cursor visits every contract, including after a worker restart."""
+    engine = create_engine(f"sqlite:///{tmp_path / 'scheduler.db'}")
+    Base.metadata.create_all(engine)
+    scheduler_session = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
+    monkeypatch.setattr(worker, "SessionLocal", scheduler_session)
+
+    contract_ids = [str(uuid4()) for _ in range(5)]
+    with scheduler_session() as db:
+        for index, contract_id in enumerate(contract_ids):
+            db.add(Contract(
+                id=contract_id,
+                client_account_id="client-account",
+                quotation_id="quotation",
+                contract_reference=f"SCHED-{index}-{contract_id[:8]}",
+            ))
+        db.commit()
+
+    ordered_ids = sorted(contract_ids)
+    with scheduler_session() as db:
+        state = db.get(ContractReconciliationSchedulerState, "contract-exceptions")
+        if state is None:
+            state = ContractReconciliationSchedulerState(
+                id="contract-exceptions",
+                cycle_number=0,
+            )
+            db.add(state)
+        state.last_contract_id = None
+        state.cycle_number = 0
+        state.lease_owner = None
+        state.lease_expires_at = None
+        db.commit()
+
+    calls = []
+    failing_id = ordered_ids[2]
+
+    def fake_evaluator(db, contract, **kwargs):
+        calls.append(contract.id)
+        if contract.id == failing_id:
+            raise RuntimeError("synthetic contract failure")
+        return {"created": [], "resolved": 0}
+
+    monkeypatch.setattr(worker, "evaluate_contract_exceptions", fake_evaluator)
+
+    first = worker.reconcile_contract_exceptions_once(worker_id="fair-worker-a", limit=2)
+    assert first == (2, 0, 0, 0)
+    assert calls == ordered_ids[:2]
+
+    # A second replica cannot take an active lease or duplicate the page.
+    with scheduler_session() as db:
+        state = db.get(ContractReconciliationSchedulerState, "contract-exceptions")
+        state.lease_owner = "active-replica"
+        state.lease_expires_at = utcnow() + timedelta(seconds=30)
+        db.commit()
+    assert worker.reconcile_contract_exceptions_once(worker_id="fair-worker-b", limit=2) == (0, 0, 0, 0)
+    with scheduler_session() as db:
+        state = db.get(ContractReconciliationSchedulerState, "contract-exceptions")
+        state.lease_owner = None
+        state.lease_expires_at = None
+        db.commit()
+
+    # The next invocation uses a different worker identity, proving the cursor
+    # is durable across restart and that the failing item does not block the next.
+    second = worker.reconcile_contract_exceptions_once(worker_id="fair-worker-restarted", limit=2)
+    third = worker.reconcile_contract_exceptions_once(worker_id="fair-worker-restarted", limit=2)
+    assert second == (1, 1, 0, 0)
+    assert third == (1, 0, 0, 0)
+    assert calls == ordered_ids
+
+    with scheduler_session() as db:
+        state = db.get(ContractReconciliationSchedulerState, "contract-exceptions")
+        assert state and state.cycle_number == 0
+
+    # Once the cursor reaches the end, the next page wraps and starts a new
+    # cycle; all five contracts are revisited exactly once more.
+    cycle_two_calls = []
+    calls.clear()
+    for worker_id in ("fair-worker-cycle-2",) * 3:
+        result = worker.reconcile_contract_exceptions_once(worker_id=worker_id, limit=2)
+        assert result[0] + result[1] in {1, 2}
+        cycle_two_calls.extend(calls[-(result[0] + result[1]):])
+    assert cycle_two_calls == ordered_ids
+    assert calls == ordered_ids
+    with scheduler_session() as db:
+        state = db.get(ContractReconciliationSchedulerState, "contract-exceptions")
+        assert state and state.cycle_number == 1

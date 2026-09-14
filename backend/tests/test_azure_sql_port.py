@@ -175,6 +175,7 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
         "source18_committee_implementation_v1.py",
         "source18_regulatory_current_state_v1.py",
         "step5_content_library_azure_sql_v2.py",
+        "contract_reconciliation_scheduler_v1.py",
     }
     by_revision = {
         re.search(r'^revision = "([^"]+)"$', path.read_text(encoding="utf-8"), re.MULTILINE).group(1): path
@@ -190,6 +191,7 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
         "opportunity_proposal_idempotency_v1",
         "billing_module_closure_v8",
         "17c6ebd99c4a",
+        "contract_reconciliation_scheduler_v1",
     }
     source = by_revision["baseline_phase4_v36_azure_sql"].read_text(encoding="utf-8")
     assert 'revision = "baseline_phase4_v36_azure_sql"' in source
@@ -211,6 +213,9 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
     assert "opportunity_proposal_idempotency_v1" in merge_point
     assert "op.create_" not in merge_point
     assert "db.execute" not in merge_point
+    scheduler = by_revision["contract_reconciliation_scheduler_v1"].read_text(encoding="utf-8")
+    assert 'revision = "contract_reconciliation_scheduler_v1"' in scheduler
+    assert 'down_revision = "17c6ebd99c4a"' in scheduler
     assert 'revision = "source18_regulatory_current_state_v1"' in source18
     assert 'down_revision = "ai_d2_execution_ledger_v1"' in source18
     ledger = by_revision["ai_d2_execution_ledger_v1"]
