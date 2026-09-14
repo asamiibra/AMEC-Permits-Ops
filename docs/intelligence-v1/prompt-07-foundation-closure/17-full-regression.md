@@ -1,9 +1,15 @@
 # Full regression
 
-Diagnostic remainder census: PASS. The ordered remaining backend files after the last failure boundary completed with 315 passed, 6 skipped, and no failures; the mandated `backend/tests/test_phase5_sqlserver_runtime.py` was the only exclusion. The repository-wide AST portability check passed, and the phase-5 evidence module completed with 40 passed.
+Authoritative P07 regression was executed against implementation SHA
+`b21ab2fe5e30e306a9bc40149ba10324f0bebd9b`, tree
+`9dd412eaed644cef810b8fad0310451ba35d7390`.
 
-One final authoritative full backend command was started from the beginning with the required P07 environment. Its terminal was detached by user interruption, and the orphaned pytest process later stalled in its expensive phase-5 preflight child without producing a recoverable final report; it was terminated only after more than 25 minutes with no CPU, file, database, or child-process activity. Exact full-suite pass/skip counts are therefore unavailable and are not inferred.
+- Collection: 976 unique nodes across 127 SQLite-regression files.
+- Sharding: 15 deterministic file-partition shards; heavyweight source-preflight was isolated; Week-45 was grouped with Week-7/8 to preserve its documented synthetic fixture prerequisite.
+- Execution: 957 passed, 19 governed skips, 0 failed.
+- Coverage: exact executed union 976/976; missing 0; duplicate-only coverage 0; unexpected node IDs 0.
+- Native SQL Server module: separately classified and excluded from the SQLite census per the P07 contract.
 
-The targeted P05/P07 regression, frontend tests/build, Samba storage tests, `compileall`, `pip-audit`, Bicep builds, and diagnostic remainder do not substitute for the unresolved authoritative full-suite gate.
+Machine-readable inventory, shard plan, and aggregate are in `21-backend-test-file-inventory.txt`, `22-backend-nodeid-inventory.*`, `23-backend-shard-plan.json`, and `24-backend-full-regression-aggregate.json`.
 
-The durable closure attempt could not begin execution: collection-only timed out three times without producing an inventory. Two early attempts timed out at 120 and 180 seconds during import while a stale ProposalOps pytest process from an older temporary checkout was identified and terminated; a separate active Proposal / BD task in another checkout was left untouched. A final ten-minute attempt with isolated pycache and database settings advanced through application imports, then remained idle for more than two minutes with no CPU, child, file, database, or subprocess activity before timing out. No `21-backend-full-regression-inventory.*` artifacts were generated, so no shard plan or aggregate may be inferred.
+`P07_BACKEND_FULL_REGRESSION=PASS`.

@@ -1,13 +1,18 @@
 # Database migration proof
 
-Migration added: `backend/migrations/versions/p07_intelligence_foundation_closure.py`.
+Candidate: `b21ab2fe5e30e306a9bc40149ba10324f0bebd9b`.
 
-Executed command: `PYTHONPATH=. python3 -m alembic -c alembic.ini heads`.
+Fresh disposable PostgreSQL 16.15 database `p07_final_20260914` completed
+zero-to-head migration. `alembic_version` contains exactly one row with
+`p07_intelligence_foundation_closure`; 475 public tables and zero identifiers
+over PostgreSQL's 63-byte limit were verified. All eight P07 tables and all
+five reservation-fence ledger columns are present.
 
-Observed head: `p07_intelligence_foundation_closure (head)`; head count is one. The migration has an additive upgrade and a downgrade for all P07 tables, columns, and indexes.
+A separate committed transaction followed by a new connection read back the
+synthetic marker `P07_POSTGRES_REOPEN_MARKER`. The database and container were
+destroyed after evidence capture. The PostgreSQL-focused P07/P05/document set
+passed `24` tests against this database.
 
-A disposable SQLite `upgrade head` attempt reached the repository baseline and stopped at its pre-existing `ALTER` foreign-key operation (`NotImplementedError` on SQLite); SQLite roundtrip remains recorded separately as skipped for that repository limitation.
+Machine-readable proof: `25-postgres16-proof.json`.
 
-PostgreSQL 16 proof was then run against a fresh disposable container with `APP_ENV=TEST`, `SYNTHETIC_ONLY=true`, and `DATABASE_URL=postgresql+psycopg://p07:p07@127.0.0.1:15432/p07`. The first run exposed and the second run verified two genuine PostgreSQL portability repairs: explicit `VARCHAR(80)` casts for reused baseline seed parameters, and a shortened 63-byte-safe Source-18 index identifier. The authoritative result reached `p07_intelligence_foundation_closure`; `alembic_version` contains exactly that head and the database contains 475 public tables.
-
-Migration contract result: PASS for the PostgreSQL upgrade-head proof; SQLite full roundtrip remains skipped only for the established SQLite ALTER limitation.
+`P07_POSTGRES16_GATE=PASS`.

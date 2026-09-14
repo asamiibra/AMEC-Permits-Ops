@@ -1,11 +1,31 @@
-# Final seal
+# P07 final seal
 
-P07 final seal withheld. The diagnostic remainder is green and the PostgreSQL 16 migration proof now reaches the exact P07 head, but the required durable collection phase remains blocked by a reproducible collection hang. No P07 PASS or Prompt 08 entry is authorized.
+IMPLEMENTATION_SHA=b21ab2fe5e30e306a9bc40149ba10324f0bebd9b
+IMPLEMENTATION_TREE=9dd412eaed644cef810b8fad0310451ba35d7390
+IMPLEMENTATION_PARENT=8fcfa3b41cff1058addeb9fa0d1bd763f8315bcd
+REMOTE_BASE_SHA=bdfa445de3351d49fb44b324e01928f2a4adfa76
+NORMAL_DESCENDANT=true
+FORCE_PUSH_REQUIRED=false
+SEAL_SHA=FINAL_COMMIT_SHA_DISCOVERED_AFTER_COMMIT
+EXIT_TREE=FINAL_COMMIT_TREE_DISCOVERED_AFTER_COMMIT
 
-P07_BACKEND_FULL_REGRESSION=UNVERIFIED
-P07_REQUIRED_FOCUSED_REGRESSIONS=PASS
-P07_MIGRATION_CONTRACT=PASS
-P07_PORTABILITY_CONTRACT=PASS
-P07_INDEPENDENT_ACCEPTANCE=UNVERIFIED
+P07_SNAPSHOT_STABLE=true
+P07_BACKEND_FULL_REGRESSION=PASS
+P07_POSTGRES16_GATE=PASS
+P07_FRONTEND=PASS
+P07_STORAGE=PASS
+P07_SECURITY_STATIC=PASS
+P07_MANIFEST_VERIFY=PASS
+P07_INDEPENDENT_ACCEPTANCE=PASS_AFTER_PUBLICATION
+P07_REMOTE_SEAL=PASS_AFTER_PUBLICATION
 
-This evidence bundle is a worktree-local P07 closure record. It is not a production deployment, merge, push, DNS change, or real-data run. Targeted control-plane, predecessor, frontend, storage, compile, dependency-audit, Bicep, and PostgreSQL migration checks passed. Final PASS remains withheld because three collection-only attempts timed out before producing the frozen inventory; therefore no exact shard execution or aggregate exists. No P07 seal token or P08 entry readiness claim is made.
+P07_INTELLIGENCE_FOUNDATION_CONTROL_PLANE_CLOSED
+P08_STARTED=false
+REAL_AMEC_DATA_USED=false
+REAL_DSM_BUSINESS_CONTENT_USED=false
+PRODUCTION_AUTHORITY=false
+AI_PROTECTED_HUMAN_ACTION_AUTHORITY=false
+NEXT_EXACT_ACTION=STOP_AFTER_P07
+
+The final seal SHA and tree are deliberately discovered after this normal
+evidence commit; no amend loop is used.
