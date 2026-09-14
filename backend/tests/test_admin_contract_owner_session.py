@@ -228,6 +228,18 @@ def ensure_contract_template(client):
     assert governed.status_code == 200, governed.text
     binding = client.put(f"/api/master-content/{item['id']}/module-bindings", json=[{"module": "ADMIN", "usage_type": "CONTRACT_TEMPLATE"}], headers=headers("SYSTEM_ADMIN"))
     assert binding.status_code == 200, binding.text
+    with SessionLocal() as db:
+        competing = db.query(MasterContentModuleBinding).filter(
+            MasterContentModuleBinding.module == "ADMIN",
+            MasterContentModuleBinding.usage_type == "CONTRACT_TEMPLATE",
+            MasterContentModuleBinding.active.is_(True),
+            MasterContentModuleBinding.master_content_id != item["id"],
+        ).all()
+        for binding in competing:
+            candidate = db.get(MasterContentItem, binding.master_content_id)
+            if candidate and candidate.status == "ACTIVE":
+                candidate.status = "ARCHIVED"
+        db.commit()
 
 
 def make_accepted_proposal(client, name="Skyline Factory Industrial"):
