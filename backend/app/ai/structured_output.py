@@ -6,9 +6,10 @@ import hashlib
 import json
 import re
 from dataclasses import dataclass
+from decimal import Decimal, InvalidOperation
 from typing import Any, Callable, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from .errors import AIError
 
@@ -74,6 +75,13 @@ class BillingSkillOutput(BaseModel):
     human_review_required: Literal[True] = True
     canonical_state_mutated: Literal[False] = False
 
+    @field_validator("citations")
+    @classmethod
+    def validate_citations(cls, value: list[str]) -> list[str]:
+        if any(not _CITATION_KEY.fullmatch(item) for item in value):
+            raise ValueError("malformed citation key")
+        return value
+
 
 class BillingPaymentCandidate(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
@@ -82,6 +90,19 @@ class BillingPaymentCandidate(BaseModel):
     rationale: str = Field(min_length=1, max_length=1200)
     evidence_strength: Literal["STRONG", "MODERATE", "WEAK"]
     suggested_allocation_amount: str | None = Field(default=None, max_length=40)
+
+    @field_validator("suggested_allocation_amount")
+    @classmethod
+    def validate_amount(cls, value: str | None) -> str | None:
+        if value is None:
+            return value
+        try:
+            amount = Decimal(value)
+        except (InvalidOperation, ValueError) as exc:
+            raise ValueError("malformed allocation amount") from exc
+        if not amount.is_finite() or amount < 0 or amount.as_tuple().exponent < -2:
+            raise ValueError("malformed allocation amount")
+        return value
 
 
 class BillingMilestoneProposal(BaseModel):

@@ -45,6 +45,8 @@ def test_billing_outputs_reject_authority_fields_and_accept_zero_guards():
     BillingDeliveryAckOutput.model_validate({**base, "extracted_events": [], "extraction_status": "NOT_FOUND", "due_date_canonical_calculation_count": 0})
     with pytest.raises(Exception):
         BillingPaymentMatchOutput.model_validate({**base, "ranked_candidates": [], "evidence_strength": "WEAK", "anomalies": [], "approved": True})
+    with pytest.raises(Exception):
+        BillingPaymentMatchOutput.model_validate({**base, "citations": ["CIT-1"], "ranked_candidates": [], "evidence_strength": "WEAK", "anomalies": []})
 
 
 def test_synthetic_provider_returns_each_registered_schema():
