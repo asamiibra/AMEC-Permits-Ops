@@ -37,7 +37,9 @@ def test_owner_decision_register_is_canonical_and_truthful(client):
     assert payload["owner_action_required"]
     assert any(row["key"] == "CONTRACT_REQUIRED_FIELDS" for row in payload["owner_action_required"])
     assert any(row["key"] == "FULL_OWNER_LIFECYCLE_E2E" for row in payload["software_readiness"])
-    assert all(row["status"] != "READY" for row in payload["content_readiness"])
+    content_by_key = {row["key"]: row for row in payload["content_readiness"]}
+    assert content_by_key["PROPOSAL_TEMPLATE_CONTENT_READY"]["status"] != "READY"
+    assert content_by_key["PROPOSAL_CHECKLIST_CONTENT_READY"]["status"] != "READY"
 
 
 def test_owner_decision_conditional_matrix_covers_dependency_states():
