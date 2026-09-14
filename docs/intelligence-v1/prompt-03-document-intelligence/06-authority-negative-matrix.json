@@ -1,0 +1,31 @@
+{
+  "prompt": "P03_DOCUMENT_INTELLIGENCE_PLATFORMIZATION",
+  "operations": [
+    {"operation": "AUTO_CREATE_VERIFIED_ASSERTION", "result": "DENIED"},
+    {"operation": "AUTO_PROMOTE_CANDIDATE", "result": "DENIED"},
+    {"operation": "AUTO_CREATE_TYPED_BUSINESS_PROJECTION", "result": "DENIED"},
+    {"operation": "ACCEPT_PROPOSAL", "result": "REQUIRES_EXISTING_AUTHORIZED_HUMAN/MODULE_COMMAND"},
+    {"operation": "AUTHORIZE_PROPOSAL_RELEASE", "result": "REQUIRES_EXISTING_AUTHORIZED_HUMAN/MODULE_COMMAND"},
+    {"operation": "ACCEPT_CONTRACT", "result": "REQUIRES_EXISTING_AUTHORIZED_HUMAN/MODULE_COMMAND"},
+    {"operation": "ACTIVATE_PROJECT", "result": "REQUIRES_EXISTING_AUTHORIZED_HUMAN/MODULE_COMMAND"},
+    {"operation": "PROFESSIONALLY_APPROVE", "result": "REQUIRES_EXISTING_AUTHORIZED_HUMAN/MODULE_COMMAND"},
+    {"operation": "OWNER_PACKET_RELEASE", "result": "REQUIRES_EXISTING_AUTHORIZED_HUMAN/MODULE_COMMAND"},
+    {"operation": "SIGN_REGULATORY_UNDERTAKING", "result": "REQUIRES_EXISTING_AUTHORIZED_HUMAN/MODULE_COMMAND"},
+    {"operation": "AUTHORIZE_EXTERNAL_SUBMISSION", "result": "REQUIRES_EXISTING_AUTHORIZED_HUMAN/MODULE_COMMAND"},
+    {"operation": "APPROVE_COMMERCIAL_VARIATION", "result": "REQUIRES_EXISTING_AUTHORIZED_HUMAN/MODULE_COMMAND"},
+    {"operation": "ISSUE_INVOICE", "result": "REQUIRES_EXISTING_AUTHORIZED_HUMAN/MODULE_COMMAND"},
+    {"operation": "VERIFY_PAYMENT", "result": "REQUIRES_EXISTING_AUTHORIZED_HUMAN/MODULE_COMMAND"},
+    {"operation": "AUTHORIZE_CONSTRUCTION_START", "result": "REQUIRES_EXISTING_AUTHORIZED_HUMAN/MODULE_COMMAND"},
+    {"operation": "APPROVE_AS_BUILT", "result": "REQUIRES_EXISTING_AUTHORIZED_HUMAN/MODULE_COMMAND"},
+    {"operation": "EXECUTE_CLOSEOUT", "result": "REQUIRES_EXISTING_AUTHORIZED_HUMAN/MODULE_COMMAND"}
+  ],
+  "structural_assertions": {
+    "auto_verified_assertion_created": false,
+    "auto_typed_projection_created": false,
+    "new_central_review_queue_created": false,
+    "new_workflow_task_from_document_intelligence": false,
+    "new_notification_from_document_intelligence": false,
+    "external_model_provider_used": false,
+    "llm_enabled_by_p03": false
+  }
+}

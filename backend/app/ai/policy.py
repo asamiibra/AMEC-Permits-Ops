@@ -14,7 +14,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..api.dependencies import AuthenticatedPrincipal
-from ..models import AuthorityCase, EngineeringProjectMember, Project, Role
+from ..models import AuthorityCase, EngineeringProjectMember, Opportunity, Project, Role
 from ..services.backend_realignment import CAPABILITY_MATRIX, persona_for_role
 from .contracts import (
     AIExecutionMode,
@@ -71,9 +71,28 @@ ENGINEERING_TECHNICAL_DRAFT_POLICY = AIPurposePolicy(
     canonical_write_authority="ZERO",
 )
 
+PROPOSAL_INTELLIGENCE_POLICY = AIPurposePolicy(
+    purpose_id=AIPurpose.PROPOSAL_INTELLIGENCE,
+    policy_version="PROPOSAL_INTELLIGENCE-1.0",
+    allowed_roles=frozenset({Role.OWNER_SPONSOR, Role.SYSTEM_ADMIN, Role.PROCESS_CHAMPION, Role.RESPONSIBLE_ENGINEER}),
+    required_capabilities=("BD_PROPOSAL_READ",),
+    allowed_target_entity_types=frozenset({AITargetEntityType.PROPOSAL}),
+    allowed_execution_modes=frozenset({AIExecutionMode.INTERACTIVE, AIExecutionMode.BACKGROUND}),
+    allow_master_content=True,
+    allow_transactional_evidence=True,
+    allow_definitions=True,
+    allowed_sensitivity_classes=frozenset({"NONE", "SYNTHETIC"}),
+    allow_historical=False,
+    allow_superseded=False,
+    real_content_allowed=False,
+    protected_action_authority="ZERO",
+    canonical_write_authority="ZERO",
+)
+
 
 AI_PURPOSE_POLICIES = {
     AIPurpose.ENGINEERING_TECHNICAL_DRAFT: ENGINEERING_TECHNICAL_DRAFT_POLICY,
+    AIPurpose.PROPOSAL_INTELLIGENCE: PROPOSAL_INTELLIGENCE_POLICY,
 }
 
 
@@ -139,6 +158,16 @@ def resolve_target(
         if project is None:
             raise ai_error(404, "AI_CONTEXT_TARGET_NOT_FOUND")
         return ResolvedAITarget(target_entity_type, target_entity_id, project.id)
+
+    if target_entity_type is AITargetEntityType.PROPOSAL:
+        proposal = db.get(Opportunity, target_entity_id)
+        if proposal is None:
+            raise ai_error(404, "AI_CONTEXT_TARGET_NOT_FOUND")
+        if not proposal.project_id:
+            # Proposal intelligence can be prepared for provisional intake,
+            # but it must not be presented as a project-scoped operation.
+            return ResolvedAITarget(target_entity_type, target_entity_id, proposal.id)
+        return ResolvedAITarget(target_entity_type, target_entity_id, proposal.project_id)
 
     case = db.get(AuthorityCase, target_entity_id)
     if case is None:

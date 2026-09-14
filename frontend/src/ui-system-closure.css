@@ -62,6 +62,7 @@ body { background: var(--color-background-page); color: var(--color-text-primary
 .app-shell .page-heading p,
 .app-shell .section-heading p { color: var(--color-text-secondary); max-width: 720px; }
 .app-shell .eyebrow { color: #4f6672; }
+.app-error-boundary .eyebrow { color: #4f6672; }
 
 .app-shell .panel,
 .app-shell .metric,

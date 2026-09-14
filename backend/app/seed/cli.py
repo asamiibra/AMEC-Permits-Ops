@@ -201,7 +201,11 @@ def seed(
 
         if reset_existing:
             if db.bind.dialect.name == "postgresql" and environment == "TEST" and settings.synthetic_only and not os.getenv("VERCEL"):
-                tables = ", ".join(f'"{name}"' for name in Base.metadata.tables)
+                tables = ", ".join(
+                    f'"{name}"'
+                    for name in Base.metadata.tables
+                    if name != "master_content_reference_sequences"
+                )
                 db.execute(text(f"TRUNCATE TABLE {tables} RESTART IDENTITY CASCADE"))
             else:
                 _delete_seed_models(

@@ -1,13 +1,24 @@
-from sqlalchemy import select
+from sqlalchemy import create_engine, select
+from sqlalchemy.orm import sessionmaker
 
-from backend.app.db import SessionLocal
-from backend.app.models import MasterContentItem
+from backend.app.models import Base, MasterContentItem
 from backend.app.services.master_content import create_master_content, reconcile_owner_demo_dataset, resolve_master_content_purpose
 from backend.app.fixtures.forme_parity import FORME_MASTER_SPECS
 
 
+def _isolated_session_factory():
+    engine = create_engine("sqlite:///:memory:")
+    Base.metadata.create_all(engine)
+    return sessionmaker(bind=engine)
+
+
 def test_forme_parity_seed_is_exact_and_idempotent():
-    with SessionLocal() as db:
+    # The reconciler is a persistent owner-demo bootstrap.  Keep this exact
+    # parity contract isolated from the session-scoped TEST database so the
+    # canonical Contract Template it creates cannot become a second active
+    # resolver candidate for unrelated contract tests.
+    Session = _isolated_session_factory()
+    with Session() as db:
         first = reconcile_owner_demo_dataset(db, actor="owner-demo-seed")
         rows = list(db.scalars(select(MasterContentItem).where(MasterContentItem.content_type == "FORM", MasterContentItem.status == "ACTIVE")).all())
         forme = {row.title: row for row in rows if (row.engineering_metadata or {}).get("forme_parity")}
@@ -35,7 +46,10 @@ def test_forme_parity_seed_is_exact_and_idempotent():
 
 
 def test_generic_seed_placeholder_cleanup_handles_dependency_column_names():
-    with SessionLocal() as db:
+    # This reconciliation also creates the canonical owner-demo templates;
+    # isolate it for the same reason as the exact parity contract above.
+    Session = _isolated_session_factory()
+    with Session() as db:
         created = create_master_content(
             db,
             content_type="FORM",

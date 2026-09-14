@@ -42,6 +42,7 @@ from ..services.classifier_v2 import (
     TAXONOMY_REVISION,
     classify_document,
 )
+from ..services.document_intelligence import normalize_classifier_proposal, normalize_field_observation
 from ..schemas.classifier_v2 import ClassifierV2Request
 from ..services.phase4 import PHASE3C_MODULE_TRUTH_SHA, PHASE4_CORPUS_APP_SHA
 from ..models.base import utcnow
@@ -137,7 +138,26 @@ def _existing_result(db: Session, event: Phase4SourceChangeEvent) -> dict[str, A
     document_version_id = evidence.evidence_json.get("document_version_id") if isinstance(evidence.evidence_json, dict) else None
     observation = None
     if document_version_id:
-        observation = db.scalar(select(FieldObservation).where(FieldObservation.document_version_id == document_version_id).order_by(FieldObservation.created_at))
+        observation = db.scalar(select(FieldObservation).where(FieldObservation.document_version_id == document_version_id).order_by(FieldObservation.observed_at))
+    candidate_ids: list[str] = []
+    if observation is not None:
+        candidate_ids.append(normalize_field_observation(db, observation, evidence_envelope_id=evidence.id).id)
+    if classification is not None:
+        proof = event.content_identity_proof if isinstance(event.content_identity_proof, dict) else {}
+        candidates = normalize_classifier_proposal(
+            db,
+            scope_type=proof.get("scope_type", "PROJECT"),
+            scope_id=proof.get("scope_id", proof.get("project_id")),
+            correlation_id=event.correlation_id,
+            source_artifact_id=event.source_artifact_id_or_locator,
+            proposal=classification.axes_json,
+            classifier_version=classification.classifier_version,
+            rules_version=classification.rules_version,
+            taxonomy_revision=classification.taxonomy_revision,
+            evidence_envelope_id=evidence.id,
+            source_document_version_id=classification.document_version_id,
+        )
+        candidate_ids.extend(candidate.id for candidate in candidates)
     return {
         "result": "IDEMPOTENT",
         "attempt_id": event.event_id.removeprefix("bridge:"),
@@ -146,6 +166,7 @@ def _existing_result(db: Session, event: Phase4SourceChangeEvent) -> dict[str, A
         "classification_envelope_id": classification.id if classification else None,
         "document_version_id": document_version_id,
         "field_observation_id": observation.id if observation else None,
+        "candidate_assertion_ids": candidate_ids,
         "verified_assertion_created": False,
         "projection_created": False,
         "signature_verified": True,
@@ -166,6 +187,9 @@ def ingest_bridge_package(db: Session, payload: BridgePackageIn, identity: Bridg
         "payload_sha256": package_sha256,
         "source_version_token": payload.source_version_token,
         "correlation_id": payload.correlation_id,
+        "scope_type": payload.scope_type,
+        "scope_id": payload.scope_id,
+        "project_id": payload.project_id,
         "bridge_client_id": identity.client_id,
         "bridge_object_id": identity.object_id,
     }
@@ -185,6 +209,7 @@ def ingest_bridge_package(db: Session, payload: BridgePackageIn, identity: Bridg
         raise _error(422, "BRIDGE_SYNTHETIC_TARGET_NOT_FOUND")
 
     document = Document(
+        project_id=project.id,
         document_type=DocumentType.OTHER,
         logical_name=f"qatar-bridge:{payload.attempt_id}",
         language="und",
@@ -312,6 +337,22 @@ def ingest_bridge_package(db: Session, payload: BridgePackageIn, identity: Bridg
     )
     db.add(observation)
     db.flush()
+    candidates = [
+        normalize_field_observation(db, observation, evidence_envelope_id=evidence.id),
+        *normalize_classifier_proposal(
+            db,
+            scope_type=payload.scope_type,
+            scope_id=payload.scope_id,
+            correlation_id=payload.correlation_id,
+            source_artifact_id=payload.source_path_snapshot,
+            proposal=proposal,
+            classifier_version=CLASSIFIER_VERSION,
+            rules_version=RULES_VERSION,
+            taxonomy_revision=TAXONOMY_REVISION,
+            evidence_envelope_id=evidence.id,
+            source_document_version_id=version.id,
+        ),
+    ]
     audit(
         db,
         correlation_id=payload.correlation_id,
@@ -329,6 +370,7 @@ def ingest_bridge_package(db: Session, payload: BridgePackageIn, identity: Bridg
         "classification_envelope_id": classification.id,
         "document_version_id": version.id,
         "field_observation_id": observation.id,
+        "candidate_assertion_ids": [candidate.id for candidate in candidates],
         "verified_assertion_created": False,
         "projection_created": False,
         "signature_verified": True,

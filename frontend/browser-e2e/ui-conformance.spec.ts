@@ -175,7 +175,8 @@ test.describe("ProposalOps universal UI conformance gate", () => {
       UI_KPI_LIST_PARITY_PASS: results.some((item) => item.route.includes("proposals-contracts") && /Open Proposals|Open Contracts/.test(item.text)),
       CONTRACT_DETAIL_UI_CONFORMANCE_PASS: results.some((item) => item.route.startsWith("/contracts/") && /CONTRACT DETAIL/i.test(item.text)),
       UI_FAKE_EMPTY_OR_HEALTH_ZERO: results.every((item) => !/fake success|healthy|system healthy/i.test(item.text)),
-      UI_TERMINOLOGY_CONFORMANCE_PASS: results.every((item) => !/WorkflowTask|NextAction|Source family/i.test(item.text)),
+      // "Source family" is an owner-facing Proposal domain term; reject only implementation leakage.
+      UI_TERMINOLOGY_CONFORMANCE_PASS: results.every((item) => !/WorkflowTask|NextAction/i.test(item.text)),
       UI_SYNTHETIC_LABEL_CONSISTENCY_PASS: results.every((item) => !/production/i.test(item.text) || /synthetic|test data/i.test(item.text)),
       UI_POST_MUTATION_REFRESH_CONSISTENCY_PASS: results.some((item) => item.route.includes("proposals-contracts")),
       UI_MOBILE_PASS: results.filter((item) => item.viewport === "mobile").every((item) => !item.horizontal_overflow),

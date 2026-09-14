@@ -1,0 +1,13 @@
+{
+  "command": "APP_ENV=TEST SYNTHETIC_ONLY=true REAL_DATA_ALLOWED=false PYTHONPATH=. pytest -q --basetemp=/private/tmp/p08-full-final -k 'not test_source_preflight_cli_emits_final_mutation_matrix_to_caller_path' backend/tests",
+  "passed": 959,
+  "failed": 2,
+  "skipped": 33,
+  "deselected": 1,
+  "failures": [
+    "backend/tests/test_step5_final_r2_template_snapshot.py::test_owner_capture_is_exactly_once_and_non_owner_denied",
+    "backend/tests/test_step5_final_r2_template_snapshot.py::test_finalized_contract_cannot_be_backfilled"
+  ],
+  "isolated_failure_recheck": "2 passed",
+  "p08_full_regression_pass": false
+}
