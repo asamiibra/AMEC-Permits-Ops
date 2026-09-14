@@ -1,0 +1,145 @@
+name: P08 Owner Pilot Qualification
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: "3.12"
+  NODE_VERSION: "22"
+  APP_ENV: TEST
+  SYNTHETIC_ONLY: "true"
+  REAL_DATA_ALLOWED: "false"
+  AI_REAL_CONTENT_ALLOWED: "false"
+  PYTHONPATH: .
+
+jobs:
+  backend-qualification:
+    name: Exact SHA backend qualification
+    runs-on: ubuntu-22.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Record exact source identity
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git rev-parse HEAD
+          git rev-parse HEAD^{tree}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install backend dependencies
+        run: python -m pip install --disable-pip-version-check -r backend/requirements.txt
+
+      - name: Execute mandatory source preflight
+        run: |
+          set -euo pipefail
+          python scripts/phase5/source_preflight.py --source-dir . --output "$RUNNER_TEMP/source-preflight.json"
+          test "$(python -c 'import json,sys; print(json.load(open(sys.argv[1]))["result"])' "$RUNNER_TEMP/source-preflight.json")" = PASS
+
+      - name: Execute P08 EvalPack 26 of 26
+        run: python backend/scripts/p08_evalpack.py --output "$RUNNER_TEMP/p08-evalpack-results.json"
+
+      - name: P08 focused and shared-control regression
+        run: |
+          set -euo pipefail
+          python -m pytest -q \
+            backend/tests/test_ai_p08_proposal_intelligence.py \
+            backend/tests/test_ai_p05_skill_runtime.py \
+            backend/tests/test_ai_p07_foundation_control_plane.py \
+            backend/tests/test_ai_d0_d1_architecture_auth_context.py \
+            backend/tests/test_ai_d2_d3_platform.py \
+            backend/tests/test_ai_d3_runtime_binding.py \
+            backend/tests/test_ai_d4_lock.py \
+            backend/tests/test_context_compiler.py \
+            backend/tests/test_phase4_corpus_app_integration.py \
+            backend/tests/test_governed_prefill_step4_adversarial.py
+
+      - name: Complete backend regression
+        run: python -m pytest -q backend/tests --ignore=backend/tests/test_phase5_sqlserver_runtime.py
+
+      - name: Migration head and roundtrip
+        run: |
+          set -euo pipefail
+          test "$(alembic heads | grep -c '(head)')" = 1
+          python -m pytest -q backend/tests/test_migration_runner.py backend/tests/test_migration_roundtrip.py backend/tests/test_database_startup_contract.py
+
+      - name: Upload backend evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p08-backend-evidence-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/source-preflight.json
+            ${{ runner.temp }}/p08-evalpack-results.json
+
+  postgres16-qualification:
+    name: PostgreSQL 16 migration proof
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: synthetic-postgres-password
+          POSTGRES_DB: proposalops
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d proposalops"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      APP_ENV: AZURE-PREPROD
+      AUTH_MODE: ENTRA
+      ENTRA_TENANT_ID: 11111111-1111-4111-8111-111111111111
+      ENTRA_WEB_CLIENT_ID: 22222222-2222-4222-8222-222222222222
+      ENTRA_API_CLIENT_ID: 33333333-3333-4333-8333-333333333333
+      ENTRA_REQUIRED_SCOPE: access_as_user
+      STORAGE_PROVIDER: mock
+      SYNOLOGY_MODE: SYNTHETIC
+      DATABASE_URL: postgresql+psycopg://postgres:synthetic-postgres-password@127.0.0.1:5432/proposalops
+      DATABASE_MIGRATION_URL: postgresql+psycopg://postgres:synthetic-postgres-password@127.0.0.1:5432/proposalops
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - run: python -m pip install --disable-pip-version-check -r backend/requirements.txt
+      - name: Upgrade exact migration head
+        run: alembic upgrade head
+      - name: Run PostgreSQL 16 proof
+        run: python backend/scripts/batch3a_postgres16_proof.py
+
+  frontend-qualification:
+    name: Exact SHA frontend qualification
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - working-directory: frontend
+        run: npm ci
+      - name: Frontend tests and production build
+        working-directory: frontend
+        run: |
+          npm test -- --run
+          npm run build
