@@ -2,7 +2,7 @@ from sqlalchemy import func, select
 
 from backend.app.db import SessionLocal
 from backend.app.models import OwnerDecision, OwnerDecisionHistory
-from backend.app.services.owner_decisions import BLOCKING_LEVELS, ensure_register
+from backend.app.services.owner_decisions import AUTHORITATIVE_SEVERITY_MATRIX, BLOCKING_LEVELS, CONDITIONAL_SEVERITY_KEYS, conditional_severity_evaluation, ensure_register
 
 
 def test_owner_decision_register_is_canonical_and_truthful(client):
@@ -26,6 +26,28 @@ def test_owner_decision_register_is_canonical_and_truthful(client):
         "PROPOSAL_TO_CONTRACT_POLICY",
     }
     assert next(item for item in payload["items"] if item["key"] == "PROPOSAL_OUTPUT_FORMAT_POLICY")["proposed_default"] == "PDF"
+    actual = {item["key"]: item["blocking_level"] for item in payload["items"]}
+    assert set(actual) == set(AUTHORITATIVE_SEVERITY_MATRIX) | CONDITIONAL_SEVERITY_KEYS
+    assert {key: actual[key] for key in AUTHORITATIVE_SEVERITY_MATRIX} == AUTHORITATIVE_SEVERITY_MATRIX
+    assert {actual[key] for key in CONDITIONAL_SEVERITY_KEYS} == {"P0_GO_LIVE_BLOCKER"}
+    assert payload["truth_tokens"]["OWNER_DECISION_UNCONDITIONAL_SEVERITY_MISMATCH_COUNT"] == 0
+    assert payload["truth_tokens"]["OWNER_DECISION_CONDITIONAL_SEVERITY_RULES"] == "PASS"
+    assert payload["truth_tokens"]["OWNER_DECISION_RUNTIME_MISMATCH_COUNT"] == 0
+    assert payload["truth_tokens"]["OWNER_DECISION_CONTRADICTION_COUNT"] == 0
+    assert payload["owner_action_required"]
+    assert any(row["key"] == "CONTRACT_REQUIRED_FIELDS" for row in payload["owner_action_required"])
+    assert any(row["key"] == "FULL_OWNER_LIFECYCLE_E2E" for row in payload["software_readiness"])
+    assert all(row["status"] != "READY" for row in payload["content_readiness"])
+
+
+def test_owner_decision_conditional_matrix_covers_dependency_states():
+    values = {spec["key"]: spec["default"] for spec in __import__("backend.app.services.owner_decisions", fromlist=["DECISION_SPECS"]).DECISION_SPECS}
+    result = conditional_severity_evaluation(values)
+    assert result["status"] == "PASS"
+    assert result["current"]["OFFICIAL_CONTRACT_TEMPLATE"]["level"] == "P0_GO_LIVE_BLOCKER"
+    assert result["scenarios"]["upload_only"]["official_template_not_applicable"] is True
+    assert result["scenarios"]["authority_gate_absent"]["authority_review_requires_explicit_applicability"] is True
+    assert result["scenarios"]["activation_artifact_dependency"]["artifact_strategy_p1_without_activation_dependency"] is True
 
 
 def test_owner_decision_spec_reconciliation_preserves_history():

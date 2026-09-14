@@ -16,6 +16,9 @@ from ..models import (
     AuditEvent,
     DefinitionEntry,
     DashboardInputItem,
+    Document,
+    DocumentApprovalState,
+    DocumentVersion,
     MasterContentItem,
     OwnerDecision,
     OwnerDecisionAlias,
@@ -48,6 +51,81 @@ BLOCKING_LEVELS = {"P0_GO_LIVE_BLOCKER", "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION"
 CONFIRMED_STATUSES = {"OWNER_CONFIRMED", "OWNER_CONFIRMED_WITH_NOTES", "OWNER_MARKED_NOT_APPLICABLE", "SAFE_DEFAULT_APPROVED_FOR_GO_LIVE"}
 OWNER_ROLES = {Role.SYSTEM_ADMIN, Role.OWNER_SPONSOR}
 
+# This is the immutable source-derived classification used by reconciliation
+# and acceptance tests.  Conditional entries are resolved below against the
+# effective workflow values; they are not silently downgraded.
+AUTHORITATIVE_SEVERITY_MATRIX = {
+    "MASTER_CATEGORY_SEMANTICS": "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION",
+    "ENGINEERING_SOURCE_TYPE_TAXONOMY": "P2_SAFE_DEFAULT_AVAILABLE",
+    "ENGINEERING_DISCIPLINE_TAXONOMY": "P2_SAFE_DEFAULT_AVAILABLE",
+    "FORM_REFERENCE_POLICY": "P2_SAFE_DEFAULT_AVAILABLE",
+    "REPORT_REFERENCE_POLICY": "P2_SAFE_DEFAULT_AVAILABLE",
+    "ENGINEERING_REFERENCE_POLICY": "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION",
+    "DEFINITION_REFERENCE_POLICY": "P2_SAFE_DEFAULT_AVAILABLE",
+    "OFFICIAL_PROPOSAL_TEMPLATE": "P0_GO_LIVE_BLOCKER",
+    "OFFICIAL_PROPOSAL_CHECKLIST": "P0_GO_LIVE_BLOCKER",
+    "MASTER_CONTENT_WRITE_POLICY": "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION",
+    "PROPOSAL_STAGE_POLICY": "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION",
+    "PROPOSAL_AUTHORITY_REVIEW_MEANING": "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION",
+    "PROPOSAL_AUTHORITY_FIELD_MEANING": "P2_SAFE_DEFAULT_AVAILABLE",
+    "PROPOSAL_READY_CLOSE_POLICY": "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION",
+    "PROPOSAL_ACTIVITY_SEMANTICS": "P2_SAFE_DEFAULT_AVAILABLE",
+    "PROPOSAL_ATTN_CONTACT_SEMANTICS": "P2_SAFE_DEFAULT_AVAILABLE",
+    "PROPOSAL_SCOPE_SEMANTICS": "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION",
+    "PROPOSAL_ACCEPT_REQUIRED_FIELDS": "P0_GO_LIVE_BLOCKER",
+    "PROPOSAL_ACCEPT_AUTHORITY": "P0_GO_LIVE_BLOCKER",
+    "ENGINEERING_PROPOSAL_CONTRIBUTION_POLICY": "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION",
+    "PROPOSAL_REFERENCE_POLICY": "P2_SAFE_DEFAULT_AVAILABLE",
+    "PROJECT_OPPORTUNITY_REFERENCE_SEMANTICS": "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION",
+    "PROPOSAL_OUTPUT_FORMAT_POLICY": "P2_SAFE_DEFAULT_AVAILABLE",
+    "PROPOSAL_CHECKLIST_OUTPUT_POLICY": "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION",
+    "PROPOSAL_TO_CONTRACT_POLICY": "P0_GO_LIVE_BLOCKER",
+    "PROPOSAL_CLOSE_OUTCOME_POLICY": "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION",
+    "CONTRACT_STAGE_POLICY": "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION",
+    "CONTRACT_READY_CLOSE_POLICY": "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION",
+    "CONTRACT_CLOSE_DATE_MEANING": "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION",
+    "CONTRACT_REFERENCE_POLICY": "P2_SAFE_DEFAULT_AVAILABLE",
+    "CONTRACT_REQUIRED_FIELDS": "P0_GO_LIVE_BLOCKER",
+    "CONTRACT_REQUIRED_EVIDENCE": "P0_GO_LIVE_BLOCKER",
+    "CONTRACT_AUTHORITY_POLICY": "P0_GO_LIVE_BLOCKER",
+    "MANUAL_NEW_CONTRACT_POLICY": "P0_GO_LIVE_BLOCKER",
+    "CONTRACT_AMOUNT_CHANGE_AUTHORITY": "P0_GO_LIVE_BLOCKER",
+    "CONTRACT_REOPEN_POLICY": "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION",
+    "CONTRACT_TO_PROJECT_TRIGGER": "P0_GO_LIVE_BLOCKER",
+    "PROJECT_ACTIVATION_AUTHORITY": "P0_GO_LIVE_BLOCKER",
+    "PROJECT_CODE_ASSIGNMENT_METHOD": "P0_GO_LIVE_BLOCKER",
+    "PROJECT_CODE_FORMAT": "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION",
+    "PROJECT_CODE_MUTABILITY_POLICY": "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION",
+    "PROJECT_START_DATE_SEMANTICS": "P0_GO_LIVE_BLOCKER",
+    "PROJECT_ACTIVATION_REQUIRED_FIELDS": "P0_GO_LIVE_BLOCKER",
+    "CONTRACT_CLOSE_VS_PROJECT_ACTIVATION": "P0_GO_LIVE_BLOCKER",
+    "REAL_SYNOLOGY_CONNECTION": "EXTERNAL_TECHNICAL",
+    "PRODUCTION_FILE_POLICY": "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION",
+    "PRODUCTION_GO_LIVE_SIGNOFF": "P0_GO_LIVE_BLOCKER",
+}
+CONDITIONAL_SEVERITY_KEYS = {"OFFICIAL_CONTRACT_TEMPLATE", "CONTRACT_AUTHORITY_REVIEW_MEANING", "CONTRACT_ARTIFACT_STRATEGY"}
+CONDITIONAL_SEVERITY_RULES = {
+    "OFFICIAL_CONTRACT_TEMPLATE": "P0 when contract rendering is enabled; explicit not-applicable only for confirmed upload-only workflow",
+    "CONTRACT_AUTHORITY_REVIEW_MEANING": "P0 when Authority Review gates Contract authority; otherwise explicit configured applicability is required",
+    "CONTRACT_ARTIFACT_STRATEGY": "P1 unless contract artifact/evidence is mandatory for Project activation, then effective P0",
+}
+
+TECHNICAL_GATE_EVIDENCE = {
+    "AZURE_SQL_MANAGED_IDENTITY_CONNECTIVITY": ("Azure SQL managed-identity connectivity", "artifacts/proposal-terminal-technical-acceptance/technical-gates.json"),
+    "AZURE_SQL_MIGRATION": ("Azure SQL migration", "artifacts/proposal-terminal-technical-acceptance/technical-gates.json"),
+    "AZURE_SQL_PROPOSAL_BEHAVIOR": ("Azure SQL Proposal behavior/persistence", "artifacts/proposal-terminal-technical-acceptance/technical-gates.json"),
+    "AZURE_SQL_RECOVERY": ("Azure SQL recovery procedure", "artifacts/proposal-terminal-technical-acceptance/technical-gates.json"),
+    "ENTRA_AUTHORIZATION": ("Entra authentication/authorization", "artifacts/proposal-terminal-technical-acceptance/technical-gates.json"),
+    "MANAGED_BLOB_READBACK": ("managed artifact Blob write/readback", "artifacts/proposal-terminal-technical-acceptance/technical-gates.json"),
+    "SOURCE_INTAKE_BRIDGE": ("Source Intake Bridge / real Synology technical verification", "artifacts/proposal-terminal-technical-acceptance/technical-gates.json"),
+    "FRONTEND_HOSTING": ("production frontend hosting", "artifacts/proposal-terminal-technical-acceptance/technical-gates.json"),
+    "FRONT_DOOR_ROUTING": ("Front Door routing", "artifacts/proposal-terminal-technical-acceptance/technical-gates.json"),
+    "WAF": ("WAF", "artifacts/proposal-terminal-technical-acceptance/technical-gates.json"),
+    "MANAGED_TLS": ("managed TLS", "artifacts/proposal-terminal-technical-acceptance/technical-gates.json"),
+    "HEALTH_READINESS": ("health/readiness", "artifacts/proposal-terminal-technical-acceptance/technical-gates.json"),
+    "OBSERVABILITY_TELEMETRY": ("observability/telemetry required for launch", "artifacts/proposal-terminal-technical-acceptance/technical-gates.json"),
+}
+
 
 def _now() -> datetime:
     return datetime.now(timezone.utc)
@@ -77,59 +155,98 @@ PROPOSED = "PROPOSED_DEFAULT"
 
 
 DECISION_SPECS: list[dict[str, Any]] = [
-    _spec("MASTER_CATEGORY_SEMANTICS", "MASTER_CONTENT_GOVERNANCE", default={"meaning": "OWNER_MANAGED_BUSINESS_CLASSIFICATION", "separate_from": ["ENGINEERING_SOURCE_TYPE", "ENGINEERING_DISCIPLINE"]}, modules=["Dashboard", "Proposal", "Contract", "Engineering"]),
+    _spec("MASTER_CATEGORY_SEMANTICS", "MASTER_CONTENT_GOVERNANCE", default={"meaning": "OWNER_MANAGED_BUSINESS_CLASSIFICATION", "separate_from": ["ENGINEERING_SOURCE_TYPE", "ENGINEERING_DISCIPLINE"]}, blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Dashboard", "Proposal", "Contract", "Engineering"]),
     _spec("ENGINEERING_SOURCE_TYPE_TAXONOMY", "MASTER_CONTENT_GOVERNANCE", default=["REGULATION", "QCS", "MUNICIPALITY_COMMENT", "AUTHORITY_GUIDANCE", "ENGINEERING_STANDARD", "DESIGN_GUIDE", "TECHNICAL_REFERENCE", "OTHER"], modules=["Dashboard", "Engineering"]),
     _spec("ENGINEERING_DISCIPLINE_TAXONOMY", "MASTER_CONTENT_GOVERNANCE", default=["GENERAL", "DESIGN", "ARCHITECTURE", "STRUCTURAL", "CIVIL", "MEP", "FIRE_LIFE_SAFETY", "PERMIT", "OTHER"], modules=["Dashboard", "Engineering"]),
     _spec("FORM_REFERENCE_POLICY", "MASTER_CONTENT_GOVERNANCE", default={"prefix": "F", "padding": 4, "renumber_existing": False}, modules=["Dashboard", "Proposal", "Contract"]),
     _spec("REPORT_REFERENCE_POLICY", "MASTER_CONTENT_GOVERNANCE", default={"prefix": "R", "padding": 4, "renumber_existing": False}, modules=["Dashboard", "Reports"]),
-    _spec("ENGINEERING_REFERENCE_POLICY", "MASTER_CONTENT_GOVERNANCE", default={"prefix": "E", "padding": 4, "renumber_existing": False}, modules=["Dashboard", "Engineering"]),
+    _spec("ENGINEERING_REFERENCE_POLICY", "MASTER_CONTENT_GOVERNANCE", default={"prefix": "E", "padding": 4, "renumber_existing": False}, blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Dashboard", "Engineering"]),
     _spec("DEFINITION_REFERENCE_POLICY", "MASTER_CONTENT_GOVERNANCE", default={"prefix": "D", "padding": 4, "renumber_existing": False}, modules=["Dashboard", "Definitions"]),
     _spec("OFFICIAL_PROPOSAL_TEMPLATE", "MASTER_CONTENT_GOVERNANCE", default={"resolver": "BD/PROPOSAL_TEMPLATE", "selection": "OWNER_SELECTS_CANONICAL_FORM_VERSION"}, decision_type="CONTENT_BINDING", blocking="P0_GO_LIVE_BLOCKER", modules=["Dashboard", "BD/Proposal"]),
     _spec("OFFICIAL_PROPOSAL_CHECKLIST", "MASTER_CONTENT_GOVERNANCE", default={"resolver": "BD/PROPOSAL_CHECKLIST", "selection": "OWNER_SELECTS_CANONICAL_FORM_VERSION"}, decision_type="CONTENT_BINDING", blocking="P0_GO_LIVE_BLOCKER", modules=["Dashboard", "BD/Proposal"]),
-    _spec("OFFICIAL_CONTRACT_TEMPLATE", "MASTER_CONTENT_GOVERNANCE", default={"resolver": "ADMIN/CONTRACT_TEMPLATE", "selection": "OWNER_SELECTS_CANONICAL_FORM_VERSION"}, decision_type="CONTENT_BINDING", blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Dashboard", "Administration", "Contract"]),
+    _spec("OFFICIAL_CONTRACT_TEMPLATE", "MASTER_CONTENT_GOVERNANCE", default={"resolver": "ADMIN/CONTRACT_TEMPLATE", "selection": "OWNER_SELECTS_CANONICAL_FORM_VERSION"}, decision_type="CONTENT_BINDING", blocking="P0_GO_LIVE_BLOCKER", modules=["Dashboard", "Administration", "Contract"]),
     _spec("MASTER_CONTENT_WRITE_POLICY", "MASTER_CONTENT_GOVERNANCE", default={"owner": "OWNER_ONLY", "business_development": "READ_USE", "engineering": "READ_USE"}, blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Dashboard", "Administration", "RBAC"]),
-    _spec("PROPOSAL_STAGE_POLICY", "PROPOSAL_COMMERCIAL", default={"stages": ["RECEIVED", "IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "READY_FOR_QUOTATION", "QUOTATION_IN_PROGRESS", "COMMERCIAL_REVIEW", "CLIENT_RESPONSE_PENDING", "ACCEPTED", "CLOSED"]}, modules=["Proposal", "My Work"]),
-    _spec("PROPOSAL_AUTHORITY_REVIEW_MEANING", "PROPOSAL_COMMERCIAL", default="OWNER_REVIEW_REQUIRED_NOT_LEGAL_OR_MUNICIPAL_APPROVAL", modules=["Proposal", "RBAC"]),
+    _spec("PROPOSAL_STAGE_POLICY", "PROPOSAL_COMMERCIAL", default={"stages": ["RECEIVED", "IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "READY_FOR_QUOTATION", "QUOTATION_IN_PROGRESS", "COMMERCIAL_REVIEW", "CLIENT_RESPONSE_PENDING", "ACCEPTED", "CLOSED"]}, blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Proposal", "My Work"]),
+    _spec("PROPOSAL_AUTHORITY_REVIEW_MEANING", "PROPOSAL_COMMERCIAL", default="OWNER_REVIEW_REQUIRED_NOT_LEGAL_OR_MUNICIPAL_APPROVAL", blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Proposal", "RBAC"]),
     _spec("PROPOSAL_AUTHORITY_FIELD_MEANING", "PROPOSAL_COMMERCIAL", default="HUMAN_ENTERED_CONTEXT_ONLY", modules=["Proposal", "Engineering"]),
-    _spec("PROPOSAL_READY_CLOSE_POLICY", "PROPOSAL_COMMERCIAL", default="READINESS_GATES_AND_OWNER_ACTION_REQUIRED", modules=["Proposal", "My Work"]),
+    _spec("PROPOSAL_READY_CLOSE_POLICY", "PROPOSAL_COMMERCIAL", default="READINESS_GATES_AND_OWNER_ACTION_REQUIRED", blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Proposal", "My Work"]),
     _spec("PROPOSAL_ACTIVITY_SEMANTICS", "PROPOSAL_COMMERCIAL", default="APPEND_ONLY_HUMAN_AND_SYSTEM_ACTIVITY_WITH_CORRELATION", modules=["Proposal", "Audit"]),
     _spec("PROPOSAL_ATTN_CONTACT_SEMANTICS", "PROPOSAL_COMMERCIAL", default="CLIENT_CONTACT_CONTEXT_NOT_AUTHORITY", modules=["Proposal", "Client", "Contact"]),
-    _spec("PROPOSAL_SCOPE_SEMANTICS", "PROPOSAL_COMMERCIAL", default="SEPARATE_AMEC_SCOPE_CLIENT_SCOPE_AND_PROCESS_OF_WORK", modules=["Proposal", "Contract"]),
+    _spec("PROPOSAL_SCOPE_SEMANTICS", "PROPOSAL_COMMERCIAL", default="SEPARATE_AMEC_SCOPE_CLIENT_SCOPE_AND_PROCESS_OF_WORK", blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Proposal", "Contract"]),
     _spec("PROPOSAL_ACCEPT_REQUIRED_FIELDS", "PROPOSAL_COMMERCIAL", default=["CLIENT", "CONTACT", "PROJECT_OPPORTUNITY_REFERENCE", "SCOPE", "AMOUNT", "CURRENCY", "DURATION", "ACCEPTED_REVISION"], blocking="P0_GO_LIVE_BLOCKER", modules=["Proposal", "Client", "Contract"]),
     _spec("PROPOSAL_ACCEPT_AUTHORITY", "PROPOSAL_COMMERCIAL", default="OWNER_OR_AUTHORIZED_COMMERCIAL_APPROVER", blocking="P0_GO_LIVE_BLOCKER", modules=["Proposal", "RBAC", "Audit"]),
-    _spec("ENGINEERING_PROPOSAL_CONTRIBUTION_POLICY", "PROPOSAL_COMMERCIAL", default="ENGINEERING_MAY_CONTRIBUTE_TECHNICAL_CONTENT_BD_OWNS_COMMERCIAL_ACCEPTANCE", modules=["Proposal", "Engineering", "RBAC"]),
+    _spec("ENGINEERING_PROPOSAL_CONTRIBUTION_POLICY", "PROPOSAL_COMMERCIAL", default="ENGINEERING_MAY_CONTRIBUTE_TECHNICAL_CONTENT_BD_OWNS_COMMERCIAL_ACCEPTANCE", blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Proposal", "Engineering", "RBAC"]),
     _spec("PROPOSAL_REFERENCE_POLICY", "PROPOSAL_COMMERCIAL", default={"prefix": "P", "padding": 4, "renumber_existing": False}, modules=["Proposal", "Audit"]),
-    _spec("PROJECT_OPPORTUNITY_REFERENCE_SEMANTICS", "PROPOSAL_COMMERCIAL", default="PROVISIONAL_UNTIL_CANONICAL_PROJECT_REFERENCE_EXISTS", modules=["Proposal", "Project"]),
+    _spec("PROJECT_OPPORTUNITY_REFERENCE_SEMANTICS", "PROPOSAL_COMMERCIAL", default="PROVISIONAL_UNTIL_CANONICAL_PROJECT_REFERENCE_EXISTS", blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Proposal", "Project"]),
     _spec("PROPOSAL_OUTPUT_FORMAT_POLICY", "PROPOSAL_COMMERCIAL", default="PDF", modules=["Proposal", "Dashboard"]),
     _spec("PROPOSAL_CHECKLIST_OUTPUT_POLICY", "PROPOSAL_COMMERCIAL", default="CANONICAL_CHECKLIST_VERSION_SNAPSHOT_WITH_PROPOSAL_OUTPUT", blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Proposal", "Dashboard"]),
     _spec("PROPOSAL_TO_CONTRACT_POLICY", "PROPOSAL_COMMERCIAL", default="ACCEPT_MAKES_CONTRACT_ELIGIBLE_ADMIN_INITIATES", options=["ACCEPT_MAKES_CONTRACT_ELIGIBLE_ADMIN_INITIATES", "AUTO_CREATE_CONTRACT_ON_ACCEPT"], blocking="P0_GO_LIVE_BLOCKER", modules=["Proposal", "Contract", "RBAC"]),
-    _spec("PROPOSAL_CLOSE_OUTCOME_POLICY", "PROPOSAL_COMMERCIAL", default=["WON", "LOST", "WITHDRAWN", "SUPERSEDED"], modules=["Proposal", "Audit"]),
-    _spec("CONTRACT_STAGE_POLICY", "CONTRACT_ADMINISTRATION", default={"stages": ["DRAFT", "NEEDS_ACTION", "AUTHORITY_REVIEW", "READY", "ACTIVE", "CLOSED"]}, modules=["Contract", "My Work"]),
-    _spec("CONTRACT_AUTHORITY_REVIEW_MEANING", "CONTRACT_ADMINISTRATION", default="OWNER_REVIEW_REQUIRED_NOT_LEGAL_EXECUTION", modules=["Contract", "RBAC", "Audit"]),
-    _spec("CONTRACT_READY_CLOSE_POLICY", "CONTRACT_ADMINISTRATION", default="REQUIRED_FIELDS_EVIDENCE_AND_OWNER_AUTHORITY_ACTION", modules=["Contract", "Audit"]),
-    _spec("CONTRACT_CLOSE_DATE_MEANING", "CONTRACT_ADMINISTRATION", default="EXPECTED_CLOSE_DATE_UNTIL_OWNER_CONFIRMS_ACTUAL_CLOSE", modules=["Contract", "Project"]),
+    _spec("PROPOSAL_CLOSE_OUTCOME_POLICY", "PROPOSAL_COMMERCIAL", default=["WON", "LOST", "WITHDRAWN", "SUPERSEDED"], blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Proposal", "Audit"]),
+    _spec("CONTRACT_STAGE_POLICY", "CONTRACT_ADMINISTRATION", default={"stages": ["DRAFT", "NEEDS_ACTION", "AUTHORITY_REVIEW", "READY", "ACTIVE", "CLOSED"]}, blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Contract", "My Work"]),
+    _spec("CONTRACT_AUTHORITY_REVIEW_MEANING", "CONTRACT_ADMINISTRATION", default="OWNER_REVIEW_REQUIRED_NOT_LEGAL_EXECUTION", blocking="P0_GO_LIVE_BLOCKER", modules=["Contract", "RBAC", "Audit"]),
+    _spec("CONTRACT_READY_CLOSE_POLICY", "CONTRACT_ADMINISTRATION", default="REQUIRED_FIELDS_EVIDENCE_AND_OWNER_AUTHORITY_ACTION", blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Contract", "Audit"]),
+    _spec("CONTRACT_CLOSE_DATE_MEANING", "CONTRACT_ADMINISTRATION", default="EXPECTED_CLOSE_DATE_UNTIL_OWNER_CONFIRMS_ACTUAL_CLOSE", blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Contract", "Project"]),
     _spec("CONTRACT_REFERENCE_POLICY", "CONTRACT_ADMINISTRATION", default={"prefix": "C", "padding": 4, "unique": True, "owner_override": True}, modules=["Contract", "Audit"]),
-    _spec("CONTRACT_REQUIRED_FIELDS", "CONTRACT_ADMINISTRATION", default=["CLIENT", "CONTRACT_REFERENCE", "PROJECT_OPPORTUNITY_REFERENCE", "AMOUNT", "CURRENCY", "DURATION"], blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Contract", "Client", "Project"]),
-    _spec("CONTRACT_REQUIRED_EVIDENCE", "CONTRACT_ADMINISTRATION", default=["ACCEPTED_PROPOSAL_REVISION", "CONTRACT_TEMPLATE_SNAPSHOT", "COMMERCIAL_OR_AWARD_EVIDENCE"], blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Contract", "Document", "Synology"]),
-    _spec("CONTRACT_AUTHORITY_POLICY", "CONTRACT_ADMINISTRATION", default="OWNER_ONLY_FOR_AUTHORITY_AND_EXECUTION_STATE", blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Contract", "RBAC", "Audit"]),
-    _spec("MANUAL_NEW_CONTRACT_POLICY", "CONTRACT_ADMINISTRATION", default="SELECT_ACCEPTED_PROPOSAL_ONLY", options=["SELECT_ACCEPTED_PROPOSAL_ONLY", "OWNER_MAY_CREATE_WITH_REQUIRED_INPUTS"], blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Contract", "Proposal"]),
-    _spec("CONTRACT_AMOUNT_CHANGE_AUTHORITY", "CONTRACT_ADMINISTRATION", default="OWNER_ONLY_WITH_REASON_AND_NEW_REVISION", blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Contract", "Audit"]),
-    _spec("CONTRACT_ARTIFACT_STRATEGY", "CONTRACT_ADMINISTRATION", default="CANONICAL_TEMPLATE_RENDER_PLUS_EVIDENCE", options=["CANONICAL_TEMPLATE_RENDER_PLUS_EVIDENCE", "UPLOAD_ONLY_EVIDENCE"], modules=["Contract", "Document", "Synology"]),
-    _spec("CONTRACT_REOPEN_POLICY", "CONTRACT_ADMINISTRATION", default="OWNER_DECISION_REQUIRED_WITH_PROSPECTIVE_REVALIDATION", modules=["Contract", "My Work", "Audit"]),
-    _spec("CONTRACT_TO_PROJECT_TRIGGER", "PROJECT_ACTIVATION", default="EXPLICIT_OWNER_ACTION_AFTER_CONTRACT_READINESS", options=["EXPLICIT_OWNER_ACTION_AFTER_CONTRACT_READINESS", "AUTO_ACTIVATE_ON_CONTRACT_CLOSE"], blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Contract", "Project", "RBAC"]),
-    _spec("PROJECT_ACTIVATION_AUTHORITY", "PROJECT_ACTIVATION", default="OWNER_ONLY_HUMAN_ACTION", blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Project", "RBAC", "Audit"]),
-    _spec("PROJECT_CODE_ASSIGNMENT_METHOD", "PROJECT_ACTIVATION", default="OWNER_ENTERED_UNIQUE", options=["OWNER_ENTERED_UNIQUE", "SYSTEM_GENERATED_UNIQUE"], modules=["Project", "Contract"]),
-    _spec("PROJECT_CODE_FORMAT", "PROJECT_ACTIVATION", default={"pattern": "AMEC-YYYY-NNN", "example": "AMEC-2026-001"}, modules=["Project", "Contract", "Permit"]),
-    _spec("PROJECT_CODE_MUTABILITY_POLICY", "PROJECT_ACTIVATION", default="IMMUTABLE_AFTER_ACTIVATION", options=["IMMUTABLE_AFTER_ACTIVATION", "OWNER_EDITABLE_BEFORE_ACTIVATION"], modules=["Project", "Audit"]),
-    _spec("PROJECT_START_DATE_SEMANTICS", "PROJECT_ACTIVATION", default="ORIGINAL_HUMAN_ACTIVATION_DATE", modules=["Project", "Contract", "Permit", "Audit"]),
-    _spec("PROJECT_ACTIVATION_REQUIRED_FIELDS", "PROJECT_ACTIVATION", default=["CONTRACT", "ACCEPTED_PROPOSAL_REVISION", "PROJECT_CODE", "START_DATE", "CLIENT"], blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Project", "Contract", "Client"]),
-    _spec("CONTRACT_CLOSE_VS_PROJECT_ACTIVATION", "PROJECT_ACTIVATION", default="SEPARATE_EVENTS_WITH_LINEAGE", options=["SEPARATE_EVENTS_WITH_LINEAGE", "SAME_EVENT"], modules=["Contract", "Project", "Audit"]),
+    _spec("CONTRACT_REQUIRED_FIELDS", "CONTRACT_ADMINISTRATION", default=["CLIENT", "CONTRACT_REFERENCE", "PROJECT_OPPORTUNITY_REFERENCE", "AMOUNT", "CURRENCY", "DURATION"], blocking="P0_GO_LIVE_BLOCKER", modules=["Contract", "Client", "Project"]),
+    _spec("CONTRACT_REQUIRED_EVIDENCE", "CONTRACT_ADMINISTRATION", default=["ACCEPTED_PROPOSAL_REVISION", "CONTRACT_TEMPLATE_SNAPSHOT", "COMMERCIAL_OR_AWARD_EVIDENCE"], blocking="P0_GO_LIVE_BLOCKER", modules=["Contract", "Document", "Synology"]),
+    _spec("CONTRACT_AUTHORITY_POLICY", "CONTRACT_ADMINISTRATION", default="OWNER_ONLY_FOR_AUTHORITY_AND_EXECUTION_STATE", blocking="P0_GO_LIVE_BLOCKER", modules=["Contract", "RBAC", "Audit"]),
+    _spec("MANUAL_NEW_CONTRACT_POLICY", "CONTRACT_ADMINISTRATION", default="SELECT_ACCEPTED_PROPOSAL_ONLY", options=["SELECT_ACCEPTED_PROPOSAL_ONLY", "OWNER_MAY_CREATE_WITH_REQUIRED_INPUTS"], blocking="P0_GO_LIVE_BLOCKER", modules=["Contract", "Proposal"]),
+    _spec("CONTRACT_AMOUNT_CHANGE_AUTHORITY", "CONTRACT_ADMINISTRATION", default="OWNER_ONLY_WITH_REASON_AND_NEW_REVISION", blocking="P0_GO_LIVE_BLOCKER", modules=["Contract", "Audit"]),
+    _spec("CONTRACT_ARTIFACT_STRATEGY", "CONTRACT_ADMINISTRATION", default="CANONICAL_TEMPLATE_RENDER_PLUS_EVIDENCE", options=["CANONICAL_TEMPLATE_RENDER_PLUS_EVIDENCE", "UPLOAD_ONLY_EVIDENCE"], blocking="P0_GO_LIVE_BLOCKER", modules=["Contract", "Document", "Synology"]),
+    _spec("CONTRACT_REOPEN_POLICY", "CONTRACT_ADMINISTRATION", default="OWNER_DECISION_REQUIRED_WITH_PROSPECTIVE_REVALIDATION", blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Contract", "My Work", "Audit"]),
+    _spec("CONTRACT_TO_PROJECT_TRIGGER", "PROJECT_ACTIVATION", default="EXPLICIT_OWNER_ACTION_AFTER_CONTRACT_READINESS", options=["EXPLICIT_OWNER_ACTION_AFTER_CONTRACT_READINESS", "AUTO_ACTIVATE_ON_CONTRACT_CLOSE"], blocking="P0_GO_LIVE_BLOCKER", modules=["Contract", "Project", "RBAC"]),
+    _spec("PROJECT_ACTIVATION_AUTHORITY", "PROJECT_ACTIVATION", default="OWNER_ONLY_HUMAN_ACTION", blocking="P0_GO_LIVE_BLOCKER", modules=["Project", "RBAC", "Audit"]),
+    _spec("PROJECT_CODE_ASSIGNMENT_METHOD", "PROJECT_ACTIVATION", default="OWNER_ENTERED_UNIQUE", options=["OWNER_ENTERED_UNIQUE", "SYSTEM_GENERATED_UNIQUE"], blocking="P0_GO_LIVE_BLOCKER", modules=["Project", "Contract"]),
+    _spec("PROJECT_CODE_FORMAT", "PROJECT_ACTIVATION", default={"pattern": "AMEC-YYYY-NNN", "example": "AMEC-2026-001"}, blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Project", "Contract", "Permit"]),
+    _spec("PROJECT_CODE_MUTABILITY_POLICY", "PROJECT_ACTIVATION", default="IMMUTABLE_AFTER_ACTIVATION", options=["IMMUTABLE_AFTER_ACTIVATION", "OWNER_EDITABLE_BEFORE_ACTIVATION"], blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Project", "Audit"]),
+    _spec("PROJECT_START_DATE_SEMANTICS", "PROJECT_ACTIVATION", default="ORIGINAL_HUMAN_ACTIVATION_DATE", blocking="P0_GO_LIVE_BLOCKER", modules=["Project", "Contract", "Permit", "Audit"]),
+    _spec("PROJECT_ACTIVATION_REQUIRED_FIELDS", "PROJECT_ACTIVATION", default=["CONTRACT", "ACCEPTED_PROPOSAL_REVISION", "PROJECT_CODE", "START_DATE", "CLIENT"], blocking="P0_GO_LIVE_BLOCKER", modules=["Project", "Contract", "Client"]),
+    _spec("CONTRACT_CLOSE_VS_PROJECT_ACTIVATION", "PROJECT_ACTIVATION", default="SEPARATE_EVENTS_WITH_LINEAGE", options=["SEPARATE_EVENTS_WITH_LINEAGE", "SAME_EVENT"], blocking="P0_GO_LIVE_BLOCKER", modules=["Contract", "Project", "Audit"]),
     _spec("REAL_SYNOLOGY_CONNECTION", "TECHNICAL_GO_LIVE", default="REAL_CONNECTION_AND_HEALTH_VERIFICATION_REQUIRED", blocking="EXTERNAL_TECHNICAL", decision_type="TECHNICAL_FACT", modules=["Synology", "Dashboard", "Contract"], system_fact_source="/api/adapters/health real Synology verification; Owner cannot set this fact"),
     _spec("PRODUCTION_FILE_POLICY", "TECHNICAL_GO_LIVE", default={"extensions": [".docx", ".pdf"], "source_of_record": "AMEC_SYNOLOGY", "versioning": "IMMUTABLE_DOCUMENT_VERSIONS"}, blocking="P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", modules=["Synology", "Document", "Dashboard"]),
     _spec("PRODUCTION_GO_LIVE_SIGNOFF", "TECHNICAL_GO_LIVE", default="EXPLICIT_OWNER_SIGNOFF_AFTER_ALL_GATES", blocking="P0_GO_LIVE_BLOCKER", decision_type="GO_LIVE_SIGNOFF", modules=["Administration", "Dashboard", "BD/Proposal", "Contract"]),
 ]
 
 DECISION_BY_KEY = {item["key"]: item for item in DECISION_SPECS}
+
+
+def _configured_value(values: dict[str, Any], key: str) -> Any:
+    value = values.get(key)
+    return value if value is not None else DECISION_BY_KEY[key]["default"]
+
+
+def conditional_severity_state(key: str, values: dict[str, Any]) -> dict[str, Any]:
+    """Resolve a conditional source classification without inventing a downgrade."""
+    if key == "OFFICIAL_CONTRACT_TEMPLATE":
+        strategy = _configured_value(values, "CONTRACT_ARTIFACT_STRATEGY")
+        evidence = _configured_value(values, "CONTRACT_REQUIRED_EVIDENCE") or []
+        upload_only_without_template = strategy == "UPLOAD_ONLY_EVIDENCE" and "CONTRACT_TEMPLATE_SNAPSHOT" not in evidence
+        return {"key": key, "applicable": not upload_only_without_template, "level": None if upload_only_without_template else "P0_GO_LIVE_BLOCKER", "reason": "Confirmed upload-only strategy removes the rendered-template dependency." if upload_only_without_template else "Contract rendering/template workflow is enabled or its exact snapshot remains mandatory."}
+    if key == "CONTRACT_AUTHORITY_REVIEW_MEANING":
+        policy = _configured_value(values, "CONTRACT_AUTHORITY_POLICY")
+        gated = policy not in {"NO_AUTHORITY_REVIEW_GATE", "OWNER_AUTHORITY_NOT_REQUIRED", "NOT_APPLICABLE"}
+        return {"key": key, "applicable": gated, "level": "P0_GO_LIVE_BLOCKER" if gated else None, "reason": "Authority Review gates Contract authority under the effective authority policy." if gated else "No effective Contract authority gate was configured; applicability requires explicit Owner confirmation."}
+    if key == "CONTRACT_ARTIFACT_STRATEGY":
+        activation_fields = _configured_value(values, "PROJECT_ACTIVATION_REQUIRED_FIELDS") or []
+        evidence = _configured_value(values, "CONTRACT_REQUIRED_EVIDENCE") or []
+        mandatory_for_activation = "CONTRACT" in activation_fields and bool(evidence)
+        return {"key": key, "applicable": True, "level": "P0_GO_LIVE_BLOCKER" if mandatory_for_activation else "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", "reason": "Contract artifact/evidence is mandatory for Project activation." if mandatory_for_activation else "Contract artifact strategy remains required for controlled production but is not an activation prerequisite."}
+    raise KeyError(key)
+
+
+def conditional_severity_evaluation(values: dict[str, Any]) -> dict[str, Any]:
+    current = {key: conditional_severity_state(key, values) for key in CONDITIONAL_SEVERITY_KEYS}
+    upload_only_values = dict(values, CONTRACT_ARTIFACT_STRATEGY="UPLOAD_ONLY_EVIDENCE", CONTRACT_REQUIRED_EVIDENCE=["ACCEPTED_PROPOSAL_REVISION", "COMMERCIAL_OR_AWARD_EVIDENCE"])
+    no_authority_gate_values = dict(values, CONTRACT_AUTHORITY_POLICY="NO_AUTHORITY_REVIEW_GATE")
+    no_activation_values = dict(values, PROJECT_ACTIVATION_REQUIRED_FIELDS=["CLIENT"], CONTRACT_REQUIRED_EVIDENCE=[])
+    scenarios = {
+        "rendered_contract": {"official_template": conditional_severity_state("OFFICIAL_CONTRACT_TEMPLATE", values)["level"] == "P0_GO_LIVE_BLOCKER"},
+        "upload_only": {"official_template_not_applicable": conditional_severity_state("OFFICIAL_CONTRACT_TEMPLATE", upload_only_values)["applicable"] is False, "artifact_strategy_stays_p0_when_activation_evidence_exists": conditional_severity_state("CONTRACT_ARTIFACT_STRATEGY", values)["level"] == "P0_GO_LIVE_BLOCKER"},
+        "authority_gate": {"authority_review_p0": conditional_severity_state("CONTRACT_AUTHORITY_REVIEW_MEANING", values)["level"] == "P0_GO_LIVE_BLOCKER"},
+        "authority_gate_absent": {"authority_review_requires_explicit_applicability": conditional_severity_state("CONTRACT_AUTHORITY_REVIEW_MEANING", no_authority_gate_values)["level"] is None},
+        "activation_artifact_dependency": {"artifact_strategy_p1_without_activation_dependency": conditional_severity_state("CONTRACT_ARTIFACT_STRATEGY", no_activation_values)["level"] == "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION"},
+    }
+    return {"status": "PASS" if all(all(checks.values()) for checks in scenarios.values()) else "FAIL", "current": current, "scenarios": scenarios, "rules": CONDITIONAL_SEVERITY_RULES}
 
 # Legacy inputs remain readable and auditable, but these keys now resolve to the
 # canonical register.  Dashboard content-readiness records intentionally remain
@@ -258,6 +375,28 @@ def _system_state(db: Session, item: OwnerDecision) -> dict[str, Any]:
 
 
 def _content_readiness(db: Session) -> list[dict[str, Any]]:
+    def production_version_state(item: MasterContentItem | None, version: DocumentVersion | None) -> tuple[bool, list[str]]:
+        reasons: list[str] = []
+        if not item or item.status != "ACTIVE":
+            reasons.append("MASTER_CONTENT_NOT_ACTIVE")
+        if not item or not item.current_document_version_id or not version or item.current_document_version_id != version.id:
+            reasons.append("CURRENT_VERSION_POINTER_INVALID")
+        if not version or not item or version.document_id != item.document_id:
+            reasons.append("DOCUMENT_VERSION_ITEM_MISMATCH")
+        if not version or (version.metadata_json or {}).get("master_status") != "CURRENT":
+            reasons.append("VERSION_NOT_CURRENT")
+        if not version or version.approval_state not in {DocumentApprovalState.REVIEWED, DocumentApprovalState.APPROVED}:
+            reasons.append("VERSION_NOT_APPROVED_OR_REVIEWED")
+        if not version or not version.source_path_or_reference or version.source_path_or_reference in {"PENDING", "-"}:
+            reasons.append("DURABLE_SOURCE_REFERENCE_MISSING")
+        if not version or version.synthetic_content is not None or str(version.source_path_or_reference).startswith(("synthetic-", "synthetic:", "synthetic-db://")) or (version.metadata_json or {}).get("storage_provider") in {"synthetic", "synthetic-db"}:
+            reasons.append("SYNTHETIC_CONTENT_NOT_ADMISSIBLE")
+        if not version or len(str(version.sha256)) != 64 or any(char not in "0123456789abcdefABCDEF" for char in str(version.sha256)) or (version.file_size or 0) <= 0:
+            reasons.append("HASH_BOUND_FILE_METADATA_INVALID")
+        if item and version and db.get(Document, item.document_id) and db.get(Document, item.document_id).current_version_id != version.id:
+            reasons.append("DOCUMENT_CURRENT_VERSION_POINTER_INVALID")
+        return not reasons, list(dict.fromkeys(reasons))
+
     results = []
     for key, label, content_type, resolver in [
         ("PROPOSAL_TEMPLATE_CONTENT_READY", "Proposal Template", "FORM", ("BD", "PROPOSAL_TEMPLATE")),
@@ -266,35 +405,63 @@ def _content_readiness(db: Session) -> list[dict[str, Any]]:
     ]:
         try:
             state = resolve_master_content_purpose(db, module=resolver[0], usage_type=resolver[1])
-            ready = state.get("status") == "RESOLVED"
-            detail = state
+            resolved = state.get("item")
+            item = db.get(MasterContentItem, resolved["id"]) if resolved else None
+            version = db.get(DocumentVersion, resolved["version_id"]) if resolved else None
+            ready, reasons = production_version_state(item, version) if state.get("status") == "RESOLVED" else (False, [f"RESOLUTION_{state.get('status', 'UNKNOWN')}"])
+            detail = {**state, "production_content": {"admissible": ready, "reasons": reasons}}
         except Exception as exc:
             ready, detail = False, {"error": str(exc)}
         results.append({"key": key, "label": label, "status": "READY" if ready else "NEEDS_CONTENT", "detail": detail})
     for key, label, content_type in [("FORMS_CONTENT_READY", "Forms", "FORM"), ("REPORTS_CONTENT_READY", "Reports", "REPORT"), ("ENGINEERING_CONTENT_READY", "Engineering", "ENGINEERING_WORK")]:
         rows = list(db.scalars(select(MasterContentItem).where(MasterContentItem.content_type == content_type, MasterContentItem.status == "ACTIVE")).all())
-        results.append({"key": key, "label": label, "status": "READY" if rows else "NEEDS_CONTENT", "count": len(rows), "detail": "Active synthetic or production master-content records"})
+        admissible = []
+        rejected = []
+        for row in rows:
+            version = db.get(DocumentVersion, row.current_document_version_id) if row.current_document_version_id else None
+            ready, reasons = production_version_state(row, version)
+            (admissible if ready else rejected).append({"ref": row.ref, "version_id": version.id if version else None, "reasons": reasons})
+        results.append({"key": key, "label": label, "status": "READY" if rows and len(admissible) == len(rows) else "NEEDS_CONTENT", "count": len(rows), "admissible_count": len(admissible), "rejected": rejected, "detail": "Only canonical, current, versioned, durable, non-synthetic master-content records are admissible"})
     definitions = list(db.scalars(select(DefinitionEntry).where(DefinitionEntry.status == "ACTIVE")).all())
-    results.append({"key": "DEFINITIONS_CONTENT_READY", "label": "Definitions", "status": "READY" if definitions else "NEEDS_CONTENT", "count": len(definitions), "detail": "Active canonical definitions"})
+    versioned_definitions = [row for row in definitions if row.current_revision_id]
+    results.append({"key": "DEFINITIONS_CONTENT_READY", "label": "Definitions", "status": "READY" if definitions and len(versioned_definitions) == len(definitions) else "NEEDS_CONTENT", "count": len(definitions), "versioned_count": len(versioned_definitions), "detail": "Active canonical definitions with current revisions"})
     return results
 
 
 def _software_readiness() -> list[dict[str, Any]]:
     root = repo_root()
     checks = [
-        ("BD/Proposal", root / "artifacts/bd-proposal-freeze/freeze-result.json", "BD_PROPOSAL_OWNER_SESSION_FROZEN_READY_EXCEPT_REAL_SYNOLOGY"),
-        ("Dashboard v3", root / "artifacts/dashboard-owner-session-v3/05-final-result.json", "DASHBOARD_OWNER_SESSION_V3_FROZEN_READY_EXCEPT_REAL_SYNOLOGY"),
-        ("Admin/Contract", root / "artifacts/administration-contract-owner-session/acceptance.json", "IMPLEMENTED_AND_VERIFIED_SYNTHETIC"),
+        ("BD_PROPOSAL_FREEZE", "BD/Proposal", root / "artifacts/bd-proposal-freeze/freeze-result.json", "BD_PROPOSAL_OWNER_SESSION_FROZEN_READY_EXCEPT_REAL_SYNOLOGY"),
+        ("DASHBOARD_FREEZE", "Dashboard v3", root / "artifacts/dashboard-owner-session-v3/05-final-result.json", "DASHBOARD_OWNER_SESSION_V3_FROZEN_READY_EXCEPT_REAL_SYNOLOGY"),
+        ("ADMIN_CONTRACT_FREEZE", "Admin/Contract", root / "artifacts/administration-contract-owner-session/acceptance.json", "IMPLEMENTED_AND_VERIFIED_SYNTHETIC"),
+        ("FULL_OWNER_LIFECYCLE_E2E", "Full Owner lifecycle E2E", root / "artifacts/proposal-terminal-software-acceptance/full-owner-lifecycle-e2e.json", "FULL_OWNER_LIFECYCLE_E2E=PASS"),
     ]
     result = []
-    for label, path, token in checks:
+    for key, label, path, token in checks:
         try:
             data = json.loads(path.read_text())
             values = json.dumps(data)
-            ok = token in values
+            ok = token in values and bool(data.get("release_identity", {}).get("implementation_sha")) and bool(data.get("release_identity", {}).get("implementation_tree"))
         except Exception:
             ok = False
-        result.append({"label": label, "status": "PASS" if ok else "PENDING", "evidence": str(path.relative_to(root))})
+        result.append({"key": key, "label": label, "status": "PASS" if ok else "PENDING", "evidence": str(path.relative_to(root))})
+    return result
+
+
+def _technical_readiness() -> list[dict[str, Any]]:
+    root = repo_root()
+    manifest_path = root / "artifacts/proposal-terminal-technical-acceptance/technical-gates.json"
+    try:
+        manifest = json.loads(manifest_path.read_text())
+    except Exception:
+        manifest = {}
+    identity = manifest.get("release_identity") or {}
+    checks = manifest.get("checks") or {}
+    result = []
+    for key, (label, relative_path) in TECHNICAL_GATE_EVIDENCE.items():
+        evidence = checks.get(key) or {}
+        passed = evidence.get("status") == "PASS" and evidence.get("release_identity") == identity and bool(identity.get("implementation_sha")) and bool(identity.get("implementation_tree"))
+        result.append({"key": key, "label": label, "status": "PASS" if passed else "PENDING", "evidence": relative_path, "release_identity": identity or None})
     return result
 
 
@@ -337,39 +504,72 @@ def register_payload(db: Session) -> dict[str, Any]:
     ensure_register(db)
     rows = list(db.scalars(select(OwnerDecision).order_by(OwnerDecision.group_name, OwnerDecision.decision_key)).all())
     items = [_decision_payload(db, row, include_history=False) for row in rows]
-    counts = {level: sum(1 for row in rows if row.blocking_level == level) for level in BLOCKING_LEVELS}
+    values = {row.decision_key: _value(row) for row in rows}
+    conditional = conditional_severity_evaluation(values)
+    conditional_levels = {key: state["level"] for key, state in conditional["current"].items()}
+    effective_levels = {row.decision_key: conditional_levels.get(row.decision_key, row.blocking_level) for row in rows}
+    counts = {level: sum(1 for row in rows if effective_levels[row.decision_key] == level) for level in BLOCKING_LEVELS}
     confirmed = sum(1 for row in rows if row.status in CONFIRMED_STATUSES)
     pending_defaults = sum(1 for row in rows if row.status == PROPOSED)
     content = _content_readiness(db)
     software = _software_readiness()
+    technical = _technical_readiness()
     contradiction = contradictions(db)
-    p0 = [row for row in rows if row.blocking_level == "P0_GO_LIVE_BLOCKER"]
-    p1 = [row for row in rows if row.blocking_level == "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION"]
+    p0 = [row for row in rows if effective_levels[row.decision_key] == "P0_GO_LIVE_BLOCKER"]
+    p1 = [row for row in rows if effective_levels[row.decision_key] == "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION"]
     invalid_blocking_level_count = sum(1 for row in rows if row.blocking_level not in BLOCKING_LEVELS)
     runtime_mismatch_count = sum(1 for row in rows if row.apply_state == "DECISION_RUNTIME_MISMATCH")
     duplicate_key_count = len(rows) - len({row.decision_key for row in rows})
-    business_ready = all(row.status in CONFIRMED_STATUSES for row in [*p0, *p1]) and all(row.apply_state not in {"APPLY_FAILED", "DECISION_RUNTIME_MISMATCH"} for row in rows)
+    unconditional_mismatch_count = sum(1 for row in rows if row.decision_key in AUTHORITATIVE_SEVERITY_MATRIX and row.blocking_level != AUTHORITATIVE_SEVERITY_MATRIX[row.decision_key])
+    contradiction_count = contradiction["detected"]
+    required_business = [row for row in [*p0, *p1] if effective_levels[row.decision_key] is not None]
+    business_ready = all(row.status in CONFIRMED_STATUSES and row.apply_state == "APPLIED" for row in required_business) and runtime_mismatch_count == 0 and contradiction_count == 0
     content_ready = all(row["status"] == "READY" for row in content)
     software_ready = all(row["status"] == "PASS" for row in software)
     synology = next(row for row in rows if row.decision_key == "REAL_SYNOLOGY_CONNECTION")
-    technical_ready = synology.status in CONFIRMED_STATUSES and synology.apply_state == "APPLIED" and bool((_system_state(db, synology)).get("verified"))
+    technical_ready = all(row["status"] == "PASS" for row in technical) and synology.status in CONFIRMED_STATUSES and synology.apply_state == "APPLIED" and bool((_system_state(db, synology)).get("verified"))
+    proposal_p0_keys = {"PROPOSAL_ACCEPT_REQUIRED_FIELDS", "PROPOSAL_ACCEPT_AUTHORITY", "PROPOSAL_TO_CONTRACT_POLICY"}
+    proposal_p1_keys = {"PROPOSAL_STAGE_POLICY", "PROPOSAL_AUTHORITY_REVIEW_MEANING", "PROPOSAL_READY_CLOSE_POLICY", "PROPOSAL_SCOPE_SEMANTICS", "ENGINEERING_PROPOSAL_CONTRIBUTION_POLICY", "PROJECT_OPPORTUNITY_REFERENCE_SEMANTICS", "PROPOSAL_CHECKLIST_OUTPUT_POLICY", "PROPOSAL_CLOSE_OUTCOME_POLICY"}
+    def unresolved(key: str) -> bool:
+        row = next(item for item in rows if item.decision_key == key)
+        return row.status not in CONFIRMED_STATUSES or row.apply_state != "APPLIED"
+    owner_action_required = [
+        {"key": row.decision_key, "blocking_level": effective_levels[row.decision_key], "recommended_value": row.proposed_default_json, "options": row.options_json, "status": row.status, "apply_state": row.apply_state, "consequence": "Go-live remains blocked until the authorized Owner confirms and runtime applies this decision."}
+        for row in rows if effective_levels[row.decision_key] in {"P0_GO_LIVE_BLOCKER", "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION"} and unresolved(row.decision_key)
+    ]
+    external_technical_blockers = sum(1 for row in rows if effective_levels[row.decision_key] == "EXTERNAL_TECHNICAL" and unresolved(row.decision_key)) + sum(1 for row in technical if row["status"] != "PASS")
     if contradiction["unresolved"]:
         overall = "BLOCKED"
     elif business_ready and content_ready and software_ready and technical_ready:
         overall = "FULL_PRODUCTION_READY"
-    elif business_ready and content_ready and software_ready and not technical_ready and get_settings().synthetic_only:
-        overall = "READY_EXCEPT_REAL_SYNOLOGY"
     else:
         overall = "BLOCKED"
+    blockers = [f"{row.decision_key}: {row.status}" for row in rows if effective_levels[row.decision_key] in {"P0_GO_LIVE_BLOCKER", "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", "EXTERNAL_TECHNICAL"} and unresolved(row.decision_key)]
+    blockers += [row["key"] for row in content if row["status"] != "READY"]
+    blockers += [row["label"] for row in software if row["status"] != "PASS"]
+    blockers += [row["key"] for row in technical if row["status"] != "PASS"]
+    blockers += [item["code"] for item in contradiction["unresolved"]]
+    proposal_required = [row for row in rows if row.decision_key in proposal_p0_keys | proposal_p1_keys]
+    proposal_p0 = [row for row in proposal_required if row.decision_key in proposal_p0_keys]
+    proposal_p1 = [row for row in proposal_required if row.decision_key in proposal_p1_keys]
     return {
         "count": len(rows), "duplicate_key_count": duplicate_key_count, "owner_decision_invalid_blocking_level_count": invalid_blocking_level_count, "owner_decision_runtime_mismatch_count": runtime_mismatch_count, "items": items,
         "groups": [{"key": key, "label": label, "items": [item for item in items if item["group"] == key]} for key, label in GROUP_LABELS.items()],
         "summary": {"confirmed": confirmed, "pending_defaults": pending_defaults, "p0": counts.get("P0_GO_LIVE_BLOCKER", 0), "p1": counts.get("P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", 0), "p2": counts.get("P2_SAFE_DEFAULT_AVAILABLE", 0), "p3": counts.get("P3_OPTIONAL_FUTURE", 0), "external_technical": counts.get("EXTERNAL_TECHNICAL", 0)},
-        "content_readiness": content, "software_readiness": software, "contradictions": contradiction,
+        "content_readiness": content, "software_readiness": software, "technical_readiness": technical, "conditional_severity": conditional, "contradictions": contradiction,
         "runtime_bindings": [{"key": row.decision_key, "status": row.status, "apply_state": row.apply_state, "effective_value": row.effective_value_json, "runtime_value": row.runtime_value_json} for row in rows],
-        "go_live": {"business_decisions_ready": business_ready, "content_ready": content_ready, "software_ready": software_ready, "technical_ready": technical_ready, "overall": overall, "blockers": [f"{row.decision_key}: {row.status}" for row in rows if row.blocking_level in {"P0_GO_LIVE_BLOCKER", "P1_REQUIRED_FOR_CONTROLLED_PRODUCTION", "EXTERNAL_TECHNICAL"} and row.status not in CONFIRMED_STATUSES] + [row["key"] for row in content if row["status"] != "READY"] + [row["label"] for row in software if row["status"] != "PASS"] + [item["code"] for item in contradiction["unresolved"]]},
+        "owner_action_required": owner_action_required,
+        "go_live": {"business_decisions_ready": business_ready, "content_ready": content_ready, "software_ready": software_ready, "technical_ready": technical_ready, "overall": overall, "blockers": list(dict.fromkeys(blockers))},
+        "canonical_counts": {
+            "GLOBAL_P0_TOTAL": len(p0), "GLOBAL_P0_UNRESOLVED": sum(unresolved(row.decision_key) for row in p0),
+            "GLOBAL_P1_TOTAL": len(p1), "GLOBAL_P1_UNRESOLVED": sum(unresolved(row.decision_key) for row in p1),
+            "PROPOSAL_P0_TOTAL": len(proposal_p0), "PROPOSAL_P0_UNRESOLVED": sum(unresolved(row.decision_key) for row in proposal_p0),
+            "PROPOSAL_P1_TOTAL": len(proposal_p1), "PROPOSAL_P1_UNRESOLVED": sum(unresolved(row.decision_key) for row in proposal_p1),
+            "P2_PENDING_APPROVAL": sum(1 for row in rows if effective_levels[row.decision_key] == "P2_SAFE_DEFAULT_AVAILABLE" and row.status not in CONFIRMED_STATUSES),
+            "EXTERNAL_TECHNICAL_BLOCKERS": external_technical_blockers,
+        },
         "aliases": [{"legacy_key": row.legacy_key, "canonical_key": row.canonical_key, "source_module": row.source_module, "notes": row.notes} for row in db.scalars(select(OwnerDecisionAlias).order_by(OwnerDecisionAlias.legacy_key)).all()],
-        "truth_tokens": {"OWNER_DECISION_CANONICAL_COUNT_50": len(rows) == 50, "OWNER_DECISION_DUPLICATE_KEY_ZERO": duplicate_key_count == 0, "OWNER_DECISION_DUPLICATE_TRUTH_ZERO": True, "OWNER_DECISION_INVALID_BLOCKING_LEVEL_ZERO": invalid_blocking_level_count == 0, "SAFE_DEFAULT_FALSE_CONFIRMATION_ZERO": all(row.status != "OWNER_CONFIRMED" or row.confirmed_by for row in rows), "OWNER_DECISION_CONTRADICTION_DETECTION_PASS": contradiction["status"] == "PASS", "OWNER_DECISION_RUNTIME_MISMATCH_ZERO": runtime_mismatch_count == 0},
+        "truth_tokens": {"OWNER_DECISION_CANONICAL_COUNT_50": len(rows) == 50, "OWNER_DECISION_DUPLICATE_KEY_ZERO": duplicate_key_count == 0, "OWNER_DECISION_DUPLICATE_TRUTH_ZERO": True, "OWNER_DECISION_INVALID_BLOCKING_LEVEL_ZERO": invalid_blocking_level_count == 0, "OWNER_DECISION_UNCONDITIONAL_SEVERITY_MISMATCH_COUNT": unconditional_mismatch_count, "OWNER_DECISION_CONDITIONAL_SEVERITY_RULES": conditional["status"], "SAFE_DEFAULT_FALSE_CONFIRMATION_ZERO": all(row.status not in {"OWNER_CONFIRMED", "OWNER_CONFIRMED_WITH_NOTES", "SAFE_DEFAULT_APPROVED_FOR_GO_LIVE"} or row.confirmed_by for row in rows), "OWNER_DECISION_CONTRADICTION_DETECTION_PASS": contradiction["status"] == "PASS", "OWNER_DECISION_RUNTIME_MISMATCH_ZERO": runtime_mismatch_count == 0, "OWNER_DECISION_RUNTIME_MISMATCH_COUNT": runtime_mismatch_count, "OWNER_DECISION_CONTRADICTION_COUNT": contradiction_count},
     }
 
 
