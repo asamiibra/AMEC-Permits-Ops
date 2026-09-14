@@ -3,7 +3,7 @@ from uuid import uuid4
 from sqlalchemy import select
 
 from backend.app.db import SessionLocal
-from backend.app.models import AuditEvent, Contract, ContractAdminEvidence, ContractRevision, Project, ProjectActivation, ServiceEngagement
+from backend.app.models import AuditEvent, Contract, ContractAdminEvidence, ContractRevision, NotificationEvent, Project, ProjectActivation, ServiceEngagement, WorkflowTask
 from backend.tests.test_admin_contract_owner_session import ensure_contract_template, make_accepted_proposal, record_authority, record_checker
 
 
@@ -91,3 +91,46 @@ def test_executed_evidence_service_gate_operations_and_persistence(client):
     assert body["contract"]["current_revision_id"] == revision_id
     assert body["executed_evidence"][0]["document_version_id"] == document_version_id
     assert body["external_send"] == "HUMAN_CONTROLLED"
+
+
+def test_start_prerequisite_facts_are_independent_and_pure_permit_is_not_design(client):
+    suffix = uuid4().hex[:8]
+    ensure_contract_template(client)
+    proposal_id, _ = make_accepted_proposal(client, f"Independent prerequisite facts {suffix}")
+    created = client.post("/api/admin/contracts", headers=headers("OWNER_SPONSOR", "facts-maker"), json={"proposal_id": proposal_id})
+    assert created.status_code == 200, created.text
+    contract_id = created.json()["id"]
+
+    facts = client.get(f"/api/admin/contracts/{contract_id}/start-prerequisites", headers=headers("OWNER_SPONSOR"))
+    assert facts.status_code == 200, facts.text
+    fact_map = {item["fact"]: item for item in facts.json()["facts"]}
+    assert {"CONTRACT_EXECUTED", "CLIENT_COPY_DISTRIBUTED", "OPERATIONS_HANDOFF", "ADVANCE_PAYMENT_RECEIVED", "ADVANCE_PAYMENT_VERIFIED", "ADVANCE_PAYMENT_ALLOCATED", "CLIENT_ARCHITECTURE_APPROVED", "CONTRACT_DURATION_START", "PROJECT_ACTIVATION", "MUNICIPALITY_WORK_START"} <= set(fact_map)
+    assert fact_map["CLIENT_ARCHITECTURE_APPROVED"]["state"] == "NOT_APPLICABLE"
+    assert fact_map["MUNICIPALITY_WORK_START"]["state"] == "NOT_APPLICABLE"
+
+    from backend.app.services.contract_workspace import design_start_readiness
+    with SessionLocal() as db:
+        contract = db.get(Contract, contract_id)
+        assert contract
+        assert design_start_readiness(db, contract, "PERMIT")["result"] == "NOT_APPLICABLE"
+
+
+def test_exception_stage_transition_is_idempotent(client):
+    suffix = uuid4().hex[:8]
+    ensure_contract_template(client)
+    proposal_id, _ = make_accepted_proposal(client, f"Exception transition {suffix}")
+    created = client.post("/api/admin/contracts", headers=headers("OWNER_SPONSOR", "exception-maker"), json={"proposal_id": proposal_id})
+    assert created.status_code == 200, created.text
+    contract_id = created.json()["id"]
+    changed = client.post(f"/api/admin/contracts/{contract_id}/stage", headers=headers("OWNER_SPONSOR", "exception-owner"), json={"stage": "NEEDS_ACTION", "reason": "Synthetic meaningful stage transition"})
+    assert changed.status_code == 200, changed.text
+    first = client.post(f"/api/admin/contracts/{contract_id}/evaluate-exceptions", headers=headers("OWNER_SPONSOR", "exception-owner"))
+    second = client.post(f"/api/admin/contracts/{contract_id}/evaluate-exceptions", headers=headers("OWNER_SPONSOR", "exception-owner"))
+    assert first.status_code == 200, first.text
+    assert second.status_code == 200, second.text
+    with SessionLocal() as db:
+        tasks = db.query(WorkflowTask).filter(WorkflowTask.context_type == "CONTRACT", WorkflowTask.context_id == contract_id, WorkflowTask.task_type == "CONTRACT_EXCEPTION_REVIEW").all()
+        transition_tasks = [item for item in tasks if str((item.evidence_summary or {}).get("condition_key", "")).startswith("STAGE_TRANSITION:")]
+        notifications = db.query(NotificationEvent).filter(NotificationEvent.contract_id == contract_id, NotificationEvent.event_type == "CONTRACT_EXCEPTION_REVIEW_REQUIRED").all()
+        assert len(transition_tasks) == 1
+        assert len(notifications) == len(tasks)
