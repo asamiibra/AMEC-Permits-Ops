@@ -1,0 +1,13 @@
+{
+  "version": "content-library-production-closure-v1",
+  "object": "MasterContentItem",
+  "decision_seam": "backend.app.services.master_content.authorize_master_content_access",
+  "personas": {
+    "OWNER": {"read": "ALL", "write": "CAPABILITY_AND_APPLICABILITY"},
+    "SYSTEM_ADMIN": {"read": "ALL", "write": "CAPABILITY_AND_APPLICABILITY"},
+    "BUSINESS_DEVELOPMENT": {"read": "USED_IN_CONTAINS_BD", "write": "USED_IN_CONTAINS_BD"},
+    "ENGINEERING": {"read": "USED_IN_CONTAINS_ENGINEERING", "write": "USED_IN_CONTAINS_ENGINEERING"}
+  },
+  "denial_code": "MASTER_CONTENT_NOT_APPLICABLE",
+  "authority_override": "SOURCE18_OFFICIAL_FORM_READ_ONLY"
+}

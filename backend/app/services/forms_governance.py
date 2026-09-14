@@ -99,6 +99,9 @@ def _provenance_dict(row: MasterContentSourceProvenance) -> dict[str, Any]:
 
 
 def evaluate_readiness(db: Session, item: MasterContentItem, version: DocumentVersion | None = None, *, persist: bool = True) -> dict[str, Any]:
+    if persist:
+        from .master_content import assert_content_library_authority_write_allowed
+        assert_content_library_authority_write_allowed(db, item)
     version = version or (db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None)
     profile = ensure_profile(db, item)
     blockers: list[str] = []
@@ -165,6 +168,10 @@ def governance_projection(db: Session, item: MasterContentItem, *, include_histo
 
 
 def update_governance(db: Session, item: MasterContentItem, payload: dict[str, Any], *, actor: str, correlation_id: str) -> dict[str, Any]:
+    from .master_content import assert_content_library_authority_write_allowed
+    assert_content_library_authority_write_allowed(db, item)
+    if str(payload.get("content_ownership_class") or "").upper() == "EXTERNAL_OFFICIAL":
+        raise _deny("SOURCE18_OFFICIAL_FORM_OWNER_REQUIRED", 409)
     profile = ensure_profile(db, item)
     before = _profile_dict(profile)
     for key in ("content_ownership_class", "artifact_kind", "publisher_name", "publisher_unit", "jurisdiction_text", "official_form_no", "official_issue_no", "language_profile", "sensitivity_class", "contains_pii", "contains_signature", "contains_stamp", "contains_financial_data", "contains_project_specific_data", "restricted_reference_sample", "currentness_verification_note"):
@@ -183,7 +190,11 @@ def update_governance(db: Session, item: MasterContentItem, payload: dict[str, A
 
 
 def set_currentness(db: Session, item: MasterContentItem, *, action: str, actor: str, note: str | None, correlation_id: str) -> dict[str, Any]:
+    from .master_content import assert_content_library_authority_write_allowed
+    assert_content_library_authority_write_allowed(db, item)
     profile = ensure_profile(db, item)
+    if profile.content_ownership_class == "EXTERNAL_OFFICIAL" or profile.artifact_kind == "AUTHORITY_FORM":
+        raise _deny("SOURCE18_OFFICIAL_FORM_OWNER_REQUIRED", 409)
     action = action.upper()
     if action not in {"VERIFY_CURRENT", "MARK_NOT_CURRENT", "REVOKE"}: raise _deny("CURRENTNESS_ACTION_INVALID")
     previous = profile.currentness_status
@@ -206,6 +217,8 @@ def set_currentness(db: Session, item: MasterContentItem, *, action: str, actor:
 
 
 def add_provenance(db: Session, item: MasterContentItem, version: DocumentVersion, payload: dict[str, Any], *, actor: str, correlation_id: str) -> dict[str, Any]:
+    from .master_content import assert_content_library_authority_write_allowed
+    assert_content_library_authority_write_allowed(db, item)
     obtained_at = payload.get("obtained_at")
     if isinstance(obtained_at, str):
         obtained_at = datetime.fromisoformat(obtained_at.replace("Z", "+00:00"))
@@ -218,6 +231,8 @@ def add_provenance(db: Session, item: MasterContentItem, version: DocumentVersio
 
 
 def add_quality_flag(db: Session, item: MasterContentItem, payload: dict[str, Any], *, actor: str, correlation_id: str) -> dict[str, Any]:
+    from .master_content import assert_content_library_authority_write_allowed
+    assert_content_library_authority_write_allowed(db, item)
     code = payload["code"].upper()
     severity = payload.get("severity", "WARNING").upper()
     if code not in QUALITY_CODES: raise _deny("QUALITY_FLAG_CODE_INVALID", code=code)
@@ -234,6 +249,8 @@ def add_quality_flag(db: Session, item: MasterContentItem, payload: dict[str, An
 
 
 def resolve_quality_flag(db: Session, item: MasterContentItem, flag: MasterContentQualityFlag, *, status: str, resolution: str, actor: str, correlation_id: str) -> dict[str, Any]:
+    from .master_content import assert_content_library_authority_write_allowed
+    assert_content_library_authority_write_allowed(db, item)
     status = status.upper()
     if status not in {"RESOLVED", "ACCEPTED_RISK", "NOT_APPLICABLE"}: raise _deny("QUALITY_FLAG_STATUS_INVALID")
     before = _flag_dict(flag)
@@ -245,6 +262,8 @@ def resolve_quality_flag(db: Session, item: MasterContentItem, flag: MasterConte
 
 
 def add_source_section(db: Session, item: MasterContentItem, payload: dict[str, Any], *, actor: str, correlation_id: str) -> dict[str, Any]:
+    from .master_content import assert_content_library_authority_write_allowed
+    assert_content_library_authority_write_allowed(db, item)
     version = db.get(DocumentVersion, payload["document_version_id"])
     if not version or version.document_id != item.document_id: raise _deny("SOURCE_SECTION_VERSION_MISMATCH", 409)
     locator_type = payload.get("locator_type", "PAGE_RANGE").upper()
@@ -258,6 +277,8 @@ def add_source_section(db: Session, item: MasterContentItem, payload: dict[str, 
 
 
 def update_source_section(db: Session, item: MasterContentItem, section: MasterContentSourceSection, payload: dict[str, Any], *, actor: str, correlation_id: str) -> dict[str, Any]:
+    from .master_content import assert_content_library_authority_write_allowed
+    assert_content_library_authority_write_allowed(db, item)
     if "document_version_id" in payload:
         version = db.get(DocumentVersion, payload["document_version_id"])
         if not version or version.document_id != item.document_id:

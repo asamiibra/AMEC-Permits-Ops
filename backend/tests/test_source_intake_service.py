@@ -11,7 +11,7 @@ from backend.app.services.source_intake import SourceIntakeService
 
 
 def make_archive():
-    entries = [("FORME/Current Form.pdf", b"current"), ("FORME/Needs Review.pdf", b"review"), ("FORME/History.pdf", b"history"), ("FORME/Reference.jpeg", b"reference"), ("FORME/Duplicate A.docx", b"same"), ("FORME/Duplicate B.docx", b"same"), ("FORME/EMPTY/", b"")]
+    entries = [("FORME/Current Form.pdf", b"%PDF-1.7\ncurrent"), ("FORME/Needs Review.pdf", b"%PDF-1.7\nreview"), ("FORME/History.pdf", b"%PDF-1.7\nhistory"), ("FORME/Reference.jpeg", b"reference"), ("FORME/Duplicate A.docx", b"same"), ("FORME/Duplicate B.docx", b"same"), ("FORME/EMPTY/", b"")]
     stream = io.BytesIO()
     with zipfile.ZipFile(stream, "w") as archive:
         for name, content in entries:
@@ -23,9 +23,9 @@ def test_intake_reconciles_every_observation_and_promotes_only_master_rows():
     payload = make_archive()
     digest = __import__("hashlib").sha256(payload).hexdigest()
     manifest = {"version": "v1", "items": [
-        {"relative_path": "Current Form.pdf", "sha256": __import__("hashlib").sha256(b"current").hexdigest(), "v1_4_disposition": "PROMOTE_MASTER_CURRENT", "dashboard_mapping": "Forms"},
-        {"relative_path": "Needs Review.pdf", "sha256": __import__("hashlib").sha256(b"review").hexdigest(), "v1_4_disposition": "PROMOTE_MASTER_NEEDS_REVIEW", "dashboard_mapping": "Forms"},
-        {"relative_path": "History.pdf", "sha256": __import__("hashlib").sha256(b"history").hexdigest(), "v1_4_disposition": "TRANSACTIONAL_OR_HISTORICAL_SOURCE"},
+        {"relative_path": "Current Form.pdf", "sha256": __import__("hashlib").sha256(b"%PDF-1.7\ncurrent").hexdigest(), "v1_4_disposition": "PROMOTE_MASTER_CURRENT", "dashboard_mapping": "Forms"},
+        {"relative_path": "Needs Review.pdf", "sha256": __import__("hashlib").sha256(b"%PDF-1.7\nreview").hexdigest(), "v1_4_disposition": "PROMOTE_MASTER_NEEDS_REVIEW", "dashboard_mapping": "Forms"},
+        {"relative_path": "History.pdf", "sha256": __import__("hashlib").sha256(b"%PDF-1.7\nhistory").hexdigest(), "v1_4_disposition": "TRANSACTIONAL_OR_HISTORICAL_SOURCE"},
         {"relative_path": "Reference.jpeg", "sha256": __import__("hashlib").sha256(b"reference").hexdigest(), "v1_4_disposition": "REFERENCE_ONLY"},
         {"relative_path": "Duplicate A.docx", "sha256": __import__("hashlib").sha256(b"same").hexdigest(), "v1_4_disposition": "BLOCKED_AMBIGUOUS_DUPLICATE"},
         {"relative_path": "Duplicate B.docx", "sha256": __import__("hashlib").sha256(b"same").hexdigest(), "v1_4_disposition": "BLOCKED_AMBIGUOUS_DUPLICATE"},

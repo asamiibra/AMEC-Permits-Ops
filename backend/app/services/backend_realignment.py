@@ -69,12 +69,14 @@ for _persona in ("SYSTEM_ADMIN", "OWNER"):
         "CONTRACT_ACCEPT_AUTHORITY",
         "CONTRACT_EXECUTION_EVIDENCE",
         "CONTRACT_HANDOFF",
+        "MASTER_CONTENT_RECONCILE",
     })
 
 # Source-18 actions are registered in the application's canonical capability
 # policy.  The Source-18 service consumes these names; it does not maintain a
 # second authorization universe.
 SOURCE18_CAPABILITIES = {
+    "SOURCE18_OFFICIAL_FORM_READ",
     "VIEW_REGULATORY_CASE", "EDIT_REGULATORY_CASE", "VIEW_RAW_REGULATORY_PII",
     "EDIT_REGULATORY_PII", "PREPARE_PACKET", "VERIFY_PACKET",
     "OWNER_INTERNAL_PACKET_RELEASE", "CAPTURE_SIGNATURE_EVIDENCE",

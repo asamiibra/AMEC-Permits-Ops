@@ -44,6 +44,7 @@ from ..services.current_regulatory_controls import (
     validate_single_active_original,
     PhysicalOriginalCustodyEvent as PhysicalOriginalCustodyEvidence,
 )
+from ..services.source18 import validate_source18_official_form_version
 
 
 router = APIRouter(prefix="/api")
@@ -266,6 +267,9 @@ def create_authority_case(payload: dict[str, Any], request: Request, db: Session
     subject_snapshot = _subject_snapshot(db, subject_type, subject_id, project)
     mode = governed_processing_mode(transaction_type=transaction_type, caller_supplied_mode=payload.get("processing_mode"))
     case_ref = str(payload.get("case_reference") or f"CASE-{project.project_number if project else subject_type}-{str(uuid4())[:8].upper()}")
+    official_form_version_id = payload.get("official_form_version_id")
+    if official_form_version_id:
+        validate_source18_official_form_version(db, official_form_version_id)
     case = AuthorityCase(
         case_reference=case_ref, regulatory_journey_id=journey.id, external_body_id=body.id,
         service_type_id=service.id, jurisdiction_id=jurisdiction.id, status="PREPARING",
@@ -276,7 +280,7 @@ def create_authority_case(payload: dict[str, Any], request: Request, db: Session
         current_official_form_verified=_currentness_flag(payload.get("current_official_form_verified")),
         live_action_eligibility="BLOCKED_UNKNOWN",
         g5_blocking_currentness_gap=True,
-        official_form_version_id=payload.get("official_form_version_id"),
+        official_form_version_id=official_form_version_id,
         official_form_publisher=payload.get("official_form_publisher"),
         official_form_number=payload.get("official_form_number"),
         official_form_revision=payload.get("official_form_revision"),
@@ -329,8 +333,9 @@ def record_case_currentness(case_id: str, payload: dict[str, Any], request: Requ
         required = (payload.get("official_form_version_id"), evidence.get("official_form_source"), payload.get("official_form_publisher"), payload.get("official_form_number"), payload.get("official_form_revision"), payload.get("official_form_retrieved_at"))
         if not all(str(item or "").strip() for item in required):
             raise _http(422, "CURRENT_OFFICIAL_FORM_EVIDENCE_REQUIRED")
-        if not db.get(DocumentVersion, payload.get("official_form_version_id")):
-            raise _http(422, "OFFICIAL_FORM_DOCUMENT_VERSION_NOT_FOUND")
+        validate_source18_official_form_version(db, payload.get("official_form_version_id"))
+    elif payload.get("official_form_version_id"):
+        validate_source18_official_form_version(db, payload.get("official_form_version_id"))
     case.current_authority_policy_verified = authority
     case.current_official_form_verified = form
     case.official_form_version_id = payload.get("official_form_version_id")

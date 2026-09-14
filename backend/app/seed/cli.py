@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 from datetime import datetime, timezone, date
+from uuid import uuid4
 from types import SimpleNamespace
 from sqlalchemy import delete, select, text, update, true
 from reportlab.pdfgen.canvas import Canvas
@@ -76,6 +77,47 @@ PREPROD_MIGRATION_BASELINE_SEQUENCE = {
     "active": True,
     "current_value": 0,
 }
+
+
+def _ensure_source18_owner_demo(db, office) -> None:
+    """Create a fully synthetic, read-only official-form authority fixture."""
+    transaction_key = "source18-owner-demo:official-form:v1"
+    if db.scalar(select(Source18WorkflowTransaction).where(Source18WorkflowTransaction.idempotency_key == transaction_key)):
+        return
+    policy = db.scalar(select(Source18PolicyVersion).where(Source18PolicyVersion.policy_code == "SOURCE18_OWNER_DEMO", Source18PolicyVersion.version == "SYN-1"))
+    if not policy:
+        policy = Source18PolicyVersion(policy_code="SOURCE18_OWNER_DEMO", version="SYN-1", status="CURRENT", source_class="SYNTHETIC_ONLY", source_reference="synthetic://source18/policy/SYN-1", rules_json={"synthetic": True}, created_by="owner-demo-seed")
+        db.add(policy)
+        db.flush()
+    jurisdiction = db.scalar(select(Jurisdiction).where(Jurisdiction.code == "SYN-SOURCE18-JURISDICTION"))
+    if not jurisdiction:
+        jurisdiction = Jurisdiction(code="SYN-SOURCE18-JURISDICTION", country_code="ZZ", name_en="Synthetic Source18 Jurisdiction", level="LOCALITY", status="ACTIVE", provenance_json={"synthetic": True})
+        db.add(jurisdiction)
+        db.flush()
+    body = db.scalar(select(ExternalBody).where(ExternalBody.code == "SYN-SOURCE18-AUTHORITY"))
+    if not body:
+        body = ExternalBody(code="SYN-SOURCE18-AUTHORITY", name_en="Synthetic Source18 Authority", body_type="AUTHORITY", status="ACTIVE", jurisdiction_id=jurisdiction.id, verification_state="SYNTHETIC_VERIFIED", provenance_json={"synthetic": True}, created_by="owner-demo-seed")
+        db.add(body)
+        db.flush()
+    service = db.scalar(select(ServiceType).where(ServiceType.code == "SYN-SOURCE18-SERVICE"))
+    if not service:
+        service = ServiceType(code="SYN-SOURCE18-SERVICE", name_en="Synthetic Source18 Service", status="ACTIVE", provenance_json={"synthetic": True})
+        db.add(service)
+        db.flush()
+    content = b"%PDF-1.7\nSYNTHETIC SOURCE18 OFFICIAL FORM\n"
+    digest = hashlib.sha256(content).hexdigest()
+    document = Document(document_type=DocumentType.APPLICATION_FORM, logical_name="Synthetic Source18 Official Form", language="en", source_system="SOURCE18", current_version_id=None)
+    db.add(document)
+    db.flush()
+    version = DocumentVersion(document_id=document.id, version_number=1, source_filename="synthetic-source18-official-form.pdf", source_path_or_reference="synthetic://source18/official-form/v1", sha256=digest, mime_type="application/pdf", file_size=len(content), language="en", approval_state=DocumentApprovalState.REVIEWED, source_system="SOURCE18", metadata_json={"official_form_currentness": "CURRENT", "synthetic_only": True, "source_reference": "synthetic://source18/official-form/v1"}, synthetic_content=content, rendition_status="SOURCE_PDF", rendition_path_or_reference="synthetic://source18/official-form/v1", rendition_sha256=digest, rendition_mime_type="application/pdf", rendition_file_size=len(content))
+    db.add(version)
+    db.flush()
+    document.current_version_id = version.id
+    case = AuthorityCase(case_reference="SYN-SOURCE18-CASE-001", external_body_id=body.id, service_type_id=service.id, jurisdiction_id=jurisdiction.id, status="CURRENT", transaction_type="ENGINEER_UPDATE", processing_mode="COUNTER_PROCESS", currentness_control_implemented=True, current_authority_policy_verified="CURRENT", current_official_form_verified="CURRENT", live_action_eligibility="READY_FOR_HUMAN_ACTION", g5_blocking_currentness_gap=False, official_form_version_id=version.id, official_form_publisher="Synthetic Source18 Authority", official_form_number="SYN-FORM-001", official_form_revision="SYN-1", field_authority_schema_json={"synthetic": True}, packaging_requirements_json={"synthetic": True}, case_owner="owner-demo-seed", task_executor="owner-demo-seed", required_signer="owner-demo-seed", internal_reviewer="owner-demo-seed", created_by="owner-demo-seed")
+    db.add(case)
+    db.flush()
+    db.add(Source18WorkflowTransaction(authority_case_id=case.id, office_id=office.id, transaction_type="ENGINEER_UPDATE", processing_mode="COUNTER_PROCESS", state="ENGINEER_DATA_UPDATE_PREPARING", current_policy_version_id=policy.id, official_form_version_id=version.id, currentness_state="CURRENT", requested_disciplines_json=["GENERAL"], current_disciplines_json=["GENERAL"], idempotency_key=transaction_key, actor_ref="owner-demo-seed", source_snapshot_json={"synthetic": True, "official_form_sha256": digest}))
+    db.flush()
 
 
 def validate_preprod_migration_baseline(db) -> None:
@@ -252,6 +294,7 @@ def seed(
         seed_persona_issues_notifications(db)
         for project, application in zip(projects, apps):
             ensure_project_sources_task(db, project, application)
+        _ensure_source18_owner_demo(db, office)
         db.commit()
 
     create_fixtures(synthetic_workspace_root(), clean=clean_fixtures)

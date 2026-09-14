@@ -6,6 +6,7 @@ from uuid import uuid4
 
 from backend.app.adapters.synology.adapter import MockSynologyAdapter
 from backend.app.services import master_content
+from backend.app.storage.errors import StorageError
 
 
 def _master(client, content_type, ref, title, body=b"v1", role="SYSTEM_ADMIN", surface="DASHBOARD", used_in=None):
@@ -152,12 +153,12 @@ def test_administration_forms_use_canonical_parity_and_do_not_spuriously_notify(
 
 
 def test_sor_failure_does_not_return_success(client, monkeypatch):
-    original = master_content._adapter
-    monkeypatch.setattr(master_content, "_adapter", lambda: MockSynologyAdapter("/path/that/is/not/the/sor"))
+    original = master_content.create_binary_store
+    monkeypatch.setattr(master_content, "create_binary_store", lambda: (_ for _ in ()).throw(StorageError("STORAGE_UNAVAILABLE")))
     response = _master(client, "FORM", f"F-{uuid4().hex[:6]}", "SOR Failure Fixture")
-    assert response.status_code in {502, 503}
-    assert response.json()["detail"]["code"] in {"SOR_UNAVAILABLE", "SOR_WRITE_FAILED"}
-    monkeypatch.setattr(master_content, "_adapter", original)
+    assert response.status_code == 502
+    assert response.json()["detail"]["code"] == "STORAGE_UNAVAILABLE"
+    monkeypatch.setattr(master_content, "create_binary_store", original)
 
 
 def test_material_master_change_propagates_to_issues_work_notifications_and_lineage(client):

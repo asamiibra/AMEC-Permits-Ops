@@ -19,6 +19,8 @@ from ..models import (
     AuthorityCase,
     CommitteePacketRevision,
     ConsultancyOffice,
+    Document,
+    DocumentApprovalState,
     DocumentVersion,
     Source18EngineerProfile,
     Source18ExternalComment,
@@ -115,6 +117,28 @@ def transaction_states(transaction_type: str) -> list[str]:
         raise HTTPException(422, {"code": "SOURCE18_TRANSACTION_TYPE_UNSUPPORTED"}) from exc
 
 
+def validate_source18_official_form_version(db: Session, version_id: str | None) -> DocumentVersion:
+    """Require an exact, current Source18-owned official-form version."""
+    if not version_id:
+        raise HTTPException(422, {"code": "SOURCE18_OFFICIAL_FORM_VERSION_REQUIRED"})
+    form = db.get(DocumentVersion, version_id)
+    if not form:
+        raise HTTPException(422, {"code": "OFFICIAL_FORM_DOCUMENT_VERSION_NOT_FOUND"})
+    document = db.get(Document, form.document_id)
+    currentness = str((form.metadata_json or {}).get("official_form_currentness") or "UNKNOWN").upper()
+    if (
+        str(form.source_system or "").upper() != "SOURCE18"
+        or not document
+        or str(document.source_system or "").upper() != "SOURCE18"
+        or document.current_version_id != form.id
+        or form.superseded_by is not None
+        or form.approval_state not in {DocumentApprovalState.REVIEWED, DocumentApprovalState.APPROVED}
+        or currentness != "CURRENT"
+    ):
+        raise HTTPException(409, {"code": "SOURCE18_FORM_VERSION_NOT_CURRENT"})
+    return form
+
+
 def validate_source_currentness(db: Session, transaction: Source18WorkflowTransaction) -> None:
     if transaction.currentness_state != "CURRENT":
         raise HTTPException(409, {"code": "SOURCE18_SOURCE_NOT_CURRENT", "currentness_state": transaction.currentness_state})
@@ -123,10 +147,7 @@ def validate_source_currentness(db: Session, transaction: Source18WorkflowTransa
         if not policy or policy.status != "CURRENT":
             raise HTTPException(409, {"code": "SOURCE18_POLICY_VERSION_NOT_CURRENT"})
     if transaction.official_form_version_id:
-        form = db.get(DocumentVersion, transaction.official_form_version_id)
-        form_state = str((form.metadata_json or {}).get("official_form_currentness") or "UNKNOWN").upper() if form else "UNKNOWN"
-        if not form or form_state != "CURRENT":
-            raise HTTPException(409, {"code": "SOURCE18_FORM_VERSION_NOT_CURRENT"})
+        validate_source18_official_form_version(db, transaction.official_form_version_id)
 
 
 def staffing_readiness(db: Session, office_id: str, *, at: datetime | None = None) -> dict[str, Any]:
@@ -252,6 +273,28 @@ def packet_hash_payload(packet: CommitteePacketRevision) -> dict[str, Any]:
 def refresh_packet_hash(packet: CommitteePacketRevision) -> str:
     packet.packet_hash = _hash(packet_hash_payload(packet))
     return packet.packet_hash
+
+
+def validate_submission_preconditions(
+    db: Session,
+    packet: CommitteePacketRevision,
+    transaction: Source18WorkflowTransaction,
+) -> None:
+    """Re-read every mutable authority before the irreversible submit write."""
+    if packet.status != "RELEASED" or packet.internal_release_state != "RELEASED":
+        raise HTTPException(409, {"code": "OWNER_INTERNAL_RELEASE_REQUIRED"})
+    if packet.signature_state != "COMPLETE" or packet.stamp_state != "COMPLETE":
+        raise HTTPException(409, {"code": "PACKET_SIGNATURE_AND_STAMP_REQUIRED"})
+    validate_source_currentness(db, transaction)
+    enforce_staffing_gate(db, transaction)
+    if transaction.requirement_version_id:
+        requirement = db.get(RequirementPolicyVersion, transaction.requirement_version_id)
+        if not requirement or requirement.status != "CURRENT":
+            raise HTTPException(409, {"code": "SOURCE18_REQUIREMENT_VERSION_NOT_CURRENT"})
+    if packet.form_binding_json.get("transaction_id") != transaction.id:
+        raise HTTPException(409, {"code": "PACKET_TRANSACTION_BINDING_MISMATCH"})
+    if packet.packet_hash != _hash(packet_hash_payload(packet)):
+        raise HTTPException(409, {"code": "PACKET_HASH_INTEGRITY_FAILED"})
 
 
 def packet_row(packet: CommitteePacketRevision) -> dict[str, Any]:

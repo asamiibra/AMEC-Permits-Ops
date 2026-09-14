@@ -167,7 +167,7 @@ def test_bd_forms_v2_commercial_scoping_accept_snapshot_and_rbac(client):
             revision = db.scalar(select(ProposalAcceptedRevision).where(ProposalAcceptedRevision.proposal_id == proposal_id))
             assert revision.snapshot["forms_driven_v2"]["commercial_client"]["canonical_party_id"] == party_id
             assert revision.snapshot["forms_driven_v2"]["regulatory_scope_intents"][0]["status"] == "HUMAN_CONFIRMED_FOR_PROPOSAL"
-            assert db.scalar(select(AuthorityCase)) is None
+            assert db.scalar(select(AuthorityCase).where(AuthorityCase.subject_id == proposal_id)) is None
 
         assert client.patch(f"/api/bd/proposals/{proposal_id}", json={"fields": {"price": "200000"}}, headers=ENGINEERING).status_code == 403
         assert client.post(f"/api/bd/proposals/{proposal_id}/regulatory-scope/{intent_id}/confirm", headers=ENGINEERING).status_code == 403

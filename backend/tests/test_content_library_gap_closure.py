@@ -7,7 +7,7 @@ import pytest
 from sqlalchemy import select
 
 from backend.app.db import SessionLocal
-from backend.app.models import ContentCategory, DefinitionEntry, DocumentVersion, MasterContentDependency, MasterContentModuleBinding, MasterContentSourceSection
+from backend.app.models import ContentCategory, DefinitionEntry, DocumentVersion, MasterContentDependency, MasterContentGovernanceProfile, MasterContentModuleBinding, MasterContentSourceSection
 
 
 OWNER = {"X-Dev-Role": "SYSTEM_ADMIN"}
@@ -92,30 +92,10 @@ def test_external_official_internal_template_binding_is_rejected_without_mutatio
         },
         headers=OWNER,
     )
-    assert governed.status_code == 200, governed.text
-    provenance = client.post(
-        f"/api/master-content/{item['id']}/provenance",
-        json={"obtained_from": "Synthetic authority source", "source_reference": "authority://AUTH-001"},
-        headers=OWNER,
-    )
-    assert provenance.status_code == 200, provenance.text
-    currentness = client.post(
-        f"/api/master-content/{item['id']}/currentness",
-        json={"action": "VERIFY_CURRENT", "note": "Synthetic verification"},
-        headers=OWNER,
-    )
-    assert currentness.status_code == 200, currentness.text
-
-    before = client.get(f"/api/master-content/{item['id']}", headers=OWNER).json()
-    attempted = client.put(
-        f"/api/master-content/{item['id']}/module-bindings",
-        json=[{"module": "BD", "usage_type": "PROPOSAL_TEMPLATE"}],
-        headers=OWNER,
-    )
-    assert attempted.status_code == 422
-    assert attempted.json()["detail"]["code"] == "OFFICIAL_FORM_INTERNAL_TEMPLATE_BINDING_FORBIDDEN"
+    assert governed.status_code == 409, governed.text
+    assert governed.json()["detail"]["code"] == "SOURCE18_OFFICIAL_FORM_OWNER_REQUIRED"
     after = client.get(f"/api/master-content/{item['id']}", headers=OWNER).json()
-    assert _governance_snapshot(after) == _governance_snapshot(before)
+    assert after["governance"]["profile"]["content_ownership_class"] == "NEEDS_REVIEW"
 
 
 @pytest.mark.parametrize(
@@ -135,17 +115,15 @@ def test_corrupted_unsafe_frozen_binding_is_excluded_by_resolver(client, ownersh
             json={"content_ownership_class": ownership, "artifact_kind": "AUTHORITY_FORM", "language_profile": "EN", "restricted_reference_sample": restricted},
             headers=OWNER,
         )
-        assert governed.status_code == 200, governed.text
-    if ownership == "EXTERNAL_OFFICIAL":
-        provenance = client.post(f"/api/master-content/{item['id']}/provenance", json={"obtained_from": "Synthetic authority source"}, headers=OWNER)
-        assert provenance.status_code == 200, provenance.text
-        currentness = client.post(f"/api/master-content/{item['id']}/currentness", json={"action": "VERIFY_CURRENT", "note": "Synthetic verification"}, headers=OWNER)
-        assert currentness.status_code == 200, currentness.text
-        refreshed = client.get(f"/api/master-content/{item['id']}/governance", headers=OWNER)
-        assert refreshed.status_code == 200, refreshed.text
-        assert refreshed.json()["profile"]["content_ownership_class"] == "EXTERNAL_OFFICIAL"
-        assert refreshed.json()["profile"]["currentness_status"] == "VERIFIED_CURRENT"
-        assert refreshed.json()["readiness"]["state"] == "MANUAL_USE_READY"
+        if ownership == "EXTERNAL_OFFICIAL":
+            assert governed.status_code == 409, governed.text
+            with SessionLocal() as db:
+                profile = db.scalar(select(MasterContentGovernanceProfile).where(MasterContentGovernanceProfile.master_content_item_id == item["id"]))
+                profile.content_ownership_class = ownership
+                profile.artifact_kind = "AUTHORITY_FORM"
+                db.commit()
+        else:
+            assert governed.status_code == 200, governed.text
     with SessionLocal() as db:
         db.add(MasterContentModuleBinding(master_content_id=item["id"], module="BD", usage_type="PROPOSAL_TEMPLATE", active=True, created_by="controlled-test-persistence"))
         db.commit()
@@ -172,15 +150,23 @@ def test_unsafe_ownership_classes_cannot_bind_frozen_internal_purposes(client, o
             json={"content_ownership_class": ownership, "artifact_kind": "AUTHORITY_FORM", "language_profile": "EN", "restricted_reference_sample": restricted},
             headers=OWNER,
         )
-        assert governed.status_code == 200, governed.text
+        if ownership == "EXTERNAL_OFFICIAL":
+            assert governed.status_code == 409, governed.text
+            with SessionLocal() as db:
+                profile = db.scalar(select(MasterContentGovernanceProfile).where(MasterContentGovernanceProfile.master_content_item_id == item["id"]))
+                profile.content_ownership_class = ownership
+                profile.artifact_kind = "AUTHORITY_FORM"
+                db.commit()
+        else:
+            assert governed.status_code == 200, governed.text
     before = client.get(f"/api/master-content/{item['id']}", headers=OWNER).json()
     attempted = client.put(
         f"/api/master-content/{item['id']}/module-bindings",
         json=[{"module": "BD", "usage_type": "PROPOSAL_TEMPLATE"}],
         headers=OWNER,
     )
-    assert attempted.status_code == 422
-    assert attempted.json()["detail"]["code"] == "OFFICIAL_FORM_INTERNAL_TEMPLATE_BINDING_FORBIDDEN"
+    assert attempted.status_code == 409
+    assert attempted.json()["detail"]["code"] == "MASTER_CONTENT_NOT_REUSABLE"
     after = client.get(f"/api/master-content/{item['id']}", headers=OWNER).json()
     assert _governance_snapshot(after) == _governance_snapshot(before)
 

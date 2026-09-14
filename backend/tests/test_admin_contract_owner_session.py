@@ -11,7 +11,7 @@ from backend.app.models import (
     Opportunity, Project, ProjectActivation, ProposalAcceptedRevision,
     ProposalIntakeArtifact, ProposalOutputArtifact, ProposalSourceEvidence, ProposalSourceLink,
     Quotation, QuotationRevision, WorkflowTask,
-    DocumentVersion,
+    DocumentVersion, MasterContentItem,
     BillingPlan, BillingPlanRevision, BillingMilestone, BillingMilestoneEligibility,
     Invoice, InvoiceRevision, InvoiceMilestone, InvoiceApproval, InvoiceRequirementDecision,
     InvoiceLineItem, InvoiceReference, InvoiceApprovalRecord, InvoiceAcceptRecord,
@@ -212,6 +212,14 @@ def clean_owner_fixture():
 def ensure_contract_template(client):
     rows = client.get("/api/master-content", params={"q": "CT-TEST-001"}, headers=headers("SYSTEM_ADMIN"))
     item = next((row for row in rows.json() if row["ref"] == "CT-TEST-001"), None)
+    if item:
+        with SessionLocal() as db:
+            candidate = db.get(MasterContentItem, item["id"])
+            current_id = candidate.current_document_version_id if candidate else None
+            if not current_id or not db.get(DocumentVersion, current_id):
+                candidate.ref = f"STALE-CT-TEST-001-{candidate.id[:8]}"
+                db.commit()
+                item = None
     if not item:
         response = client.post("/api/master-content", data={"content_type": "FORM", "ref": "CT-TEST-001", "title": "Resolver Contract Template", "description": "Canonical synthetic Contract Template", "used_in": '["ADMIN"]'}, files={"file": ("CT-TEST-001.txt", b"canonical contract template", "text/plain")}, headers=headers("SYSTEM_ADMIN"))
         assert response.status_code == 200, response.text

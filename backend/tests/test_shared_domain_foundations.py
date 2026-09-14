@@ -91,6 +91,10 @@ def _form_source(client):
     )
     assert response.status_code == 200, response.text
     item = response.json()
+    governed = client.patch(f"/api/master-content/{item['id']}/governance", json={"content_ownership_class": "AMEC_OWNED", "artifact_kind": "AMEC_FORM", "language_profile": "EN"}, headers=OWNER)
+    assert governed.status_code == 200, governed.text
+    provenance = client.post(f"/api/master-content/{item['id']}/provenance", json={"obtained_from": "Synthetic foundation source"}, headers=OWNER)
+    assert provenance.status_code == 200, provenance.text
     return item["id"], item["current_version_id"]
 
 

@@ -145,10 +145,12 @@ def trusted_current_principal(
 
 
 def current_user_role(
+    request: Request,
     principal: AuthenticatedPrincipal = Depends(
         current_principal
     ),
 ) -> Role:
+    request.state.authenticated_principal = principal
     return principal.role
 
 
