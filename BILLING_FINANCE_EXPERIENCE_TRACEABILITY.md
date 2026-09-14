@@ -45,8 +45,9 @@ approved policy as unresolved.
   intact, followed by the persisted assignment migration
   `scoped_finance_capability_assignment_v1` and the forward production-
   hardening migration `billing_finance_production_hardening_v1`, followed by
-  reusable governed signatory authority migration
-  `governed_signatory_authority_v1`. These migrations bind financial-account
+  reusable governed signatory authority migrations
+  `governed_signatory_authority_v1` and
+  `governed_signatory_authority_governance_v2`. These migrations bind financial-account
   and signer evidence to canonical scope; none rewrites V10 or PR #46
   historical migrations.
 - Synthetic data only; no production database, credentials, bank account,
@@ -122,20 +123,33 @@ The earlier exact-head browser rehearsal remains classified as 53/64 passed,
 10 failed, and 1 not run; its failures are environment/legacy-contract cases
 (SQLite-vs-Postgres assertions, historical dashboard/contract expectations,
 Administration cleanup timeout, and one strict duplicate-text assertion).
-After the current repairs, correctly configured isolated SQLite Billing browser
-checks passed 2/3: both Billing detail-route checks passed, while the separate
-invoice reconciliation screen had no seeded invoice to open. This is still not
-full browser qualification; the prior 312/312 crawl remains historical only.
+After the current repairs, a fresh isolated synthetic database containing an
+issued Invoice passed the three applicable Billing real-stack checks: both
+Billing detail-route checks and the project-safe Invoice/communication-history
+journey. The prior 312/312 crawl remains historical only.
 
 Post-hardening qualification at code head
-`fd75e0cf41e9da36f5516510d51c69ebe18e18a5` (tree
-`5935c6c60681b2e2298a3a37bdb1fb5782a41b89`) completed the full backend suite
-with `918 passed, 33 skipped, 4 warnings`, the focused Billing/auth closure
-suite with `15 passed, 1 warning`, migration-contract checks with `49 passed,
-1 warning`, frontend Vitest with `117/117`, frontend production build, Python
-compile, and the single Alembic head check. The Alembic sole head is
-`governed_signatory_authority_v1`. SQL Server/Azure runtime evidence was not
-available in this isolated synthetic environment and remains external.
+`d33d7b95a7604ef3ca46e898da2ac4455019c776` (tree
+`fdca32d8222835025df6263a42fc0de70ca289e0`) completed the exact Billing,
+authorization, migration, and SQL-port contract set with `71 passed, 1
+skipped, 1 warning`, frontend Vitest with `117/117`, frontend production
+build, Python compile, and the single Alembic head check. The committed
+Alembic sole head is `governed_signatory_authority_governance_v2`.
+Deterministic synthetic real-stack Billing acceptance passed `3/3` with an
+issued Invoice, project-safe context, communication history, and route-
+isolation negative checks. The broad repository run was not promoted to a
+pass: it was interrupted during the unrelated 300-case Phase 5 mutation
+subprocess after `599 passed, 11 skipped`; no failure had surfaced. SQL
+Server/Azure runtime evidence was not available in this isolated synthetic
+environment and remains external.
+
+The final governed signatory provisioning lifecycle is Owner-authenticated and
+history-retaining: create enters `PENDING_APPROVAL`, a distinct Owner approves,
+and Owner-only revoke/supersede operations retain server-owned actor/timestamp
+audit fields. Forged lifecycle fields are rejected, self-approval is denied,
+and canonical active User, office/entity, and authority evidence are required.
+The exact lifecycle evidence token is
+`SIGNATORY_AUTHORITY_PROVISIONING_GOVERNANCE=PASS`.
 
 The scoped Finance authorization seam is implemented on the existing accepted
 branch. `ScopedCapabilityAssignment` is a persisted generic assignment bound to
@@ -158,15 +172,25 @@ wrong-project denial, exact project-scope success, and auditable revoke.
 
 The migrations `scoped_finance_capability_assignment_v1`,
 `billing_finance_production_hardening_v1`, and
-`governed_signatory_authority_v1` follow
-`billing_finance_experience_closure_v1`; `governed_signatory_authority_v1`
+`governed_signatory_authority_v1` and
+`governed_signatory_authority_governance_v2` follow
+`billing_finance_experience_closure_v1`; `governed_signatory_authority_governance_v2`
 is the sole repository head. The existing universal UI closure was not
 reopened, and no Vercel repair or merge to `main` was performed.
 
 `PR46_BILLING_PRODUCTION_HARDENING_CODE_CLOSED`
+`SIGNATORY_AUTHORITY_PROVISIONING_GOVERNANCE=PASS`
+`BILLING_READ_SCOPE_ALGEBRA=PASS`
+`SOURCE13_SIGNER_USE_TIME_AUTHORITY=PASS`
+`BILLING_BROWSER_ACCEPTANCE=PASS`
 `BILLING_PRODUCTION_READY=false`
 `BILLING_SQLSERVER_RUNTIME=EXTERNAL_EVIDENCE_REQUIRED`
-`INDEPENDENT_COLD_REVIEW=NOT_PROVEN`
+`BILLING_INDEPENDENT_COLD_REVIEW=NOT_PROVEN`
+`EXACT_HEAD_REQUIRED_CI=NOT_RERUN_AFTER_FINAL_TIP`
+`POST_IMPLEMENTATION_LEDGER=PASS`
+`PR46_EVIDENCE_CURRENTNESS=PASS`
+`PR46_BILLING_BRANCH_ACCEPTED=false`
+`PR46_MERGE_AUTHORITY=NOT_GRANTED`
 `REAL_DATA_ACCEPTANCE=EXTERNAL_REQUIRED`
 `UAT=EXTERNAL_REQUIRED`
 `G9=EXTERNAL_REQUIRED`
