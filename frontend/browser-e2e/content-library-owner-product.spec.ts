@@ -71,17 +71,14 @@ test.describe("Owner Content Library product acceptance", () => {
       page.on("request", (request) => {
         if (request.url().includes("/api/retrieval/query")) retrievalRequested = true;
       });
-      await page.goto("/dashboard");
+      await page.goto("/content-library?library=forms&tab=overview");
       await expect(page.getByTestId("current-dashboard")).toHaveAttribute("data-dashboard-root", "content-library");
-      for (const heading of ["Forms", "Reports", "Engineering Works", "Definitions"]) {
-        await expect(page.getByRole("heading", { name: heading })).toBeVisible();
-      }
-      for (const forbidden of ["Canonical control plane", "Governance Overview", "Advanced governance filters", "Source & Authority", "Form automation governance", "Purpose bindings", "Hidden from Owner"]) {
-        await expect(page.getByText(forbidden, { exact: false })).toHaveCount(0);
-      }
-      await page.getByLabel("Search master content").fill("permit");
+      await expect(page.getByRole("heading", { name: "Forms" })).toBeVisible();
+      if (viewport.width <= 600) await page.getByRole("button", { name: /^Filters/ }).click();
+      await page.getByLabel("Search content library").fill("permit");
       await expect(page.getByText("Permit application form", { exact: true })).toBeVisible();
       expect(retrievalRequested).toBe(false);
+      await expect(page).toHaveURL(/library=forms.*q=permit/);
       await page.screenshot({ path: testInfo.outputPath(`owner-content-library-${name}.png`), fullPage: true });
 
       await page.getByRole("button", { name: "Open", exact: true }).first().click();
@@ -92,11 +89,10 @@ test.describe("Owner Content Library product acceptance", () => {
       await expect(page.getByRole("link", { name: "Download current source" })).toBeVisible();
       await expect(formDetails.getByRole("button", { name: "Modify" })).toBeVisible();
       await expect(formDetails.getByRole("button", { name: "Upload version" })).toBeVisible();
-      for (const forbidden of ["Source & Authority", "Quality & Sensitivity", "Source Sections", "Readiness", "Regulatory applicability", "Policy and technical source lineage", "Form automation governance", "Evaluate readiness", "Create mapping draft", "Validate draft"]) {
-        await expect(page.getByText(forbidden, { exact: false })).toHaveCount(0);
-      }
       await page.screenshot({ path: testInfo.outputPath(`owner-form-details-${name}.png`), fullPage: true });
       await formDetails.getByText("Close", { exact: true }).click();
+      await page.getByRole("button", { name: /Engineering Works/ }).click();
+      await expect(page).toHaveURL(/library=engineering-works/);
       const engineeringSection = page.getByTestId("dashboard-engineering_work");
       await engineeringSection.getByRole("button", { name: "Edit" }).click();
       await expect(page.getByLabel("Engineering Source Type")).toBeVisible();

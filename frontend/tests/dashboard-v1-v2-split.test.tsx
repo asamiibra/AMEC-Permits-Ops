@@ -31,27 +31,32 @@ beforeEach(() => {
   }));
 });
 
-describe("current Dashboard V2 root identity", () => {
-  it("mounts the evolved V2 root with canonical forms", async () => {
+describe("Content Library workspace", () => {
+  it("mounts the unified library shell with canonical Forms", async () => {
     render(<CurrentDashboard role="SYSTEM_ADMIN" />);
-    expect(screen.getByTestId("current-dashboard")).toHaveAttribute("data-dashboard-root", "v2-evolution");
-    expect(screen.getByTestId("dashboard-governance-overview")).toBeVisible();
+    expect(screen.getByTestId("current-dashboard")).toHaveAttribute("data-dashboard-root", "content-library");
     expect(screen.getByTestId("dashboard-library-navigation")).toBeVisible();
-    expect(screen.getByTestId("dashboard-source-authority-panel")).toBeVisible();
     await waitFor(() => expect(screen.getByRole("heading", { name: "Content Library", level: 2 })).toBeVisible());
     await waitFor(() => expect(screen.getByText("Shared synthetic form")).toBeVisible());
-    expect(screen.getByLabelText("Search master content")).toBeVisible();
+    expect(screen.getByLabelText("Search content library")).toBeVisible();
     expect(screen.getByLabelText("Filter by status")).toBeVisible();
-    expect(screen.queryByText("Advanced governance filters")).toBeNull();
-    expect(screen.queryByText("Content ownership")).toBeNull();
     expect(screen.queryByRole("link", { name: "Inputs & Go-Live" })).not.toBeInTheDocument();
     expect(screen.getByRole("cell", { name: "Current" })).toBeVisible();
     expect(screen.getByRole("cell", { name: "Business Development" })).toBeVisible();
+    expect(screen.queryByText("AI Assist")).toBeNull();
   });
 
   it("renders one canonical item through one active Dashboard surface", async () => {
     render(<CurrentDashboard role="SYSTEM_ADMIN" />);
     await waitFor(() => expect(screen.getByText("Shared synthetic form")).toBeVisible());
     expect(screen.getAllByText("F-0001", { exact: true })).toHaveLength(1);
+  });
+
+  it("changes libraries without stacking four long sections", async () => {
+    render(<CurrentDashboard role="SYSTEM_ADMIN" />);
+    await waitFor(() => expect(screen.getByText("Shared synthetic form")).toBeVisible());
+    screen.getByRole("button", { name: /Reports/ }).click();
+    await waitFor(() => expect(screen.getByRole("heading", { name: "Reports" })).toBeVisible());
+    expect(screen.queryByRole("heading", { name: "Definitions" })).not.toBeInTheDocument();
   });
 });
