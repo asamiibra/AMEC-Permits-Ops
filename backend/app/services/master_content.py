@@ -260,9 +260,11 @@ def master_content_synthetic_fallback_allowed(version: DocumentVersion) -> bool:
     """Allow legacy fixture text only in the explicitly synthetic TEST mode."""
     settings = get_settings()
     provider = str((version.metadata_json or {}).get("storage_provider") or "").strip().lower()
+    app_env = os.getenv("APP_ENV", str(getattr(settings, "app_env", ""))).upper()
+    synthetic_only = os.getenv("SYNTHETIC_ONLY", str(getattr(settings, "synthetic_only", False))).strip().lower() == "true"
     return (
-        bool(getattr(settings, "synthetic_only", False))
-        and str(getattr(settings, "app_env", "")).upper() == "TEST"
+        synthetic_only
+        and app_env == "TEST"
         and provider != "azure-blob"
     )
 

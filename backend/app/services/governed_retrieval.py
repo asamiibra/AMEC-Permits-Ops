@@ -163,7 +163,15 @@ def _master(db: Session, item: MasterContentItem, version: DocumentVersion, acce
         bindings = list(db.scalars(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == item.id, MasterContentModuleBinding.active == 1)))
     provenance = sorted(provenance or [], key=lambda row: (row.source_reference or "", row.id))
     source = provenance[0].source_reference if provenance else None
-    content = _content(db, item, version, access)
+    try:
+        content = _content(db, item, version, access)
+    except Exception:
+        # Broad discovery must omit an unreadable managed candidate rather
+        # than expose it or abort unrelated results. Explicit object/version
+        # retrieval remains a hard fail-closed error for the caller.
+        if query.master_content_id or query.document_version_id:
+            raise
+        return None
     fields = (("ref", item.ref), ("official_source", source), ("official_source", version.source_path_or_reference), ("official_source", profile.official_form_no if profile else None), ("official_source", profile.official_issue_no if profile else None), ("title", item.title), ("description", item.description), ("content", content))
     rank = _rank(query.query, fields)
     if rank is None: return None
