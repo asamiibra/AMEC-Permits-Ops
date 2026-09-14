@@ -229,7 +229,9 @@ def _deployed_synthetic() -> bool:
 
 
 def read_master_content_bytes(db: Session, version: DocumentVersion) -> bytes:
-    """Read verified master bytes, retaining a durable synthetic TEST fallback."""
+    """Read verified master bytes only after managed malware eligibility passes."""
+    if not master_content_scan_is_clean(version):
+        raise _error("MASTER_CONTENT_MALWARE_SCAN_NOT_CLEAN", 409, malware_scan_state=master_content_scan_state(version))
     if _deployed_synthetic() and version.synthetic_content is not None:
         return version.synthetic_content
     if version.source_path_or_reference.startswith("storage://"):
@@ -239,6 +241,19 @@ def read_master_content_bytes(db: Session, version: DocumentVersion) -> bytes:
         except StorageError as exc:
             raise _error(exc.code.value, 502) from exc
     return _adapter().read_configured_artifact(version.source_path_or_reference)
+
+
+def master_content_scan_state(version: DocumentVersion) -> str:
+    """Return the normalized scan state for a managed master-content version."""
+    metadata = version.metadata_json or {}
+    if str(metadata.get("storage_provider") or "").lower() != "azure-blob":
+        return "CLEAN"
+    return str(metadata.get("malware_scan_state") or "SCAN_PENDING").strip().upper()
+
+
+def master_content_scan_is_clean(version: DocumentVersion) -> bool:
+    """Only a clean result from the managed provider may release master bytes."""
+    return master_content_scan_state(version) == "CLEAN"
 
 
 def _mapping() -> dict[str, str]:
@@ -511,7 +526,7 @@ def evaluate_master_content_reuse_eligibility(
     if version and _status(version) != "CURRENT": reasons.append("DOCUMENT_VERSION_NOT_CURRENT")
     if version and version.approval_state != DocumentApprovalState.REVIEWED: reasons.append("DOCUMENT_VERSION_NOT_REVIEWED")
     if version and (not version.source_path_or_reference or version.source_path_or_reference == "PENDING"): reasons.append("MASTER_CONTENT_SOURCE_UNAVAILABLE")
-    if version and str((version.metadata_json or {}).get("storage_provider") or "").lower() == "azure-blob" and str((version.metadata_json or {}).get("malware_scan_state") or "SCAN_PENDING").upper() != "CLEAN":
+    if version and not master_content_scan_is_clean(version):
         reasons.append("MALWARE_SCAN_NOT_CLEAN")
     if source18_authority_binding(db, item): reasons.append("SOURCE18_AUTHORITY_FORM_ORDINARY_REUSE_FORBIDDEN")
     governance = governance_projection(db, item)["profile"] if item else {}

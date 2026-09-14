@@ -18,7 +18,7 @@ from ..models import (AssertionStatus, DefinitionEntry, DefinitionRevision, Docu
     DocumentClassification, DocumentVersion, FieldObservation,
     MasterContentGovernanceProfile, MasterContentItem, MasterContentModuleBinding,
     MasterContentSourceProvenance, Role, VerifiedAssertion)
-from .master_content import read_master_content_bytes
+from .master_content import master_content_scan_is_clean, read_master_content_bytes
 
 RETRIEVAL_CONTRACT_VERSION = "1.0"
 RETRIEVAL_CANONICAL_WRITE_COUNT = 0
@@ -141,12 +141,14 @@ def _sort(candidate: tuple[GovernedRetrievalResult, tuple[int, ...]]) -> tuple[A
 
 def _content(db: Session, item: MasterContentItem, version: DocumentVersion, access: RetrievalAccessContext) -> str:
     if not access.may_read_master(item): raise UnauthorizedRetrieval("master content is outside caller scope")
-    try: payload = read_master_content_bytes(db, version)
-    except Exception: payload = str(version.metadata_json.get("synthetic_text", "")).encode()
+    if not master_content_scan_is_clean(version):
+        raise UnauthorizedRetrieval("master content malware scan is not clean")
+    payload = read_master_content_bytes(db, version)
     return payload.decode("utf-8", errors="replace")
 
 def _master(db: Session, item: MasterContentItem, version: DocumentVersion, access: RetrievalAccessContext, query: RetrievalQuery, *, profile=None, provenance=None, bindings=None, prefetched=False):
     if not access.may_read_master(item): return None
+    if not master_content_scan_is_clean(version): return None
     if not prefetched:
         profile = db.scalar(select(MasterContentGovernanceProfile).where(MasterContentGovernanceProfile.master_content_item_id == item.id))
         provenance = list(db.scalars(select(MasterContentSourceProvenance).where(MasterContentSourceProvenance.document_version_id == version.id)))
@@ -259,6 +261,20 @@ def governed_retrieve(db: Session, query: RetrievalQuery, access: RetrievalAcces
         classifications = defaultdict(list)
         for row in (db.scalars(select(DocumentClassification).where(DocumentClassification.document_version_id.in_(version_ids))).all() if version_ids and not query.document_version_id else []): classifications[row.document_version_id].append(row)
         for version in versions:
+            master_item = db.scalar(select(MasterContentItem).where(MasterContentItem.document_id == version.document_id))
+            if master_item:
+                if query.master_content_id and query.master_content_id != master_item.id:
+                    continue
+                if not master_item.current_document_version_id or not access.may_read_master(master_item):
+                    continue
+                profile = db.scalar(select(MasterContentGovernanceProfile).where(MasterContentGovernanceProfile.master_content_item_id == master_item.id))
+                if master_item.status != "ACTIVE" or master_item.needs_review or (profile and profile.restricted_reference_sample and access.role not in OWNER_ROLES):
+                    continue
+                provenance_rows = list(db.scalars(select(MasterContentSourceProvenance).where(MasterContentSourceProvenance.document_version_id == version.id)).all())
+                binding_rows = list(db.scalars(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == master_item.id, MasterContentModuleBinding.active == 1)).all())
+                candidate = _master(db, master_item, version, access, query, profile=profile, provenance=provenance_rows, bindings=binding_rows, prefetched=True)
+                if candidate: candidates.append(candidate)
+                continue
             rows = observations.get(version.id, []); assertion_rows = [a for o in rows for a in assertions.get(o.id, [])]
             candidate = _transactional(db, version, access, query, document=documents.get(version.document_id), observations=rows, assertions=assertion_rows, classifications=classifications.get(version.id, []), prefetched=not query.document_version_id)
             if candidate: candidates.append(candidate)

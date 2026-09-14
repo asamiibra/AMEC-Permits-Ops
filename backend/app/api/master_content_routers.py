@@ -52,6 +52,8 @@ from ..services.master_content import (
     assert_content_library_authority_write_allowed,
     authorize_master_content_access,
     evaluate_master_content_reuse_eligibility,
+    master_content_scan_is_clean,
+    master_content_scan_state,
 )
 from ..services.forms_governance import (
     add_provenance,
@@ -96,10 +98,10 @@ def _require_scan_access(version: DocumentVersion, role: Role) -> None:
     metadata = version.metadata_json or {}
     if str(metadata.get("storage_provider") or "").lower() != "azure-blob":
         return
-    state = str(metadata.get("malware_scan_state") or "SCAN_PENDING").upper()
+    state = master_content_scan_state(version)
     if state == "MALICIOUS":
         raise HTTPException(409, {"code": "MASTER_CONTENT_MALWARE_QUARANTINED", "malware_scan_state": state})
-    if state != "CLEAN" and persona_for_role(role) not in {"OWNER", "SYSTEM_ADMIN"}:
+    if not master_content_scan_is_clean(version):
         raise HTTPException(409, {"code": "MASTER_CONTENT_MALWARE_SCAN_NOT_CLEAN", "malware_scan_state": state})
 
 
@@ -725,33 +727,13 @@ def download_current(item_id: str, db: Session = Depends(get_db), role: Role = D
 
 
 @router.post("/master-content/{item_id}/malware-scan")
-def record_malware_scan(item_id: str, payload: MalwareScanPayload, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    """Persist a supported Defender result; reuse remains gated by CLEAN."""
+def record_malware_scan(item_id: str, request: Request, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    """Trigger trusted reconciliation; request-body scan claims are intentionally ignored."""
     require_capability(role, "MASTER_SOURCE_MANAGE_QUALITY")
     item = _authorized_item(db, item_id, role, action="QUALITY_WRITE")
-    version_id = payload.document_version_id or item.current_document_version_id
-    version = db.get(DocumentVersion, version_id) if version_id else None
-    if not version or version.document_id != item.document_id:
-        raise HTTPException(404, {"code": "VERSION_NOT_FOUND"})
-    state = payload.scan_state.strip().upper()
-    if state not in {"SCAN_PENDING", "CLEAN", "MALICIOUS", "SCAN_FAILED", "SCAN_UNAVAILABLE"}:
-        raise HTTPException(422, {"code": "MALWARE_SCAN_STATE_INVALID"})
-    if payload.result_source not in {"DEFENDER_FOR_STORAGE_EVENT_GRID", "DEFENDER_FOR_STORAGE_INDEX_TAG"}:
-        raise HTTPException(422, {"code": "MALWARE_SCAN_RESULT_SOURCE_INVALID"})
-    if state == "CLEAN" and payload.scanned_sha256 != version.sha256:
-        raise HTTPException(409, {"code": "MALWARE_SCAN_HASH_MISMATCH"})
-    version.metadata_json = {
-        **(version.metadata_json or {}),
-        "malware_scan_state": state,
-        "malware_scan_provider": "DEFENDER_FOR_STORAGE",
-        "malware_scan_result_source": payload.result_source,
-        "malware_scan_evidence_reference": payload.evidence_reference,
-        "malware_scan_sha256": payload.scanned_sha256,
-        "malware_scan_recorded_by": _actor(request, role),
-    }
-    audit(db, correlation_id=request.state.correlation_id, event_type="MASTER_CONTENT_MALWARE_SCAN_RECORDED", entity_type="DocumentVersion", entity_id=version.id, actor_id=_actor(request, role), after={"master_content_id": item.id, "malware_scan_state": state, "malware_scan_result_source": payload.result_source, "malware_scan_sha256": payload.scanned_sha256}, metadata={"evidence_reference": payload.evidence_reference, "fail_closed_until_clean": state != "CLEAN"})
-    db.commit()
-    return item_projection(db, item, include_history=True)
+    if not item.current_document_version_id:
+        raise HTTPException(409, {"code": "MALWARE_SCAN_VERSION_UNAVAILABLE"})
+    return reconcile_malware_scan(item_id, item.current_document_version_id, request, db, role)
 
 
 @router.post("/master-content/{item_id}/malware-scan/reconcile/{version_id}")
