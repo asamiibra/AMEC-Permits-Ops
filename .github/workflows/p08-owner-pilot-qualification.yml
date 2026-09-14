@@ -1,6 +1,9 @@
 name: P08 Owner Pilot Qualification
 
 on:
+  push:
+    branches:
+      - feature/proposalops-intelligence-v1
   workflow_dispatch:
 
 permissions:
