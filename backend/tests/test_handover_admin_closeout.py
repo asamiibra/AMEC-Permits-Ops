@@ -36,11 +36,15 @@ def _seed_refs():
                 dossier = Document(project_id=None, document_type=DocumentType.OTHER, logical_name=logical_name, language="EN", source_system="TEST")
                 db.add(dossier)
                 db.flush()
-            version = DocumentVersion(document_id=dossier.id, version_number=1, source_filename=f"{role.lower()}.txt", source_path_or_reference=f"synthetic://handover/{contract.id}/{role.lower()}", sha256=("0" * 63) + str(len(role)), mime_type="text/plain", file_size=1, language="EN", approval_state=DocumentApprovalState.WORKING, source_system="TEST", synthetic_content=b"x", metadata_json={"contract_id": contract.id, "client_account_id": contract.client_account_id, "project_id": project.id, "source_role": role, "read_back_verified": True, "synthetic_only": True})
-            db.add(version)
-            db.flush()
-            dossier.current_version_id = version.id
-            db.add(ContractAdminEvidence(contract_id=contract.id, contract_revision_id=revision.id, evidence_type=role, source_role=role, document_version_id=version.id, source_reference=version.source_path_or_reference, content_hash=version.sha256, status="RECEIVED", recorded_by="synthetic-handover-owner", metadata_json={"synthetic_only": True}))
+            version = db.get(DocumentVersion, dossier.current_version_id) if dossier.current_version_id else db.scalar(select(DocumentVersion).where(DocumentVersion.document_id == dossier.id, DocumentVersion.version_number == 1))
+            if not version:
+                version = DocumentVersion(document_id=dossier.id, version_number=1, source_filename=f"{role.lower()}.txt", source_path_or_reference=f"synthetic://handover/{contract.id}/{role.lower()}", sha256=("0" * 63) + str(len(role)), mime_type="text/plain", file_size=1, language="EN", approval_state=DocumentApprovalState.WORKING, source_system="TEST", synthetic_content=b"x", metadata_json={"contract_id": contract.id, "client_account_id": contract.client_account_id, "project_id": project.id, "source_role": role, "read_back_verified": True, "synthetic_only": True})
+                db.add(version)
+                db.flush()
+                dossier.current_version_id = version.id
+            existing_evidence = db.scalar(select(ContractAdminEvidence).where(ContractAdminEvidence.contract_id == contract.id, ContractAdminEvidence.contract_revision_id == revision.id, ContractAdminEvidence.source_role == role, ContractAdminEvidence.document_version_id == version.id))
+            if not existing_evidence:
+                db.add(ContractAdminEvidence(contract_id=contract.id, contract_revision_id=revision.id, evidence_type=role, source_role=role, document_version_id=version.id, source_reference=version.source_path_or_reference, content_hash=version.sha256, status="RECEIVED", recorded_by="synthetic-handover-owner", metadata_json={"synthetic_only": True}))
         db.commit()
         return project.id, contract.id, revision.id, document.id
 
