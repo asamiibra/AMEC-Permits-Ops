@@ -21,8 +21,6 @@ test.beforeEach(async ({ page }) => {
     else if (url.pathname === "/api/admin/summary") body = summary;
     else if (url.pathname === "/api/admin/contracts") body = { items: [], count: 0 };
     else if (url.pathname === "/api/bd/proposals") body = { items: [] };
-    else if (url.pathname === "/api/billing/capabilities") body = { role: "SYSTEM_ADMIN", capabilities: { can_view: true, can_accept_invoice: true, can_issue_invoice: true, can_verify_payment: true, can_create_invoice: true }, authority_source: "SERVER_MUTATION_POLICY", frontend_only_authority_grants: 0, unresolved_owner_decisions: [] };
-    else if (url.pathname === "/api/billing/command-center") body = { metrics: { ready_to_invoice: 0, draft_review_required: 0, issued_outstanding: 0, overdue: 0, payments_to_verify: 0, unallocated_client_credit: 0 }, work_items: [], open_receivables: [], payments: [], source_of_truth: "CANONICAL_BILLING_EVENTS", system_insights_only: true, ai_assisted: false, unresolved_owner_decisions: [] };
     else if (url.pathname === "/api/billing/invoices") body = { items: [], total: 0, lanes: { all: 0, need_action: 0, authority_review: 0, ready_close: 0 } };
     else if (url.pathname === "/api/billing/summary") body = { plans: 0, milestones: 0, invoices: 0, payment_receipts: 0 };
     else if (url.pathname === "/api/master-content") body = { items: [] };
@@ -49,8 +47,8 @@ test("legacy Admin business links redirect to their owning workspaces", async ({
   await expect(page.getByRole("heading", { name: "Contracts", level: 3 })).toBeVisible();
 
   await page.goto("/admin/invoices");
-  await expect(page).toHaveURL(/\/admin\/invoices$/);
-  await expect(page.getByRole("heading", { name: "Invoices", level: 2 })).toBeVisible();
+  await expect(page).toHaveURL(/\/billing$/);
+  await expect(page.getByRole("heading", { name: /Finance · Billing & Invoice/ })).toBeVisible();
   await expect(page.getByText("ADMINISTRATION / INVOICES")).toHaveCount(0);
 
   await page.goto("/admin/project-activation");

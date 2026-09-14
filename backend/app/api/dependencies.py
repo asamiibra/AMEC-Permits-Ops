@@ -5,7 +5,7 @@ from fastapi.security import (
     HTTPAuthorizationCredentials,
     HTTPBearer,
 )
-from sqlalchemy import select, true
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..auth.entra import (
@@ -35,6 +35,9 @@ class AuthenticatedPrincipal:
     office_id: str | None = None
     tenant_id: str | None = None
     object_id: str | None = None
+    # Display-only Entra claims. They are never consulted for authorization.
+    display_name: str | None = None
+    preferred_username: str | None = None
 
 
 def _resolve_dev_role(
@@ -61,41 +64,15 @@ def current_principal(
     x_dev_role: str | None = Header(
         default="SYSTEM_ADMIN"
     ),
-    x_dev_user: str | None = Header(default=None),
     db: Session = Depends(get_db),
 ) -> AuthenticatedPrincipal:
     settings = get_settings()
     auth_mode = settings.auth_mode.upper()
 
     if auth_mode == "DEV_HEADER":
-        if getattr(settings, "app_env", "DEV").upper() not in {"DEV", "TEST"}:
-            raise HTTPException(
-                status_code=500,
-                detail="Development header authentication is disabled outside DEV/TEST",
-            )
-        role = _resolve_dev_role(x_dev_role)
-        synthetic_user = None
-        # Direct unit calls can omit a FastAPI Header dependency and therefore
-        # pass its Header sentinel rather than None. Never persist or query
-        # with that sentinel as an identity.
-        if isinstance(x_dev_user, str) and x_dev_user.strip():
-            synthetic_user = db.scalar(
-                select(User).where(
-                    User.active == true(),
-                    (User.id == x_dev_user.strip()) | (User.email == x_dev_user.strip()),
-                )
-            )
-        if synthetic_user is None and isinstance(x_dev_role, str):
-            synthetic_user = db.scalar(
-                select(User)
-                .where(User.active == true(), User.role == role)
-                .order_by(User.email)
-            )
         return AuthenticatedPrincipal(
             auth_mode="DEV_HEADER",
-            role=role,
-            user_id=synthetic_user.id if synthetic_user else None,
-            office_id=synthetic_user.office_id if synthetic_user else None,
+            role=_resolve_dev_role(x_dev_role),
         )
 
     if auth_mode != "ENTRA":
@@ -150,6 +127,8 @@ def current_principal(
         office_id=user.office_id,
         tenant_id=identity.tenant_id,
         object_id=identity.object_id,
+        display_name=identity.display_name,
+        preferred_username=identity.preferred_username,
     )
 
 

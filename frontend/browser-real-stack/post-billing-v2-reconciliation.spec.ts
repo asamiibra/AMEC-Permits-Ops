@@ -16,11 +16,11 @@ test("Billing V2 real stack renders project-safe invoice context and communicati
   expect(await communications.json()).toEqual(expect.objectContaining({ communication_state: expect.any(String), deliveries: expect.any(Array), acknowledgments: expect.any(Array) }));
 
   await page.goto("/billing/invoices");
-  await expect(page.getByRole("heading", { name: "Invoices", level: 2 })).toBeVisible();
-  await expect(page.locator(".billing-table-responsive")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Billing & Invoice", level: 2 })).toBeVisible();
+  await expect(page.locator(".billing-table")).toBeVisible();
   await page.getByRole("button", { name: "Open", exact: true }).first().click();
   await expect(page.getByRole("heading", { name: /INV-|Not allocated/ })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Delivery & Acknowledgment", level: 3 })).toBeVisible();
-  await expect(page.getByText(/Issued ≠ Delivered ≠ Acknowledged ≠ Paid/).first()).toBeVisible();
+  await expect(page.getByText("COMMUNICATION HISTORY", { exact: true })).toBeVisible();
+  await expect(page.getByText(/Delivery, acknowledgment, approval, and payment remain separate/)).toBeVisible();
   await expect(page.locator("body")).not.toContainText(/accounting journal|financial settlement performed/i);
 });
