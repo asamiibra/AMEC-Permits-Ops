@@ -45,6 +45,7 @@ from backend.app.services.intelligence_contracts import (
     record_context_dependency,
     stable_hash,
 )
+from backend.app.services.intelligence_foundation import ensure_builtin_policy
 from backend.app.services.master_content import (
     canonical_master_content_candidates,
     exact_master_content_binding_check,
@@ -264,6 +265,7 @@ class GovernedContextCompiler:
             "owning_module": manifest.owning_module,
             "policy_version": request.policy_version,
         })
+        policy = ensure_builtin_policy(self.db, request.policy_version)
 
         seen_keys: set[str] = set()
         resolved: list[tuple[ContextSourceSpec, _ResolvedSource]] = []
@@ -303,6 +305,10 @@ class GovernedContextCompiler:
             contains_sensitive_data=result.contains_sensitive_data,
             projection=result.projection,
         ) for source, result in resolved]
+        governance_dependencies = [
+            ("SKILL_MANIFEST", f"skill:{manifest.skill_id}:{manifest.version}", manifest_hash_for(manifest), {"manifest_hash": manifest_hash_for(manifest)}),
+            ("POLICY_VERSION", policy.id, policy.immutable_hash, {"policy_id": policy.id, "policy_version": policy.version}),
+        ]
         omission_values = [item.model_dump() for item in sorted(omissions, key=lambda value: (value.key, value.context_type, value.reason))]
         hash_payload = {
             "owning_module": manifest.owning_module,
@@ -315,6 +321,9 @@ class GovernedContextCompiler:
             "authorization_context_hash": authorization_context_hash,
             "context_schema_version": request.context_schema_version,
             "policy_version": request.policy_version,
+            "policy_id": policy.id,
+            "policy_hash": policy.immutable_hash,
+            "governance_dependencies": governance_dependencies,
             "items": [{
                 "key": item.key,
                 "context_type": item.context_type,
@@ -348,6 +357,8 @@ class GovernedContextCompiler:
             "skill_manifest_hash": manifest_hash_for(manifest),
             "context_schema_version": request.context_schema_version,
             "policy_version": request.policy_version,
+            "policy_id": policy.id,
+            "policy_hash": policy.immutable_hash,
             "authorization_context_hash": authorization_context_hash,
             "context_hash": context_hash,
             "synthetic_only": synthetic_only,
@@ -374,6 +385,23 @@ class GovernedContextCompiler:
                         "contains_sensitive_data": result.contains_sensitive_data,
                         **result.metadata,
                     },
+                })
+            existing_identities = {
+                (result.dependency_type, result.dependency_id, result.dependency_version_or_hash)
+                for _source, result in dependency_values
+            }
+            for dependency_type, dependency_id, dependency_hash, metadata in governance_dependencies:
+                if (dependency_type, dependency_id, dependency_hash) in existing_identities:
+                    continue
+                record_context_dependency(self.db, {
+                    "context_snapshot_id": snapshot.id,
+                    "dependency_type": dependency_type,
+                    "dependency_id": dependency_id,
+                    "dependency_version_or_hash": dependency_hash,
+                    "required": True,
+                    "trust_state": "CANONICAL",
+                    "currentness_state_at_capture": "CURRENT",
+                    "metadata_json": {"source_key": "__governance__", **metadata},
                 })
         return CompiledContext(
             context_snapshot_id=snapshot.id,
@@ -737,10 +765,11 @@ class GovernedContextCompiler:
         version = str(selector.get("version") or request.policy_version)
         if version != request.policy_version:
             raise IntelligenceContractError("CONTEXT_POLICY_VERSION_MISMATCH")
+        policy = ensure_builtin_policy(self.db, version)
         return _ResolvedSource(
-            "POLICY_VERSION", "POLICY_VERSION", f"policy:{version}", stable_hash({"policy_version": version}),
+            "POLICY_VERSION", "POLICY_VERSION", policy.id, policy.immutable_hash,
             "CANONICAL", "CURRENT", "INTERNAL", False, False,
-            self._safe_projection({"policy_version": version}), {"policy_version": version},
+            self._safe_projection({"policy_version": version, "policy_id": policy.id, "policy_hash": policy.immutable_hash}), {"policy_version": version, "policy_id": policy.id},
         )
 
 
