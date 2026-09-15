@@ -4,7 +4,7 @@ from alembic import op
 
 revision = "proposal_billing_contract_convergence_v1"
 down_revision = (
-    "proposal_owner_test_profile_v1",
+    "proposal_hardening_schema_repair_v2",
     "billing_intelligence_final_merge_v1",
     "contract_reconciliation_scheduler_v1",
 )
