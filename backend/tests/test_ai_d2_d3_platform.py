@@ -77,6 +77,31 @@ def test_provider_request_is_exact_v1_responses_without_tools_or_redirects():
     assert body["text"]["format"]["strict"] is True
 
 
+def test_provider_ignores_responses_reasoning_items_before_message():
+    class Response:
+        status_code = 200
+        def json(self):
+            return {
+                "id": "resp-reasoning",
+                "status": "completed",
+                "output": [
+                    {"type": "reasoning", "summary": []},
+                    {"type": "message", "content": [{"type": "output_text", "text": json.dumps(_payload())}]},
+                ],
+                "usage": {"input_tokens": 1, "output_tokens": 1, "total_tokens": 2},
+            }
+
+    class Client:
+        def __init__(self, **kwargs): pass
+        def __enter__(self): return self
+        def __exit__(self, *args): return False
+        def post(self, url, **kwargs): return Response()
+
+    provider = AzureOpenAIResponsesProvider(_settings(), token_provider=lambda _: "memory-token", http_client_factory=Client)
+    result = provider.execute_structured(AIProviderRequest(provider_input="static-input", max_output_tokens=6000))
+    assert result.response_id == "resp-reasoning"
+
+
 def test_provider_schema_is_compiled_to_azure_supported_strict_subset():
     captured = {}
 

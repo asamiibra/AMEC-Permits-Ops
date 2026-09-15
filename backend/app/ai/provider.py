@@ -117,8 +117,11 @@ def _output_text(body: dict[str, Any]) -> str:
     if body.get("status") == "incomplete" or body.get("incomplete_details"):
         raise AIError("AI_PROVIDER_RESPONSE_INVALID")
     for item in body.get("output", ()):
+        # Responses may include reasoning and other non-message items before
+        # the structured assistant message. They are provider metadata, not
+        # malformed output; only message content is part of this contract.
         if not isinstance(item, dict) or item.get("type") != "message":
-            raise AIError("AI_PROVIDER_RESPONSE_INVALID")
+            continue
         for content in item.get("content", ()):
             if not isinstance(content, dict) or content.get("type") not in {"output_text", "text"}:
                 raise AIError("AI_PROVIDER_RESPONSE_INVALID")
