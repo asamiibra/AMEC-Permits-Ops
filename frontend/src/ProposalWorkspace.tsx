@@ -2521,7 +2521,12 @@ function ProposalIntelligencePanel({
     }
   };
   const latestReview = reviews.length ? reviews[reviews.length - 1] : undefined;
-  const output = result?.output || latestReview?.output;
+  // Provider responses are schema-validated on the server, but individual
+  // structured fields may still be arrays/objects. Keep the browser render
+  // boundary data-safe: React must never receive a provider object as a child
+  // or as a textarea value.
+  const rawOutput = result?.output || latestReview?.output;
+  const output = rawOutput ? record(rawOutput) : null;
   const applyDraft = async () => {
     const workProductId =
       result?.work_product_id || latestReview?.work_product_id;
@@ -2596,10 +2601,12 @@ function ProposalIntelligencePanel({
       {output && (
         <div className="proposal-intelligence-result" aria-live="polite">
           <b>
-            {output.summary ||
-              output.explanation ||
-              output.draft_content ||
-              "Structured result returned."}
+            {text(
+              output.summary ||
+                output.explanation ||
+                output.draft_content ||
+                "Structured result returned.",
+            )}
           </b>
           {output.missing_information?.length > 0 && (
             <p>
@@ -2641,7 +2648,7 @@ function ProposalIntelligencePanel({
               <label>
                 Human-edited working draft
                 <textarea
-                  value={editedDraft || output.draft_content || ""}
+                  value={editedDraft || text(output.draft_content, "")}
                   onChange={(event) => setEditedDraft(event.target.value)}
                 />
               </label>
