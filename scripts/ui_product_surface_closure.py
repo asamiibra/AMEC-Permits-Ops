@@ -430,6 +430,21 @@ def main() -> None:
         "workflow_count": len(WORKFLOW_PROOFS),
     })
     write_json(workflow_path, workflow)
+    write_json(OUT / "workflow-coverage.json", {
+        "document": "AMEC workflow coverage acceptance",
+        "UI_REQUIRED_WORKFLOW_CONNECTIVITY": "PASS" if args.real_stack_status == "PASS" and pending == 0 and blocking == 0 else "NOT_PROVEN",
+        "workflows": workflow_acceptance,
+        "UI_EXECUTABLE_HEAD": current_sha,
+        "UI_EXECUTABLE_TREE": current_tree,
+    })
+    write_json(OUT / "operation-adjudication-ledger.json", {
+        "document": "AMEC exact backend operation adjudication ledger",
+        "operation_count": len(rows),
+        "classification_state_counts": terminal_counts,
+        "UI_ADJUDICATION_PENDING_COUNT": pending,
+        "UI_CONFIRMED_BLOCKING_GAP_COUNT": blocking,
+        "operations": rows,
+    })
 
     write_json(OUT / "persona-capability-surface.json", {
         "executable_head": current_sha,
@@ -443,6 +458,16 @@ def main() -> None:
         "SYSTEM_ADMIN_IMPLICIT_OWNER_AUTHORITY": False,
         "OWNER_REQUIRES_SYSTEM_ADMIN_ROLE": False,
         "authz_negative_matrix": args.authz_status,
+    })
+    write_json(OUT / "persona-task-acceptance.json", {
+        "UI_PERSONA_TASK_ACCEPTANCE": "NOT_PROVEN",
+        "personas": ["OWNER", "BUSINESS_DEVELOPMENT", "ENGINEERING"],
+        "note": "Route and capability inventory is not substituted for trace-backed persona task acceptance.",
+    })
+    write_json(OUT / "authz-negative-matrix.json", {
+        "UI_AUTHZ_NEGATIVE_MATRIX": args.authz_status,
+        "UI_CROSS_SCOPE_DATA_LEAK_COUNT": 0 if args.authz_status == "PASS" else None,
+        "UI_EXISTENCE_LEAK_COUNT": 0 if args.authz_status == "PASS" else None,
     })
     write_json(OUT / "ui-state-matrix.json", {
         "executable_head": current_sha,
@@ -469,6 +494,10 @@ def main() -> None:
         "database": "synthetic-only runtime; native production SQL Server not claimed",
         "test_file": "frontend/browser-real-stack/ui-product-surface-closure-real-stack.spec.ts",
     })
+    write_json(OUT / "deep-link-acceptance.json", {
+        "CANONICAL_DEEP_LINK_FAILURE_COUNT": 0 if args.real_stack_status == "PASS" else None,
+        "status": "PASS" if args.real_stack_status == "PASS" else "NOT_PROVEN",
+    })
 
     ai_rows = [row for row in rows if row["classification"] == "DEFERRED_AI"]
     visible_orphan_count = 0
@@ -492,6 +521,17 @@ def main() -> None:
             "Independent reviewer sign-off is not present for persona task completion, full state/error/conflict coverage, or visual system consistency.",
         ],
         "review_scope": ["surface", "authz", "responsive", "accessibility", "AI handoff", "evidence provenance"],
+    })
+    write_json(OUT / "independent-functional-cold-review.json", {
+        "UI_INDEPENDENT_COLD_REVIEW": "NOT_PROVEN",
+        "UI_COLD_REVIEW_BLOCKING_DEFECT_COUNT": None,
+        "unresolved_findings": ["Independent functional reviewer/process has not completed the exact final executable and pending ledger review."],
+    })
+    write_json(OUT / "visual-review.json", {
+        "UI_VISUAL_COLD_REVIEW": "NOT_PROVEN",
+        "UI_VISUAL_SYSTEM_CONSISTENCY": "NOT_PROVEN",
+        "blocking_defect_count": None,
+        "reviewer": None,
     })
 
     frontend_test_files = sorted(str(p.relative_to(ROOT)) for p in (ROOT / "frontend/tests").rglob("*") if p.suffix in {".ts", ".tsx"})
@@ -569,7 +609,7 @@ def main() -> None:
             "AI_PRODUCTION_READY": "NOT_REACHED",
             "EXACT_HEAD_REQUIRED_CI": args.required_ci,
             "UI_INDEPENDENT_COLD_REVIEW": "NOT_PROVEN",
-            "UI_COLD_REVIEW_BLOCKING_DEFECT_COUNT": 0,
+            "UI_COLD_REVIEW_BLOCKING_DEFECT_COUNT": None,
             "PR46_UI_PRODUCT_SURFACE_CLOSED": False,
             "PR46_FUNCTIONAL_UI_READY": False,
             "OWNER_UI_UAT": args.owner_uat,
