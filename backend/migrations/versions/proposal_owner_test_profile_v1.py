@@ -11,20 +11,28 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.add_column(
-        "opportunities",
-        sa.Column(
-            "fixture_classification",
-            sa.String(length=40),
-            nullable=False,
-            server_default="NON_SYNTHETIC",
-        ),
-    )
-    op.create_index(
-        "ix_opportunities_fixture_classification",
-        "opportunities",
-        ["fixture_classification"],
-    )
+    bind = op.get_bind()
+    inspector = sa.inspect(bind)
+    if "fixture_classification" not in {
+        item["name"] for item in inspector.get_columns("opportunities")
+    }:
+        op.add_column(
+            "opportunities",
+            sa.Column(
+                "fixture_classification",
+                sa.String(length=40),
+                nullable=False,
+                server_default="NON_SYNTHETIC",
+            ),
+        )
+    if "ix_opportunities_fixture_classification" not in {
+        item["name"] for item in inspector.get_indexes("opportunities")
+    }:
+        op.create_index(
+            "ix_opportunities_fixture_classification",
+            "opportunities",
+            ["fixture_classification"],
+        )
 
 
 def downgrade() -> None:

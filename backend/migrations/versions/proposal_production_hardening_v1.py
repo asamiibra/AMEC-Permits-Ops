@@ -11,18 +11,66 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.add_column(
+    bind = op.get_bind()
+    inspector = sa.inspect(bind)
+    known_columns: dict[str, set[str]] = {}
+    known_foreign_keys: dict[str, set[tuple[str | None, str, str]]] = {}
+    known_indexes: dict[str, set[str | None]] = {}
+
+    def columns_for(table: str) -> set[str]:
+        return known_columns.setdefault(
+            table, {item["name"] for item in inspector.get_columns(table)}
+        )
+
+    def add_column_if_missing(table: str, column: sa.Column) -> None:
+        if column.name not in columns_for(table):
+            op.add_column(table, column)
+            columns_for(table).add(column.name)
+
+    def create_foreign_key_if_missing(
+        name: str,
+        table: str,
+        referred_table: str,
+        column: str,
+    ) -> None:
+        known = known_foreign_keys.setdefault(
+            table,
+            {
+                (
+                    fk.get("name"),
+                    fk.get("referred_table"),
+                    (fk.get("constrained_columns") or [None])[0],
+                )
+                for fk in inspector.get_foreign_keys(table)
+            },
+        )
+        exists = (name, referred_table, column) in known or any(
+            constrained_column == column and referred == referred_table
+            for _, referred, constrained_column in known
+        )
+        if not exists:
+            op.create_foreign_key(name, table, referred_table, [column], ["id"])
+            known.add((name, referred_table, column))
+
+    def create_index_if_missing(name: str, table: str, columns: list[str]) -> None:
+        known = known_indexes.setdefault(
+            table, {item["name"] for item in inspector.get_indexes(table)}
+        )
+        if name not in known:
+            op.create_index(name, table, columns)
+            known.add(name)
+
+    add_column_if_missing(
         "proposal_output_artifacts",
         sa.Column("document_version_id", sa.String(36), nullable=True),
     )
-    op.create_foreign_key(
+    create_foreign_key_if_missing(
         "fk_proposal_output_artifacts_document_version",
         "proposal_output_artifacts",
         "document_versions",
-        ["document_version_id"],
-        ["id"],
+        "document_version_id",
     )
-    op.create_index(
+    create_index_if_missing(
         "ix_proposal_output_artifacts_document_version_id",
         "proposal_output_artifacts",
         ["document_version_id"],
@@ -83,9 +131,11 @@ def upgrade() -> None:
             "revalidated_at": sa.DateTime(timezone=True),
             "revalidation_result": sa.String(40),
         }
-        op.add_column(table, sa.Column(column, types[column], nullable=True))
+        add_column_if_missing(table, sa.Column(column, types[column], nullable=True))
         if foreign_table:
-            op.create_foreign_key(f"fk_{table}_{column}", table, foreign_table, [column], ["id"])
+            create_foreign_key_if_missing(
+                f"fk_{table}_{column}", table, foreign_table, column
+            )
 
 
 def downgrade() -> None:
