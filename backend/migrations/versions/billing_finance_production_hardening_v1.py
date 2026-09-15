@@ -11,22 +11,23 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.add_column(
-        "financial_account_masters",
-        sa.Column("office_id", sa.String(length=36), nullable=True),
-    )
-    op.create_foreign_key(
-        "financial_account_masters_office_id_fkey",
-        "financial_account_masters",
-        "consultancy_offices",
-        ["office_id"],
-        ["id"],
-    )
-    op.create_index(
-        "ix_financial_account_masters_office_id",
-        "financial_account_masters",
-        ["office_id"],
-    )
+    bind = op.get_bind()
+    inspector = sa.inspect(bind)
+    columns = {column["name"] for column in inspector.get_columns("financial_account_masters")}
+    if "office_id" not in columns:
+        op.add_column("financial_account_masters", sa.Column("office_id", sa.String(length=36), nullable=True))
+    foreign_keys = {key["name"] for key in inspector.get_foreign_keys("financial_account_masters") if key["name"]}
+    if "financial_account_masters_office_id_fkey" not in foreign_keys:
+        op.create_foreign_key(
+            "financial_account_masters_office_id_fkey",
+            "financial_account_masters",
+            "consultancy_offices",
+            ["office_id"],
+            ["id"],
+        )
+    indexes = {index["name"] for index in sa.inspect(bind).get_indexes("financial_account_masters") if index["name"]}
+    if "ix_financial_account_masters_office_id" not in indexes:
+        op.create_index("ix_financial_account_masters_office_id", "financial_account_masters", ["office_id"])
 
 
 def downgrade() -> None:
