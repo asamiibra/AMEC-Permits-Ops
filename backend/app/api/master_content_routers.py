@@ -63,6 +63,7 @@ from ..services.forms_governance import (
 )
 from ..services.content_library_intelligence import (
     ContentLibraryDeterministicProvider,
+    content_library_intelligence_products,
     content_library_intelligence_reviews,
     execute_content_library_intelligence,
     execute_definition_intelligence,
@@ -110,6 +111,16 @@ def list_content_library_intelligence_reviews(
     return {"item_id": item_id, "reviews": content_library_intelligence_reviews(db, item_id)}
 
 
+@router.get("/master-content/{item_id}/intelligence/products")
+def list_content_library_intelligence_products(
+    item_id: str,
+    db: Session = Depends(get_db),
+    role: Role = Depends(current_user_role),
+):
+    require_capability(role, "READ_ALL")
+    return {"item_id": item_id, "products": content_library_intelligence_products(db, item_id)}
+
+
 class ContentLibraryIntelligenceReviewRequest(BaseModel):
     decision: str = Field(min_length=1, max_length=30)
     idempotency_key: str = Field(min_length=1, max_length=200)
@@ -152,6 +163,16 @@ def list_definition_intelligence_reviews(
 ):
     require_capability(role, "READ_ALL")
     return {"definition_id": definition_id, "reviews": content_library_intelligence_reviews(db, definition_id, context_type="DEFINITION_ENTRY")}
+
+
+@router.get("/definitions/{definition_id}/intelligence/products")
+def list_definition_intelligence_products(
+    definition_id: str,
+    db: Session = Depends(get_db),
+    role: Role = Depends(current_user_role),
+):
+    require_capability(role, "READ_ALL")
+    return {"definition_id": definition_id, "products": content_library_intelligence_products(db, definition_id, context_type="DEFINITION_ENTRY")}
 
 
 @router.post("/master-content/{item_id}/intelligence/{work_product_id}/review")

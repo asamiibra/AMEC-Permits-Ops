@@ -155,6 +155,10 @@ def test_content_library_intelligence_uses_shared_runtime_and_requires_owner_rev
     reviews = client.get(f"/api/master-content/{item['id']}/intelligence/reviews", headers=OWNER)
     assert reviews.status_code == 200, reviews.text
     assert len(reviews.json()["reviews"]) == 1
+    products = client.get(f"/api/master-content/{item['id']}/intelligence/products", headers=OWNER)
+    assert products.status_code == 200, products.text
+    assert products.json()["products"][0]["output"]["description"]
+    assert products.json()["products"][0]["citations"][0]["source_type"] == "MASTER_CONTENT_VERSION"
 
     denied = client.post(
         f"/api/master-content/{item['id']}/intelligence/master-content.quality-gap-analysis",
@@ -213,6 +217,11 @@ def test_content_library_owner_can_review_complete_structured_results_without_ca
     reviews = client.get(f"/api/master-content/{item['id']}/intelligence/reviews", headers=OWNER)
     assert reviews.status_code == 200, reviews.text
     assert any(row["decision"] == "ACCEPT" for row in reviews.json()["reviews"])
+    products = client.get(f"/api/master-content/{item['id']}/intelligence/products", headers=OWNER)
+    assert products.status_code == 200, products.text
+    assert len(products.json()["products"]) == 7
+    assert all(row["output"]["findings"] and row["citations"] for row in products.json()["products"])
+    assert any(row["decision"] == "ACCEPT" for row in products.json()["products"])
 
 
 def test_content_library_intelligence_is_available_for_definitions(client):
@@ -249,6 +258,11 @@ def test_content_library_intelligence_is_available_for_definitions(client):
     persisted = client.get(f"/api/definitions/{definition['id']}", headers=OWNER)
     assert persisted.status_code == 200, persisted.text
     assert persisted.json()["description"] == definition["description"]
+    products = client.get(f"/api/definitions/{definition['id']}/intelligence/products", headers=OWNER)
+    assert products.status_code == 200, products.text
+    assert len(products.json()["products"]) == 7
+    assert all(row["output"]["findings"] and row["citations"] for row in products.json()["products"])
+    assert any(row["decision"] == "ACCEPT" for row in products.json()["products"])
 
 
 @pytest.mark.parametrize("content_type", ["FORM", "REPORT", "ENGINEERING_WORK"])
@@ -292,6 +306,13 @@ def test_content_library_ai_products_invalidate_when_master_version_changes(clie
         assert product.invalidation_count == 1
         assert db.scalar(select(IntelligenceInvalidation).where(IntelligenceInvalidation.work_product_id == first_product_id)) is not None
 
+    products = client.get(f"/api/master-content/{item['id']}/intelligence/products", headers=OWNER)
+    assert products.status_code == 200, products.text
+    stale = next(row for row in products.json()["products"] if row["work_product_id"] == first_product_id)
+    assert stale["currentness"] == "STALE"
+    assert stale["stale_reason"]
+    assert stale["citations"]
+
     rerun = client.post(
         f"/api/master-content/{item['id']}/intelligence/master-content.source-grounded-assist",
         headers={**OWNER, "Idempotency-Key": f"content-library-invalidation-{content_type}-second"},
@@ -333,6 +354,13 @@ def test_content_library_definition_ai_products_invalidate_when_revision_changes
         assert invalidation is not None
         assert invalidation.dependency_type == "DEFINITION_REVISION"
         assert invalidation.dependency_id == first_revision_id
+
+    products = client.get(f"/api/definitions/{definition['id']}/intelligence/products", headers=OWNER)
+    assert products.status_code == 200, products.text
+    stale = next(row for row in products.json()["products"] if row["work_product_id"] == first_product_id)
+    assert stale["currentness"] == "STALE"
+    assert stale["stale_reason"]
+    assert stale["citations"]
 
     rerun = client.post(
         f"/api/definitions/{definition['id']}/intelligence/master-content.description-draft",

@@ -23,6 +23,7 @@ from backend.app.models import (
     AIWorkProductDependency,
     ContentCategory,
     DefinitionEntry,
+    IntelligenceCitation,
     IntelligenceReviewDecision,
     MasterContentItem,
     WorkflowTask,
@@ -502,3 +503,72 @@ def content_library_intelligence_reviews(db: Session, item_id: str, *, context_t
         "canonical_state_mutated": False,
         "decision": decisions.get((row.evidence_summary or {}).get("work_product_id")).decision if decisions.get((row.evidence_summary or {}).get("work_product_id")) else None,
     } for row in rows]
+
+
+def _persisted_product_payload(db: Session, product: AIWorkProduct, *, context_type: str, entity: MasterContentItem | DefinitionEntry) -> dict[str, Any]:
+    """Expose a reload-safe, reviewable work product without granting authority."""
+
+    citations = db.scalars(select(IntelligenceCitation).where(
+        IntelligenceCitation.work_product_id == product.id,
+    ).order_by(IntelligenceCitation.ordinal)).all()
+    dependency_type = "DEFINITION_REVISION" if context_type == "DEFINITION_ENTRY" else "MASTER_CONTENT_VERSION"
+    dependency = db.scalar(select(AIWorkProductDependency).where(
+        AIWorkProductDependency.work_product_id == product.id,
+        AIWorkProductDependency.dependency_type == dependency_type,
+    ))
+    decision = db.scalar(select(IntelligenceReviewDecision).where(
+        IntelligenceReviewDecision.work_product_id == product.id,
+    ).order_by(IntelligenceReviewDecision.decided_at.desc()))
+    output = product.structured_output_json or {}
+    draft_fields = (
+        _definition_draft_fields(entity, output)
+        if context_type == "DEFINITION_ENTRY"
+        else _draft_fields(db, entity, output)
+    )
+    return {
+        "work_product_id": product.id,
+        "skill_id": product.skill_id,
+        "skill_version": product.skill_version,
+        "skill_manifest_hash": product.skill_manifest_hash,
+        "status": "SUCCEEDED",
+        "state": product.state,
+        "currentness": product.state,
+        "stale_reason": product.stale_reason,
+        "created_at": product.created_at.isoformat(),
+        "output_class": product.output_class,
+        "output": output,
+        "output_hash": product.output_hash,
+        "citations": [{
+            "ordinal": citation.ordinal,
+            "source_type": citation.source_type,
+            "source_id": citation.source_id,
+            "source_version_or_hash": citation.source_version_or_hash,
+            "locator_json": citation.locator_json,
+        } for citation in citations],
+        "citation_count": product.citation_count,
+        "review_required": True,
+        "review_precondition_version": dependency.dependency_version_or_hash if dependency else None,
+        "draft_fields": draft_fields,
+        "decision": decision.decision if decision else None,
+        "canonical_state_mutated": False,
+        "protected_action_count": 0,
+    }
+
+
+def content_library_intelligence_products(db: Session, item_id: str, *, context_type: str = "MASTER_CONTENT") -> list[dict[str, Any]]:
+    """Return persisted Content Library intelligence, including stale history."""
+
+    if context_type == "DEFINITION_ENTRY":
+        entity = db.get(DefinitionEntry, item_id)
+        scope_type = "DEFINITION_ENTRY"
+    else:
+        entity = db.get(MasterContentItem, item_id)
+        scope_type = "MASTER_CONTENT_ITEM"
+    if entity is None:
+        return []
+    products = db.scalars(select(AIWorkProduct).where(
+        AIWorkProduct.scope_type == scope_type,
+        AIWorkProduct.scope_id == item_id,
+        AIWorkProduct.owning_module.in_(["master_content", "MASTER_CONTENT"]),
+    ).order_by(AIWorkProduct.created_at.desc()).limit(50)).all()
+    return [_persisted_product_payload(db, product, context_type=context_type, entity=entity) for product in products]
