@@ -804,10 +804,28 @@ def reconcile_preprod_canonical_master_content(
         else:
             version = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
             marker = (item.engineering_metadata or {}).get("preprod_canonical")
-            if not marker or not version or not (
+            durable = bool(version and (
                 version.source_path_or_reference.startswith("synthetic-db://")
                 or version.source_path_or_reference.startswith("storage://")
-            ):
+            ))
+            explicitly_synthetic = (
+                marker is True
+                and (item.engineering_metadata or {}).get("real_amec_master_content_confirmed") is False
+            )
+            if explicitly_synthetic and version and durable:
+                # Older canonical preproduction rows carried the synthetic
+                # classification on the item but not on the durable version.
+                # Repair only this unambiguous, content-preserving metadata
+                # gap; any other collision remains fail-closed below.
+                version.metadata_json = {
+                    **(version.metadata_json or {}),
+                    "synthetic_non_business_fixture": True,
+                    "synthetic_owner_test_only": True,
+                    "not_official_production_content": True,
+                }
+                version.source_system = "SYNTHETIC_PREPROD_CANONICAL"
+                db.flush()
+            elif not marker or not version or not durable:
                 raise RuntimeError(f"PREPROD_CANONICAL_MASTER_CONTENT_NON_SYNTHETIC_COLLISION: {spec['title']}")
             preserved.append(spec["ref"])
 

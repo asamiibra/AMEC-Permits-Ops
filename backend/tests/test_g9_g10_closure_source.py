@@ -4,7 +4,7 @@ from sqlalchemy import create_engine, func, select
 from sqlalchemy.orm import sessionmaker
 
 from backend.app.models import Base
-from backend.app.models import MasterContentItem, MasterContentModuleBinding
+from backend.app.models import DocumentVersion, MasterContentItem, MasterContentModuleBinding
 from backend.app.services import master_content
 
 
@@ -55,6 +55,9 @@ def test_preprod_canonical_master_content_is_exact_and_idempotent(monkeypatch):
             assert item is not None
             assert item.needs_review is False
             assert item.engineering_metadata["preprod_canonical"] is True
+            version = db.get(DocumentVersion, item.current_document_version_id)
+            assert version.metadata_json["synthetic_non_business_fixture"] is True
+            assert version.source_system == "SYNTHETIC_PREPROD_CANONICAL"
             assert db.scalar(
                 select(func.count(MasterContentModuleBinding.id)).where(
                     MasterContentModuleBinding.master_content_id == item.id,
