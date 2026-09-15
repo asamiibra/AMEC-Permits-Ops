@@ -1,0 +1,114 @@
+{
+  "AI_PROTECTED_HUMAN_ACTION_AUTHORITY": false,
+  "P07_ARCHITECTURE_CONTRACT": {
+    "path": "docs/architecture/ProposalOps_Intelligence_Architecture_LOCKED_v1.md",
+    "sha256": "ba21554c74df2324e72bd3a454d1230a362f4b5900f11fa4d656970ea50b8a0e"
+  },
+  "P07_BACKEND_FULL_REGRESSION": {
+    "aggregate_sha256": "92528aee8e4d5169dda4eebb34a477e8980e7f2ebd6e65ea01714561795d3192",
+    "collection_count": 976,
+    "duplicate_only_coverage": 0,
+    "failed": 0,
+    "missing_from_shards": 0,
+    "passed": 957,
+    "result": "PASS",
+    "shard_plan_sha256": "345d910f2276adffd1100e4cdc4f93da63af8b53a31a017fe6f41c0941492f74",
+    "skipped": 19,
+    "unexpected_nodeids": 0
+  },
+  "P07_CHANGED_PATHS": [
+    "backend/app/ai/ledger.py",
+    "backend/app/ai/limits.py",
+    "backend/app/ai/orchestration.py",
+    "backend/app/ai/skill_runtime.py",
+    "backend/app/models/ai_entities.py",
+    "backend/app/models/intelligence_entities.py",
+    "backend/app/services/context_compiler.py",
+    "backend/app/services/intelligence_contracts.py",
+    "backend/app/services/intelligence_foundation.py",
+    "backend/app/services/master_content.py",
+    "backend/migrations/versions/baseline_phase4_v36_azure_sql.py",
+    "backend/migrations/versions/p07_intelligence_foundation_closure.py",
+    "backend/migrations/versions/source18_regulatory_current_state_v1.py",
+    "backend/tests/test_ai_p07_foundation_control_plane.py",
+    "backend/tests/test_azure_sql_port.py",
+    "backend/tests/test_context_compiler.py",
+    "backend/tests/test_database_startup_contract.py",
+    "backend/tests/test_db_rebaseline.py",
+    "docs/intelligence-v1/prompt-07-foundation-closure/00-entry-state.md",
+    "docs/intelligence-v1/prompt-07-foundation-closure/01-predecessor-revalidation.md",
+    "docs/intelligence-v1/prompt-07-foundation-closure/02-gap-closure-ledger.md",
+    "docs/intelligence-v1/prompt-07-foundation-closure/03-dependency-invalidation-contract.md",
+    "docs/intelligence-v1/prompt-07-foundation-closure/04-finalization-currentness-fence.md",
+    "docs/intelligence-v1/prompt-07-foundation-closure/05-reservation-lease-fencing.md",
+    "docs/intelligence-v1/prompt-07-foundation-closure/06-stale-replay-proof.md",
+    "docs/intelligence-v1/prompt-07-foundation-closure/07-source-scope-sensitivity-proof.md",
+    "docs/intelligence-v1/prompt-07-foundation-closure/08-policy-eval-identity-proof.md",
+    "docs/intelligence-v1/prompt-07-foundation-closure/09-candidate-concurrency-proof.md",
+    "docs/intelligence-v1/prompt-07-foundation-closure/10-module-review-primitive.md",
+    "docs/intelligence-v1/prompt-07-foundation-closure/11-phase4-containment.md",
+    "docs/intelligence-v1/prompt-07-foundation-closure/12-read-only-tool-runtime.md",
+    "docs/intelligence-v1/prompt-07-foundation-closure/13-observability-privacy.md",
+    "docs/intelligence-v1/prompt-07-foundation-closure/14-database-migration-proof.md",
+    "docs/intelligence-v1/prompt-07-foundation-closure/15-authority-negative-matrix.md",
+    "docs/intelligence-v1/prompt-07-foundation-closure/16-focused-tests.md",
+    "docs/intelligence-v1/prompt-07-foundation-closure/17-full-regression.md",
+    "docs/intelligence-v1/prompt-07-foundation-closure/18-hostile-validation.md",
+    "docs/intelligence-v1/prompt-07-foundation-closure/19-final-seal.md",
+    "docs/intelligence-v1/prompt-07-foundation-closure/MANIFEST.sha256",
+    "scripts/db_azure_sql/nullable_unique_audit.py"
+  ],
+  "P07_FRONTEND": {
+    "dependency_source": "frontend/package-lock.json via npm ci",
+    "production_build": "PASS",
+    "result": "PASS",
+    "test_files": "22 passed",
+    "tests": "126 passed"
+  },
+  "P07_IMPLEMENTATION": {
+    "force_push_required": false,
+    "normal_descendant": true,
+    "parent": "8fcfa3b41cff1058addeb9fa0d1bd763f8315bcd",
+    "remote_base": "bdfa445de3351d49fb44b324e01928f2a4adfa76",
+    "sha": "b21ab2fe5e30e306a9bc40149ba10324f0bebd9b",
+    "tree": "9dd412eaed644cef810b8fad0310451ba35d7390"
+  },
+  "P07_ORIGINAL_SHARED_REPO_GIT_COMMAND_COUNT_AFTER_SNAPSHOT_START": 0,
+  "P07_POSTGRES16_GATE": {
+    "alembic_head": "p07_intelligence_foundation_closure",
+    "focused_tests": "24 passed",
+    "long_identifiers": 0,
+    "proof_sha256": "a0593b31d916f25789ff5907ab00d9cbbf69a5fd69702aac156be79ea36824b5",
+    "public_tables": 475,
+    "reopen": "PASS",
+    "result": "PASS",
+    "version": "PostgreSQL 16.15",
+    "zero_to_head": "PASS"
+  },
+  "P07_PYTHON312_GATE": {
+    "reason": "backend/pyproject.toml requires Python >=3.12 rather than an exact Python 3.12 gate; candidate qualification ran on Python 3.14.2",
+    "result": "NOT_APPLICABLE_WITH_CONTRACT_REASON"
+  },
+  "P07_RECOVERY_AUGMENTATION_MANIFESTS": [
+    "ef9f8fe863f74283450f34a632043e81d47d713375ff9b31bbb26bbf5c577693",
+    "3e0191a13fd598b7f0685a948d99b238874dd53132205623f4326910141a1268",
+    "5b3a3d5bf5e1fa0f241a2efd9912e2bdacaeb9edda88a6f35fef80332445e46a"
+  ],
+  "P07_SECURITY_STATIC": {
+    "bicep_entrypoints": 4,
+    "compileall": "PASS",
+    "p07_manifest": "20/20",
+    "pip_audit": "No known vulnerabilities found",
+    "result": "PASS"
+  },
+  "P07_SHARED_GIT_COMMON_DIR_CONTENTION_BYPASSED": true,
+  "P07_STORAGE": {
+    "mode": "reused prior accepted Samba proof; candidate diff has no storage paths",
+    "result": "PASS",
+    "tests": "17 passed"
+  },
+  "P08_STARTED": false,
+  "PRODUCTION_AUTHORITY": false,
+  "REAL_AMEC_DATA_USED": false,
+  "REAL_DSM_BUSINESS_CONTENT_USED": false
+}

@@ -19,6 +19,9 @@ from .structured_output import PROVIDER_JSON_SCHEMA
 class AIProviderRequest:
     provider_input: str
     max_output_tokens: int
+    response_schema: dict[str, Any] | None = None
+    schema_name: str = "technical_methodology_draft"
+    tools: tuple[dict[str, Any], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -69,8 +72,11 @@ def _output_text(body: dict[str, Any]) -> str:
     if body.get("status") == "incomplete" or body.get("incomplete_details"):
         raise AIError("AI_PROVIDER_RESPONSE_INVALID")
     for item in body.get("output", ()):
+        # Reasoning models may emit a completed reasoning item before the
+        # final message. Only message content is user-visible structured
+        # output; unrelated output items are valid provider behavior.
         if not isinstance(item, dict) or item.get("type") != "message":
-            raise AIError("AI_PROVIDER_RESPONSE_INVALID")
+            continue
         for content in item.get("content", ()):
             if not isinstance(content, dict) or content.get("type") not in {"output_text", "text"}:
                 raise AIError("AI_PROVIDER_RESPONSE_INVALID")
@@ -96,8 +102,8 @@ class AzureOpenAIResponsesProvider:
             "store": False,
             "max_output_tokens": request.max_output_tokens,
             "input": request.provider_input,
-            "tools": [],
-            "text": {"format": {"type": "json_schema", "name": "technical_methodology_draft", "strict": True, "schema": PROVIDER_JSON_SCHEMA}},
+            "tools": list(request.tools),
+            "text": {"format": {"type": "json_schema", "name": request.schema_name, "strict": True, "schema": request.response_schema or PROVIDER_JSON_SCHEMA}},
         }
         timeout = httpx.Timeout(connect=self.settings.ai_provider_connect_timeout_seconds, read=self.settings.ai_provider_read_timeout_seconds, write=self.settings.ai_provider_write_timeout_seconds, pool=self.settings.ai_provider_connect_timeout_seconds)
         try:

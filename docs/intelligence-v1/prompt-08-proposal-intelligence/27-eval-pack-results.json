@@ -1,0 +1,11 @@
+{
+  "eval_pack_id": "proposal-intelligence-v1",
+  "version": "1.0.0",
+  "critical_case_count": 26,
+  "critical_pass_rate": null,
+  "skips": null,
+  "execution_status": "NOT_RUN",
+  "focused_contract_tests": "3 passed",
+  "deterministic_provider": true,
+  "immutable_hash_source": "server-side stable hash of pack identity and acceptance policy"
+}

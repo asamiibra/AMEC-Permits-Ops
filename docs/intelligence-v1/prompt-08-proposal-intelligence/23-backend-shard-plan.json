@@ -1,0 +1,8 @@
+{
+  "partition_rule": "P07 deterministic lexical file ordering retained",
+  "p07_planned_node_count": 976,
+  "p08_collected_node_count": 995,
+  "p08_additional_nodes": 19,
+  "missing_predecessor_nodes": 0,
+  "heavyweight_exclusion": "test_source_preflight_cli_emits_final_mutation_matrix_to_caller_path"
+}

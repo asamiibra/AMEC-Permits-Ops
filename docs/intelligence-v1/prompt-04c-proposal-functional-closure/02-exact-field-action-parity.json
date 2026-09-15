@@ -1,0 +1,9 @@
+{
+  "intake_fields": ["Client", "Proposal Contact", "Contact Email", "Mobile", "Project Description", "Client Requested Scope", "Client Budget", "Requested Timing", "Client Constraints", "Additional Information"],
+  "lead_origin_values": ["Tender / RFP", "Email enquiry", "Referral", "Marketing", "Web / Google", "Personal / relationship", "Other"],
+  "site_fields": ["location", "plot/property reference", "area value", "area unit", "area basis", "site description"],
+  "commercial_fields": ["fee/value", "currency", "duration/period", "payment terms", "inclusions", "exclusions"],
+  "required_action_keys": ["EDIT_INTAKE", "ADD_SOURCE", "EDIT_CONTACT", "EDIT_SITE", "ADD_STAKEHOLDER", "ADD_NOTE", "ADD_UNKNOWN", "ADD_CONFLICT", "PROCEED_ENGINEERING", "EDIT_TECHNICAL", "RECORD_TECHNICAL_ASSESSMENT", "CONFIRM_SCOPE", "RECORD_SERVICE_ELIGIBILITY", "MARK_ENGINEERING_READY", "EDIT_COMMERCIAL", "CREATE_REVISION", "ACCEPT_PROPOSAL", "AUTHORIZE_RELEASE", "RECORD_DISTRIBUTION", "RECORD_CLIENT_RESPONSE", "VERIFY_CLIENT_ACCEPTANCE", "RECONCILE_LPO", "RECORD_CONTRACT_HANDOFF"],
+  "parity_status": "IMPLEMENTED_WITH_EXISTING_DOMAIN_WRITERS",
+  "unexplained_missing": []
+}

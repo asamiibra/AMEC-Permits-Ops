@@ -553,6 +553,34 @@
   font-size: 9px;
   line-height: 1.4;
 }
+.ci-run-button {
+  margin-top: 10px;
+  width: 100%;
+  border: 1px solid #7b5ba6;
+  border-radius: 6px;
+  padding: 8px 10px;
+  background: #f5effb;
+  color: #5f3d84;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.ci-run-button:disabled { cursor: wait; opacity: 0.65; }
+.ci-result {
+  margin-top: 10px;
+  padding: 10px;
+  background: #fffaf0;
+  border: 1px solid #ead8b0;
+  border-radius: 7px;
+  color: #5d4b2c;
+  font-size: 10px;
+  line-height: 1.45;
+}
+.ci-result p { color: #5d4b2c !important; margin: 5px 0 !important; }
+.ci-result small { display: block; margin-top: 7px; color: #7d6c4c; }
+.ci-finding { display: grid; gap: 2px; margin-top: 7px; }
+.ci-finding span { color: #66583d; }
 .ci-error {
   font-size: 10px;
   color: #a23f3b;

@@ -351,13 +351,13 @@ def test_non_preprod_worker_is_rejected(
         worker,
         "get_settings",
         lambda: _settings(
-            app_env="TEST"
+            app_env="DEV"
         ),
     )
 
     with pytest.raises(
         RuntimeError,
-        match="restricted",
+        match="governed worker",
     ):
         worker.run_worker_once()
 

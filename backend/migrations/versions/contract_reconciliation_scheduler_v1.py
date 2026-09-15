@@ -7,7 +7,7 @@ import sqlalchemy as sa
 
 
 revision = "contract_reconciliation_scheduler_v1"
-down_revision = "17c6ebd99c4a"
+down_revision = "p08_proposal_intelligence"
 branch_labels = None
 depends_on = None
 

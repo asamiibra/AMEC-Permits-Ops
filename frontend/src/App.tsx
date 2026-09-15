@@ -13,6 +13,8 @@ const ConstructionPage = lazy(() => import("./Construction").then(m => ({ defaul
 const CompletionPage = lazy(() => import("./Completion").then(m => ({ default: m.CompletionPage })));
 const HandoverPage = lazy(() => import("./Handover").then(m => ({ default: m.HandoverPage })));
 const AdministrationPage = lazy(() => import("./AdministrationOwner").then(m => ({ default: m.AdministrationOwnerPage })));
+import { ProposalRoutes } from "./features/proposals/ProposalRoutes";
+import type { ProposalRole } from "./features/proposals/types";
 import { AmecLogo } from "./AmecLogo";
 import { browserAuthMode, getSignedInAccountIdentity, signOut } from "./auth";
 import { readDemoRole } from "./rebrand";
@@ -326,7 +328,7 @@ export default function App() {
           <Suspense fallback={<section className="panel" role="status">Loading {title}…</section>}>
           {page === "home" && <HomePage />}
           {page === "work" && <WorkPage />}
-          {page === "opportunities" && <OpportunitiesPage role={moduleRole} />}
+          {page === "opportunities" && <ProposalRoutes role={moduleRole as ProposalRole} />}
           {page === "contract-mobilization" && <ContractMobilizationPage />}
           {page === "billing" && <BillingInvoicePage />}
           {page === "content-library" && <CurrentDashboard role={role} />}

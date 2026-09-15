@@ -284,7 +284,12 @@ def seed_reference_sequences(db: Session) -> None:
         if existing:
             maximum = 0
             prefix_pattern = re.compile(rf"^{re.escape(existing.prefix)}-(\d+)$")
-            refs = db.scalars(select(MasterContentItem.ref).where(MasterContentItem.content_type == existing.content_type)).all()
+            reference_query = (
+                select(DefinitionEntry.ref)
+                if existing.content_type == "DEFINITION"
+                else select(MasterContentItem.ref).where(MasterContentItem.content_type == existing.content_type)
+            )
+            refs = db.scalars(reference_query).all()
             for ref in refs:
                 match = prefix_pattern.match(ref or "")
                 if match:
@@ -304,7 +309,12 @@ def _allocate_reference(db: Session, content_type: str, requested: str | None = 
         raise _error("REFERENCE_SEQUENCE_UNAVAILABLE", 503, content_type=content_type)
     prefix_pattern = re.compile(rf"^{re.escape(sequence.prefix)}-(\d+)$")
     existing_max = 0
-    for ref in db.scalars(select(MasterContentItem.ref).where(MasterContentItem.content_type == content_type)).all():
+    reference_query = (
+        select(DefinitionEntry.ref)
+        if content_type == "DEFINITION"
+        else select(MasterContentItem.ref).where(MasterContentItem.content_type == content_type)
+    )
+    for ref in db.scalars(reference_query).all():
         match = prefix_pattern.match(ref or "")
         if match:
             existing_max = max(existing_max, int(match.group(1)))

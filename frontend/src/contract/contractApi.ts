@@ -1,5 +1,5 @@
 import { api } from "../api";
-import type { ContractData, ContractIntelligence, ContractListItem } from "./contractTypes";
+import type { ContractData, ContractIntelligence, ContractIntelligenceResult, ContractListItem } from "./contractTypes";
 import type { StartPrerequisites, TimingFactInput, TimingFactType, TimingRequirementInput } from "./timingTypes";
 
 export const getStartPrerequisites = (id: string) => api<StartPrerequisites>(`/api/admin/contracts/${id}/start-prerequisites`);
@@ -15,6 +15,12 @@ export const getContract = (contractId: string) => api<ContractData>(`/api/admin
 
 export const getContractIntelligence = (contractId: string) =>
   api<ContractIntelligence>(`/api/admin/contracts/${contractId}/intelligence`);
+
+export const executeContractIntelligence = (contractId: string, skillId: string, idempotencyKey: string) =>
+  api<ContractIntelligenceResult>(`/api/admin/contracts/${contractId}/intelligence/${encodeURIComponent(skillId)}/execute`, {
+    method: "POST",
+    body: JSON.stringify({ idempotency_key: idempotencyKey }),
+  });
 
 export const createContract = (proposalId: string) =>
   api<ContractData>("/api/admin/contracts", {

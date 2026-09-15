@@ -86,6 +86,11 @@ def run() -> dict[str, object]:
             "instructions": STATIC_INSTRUCTIONS,
             "task": D3_TASK,
             "project_scope": "synthetic-commissioning-only",
+            "commissioning_constraint": (
+                "Return exactly two concise sections. Keep each section body under "
+                "240 characters. Use empty arrays for assumptions, open_questions, "
+                "and limitations unless strictly required."
+            ),
             "evidence": evidence,
         },
         ensure_ascii=False,

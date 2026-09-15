@@ -166,6 +166,9 @@ export type IntelligenceSkill = {
   name: string;
   purpose: string;
   status: string;
+  runtime_state?: string;
+  runtime_ready?: boolean;
+  runtime_reason?: string;
   eligibility_state?: string;
   eligibility_reason: string;
   owning_module?: string;
@@ -206,4 +209,25 @@ export type ContractIntelligence = {
   eligibility_state?: string;
   skills: IntelligenceSkill[];
   findings: Array<Record<string, unknown>>;
+};
+
+export type ContractIntelligenceResult = {
+  execution_id: string;
+  work_product_id: string;
+  status: string;
+  replayed: boolean;
+  skill_id: string;
+  output_class: string;
+  output: {
+    summary: string;
+    findings: Array<{ title: string; detail: string; disposition: string; citation_keys?: string[] }>;
+    human_review_actions?: string[];
+    limitations?: string[];
+    advisory_only: true;
+  };
+  citations: Array<Record<string, unknown>>;
+  citation_count: number;
+  human_review_required: true;
+  canonical_state_mutated: false;
+  protected_action_count: 0;
 };

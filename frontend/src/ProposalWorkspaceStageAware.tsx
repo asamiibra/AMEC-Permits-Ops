@@ -153,6 +153,7 @@ export function ProposalWorkspaceStageAware({ role, proposal, setProposal, onBac
   return <>
     <div className="page-intro"><div><span className="eyebrow">BD · PROPOSAL CENTER</span><h2>{proposal.title}</h2><p>{proposal.proposal_reference} · {proposal.project_reference || "Provisional opportunity reference"}</p><p className="muted">Stage: {stageLabel[currentStage] || currentStage} · Current owner: {proposal.current_owner || "Business Development"} · {proposal.current_revision ? `Accepted revision R${proposal.current_revision.revision_number}` : "Draft Proposal · Working revision"}</p></div><button className="text-button" onClick={onBack}><Icon name="arrow-left" size={14} /> Proposals</button></div>
     {message && <div className="inline-message" role="status">{message}</div>}{error && <div className="error-state" role="alert">{error}</div>}
+    <ProposalIntelligencePanel role={role} proposal={proposal} setError={setError} setMessage={setMessage} />
     <nav className="workflow-stepper opportunity-tabs" aria-label="Proposal lifecycle">{stageSteps.map((step) => { const state = stageState(currentStage, step.key); return <a key={step.key} href={`#proposal-${step.key.toLowerCase()}`} className={`workflow-step ${state}`} aria-current={state === "current" ? "step" : undefined}><span>{state === "past" ? <Icon name="check" size={14} /> : state === "current" ? <Icon name="current" size={14} /> : <Icon name="minus" size={14} />}</span>{step.label}</a>; })}</nav>
     <div className="bd-owner-nav" aria-label="Proposal sections"><a href="#proposal-client">Client Request</a><a href="#proposal-engineering">Engineering</a><a href="#proposal-commercial">Commercial</a><a href="#proposal-review">Review &amp; Outputs</a><a href="#proposal-history">History</a></div>
 
@@ -188,6 +189,40 @@ export function ProposalWorkspaceStageAware({ role, proposal, setProposal, onBac
 
     <section id="proposal-history" className="panel"><div className="panel-head"><div><span className="eyebrow">WORK · ISSUES · NOTIFICATIONS · HISTORY</span><h3>Proposal history and lineage</h3></div><small>{asList(proposal.stage_history).length} stage event(s) · {asList(proposal.revision_history).length} accepted revision(s)</small></div>{informationChanged && <div className="inline-message">Current information has changed since this Proposal was accepted.</div>}{informationChanged && canEditCommercial && <button className="button-secondary" onClick={() => void createRevision()}>Create new Proposal revision</button>}{asList(proposal.stage_history).length ? <div className="bd-history-list">{asList(proposal.stage_history).map((item: any, index: number) => <div className="bd-history-row" key={`${item.event_type}-${item.occurred_at}-${index}`}><b>{safeText(item.event_type)}</b><span>{safeText(item.actor)}</span><span>{item.occurred_at ? new Date(item.occurred_at).toLocaleString() : "Date unavailable"}</span><code>{safeText(item.correlation_id, "correlation unavailable")}</code></div>)}</div> : <p className="muted">No stage history recorded yet.</p>}</section>
   </>;
+}
+
+function ProposalIntelligencePanel({ role, proposal, setError, setMessage }: any) {
+  const [operation, setOperation] = useState("intake-analysis");
+  const [result, setResult] = useState<any>(null);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const loadReviews = async () => {
+    try { const response = await api<any>(`/api/bd/proposals/${proposal.id}/intelligence/reviews`, { headers: headers(role) }); setReviews(asList(response.items)); setLoaded(true); }
+    catch (cause) { setError(cause instanceof Error ? cause.message : "Proposal Intelligence review could not be loaded."); }
+  };
+  const run = async () => {
+    setBusy(true); setError("");
+    try {
+      const response = await api<any>(`/api/bd/proposals/${proposal.id}/intelligence`, { method: "POST", headers: { ...headers(role), "Content-Type": "application/json" }, body: JSON.stringify({ operation, idempotency_key: `proposal-intelligence-${proposal.id}-${operation}` }) });
+      setResult(response); setMessage("Proposal Intelligence result is ready for human review; no protected Proposal action was taken."); await loadReviews();
+    } catch (cause) { setError(cause instanceof Error ? cause.message : "Proposal Intelligence could not be run."); }
+    finally { setBusy(false); }
+  };
+  const review = async (binding: any, decision: string) => {
+    try {
+      await api<any>(`/api/bd/proposals/${proposal.id}/intelligence/reviews/${binding.binding_id}/decision`, { method: "POST", headers: { ...headers(role), "Content-Type": "application/json" }, body: JSON.stringify({ decision, idempotency_key: `proposal-review-${binding.binding_id}-${decision}`, precondition_version: binding.precondition_version || "" }) });
+      setMessage(`Proposal Intelligence review ${decision.toLowerCase()} recorded. Protected Proposal actions remain separate.`); await loadReviews();
+    } catch (cause) { setError(cause instanceof Error ? cause.message : "Proposal Intelligence review was rejected."); }
+  };
+  const output = result?.output || (reviews.length ? reviews[reviews.length - 1]?.output : null);
+  return <section id="proposal-intelligence" className="panel bd-v2-section proposal-intelligence-panel" aria-label="Proposal Intelligence">
+    <div className="panel-head"><div><span className="eyebrow">PROPOSAL · INTELLIGENCE</span><h3>Proposal Intelligence</h3></div><span className={`stage-badge ${result?.current_actionable === false ? "warning" : ""}`}>{result ? (result.current_actionable === false ? "Stale · rerun required" : "Human review required") : "Ready when an accepted revision exists"}</span></div>
+    <p className="muted">Structured, source-grounded assistance stays inside this Proposal. It can explain evidence and gaps, but it cannot verify facts, Accept the Proposal, release commercially, or create a Contract handoff.</p>
+    <div className="bd-inline-add"><label>Operation<select aria-label="Proposal Intelligence operation" value={operation} onChange={(event) => setOperation(event.target.value)}><option value="intake-analysis">Intake analysis</option><option value="scope-technical-analysis">Scope / technical analysis</option><option value="lpo-variance-analysis">LPO variance analysis</option><option value="readiness-explanation">Readiness explanation</option></select></label><button className="button-secondary" onClick={() => void run()} disabled={busy || !proposal.current_revision}>{busy ? "Running…" : "Run Proposal Intelligence"}</button>{!proposal.current_revision && <small className="muted">Available after a human accepted Proposal revision.</small>}</div>
+    {output && <div className="proposal-intelligence-result" aria-live="polite"><b>{output.summary || output.explanation}</b>{output.missing_information?.length > 0 && <div><strong>Missing information</strong><span>{output.missing_information.join(" · ")}</span></div>}{output.contradictions?.length > 0 && <div><strong>Contradictions</strong><span>{output.contradictions.join(" · ")}</span></div>}{output.assumptions?.length > 0 && <div><strong>Assumptions</strong><span>{output.assumptions.join(" · ")}</span></div>}{output.differences?.length > 0 && <div><strong>Typed differences</strong><span>{output.differences.map((item: any) => `${item.field || "field"}: ${item.proposal_value || "—"} → ${item.lpo_value || "—"}`).join(" · ")}</span></div>}<small>Citations: {(output.citation_keys || []).join(", ") || "none"} · human review required · canonical state unchanged</small></div>}
+    {loaded && reviews.length > 0 && <div className="bd-list-panel"><strong>Proposal-owned review work</strong>{reviews.map((item: any) => <div className="bd-inline-add" key={item.binding_id}><span>{item.skill_id || "Proposal result"} · {item.work_product_state || "UNKNOWN"} · {item.actionable ? "Actionable" : "Rerun required"}</span>{item.actionable && <><button className="text-button" onClick={() => void review(item, "ACCEPT")}>Accept review</button><button className="text-button" onClick={() => void review(item, "CORRECT")}>Correct</button><button className="text-button" onClick={() => void review(item, "REJECT")}>Reject</button><button className="text-button" onClick={() => void review(item, "DEFER")}>Defer</button><button className="text-button" onClick={() => void review(item, "ESCALATE")}>Escalate</button></>}</div>)}</div>}
+  </section>;
 }
 
 function headers(role: Role) { return { "X-Dev-Role": role }; }

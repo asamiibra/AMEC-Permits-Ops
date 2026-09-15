@@ -1,0 +1,123 @@
+{
+  "baseline_sha": "594b313a15cc6ade3f0505de395a5817c6337268",
+  "baseline_tree": "73d6781640bc774b577a6eb8e938868ef3fb83c3",
+  "module_branch_count": 10,
+  "P01_NEWER_MODULE_WORK_DETECTED": false,
+  "decision_basis": "The four explicitly identified accepted final tips are contained in the baseline. Other module refs are historical, stale ancestors, or unaccepted/diverged candidates; they are not merge sources for Prompt 01.",
+  "branches": [
+    {
+      "branch": "origin/module/billing-invoice-receivables-collection-integration-v10",
+      "sha": "c8a99f98423393ebb16eb3f2723b99812755694f",
+      "tree": "819d4e27a176301308a57b22b1e6087af4aa5fe7",
+      "relationship_to_intelligence_baseline": "CONTAINED_IN_BASELINE",
+      "merge_base": "c8a99f98423393ebb16eb3f2723b99812755694f",
+      "ahead_by": 0,
+      "behind_by": 27,
+      "accepted_final_branch": true,
+      "action": "NO_MERGE"
+    },
+    {
+      "branch": "origin/module/billing-invoice-receivables-collection-integration-v9",
+      "sha": "7ad8e3bd199b24d72c11ed43a2ace5da2aa5f14",
+      "tree": "d539f1d7c8f4826f7e31daad7038690decc14aa3",
+      "relationship_to_intelligence_baseline": "DIVERGED_FROM_BASELINE",
+      "merge_base": "421574ae85ef380778be0f975b9f0f12ff7cedc6",
+      "ahead_by": 3,
+      "behind_by": 33,
+      "accepted_final_branch": false,
+      "action": "INVESTIGATE_LATER"
+    },
+    {
+      "branch": "origin/module/content-library",
+      "sha": "6222bf97adb59f3eb78e67f6ade1f26097f72573",
+      "tree": "a1a893d9cda86a0b22758fb43a444030ca079678",
+      "relationship_to_intelligence_baseline": "DIVERGED_FROM_BASELINE",
+      "merge_base": "96bb23378d3a78855a315ea751e2b3b66839cb02",
+      "ahead_by": 5,
+      "behind_by": 60,
+      "accepted_final_branch": false,
+      "action": "INVESTIGATE_LATER"
+    },
+    {
+      "branch": "origin/module/content-library-gap-closure-v1",
+      "sha": "a99d5395565e40d23e1492e62d6fe325f7df9312",
+      "tree": "f45ab35a3d720e385827bdedc354d886609414b0",
+      "relationship_to_intelligence_baseline": "DIVERGED_FROM_BASELINE",
+      "merge_base": "e6d214ee3af7ff4559d1d5234afaf59763f42924",
+      "ahead_by": 5,
+      "behind_by": 57,
+      "accepted_final_branch": false,
+      "action": "INVESTIGATE_LATER"
+    },
+    {
+      "branch": "origin/module/content-library-owner-gap-closure-final",
+      "sha": "cc473183681bb7755eb79f69272410537a9d1a8f",
+      "tree": "17f05da0757f0ec299b0824a796bbb6abb07ae15",
+      "relationship_to_intelligence_baseline": "CONTAINED_IN_BASELINE",
+      "merge_base": "cc473183681bb7755eb79f69272410537a9d1a8f",
+      "ahead_by": 0,
+      "behind_by": 32,
+      "accepted_final_branch": true,
+      "action": "NO_MERGE"
+    },
+    {
+      "branch": "origin/module/content-library-owner-gap-closure-v2",
+      "sha": "b2e37ef99405e42e617a3dfcac0108431308bfb4",
+      "tree": "3f9cb48c3eb6deeebf76f9223c4a4269d0aed071",
+      "relationship_to_intelligence_baseline": "DIVERGED_FROM_BASELINE",
+      "merge_base": "96bb23378d3a78855a315ea751e2b3b66839cb02",
+      "ahead_by": 6,
+      "behind_by": 60,
+      "accepted_final_branch": false,
+      "action": "INVESTIGATE_LATER"
+    },
+    {
+      "branch": "origin/module/content-library-owner-gap-closure-v3",
+      "sha": "61123dacbd37b6f1392f94b0b62ce919c40895fe",
+      "tree": "af76e0f778a412fa96288d92d69a5d32e130fc23",
+      "relationship_to_intelligence_baseline": "DIVERGED_FROM_BASELINE",
+      "merge_base": "b8d2e8fecbfa54765eadd9eeb771dcd3051a6d37",
+      "ahead_by": 7,
+      "behind_by": 45,
+      "accepted_final_branch": false,
+      "action": "INVESTIGATE_LATER"
+    },
+    {
+      "branch": "origin/module/contract-mobilization-final-assurance-v2",
+      "sha": "cd9c6ee85eb64f41d8565ef1ced19f69c0e004db",
+      "tree": "c38b74b18e964fb59c0099eedf6a3c42b2e34351",
+      "relationship_to_intelligence_baseline": "CONTAINED_IN_BASELINE",
+      "merge_base": "cd9c6ee85eb64f41d8565ef1ced19f69c0e004db",
+      "ahead_by": 0,
+      "behind_by": 23,
+      "accepted_final_branch": true,
+      "action": "NO_MERGE"
+    },
+    {
+      "branch": "origin/module/contract-mobilization-production-closure",
+      "sha": "aa8d6afec34f127face91113b813e5bd71dd6aa0",
+      "tree": "73a9464a530ace754969db2a5f01649975412938",
+      "relationship_to_intelligence_baseline": "STALE_ANCESTOR",
+      "merge_base": "aa8d6afec34f127face91113b813e5bd71dd6aa0",
+      "ahead_by": 0,
+      "behind_by": 50,
+      "accepted_final_branch": false,
+      "action": "NO_MERGE"
+    },
+    {
+      "branch": "origin/module/opportunity-proposal-client-tender",
+      "sha": "dbd54c8e208e7347c959364b0bffd0f513eb81c7",
+      "tree": "c3b91ecd87d525a3e5f4332cedb09811354c18f3",
+      "relationship_to_intelligence_baseline": "CONTAINED_IN_BASELINE",
+      "merge_base": "dbd54c8e208e7347c959364b0bffd0f513eb81c7",
+      "ahead_by": 0,
+      "behind_by": 17,
+      "accepted_final_branch": true,
+      "action": "NO_MERGE"
+    }
+  ],
+  "ahead_branch_evidence": [
+    "billing v9 contains an older integration candidate with application/migration changes and is not the accepted v10 tip.",
+    "content-library, gap-closure-v1, owner-gap-closure-v2, and owner-gap-closure-v3 contain unmerged candidate/successor work; no accepted-final designation was established for those refs. Prompt 01 does not merge or adjudicate them."
+  ]
+}

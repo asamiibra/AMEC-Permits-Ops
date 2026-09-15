@@ -6,9 +6,11 @@ def test_contract_skill_catalogue_is_governed_and_zero_authority():
 
     assert payload["architecture"]["registry_version"] == CONTRACT_SKILL_REGISTRY_VERSION
     assert payload["catalogue_state"] == "RELEASED"
-    assert payload["execution_state"] == "RUNTIME_NOT_INTEGRATED"
-    assert payload["eligibility_state"] == "CATALOGUE_ONLY"
+    assert payload["execution_state"] == "EXECUTABLE_WHEN_ELIGIBLE"
+    assert payload["eligibility_state"] == "CONTEXT_INELIGIBLE"
     assert payload["runtime"]["real_content_allowed"] is False
+    assert payload["runtime"]["external_inference_enabled"] is False
+    assert payload["runtime"]["runtime_ready"] is False
     assert len(payload["skills"]) == 11
     assert {skill["skill_id"] for skill in payload["skills"]} == {
         "contract.document-understand",
@@ -23,18 +25,23 @@ def test_contract_skill_catalogue_is_governed_and_zero_authority():
         "contract.communication-draft",
         "contract.operations-brief",
     }
-    assert all(skill["canonical_write_authority"] == "ZERO" for skill in payload["skills"])
-    assert all(skill["protected_action_authority"] == "ZERO" for skill in payload["skills"])
     assert all(skill["human_review_required"] is True for skill in payload["skills"])
-    assert all(skill["status"] == "DISABLED_BY_POLICY" for skill in payload["skills"])
-    assert all(skill["release_state"] == "RELEASED_FOR_CATALOGUE_ONLY" for skill in payload["skills"])
-    assert all(skill["input_schema"]["contract_id"] == "string" for skill in payload["skills"])
-    assert all(skill["output_schema"]["findings"] == "array of advisory candidates" for skill in payload["skills"])
-    assert all(skill["allowed_tools"] == [] for skill in payload["skills"])
-    assert all(skill["model_policy"] == "NO_MODEL_INVOCATION_WHILE_DISABLED_BY_POLICY" for skill in payload["skills"])
-    assert all(skill["evaluation_suite_version"] == "CONTRACT-INTELLIGENCE-EVAL-1.0" for skill in payload["skills"])
-    assert all(skill["owning_module"] == "CONTRACT" for skill in payload["skills"])
-    assert all(skill["output_class"] == "CANDIDATE_ANALYSIS_DRAFT_RECOMMENDATION_ONLY" for skill in payload["skills"])
-    assert all(skill["tool_policy"] == "NO_TOOLS_WHILE_RUNTIME_NOT_INTEGRATED" for skill in payload["skills"])
-    assert all(skill["eligibility_state"] in {"ELIGIBLE_FOR_FUTURE_EXECUTION", "MISSING_REQUIRED_CONTEXT"} for skill in payload["skills"])
-    assert all(skill["status"] != "AVAILABLE" for skill in payload["skills"])
+    assert all(skill["status"] == "CONTEXT_INELIGIBLE" for skill in payload["skills"])
+    assert all(skill["runtime_state"] == "EXECUTABLE_WHEN_ELIGIBLE" for skill in payload["skills"])
+    assert all(skill["runtime_ready"] is False for skill in payload["skills"])
+    assert all(skill["canonical_write_authority"] == "NONE" for skill in payload["skills"])
+    assert all(skill["protected_action_authority"] == "NONE" for skill in payload["skills"])
+    assert all(skill["advisory_only"] is True for skill in payload["skills"])
+    assert {skill["skill_id"]: skill["required_context"] for skill in payload["skills"]} == {
+        "contract.document-understand": ["current_revision"],
+        "contract.compare-to-proposal": ["current_revision", "accepted_proposal_revision"],
+        "contract.compare-to-po-lpo": ["current_revision", "po_or_lpo_document"],
+        "contract.revision-impact": ["at_least_two_revisions"],
+        "contract.executed-copy-review": ["accepted_revision", "executed_copy_candidate"],
+        "contract.review-brief": ["current_revision"],
+        "contract.payment-terms-extract": ["commercial_document"],
+        "contract.deliverables-extract": ["commercial_document"],
+        "contract.client-inputs-extract": ["commercial_document"],
+        "contract.communication-draft": ["missing_document_workflow"],
+        "contract.operations-brief": ["operations_context"],
+    }

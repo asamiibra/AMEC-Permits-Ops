@@ -77,7 +77,7 @@ type HomeData = {
 const rolePersona = (role: string) => role === "COMMERCIAL_APPROVER" ? "BUSINESS_DEVELOPMENT" : role === "RESPONSIBLE_ENGINEER" ? "ENGINEERING" : "OWNER";
 
 const stages = [
-  { id: "intake-opportunity", label: "Intake & Opportunity", purpose: "Capture the opportunity and shape the request.", route: "/opportunities", icon: "briefcase" as const },
+  { id: "proposals", label: "Proposals", purpose: "Capture the client enquiry and shape the request.", route: "/proposals", icon: "briefcase" as const },
   { id: "contract-mobilization", label: "Contract & Mobilization", purpose: "Review commercial handoff, Contract revisions, Project Activation, and mobilization context.", route: "/contract-mobilization", icon: "contract" as const },
   { id: "design-delivery", label: "Design & Technical Delivery", purpose: "Resolve engineering inputs, revisions, and closeout work.", route: "/engineering", icon: "engineering" as const },
   { id: "regulatory-submissions", label: "Regulatory & Submissions", purpose: "Prepare, review, and monitor regulated submissions.", route: "/permits", icon: "authority" as const },

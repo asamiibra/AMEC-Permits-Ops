@@ -2,7 +2,7 @@ from datetime import date, datetime
 from enum import Enum
 from typing import Any
 from uuid import uuid4
-from sqlalchemy import JSON, Boolean, Date, DateTime, Enum as SAEnum, ForeignKey, Integer, Float, LargeBinary, String, Text, UniqueConstraint
+from sqlalchemy import JSON, Boolean, Date, DateTime, Enum as SAEnum, ForeignKey, Integer, Float, LargeBinary, String, Text, UniqueConstraint, event
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base, utcnow
 
@@ -151,7 +151,13 @@ class FieldObservation(Base):
 class VerifiedAssertion(Base):
     __tablename__ = "verified_assertions"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
-    project_id: Mapped[str] = mapped_column(ForeignKey("projects.id"), nullable=False, index=True)
+    # Existing project assertions are retained while the contract is widened
+    # to support project, module, and future shared scopes.
+    scope_type: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
+    scope_id: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    project_id: Mapped[str | None] = mapped_column(ForeignKey("projects.id"), nullable=True, index=True)
+    subject_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    subject_id: Mapped[str] = mapped_column(String(160), nullable=False)
     field_definition_id: Mapped[str] = mapped_column(ForeignKey("field_definitions.id"), nullable=False)
     semantic_value_json: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False)
     display_value: Mapped[str] = mapped_column(Text, nullable=False)
@@ -159,11 +165,28 @@ class VerifiedAssertion(Base):
     source_observation_id: Mapped[str | None] = mapped_column(ForeignKey("field_observations.id"))
     verification_method: Mapped[VerificationMethod] = mapped_column(enum_col(VerificationMethod), nullable=False)
     verified_by: Mapped[str] = mapped_column(String(36), nullable=False)
+    verified_by_capability: Mapped[str | None] = mapped_column(String(120))
+    verification_origin_module: Mapped[str | None] = mapped_column(String(120))
+    review_decision_reference: Mapped[str | None] = mapped_column(String(200))
     verified_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
     authority_rule_id: Mapped[str | None] = mapped_column(String(36))
     reason: Mapped[str | None] = mapped_column(Text)
     supersedes_assertion_id: Mapped[str | None] = mapped_column(String(36))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+
+
+@event.listens_for(VerifiedAssertion, "before_insert")
+def _backfill_legacy_assertion_scope(_mapper, _connection, target: VerifiedAssertion) -> None:
+    """Keep pre-v1 project writers source-compatible with generalized columns."""
+
+    if target.project_id and not target.scope_type:
+        target.scope_type = "PROJECT"
+    if target.project_id and not target.scope_id:
+        target.scope_id = target.project_id
+    if target.project_id and not target.subject_type:
+        target.subject_type = "PROJECT"
+    if target.project_id and not target.subject_id:
+        target.subject_id = target.project_id
 
 
 class FieldAuthorityRule(Base):

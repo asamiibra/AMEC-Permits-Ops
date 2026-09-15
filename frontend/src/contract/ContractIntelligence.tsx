@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { getContractIntelligence } from "./contractApi";
-import type { ContractIntelligence, IntelligenceSkill } from "./contractTypes";
+import { executeContractIntelligence, getContractIntelligence } from "./contractApi";
+import type { ContractIntelligence, ContractIntelligenceResult, IntelligenceSkill } from "./contractTypes";
 
 const groups = [
   [
@@ -29,7 +29,8 @@ const groups = [
 
 const stateLabel = (value: string) => value.replaceAll("_", " ");
 
-function SkillCard({ skill }: { skill: IntelligenceSkill }) {
+function SkillCard({ skill, running, result, error, onRun }: { skill: IntelligenceSkill; running: boolean; result?: ContractIntelligenceResult; error?: string; onRun: () => void }) {
+  const eligible = skill.eligibility_state === "EXECUTABLE_WHEN_ELIGIBLE" && skill.runtime_ready === true;
   return (
     <article className="ci-skill-card" data-testid={`skill-${skill.skill_id}`}>
       <div className="ci-skill-card-top">
@@ -37,7 +38,7 @@ function SkillCard({ skill }: { skill: IntelligenceSkill }) {
         <span
           className={`ci-skill-state ci-state-${skill.status.toLowerCase()}`}
         >
-          {stateLabel(skill.status)}
+          {stateLabel(skill.eligibility_state || skill.status)}
         </span>
       </div>
       <h4>{skill.name}</h4>
@@ -51,6 +52,21 @@ function SkillCard({ skill }: { skill: IntelligenceSkill }) {
         </span>
       </div>
       <small className="ci-skill-reason">{skill.eligibility_reason}</small>
+      {skill.runtime_reason && <small className="ci-skill-reason">{skill.runtime_reason}</small>}
+      {eligible && !result && (
+        <button className="ci-run-button" type="button" onClick={onRun} disabled={running}>
+          {running ? "Preparing advisory result…" : "Run advisory skill"}
+        </button>
+      )}
+      {error && <p className="ci-error" role="alert">{error}</p>}
+      {result && (
+        <div className="ci-result" data-testid={`result-${skill.skill_id}`}>
+          <strong>Advisory result</strong>
+          <p>{result.output.summary}</p>
+          {result.output.findings.map((finding) => <div className="ci-finding" key={finding.title}><b>{finding.title}</b><span>{finding.detail}</span></div>)}
+          <small>Human review required · {result.citation_count} current citation{result.citation_count === 1 ? "" : "s"} · no canonical mutation</small>
+        </div>
+      )}
     </article>
   );
 }
@@ -58,6 +74,9 @@ function SkillCard({ skill }: { skill: IntelligenceSkill }) {
 export function ContractIntelligence({ contractId }: { contractId: string }) {
   const [data, setData] = useState<ContractIntelligence | null>(null);
   const [error, setError] = useState("");
+  const [running, setRunning] = useState<string | null>(null);
+  const [results, setResults] = useState<Record<string, ContractIntelligenceResult>>({});
+  const [skillErrors, setSkillErrors] = useState<Record<string, string>>({});
   useEffect(() => {
     let active = true;
     getContractIntelligence(contractId)
@@ -79,6 +98,15 @@ export function ContractIntelligence({ contractId }: { contractId: string }) {
   const skillById = new Map(
     (data?.skills || []).map((skill) => [skill.skill_id, skill]),
   );
+  const runSkill = (skillId: string) => {
+    setRunning(skillId);
+    setSkillErrors((current) => ({ ...current, [skillId]: "" }));
+    const key = globalThis.crypto?.randomUUID?.() || `${contractId}:${skillId}:${Date.now()}`;
+    executeContractIntelligence(contractId, skillId, key)
+      .then((result) => setResults((current) => ({ ...current, [skillId]: result })))
+      .catch((cause) => setSkillErrors((current) => ({ ...current, [skillId]: cause instanceof Error ? cause.message : "The advisory run could not be completed." })))
+      .finally(() => setRunning(null));
+  };
   return (
     <aside
       className="contract-intelligence"
@@ -90,16 +118,16 @@ export function ContractIntelligence({ contractId }: { contractId: string }) {
           <span className="eyebrow">CONTRACT INTELLIGENCE</span>
           <h2>Capability catalogue</h2>
         </div>
-        <span className="ci-ai-mark">Governed</span>
+        <span className="ci-ai-mark">Advisory</span>
       </div>
       <div className="ci-runtime-state" role="status">
         <span className="ci-runtime-dot" />
-        Catalogue only · shared Intelligence execution runtime is not integrated
+        {data?.execution_state === "EXECUTABLE_WHEN_ELIGIBLE" ? "Shared Intelligence runtime integrated · advisory only" : "Intelligence status unavailable"}
       </div>
       <p className="ci-intro">
-        These governed skills are designed for this Contract context. Execution
-        is not enabled through the shared Intelligence runtime. Human Contract
-        authority and canonical business state remain separate.
+        These governed skills use server-compiled Contract context. Eligible
+        skills can prepare advisory work for human review. They cannot change
+        canonical Contract state or perform protected actions.
       </p>
       {error && (
         <p className="ci-error" role="alert">
@@ -113,7 +141,7 @@ export function ContractIntelligence({ contractId }: { contractId: string }) {
             {skillIds.map((skillId) => {
               const skill = skillById.get(skillId);
               return skill ? (
-                <SkillCard key={skillId} skill={skill} />
+                <SkillCard key={skillId} skill={skill} running={running === skillId} result={results[skillId]} error={skillErrors[skillId]} onRun={() => runSkill(skillId)} />
               ) : (
                 <div className="ci-empty" key={skillId}>
                   Skill catalogue unavailable

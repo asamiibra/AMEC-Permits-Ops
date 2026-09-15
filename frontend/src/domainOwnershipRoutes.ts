@@ -33,7 +33,12 @@ export function classifyPublicRoute(pathname: string): PublicRoute {
   if (legacyContract) {
     return { page: "contract-mobilization", canonicalPath: legacyContract[1] ? `/contract-mobilization/contracts/${legacyContract[1]}` : "/contract-mobilization", allowed: true };
   }
-  if (startsWithRoute(path, "/opportunities") || path === "/bd" || startsWithRoute(path, "/bd/proposals")) {
+  if (
+    startsWithRoute(path, "/opportunities") ||
+    startsWithRoute(path, "/proposals") ||
+    path === "/bd" ||
+    startsWithRoute(path, "/bd/proposals")
+  ) {
     return { page: "opportunities", canonicalPath: path, allowed: true };
   }
   if (startsWithRoute(path, "/contract-mobilization")) {
