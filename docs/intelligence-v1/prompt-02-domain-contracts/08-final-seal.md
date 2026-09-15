@@ -5,6 +5,8 @@ PROMPT=P02_SHARED_INTELLIGENCE_DOMAIN_CONTRACTS
 RESULT=PASS
 ENTRY_SHA=cd287ddb2e07fc279f719de74b9f2c9c1557ec1b
 ENTRY_TREE=3e487389a372324e29e72943123677363308baa6
+IMPLEMENTATION_SHA=f8d10e73c563563f7ede24dd9d775b7bdbdf85f9
+IMPLEMENTATION_TREE=a16700e6bf789e24bb20ce407bf96107e0c4b7ca
 ALEMBIC_HEAD=intelligence_v1_shared_contracts
 FOCUSED_TESTS=67 passed, 1 warning
 FULL_BACKEND=912 passed, 33 skipped, 4 warnings
@@ -18,4 +20,4 @@ MODEL_PROVIDER_ADDED=false
 PROMPT_03_ENTRY_READY=true
 ```
 
-The terminal exit SHA/tree are recorded in the Prompt 02 final response and verified against `origin/feature/proposalops-intelligence-v1`. This evidence file is intentionally not made self-referential by embedding its own commit hash.
+The implementation anchor above is verified against `origin/feature/proposalops-intelligence-v1`. The final evidence-only commit that carries this sentence is reported separately because a file cannot contain its own resulting commit hash without becoming self-referential.

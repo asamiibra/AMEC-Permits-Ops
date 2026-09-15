@@ -1,0 +1,5 @@
+backend test file inventory
+P07 predecessor files retained: 127
+P08 additional backend test file: backend/tests/test_ai_p08_proposal_intelligence.py
+P08 collection command: PYTHONPATH=. pytest --collect-only -q backend/tests
+P08 collected node count: 995

@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { ApiError, api } from "./api";
-import { OpportunitiesPage } from "./Opportunities";
 import { ContractMobilizationPage } from "./AdministrationOwner";
 import { CurrentDashboard } from "./Dashboard";
 import { BillingInvoicePage } from "./BillingInvoice";
 import { BillingShell } from "./billing/BillingShell";
 import { HomePage } from "./Home";
+import { ProposalRoutes } from "./features/proposals/ProposalRoutes";
+import type { ProposalRole } from "./features/proposals/types";
 import { AmecLogo } from "./AmecLogo";
 import { browserAuthMode, getSignedInAccountIdentity, signOut } from "./auth";
 import { readDemoRole } from "./rebrand";
@@ -329,7 +330,7 @@ export default function App() {
             SYNTHETIC PROTOTYPE · NO PORTAL WRITES · HUMAN SUBMISSION REQUIRED
           </div>
           {page === "home" && <HomePage />}
-          {page === "opportunities" && <OpportunitiesPage role={moduleRole} />}
+          {page === "opportunities" && <ProposalRoutes role={moduleRole as ProposalRole} />}
           {page === "contract-mobilization" && <ContractMobilizationPage />}
           {page === "billing" && <BillingShell />}
           {page === "content-library" && <CurrentDashboard role={role} />}
