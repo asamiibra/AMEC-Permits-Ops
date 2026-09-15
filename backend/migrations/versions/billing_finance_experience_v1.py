@@ -17,43 +17,71 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.add_column("billing_plans", sa.Column("billing_mode", sa.String(length=40), nullable=False, server_default="MILESTONE_EVENT"))
-    op.add_column("billing_plan_revisions", sa.Column("billing_mode", sa.String(length=40), nullable=False, server_default="MILESTONE_EVENT"))
-    op.add_column("invoice_revisions", sa.Column("service_period_start", sa.Date(), nullable=True))
-    op.add_column("invoice_revisions", sa.Column("service_period_end", sa.Date(), nullable=True))
-    op.add_column("invoice_revisions", sa.Column("service_period_label", sa.String(length=120), nullable=True))
-    op.add_column("invoices", sa.Column("source_clone_id", sa.String(length=36), nullable=True))
-    op.add_column("invoices", sa.Column("clone_idempotency_key", sa.String(length=200), nullable=True))
-    op.create_index("ix_invoices_source_clone_id", "invoices", ["source_clone_id"], unique=False)
-    op.create_index("ix_invoices_clone_idempotency_key", "invoices", ["clone_idempotency_key"], unique=True, mssql_where=sa.text("clone_idempotency_key IS NOT NULL"))
-    op.create_foreign_key("fk_invoices_source_clone_id", "invoices", "invoices", ["source_clone_id"], ["id"])
-    op.create_table(
-        "billing_readiness_requests",
-        sa.Column("id", sa.String(length=36), primary_key=True),
-        sa.Column("project_id", sa.String(length=36), nullable=False),
-        sa.Column("contract_id", sa.String(length=36), nullable=False),
-        sa.Column("billing_plan_revision_id", sa.String(length=36), nullable=False),
-        sa.Column("billing_milestone_id", sa.String(length=36), nullable=False),
-        sa.Column("requested_by", sa.String(length=200), nullable=False),
-        sa.Column("requested_at", sa.DateTime(timezone=True), nullable=False),
-        sa.Column("evidence_document_version_id", sa.String(length=36), nullable=True),
-        sa.Column("note", sa.Text(), nullable=True),
-        sa.Column("status", sa.String(length=40), nullable=False, server_default="REQUESTED"),
-        sa.Column("idempotency_key", sa.String(length=200), nullable=False),
-        sa.Column("correlation_id", sa.String(length=100), nullable=False),
-        sa.ForeignKeyConstraint(["project_id"], ["projects.id"]),
-        sa.ForeignKeyConstraint(["contract_id"], ["contracts.id"]),
-        sa.ForeignKeyConstraint(["billing_plan_revision_id"], ["billing_plan_revisions.id"]),
-        sa.ForeignKeyConstraint(["billing_milestone_id"], ["billing_milestones.id"]),
-        sa.ForeignKeyConstraint(["evidence_document_version_id"], ["document_versions.id"]),
-        sa.UniqueConstraint("idempotency_key", name="uq_billing_readiness_request_idempotency"),
-    )
-    op.create_index("ix_billing_readiness_requests_project_id", "billing_readiness_requests", ["project_id"])
-    op.create_index("ix_billing_readiness_requests_contract_id", "billing_readiness_requests", ["contract_id"])
-    op.create_index("ix_billing_readiness_requests_billing_plan_revision_id", "billing_readiness_requests", ["billing_plan_revision_id"])
-    op.create_index("ix_billing_readiness_requests_billing_milestone_id", "billing_readiness_requests", ["billing_milestone_id"])
-    op.create_index("ix_billing_readiness_requests_status", "billing_readiness_requests", ["status"])
-    op.create_index("ix_billing_readiness_requests_correlation_id", "billing_readiness_requests", ["correlation_id"])
+    bind = op.get_bind()
+
+    def columns(table_name: str) -> set[str]:
+        return {column["name"] for column in sa.inspect(bind).get_columns(table_name)}
+
+    def indexes(table_name: str) -> set[str]:
+        return {index["name"] for index in sa.inspect(bind).get_indexes(table_name) if index["name"]}
+
+    def foreign_keys(table_name: str) -> set[str]:
+        return {key["name"] for key in sa.inspect(bind).get_foreign_keys(table_name) if key["name"]}
+
+    for table_name, column in (
+        ("billing_plans", sa.Column("billing_mode", sa.String(length=40), nullable=False, server_default="MILESTONE_EVENT")),
+        ("billing_plan_revisions", sa.Column("billing_mode", sa.String(length=40), nullable=False, server_default="MILESTONE_EVENT")),
+        ("invoice_revisions", sa.Column("service_period_start", sa.Date(), nullable=True)),
+        ("invoice_revisions", sa.Column("service_period_end", sa.Date(), nullable=True)),
+        ("invoice_revisions", sa.Column("service_period_label", sa.String(length=120), nullable=True)),
+        ("invoices", sa.Column("source_clone_id", sa.String(length=36), nullable=True)),
+        ("invoices", sa.Column("clone_idempotency_key", sa.String(length=200), nullable=True)),
+    ):
+        if column.name not in columns(table_name):
+            op.add_column(table_name, column)
+
+    for name, table_name, column_names, unique, where in (
+        ("ix_invoices_source_clone_id", "invoices", ["source_clone_id"], False, None),
+        ("ix_invoices_clone_idempotency_key", "invoices", ["clone_idempotency_key"], True, "clone_idempotency_key IS NOT NULL"),
+    ):
+        if name not in indexes(table_name):
+            op.create_index(name, table_name, column_names, unique=unique, mssql_where=sa.text(where) if where else None)
+    if "fk_invoices_source_clone_id" not in foreign_keys("invoices"):
+        op.create_foreign_key("fk_invoices_source_clone_id", "invoices", "invoices", ["source_clone_id"], ["id"])
+
+    table_name = "billing_readiness_requests"
+    if table_name not in sa.inspect(bind).get_table_names():
+        op.create_table(
+            table_name,
+            sa.Column("id", sa.String(length=36), primary_key=True),
+            sa.Column("project_id", sa.String(length=36), nullable=False),
+            sa.Column("contract_id", sa.String(length=36), nullable=False),
+            sa.Column("billing_plan_revision_id", sa.String(length=36), nullable=False),
+            sa.Column("billing_milestone_id", sa.String(length=36), nullable=False),
+            sa.Column("requested_by", sa.String(length=200), nullable=False),
+            sa.Column("requested_at", sa.DateTime(timezone=True), nullable=False),
+            sa.Column("evidence_document_version_id", sa.String(length=36), nullable=True),
+            sa.Column("note", sa.Text(), nullable=True),
+            sa.Column("status", sa.String(length=40), nullable=False, server_default="REQUESTED"),
+            sa.Column("idempotency_key", sa.String(length=200), nullable=False),
+            sa.Column("correlation_id", sa.String(length=100), nullable=False),
+            sa.ForeignKeyConstraint(["project_id"], ["projects.id"]),
+            sa.ForeignKeyConstraint(["contract_id"], ["contracts.id"]),
+            sa.ForeignKeyConstraint(["billing_plan_revision_id"], ["billing_plan_revisions.id"]),
+            sa.ForeignKeyConstraint(["billing_milestone_id"], ["billing_milestones.id"]),
+            sa.ForeignKeyConstraint(["evidence_document_version_id"], ["document_versions.id"]),
+            sa.UniqueConstraint("idempotency_key", name="uq_billing_readiness_request_idempotency"),
+        )
+    for name, column_names in (
+        ("ix_billing_readiness_requests_project_id", ["project_id"]),
+        ("ix_billing_readiness_requests_contract_id", ["contract_id"]),
+        ("ix_billing_readiness_requests_billing_plan_revision_id", ["billing_plan_revision_id"]),
+        ("ix_billing_readiness_requests_billing_milestone_id", ["billing_milestone_id"]),
+        ("ix_billing_readiness_requests_status", ["status"]),
+        ("ix_billing_readiness_requests_correlation_id", ["correlation_id"]),
+    ):
+        if name not in indexes(table_name):
+            op.create_index(name, table_name, column_names)
 
 
 def downgrade() -> None:
