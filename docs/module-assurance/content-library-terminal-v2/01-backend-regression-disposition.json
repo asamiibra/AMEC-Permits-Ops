@@ -130,10 +130,11 @@
     "command": "env -u DATABASE_URL PYTHONPATH=. APP_ENV=TEST SYNTHETIC_ONLY=true python3 -m pytest -q backend/tests --ignore=backend/tests/test_phase5_sqlserver_runtime.py",
     "database_isolation": "pytest per-process synthetic SQLite database; no custom DATABASE_URL shared with subprocess checks",
     "collected": 1023,
-    "passed": 1006,
-    "failed": 0,
-    "skipped": 17,
-    "status": "PASS"
+    "passed": null,
+    "failed": null,
+    "skipped": null,
+    "status": "NOT_INDEPENDENTLY_PROVEN",
+    "note": "The per-process run exited after temporary database cleanup, but the PTY returned no final pytest summary. The separate custom-path run reported 1004 passed, 17 skipped, and 2 Step5 failures caused by stale shared fixture state. Do not treat either observation as a full exact-head PASS."
   },
-  "full_ci_reexecution_status": "PASS"
+  "full_ci_reexecution_status": "NOT_PROVEN"
 }
