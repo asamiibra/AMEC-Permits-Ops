@@ -231,6 +231,10 @@ def main() -> None:
     parser.add_argument("--executable-head", default=None, help="Durable executable commit to bind evidence to")
     parser.add_argument("--executable-tree", default=None, help="Durable executable tree to bind evidence to")
     parser.add_argument("--evidence-head", default=None, help="Commit containing this evidence package, when already known")
+    parser.add_argument("--frontend-source-tree", default=None)
+    parser.add_argument("--frontend-test-tree", default=None)
+    parser.add_argument("--backend-ui-contract-tree", default=None)
+    parser.add_argument("--closure-tooling-tree", default=None)
     args = parser.parse_args()
 
     operations = load_operations()
@@ -309,10 +313,10 @@ def main() -> None:
     current_sha = args.executable_head or git("rev-parse", "HEAD")
     current_tree = args.executable_tree or git("rev-parse", "HEAD^{tree}")
     evidence_head = args.evidence_head or git("rev-parse", "HEAD")
-    source_tree = git("rev-parse", "HEAD:frontend/src")
-    test_tree = git("rev-parse", "HEAD:frontend/tests")
-    backend_tree = git("rev-parse", "HEAD:backend")
-    tooling_tree = git("rev-parse", "HEAD:scripts")
+    source_tree = args.frontend_source_tree or git("rev-parse", "HEAD:frontend/src")
+    test_tree = args.frontend_test_tree or git("rev-parse", "HEAD:frontend/tests")
+    backend_tree = args.backend_ui_contract_tree or git("rev-parse", "HEAD:backend")
+    tooling_tree = args.closure_tooling_tree or git("rev-parse", "HEAD:scripts")
 
     write_json(OUT / "backend-operation-census.json", {
         "document": "AMEC ProposalOps UI product-surface backend census",
@@ -376,6 +380,7 @@ def main() -> None:
         "terminal_blocking_gap_count": blocking,
         "status": "PASS" if unknown == 0 and unjustified == 0 and blocking == 0 else "FAIL",
         "discovery_is_not_terminal_evidence": True,
+        "prior_heuristic_semantic_adjudication": "SUPERSEDED_AS_TERMINAL_EVIDENCE",
         "workflows": workflow_acceptance,
         "note": "Canonical workflow descriptions remain product context only; terminal classification requires an exact operation review record and never creates endpoint-per-screen UI.",
     })
@@ -577,6 +582,7 @@ def main() -> None:
         "preserved_external_evidence": [
             "current repository CI and ruleset evidence",
             "native production runtime and Owner UAT remain separate gates",
+            "prior heuristic semantic-adjudication output is SUPERSEDED_AS_TERMINAL_EVIDENCE",
         ],
     })
     files = sorted(path for path in OUT.rglob("*") if path.is_file() and path.name != "MANIFEST.sha256")
