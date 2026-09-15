@@ -11,6 +11,7 @@ export type Persona =
   | "SYSTEM_ADMIN_TECHNICAL";
 
 import { isAllowedPublicRoute } from "./domainOwnershipRoutes";
+import type { IconName } from "./Icon";
 
 /**
  * The single release-visibility registry for the Owner shell.
@@ -47,43 +48,43 @@ export type PrimaryNavigationItem = {
   page: "home" | "opportunities" | "contract-mobilization" | "billing" | "content-library";
   route: string;
   label: string;
-  icon: string;
+  icon: IconName;
   feature?: FeatureKey;
 };
 
 export const primaryNavigation: readonly PrimaryNavigationItem[] = [
-  { id: "home", page: "home", route: "/home", label: "Home", icon: "⌂" },
+  { id: "home", page: "home", route: "/home", label: "Home", icon: "dashboard" },
+  {
+    id: "content-library",
+    page: "content-library",
+    route: "/content-library",
+    label: "Content Library",
+    icon: "library",
+    feature: "moduleContentLibrary",
+  },
   {
     id: "opportunity",
     page: "opportunities",
     route: "/opportunities",
-    label: "Opportunity / Proposal / Client Tender",
-    icon: "↗",
+    label: "Proposals",
+    icon: "briefcase",
     feature: "moduleOpportunityProposalClientTender",
   },
   {
     id: "contract",
     page: "contract-mobilization",
     route: "/contract-mobilization",
-    label: "Contract / Mobilization",
-    icon: "▤",
+    label: "Contracts",
+    icon: "contract",
     feature: "moduleContractMobilization",
   },
   {
     id: "billing",
     page: "billing",
     route: "/billing",
-    label: "Billing / Invoice / Receivables / Collection",
-    icon: "¤",
+    label: "Billing",
+    icon: "finance",
     feature: "moduleBillingInvoiceReceivablesCollection",
-  },
-  {
-    id: "content-library",
-    page: "content-library",
-    route: "/content-library",
-    label: "Content Library",
-    icon: "▦",
-    feature: "moduleContentLibrary",
   },
 ];
 

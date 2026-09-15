@@ -24,6 +24,20 @@ export class ApiError extends Error {
   }
 }
 
+/** Convert transport/provider failures into safe, human-facing UI copy. */
+export function userFacingError(cause: unknown, fallback: string): string {
+  if (cause instanceof ApiError) {
+    if (cause.status === 401 || cause.status === 403) {
+      return "Your current session is not authorized for this action.";
+    }
+    if (cause.status >= 500) {
+      return "This action is temporarily unavailable. No canonical state was changed. Try again later.";
+    }
+    return "The request could not be completed. Review the current item and try again.";
+  }
+  return cause instanceof Error && cause.message ? cause.message : fallback;
+}
+
 export async function api<T>(
   path: string,
   init?: RequestInit,

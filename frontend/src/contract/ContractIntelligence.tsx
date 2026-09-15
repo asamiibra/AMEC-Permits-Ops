@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getContractIntelligence, runContractIntelligence } from "./contractApi";
+import { userFacingError } from "../api";
 import type { ContractIntelligence, IntelligenceSkill } from "./contractTypes";
 
 const groups = [
@@ -29,14 +30,14 @@ export function ContractIntelligence({ contractId }: { contractId: string }) {
   const [busySkill, setBusySkill] = useState("");
   const [result, setResult] = useState<Record<string, any> | null>(null);
   const [message, setMessage] = useState("");
-  useEffect(() => { let active = true; getContractIntelligence(contractId).then((result) => { if (active) setData(result); }).catch((cause) => { if (active) setError(cause instanceof Error ? cause.message : "Intelligence status unavailable."); }); return () => { active = false; }; }, [contractId]);
+  useEffect(() => { let active = true; getContractIntelligence(contractId).then((result) => { if (active) setData(result); }).catch((cause) => { if (active) setError(userFacingError(cause, "Intelligence status unavailable.")); }); return () => { active = false; }; }, [contractId]);
   const skillById = new Map((data?.skills || []).map((skill) => [skill.skill_id, skill]));
   const run = async (skill: IntelligenceSkill) => {
     setBusySkill(skill.skill_id); setMessage(""); setError("");
     try {
       const response = await runContractIntelligence(contractId, skill.skill_id, `contract-ui-${contractId}-${skill.skill_id}-${Date.now()}`);
       setResult(response); setMessage("Result persisted as a current, citation-backed candidate for human Contract review.");
-    } catch (cause) { setError(cause instanceof Error ? cause.message : "Contract Intelligence could not run."); }
+    } catch (cause) { setError(userFacingError(cause, "Contract Intelligence could not run.")); }
     finally { setBusySkill(""); }
   };
   return <aside className="contract-intelligence" aria-label="Contract Intelligence" tabIndex={0}>

@@ -34,7 +34,7 @@ beforeEach(() => {
 describe("current Dashboard V2 root identity", () => {
   it("mounts the evolved V2 root with canonical forms", async () => {
     render(<CurrentDashboard role="SYSTEM_ADMIN" />);
-    expect(screen.getByTestId("current-dashboard")).toHaveAttribute("data-dashboard-root", "v2-evolution");
+    expect(screen.getByTestId("current-dashboard")).toHaveAttribute("data-dashboard-root", "content-library");
     expect(screen.getByTestId("dashboard-governance-overview")).toBeVisible();
     expect(screen.getByTestId("dashboard-library-navigation")).toBeVisible();
     expect(screen.getByTestId("dashboard-source-authority-panel")).toBeVisible();
