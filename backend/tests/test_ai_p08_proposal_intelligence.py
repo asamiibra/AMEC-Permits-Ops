@@ -60,6 +60,7 @@ def test_proposal_analysis_is_module_owned_and_revision_selective(tmp_path):
         principal = AuthenticatedPrincipal(auth_mode="TEST", role=Role.SYSTEM_ADMIN, user_id=user.id, office_id=office.id)
         result = execute_proposal_intelligence(db, proposal_id=proposal.id, operation="intake-analysis", principal=principal, idempotency_key="p08-exec-1", correlation_id="p08-corr-1", settings=_settings(), provider=ProposalDeterministicProvider())
         assert result["output_class"] == "ANALYSIS"
+        assert result["citations"] and result["citations"][0]["source_id"] == proposal.id
         binding = db.scalar(select(ProposalIntelligenceReviewBinding))
         assert binding and db.scalar(select(WorkflowTask).where(WorkflowTask.id == binding.workflow_task_id))
         assert result["canonical_state_mutated"] is False
@@ -71,6 +72,14 @@ def test_proposal_analysis_is_module_owned_and_revision_selective(tmp_path):
         db.add(replacement); db.flush()
         assert proposal_reviews(db, proposal.id)[0]["actionable"] is False
         assert db.scalar(select(AIWorkProduct)).state == "STALE"
+        rerun = execute_proposal_intelligence(db, proposal_id=proposal.id, operation="intake-analysis", principal=principal, idempotency_key="p08-exec-1-rerun", correlation_id="p08-corr-1-rerun", settings=_settings(), provider=ProposalDeterministicProvider())
+        assert rerun["execution_id"] != result["execution_id"]
+        assert rerun["work_product_id"] != result["work_product_id"]
+        assert rerun["context_snapshot_id"] != result["context_snapshot_id"]
+        assert proposal_reviews(db, proposal.id)[-1]["actionable"] is True
+        latest_citation = proposal_reviews(db, proposal.id)[-1]["citations"][0]
+        assert latest_citation["source_id"] == proposal.id
+        assert replacement.id in latest_citation["source_version_or_hash"]
     engine.dispose()
 
 

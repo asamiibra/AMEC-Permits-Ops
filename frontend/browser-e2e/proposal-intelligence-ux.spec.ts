@@ -23,6 +23,16 @@ async function mockProposalApi(route: any) {
     lane_counts: { ALL: 1, NEED_ACTION: 0, AUTHORITY_REVIEW: 0, READY_CLOSE: 0 }, count: 1,
   };
   else if (url.pathname === `/api/bd/proposals/${proposal.id}`) body = proposal;
+  else if (url.pathname === `/api/bd/proposals/${proposal.id}/intelligence` && route.request().method() === "POST") {
+    const request = JSON.parse(route.request().postData() || "{}");
+    const outputs: Record<string, unknown> = {
+      "intake-analysis": { summary: "Synthetic intake result.", missing_information: [], contradictions: [], unresolved_candidate_facts: [], source_currentness_issues: [], citation_keys: ["CIT-001"] },
+      "scope-technical-analysis": { summary: "Synthetic scope result.", assumptions: [], exclusions: [], unresolved_technical_questions: [], eligibility_dependencies: [], recommendation_notes: [], citation_keys: ["CIT-001"] },
+      "lpo-variance-analysis": { summary: "Synthetic LPO result.", accepted_revision_id: "revision-1", lpo_evidence_id: "evidence-1", differences: [], citation_keys: ["CIT-001"] },
+      "readiness-explanation": { explanation: "Synthetic readiness result.", blockers: [], stale_dependencies: [], missing_information: [], next_permissible_human_actions: [], citation_keys: ["CIT-001"] },
+    };
+    body = { execution_id: `execution-${request.operation}`, work_product_id: `work-${request.operation}`, skill_id: `proposal.${request.operation}`, output: outputs[request.operation], citations: [{ citation_key: "CIT-001", source_type: "PROPOSAL_ACCEPTED_REVISION", source_id: "revision-1", source_version_or_hash: "revision-hash", locator: { context_key: "proposal-accepted-revision" } }], current_actionable: true };
+  } else if (url.pathname === `/api/bd/proposals/${proposal.id}/intelligence/reviews`) body = { items: [] };
   await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(body) });
 }
 
@@ -71,5 +81,25 @@ test.describe("P04 canonical Proposal browser proof", () => {
       const axe = await new AxeBuilder({ page }).analyze();
       expect(axe.violations.filter((item) => item.impact === "critical" || item.impact === "serious")).toEqual([]);
     }
+  });
+
+  test("Proposal Intelligence renders every typed output and creates a fresh key per invocation", async ({ page }) => {
+    const keys: string[] = [];
+    page.on("request", (request) => {
+      if (request.url().includes(`/api/bd/proposals/${proposal.id}/intelligence`) && request.method() === "POST") keys.push(JSON.parse(request.postData() || "{}").idempotency_key);
+    });
+    await page.goto(`/proposals/${proposal.id}`);
+    for (const operation of ["intake-analysis", "scope-technical-analysis", "lpo-variance-analysis", "readiness-explanation"]) {
+      await page.getByLabel("Proposal Intelligence operation").selectOption(operation);
+      await page.getByRole("button", { name: "Run Proposal Intelligence" }).click();
+      await expect(page.getByTestId("proposal-intelligence-result")).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Citations / evidence", level: 5 })).toBeVisible();
+      await expect(page.getByText("canonical state unchanged", { exact: false })).toBeVisible();
+    }
+    expect(keys).toHaveLength(4);
+    expect(new Set(keys).size).toBe(4);
+    expect(keys.every((key) => key.startsWith(`proposal-intelligence:${proposal.id}:`))).toBe(true);
+    await expect(page.getByText("None identified.").first()).toBeVisible();
+    await expect(page.getByText("PROPOSAL_ACCEPTED_REVISION · revision-1", { exact: true })).toBeVisible();
   });
 });
