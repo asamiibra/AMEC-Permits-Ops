@@ -7,7 +7,22 @@ from sqlalchemy.orm import Session
 
 from backend.app.api.dependencies import AuthenticatedPrincipal
 from backend.app.config.settings import Settings
-from backend.app.models import Base, ConsultancyOffice, Opportunity, ProposalAcceptedRevision, ProposalIntelligenceReviewBinding, ProposalRevision, Role, User, WorkflowTask
+from backend.app.models import (
+    Base,
+    ConsultancyOffice,
+    Document,
+    DocumentApprovalState,
+    DocumentType,
+    DocumentVersion,
+    MasterContentItem,
+    Opportunity,
+    ProposalAcceptedRevision,
+    ProposalIntelligenceReviewBinding,
+    ProposalRevision,
+    Role,
+    User,
+    WorkflowTask,
+)
 from backend.app.services.proposal_intelligence import (
     P08_POLICY_VERSION, ProposalDeterministicProvider, execute_proposal_intelligence,
     proposal_reviews, submit_proposal_review,
@@ -53,7 +68,7 @@ def test_final_six_proposal_skills_execute_through_shared_runtime(tmp_path):
         user = User(id="six-user", email="six@example.test", display_name="Six", role=Role.SYSTEM_ADMIN, office_id=office.id, active=True)
         proposal = Opportunity(id="six-proposal", office_id=office.id, opportunity_reference="SIX-001", title="Synthetic Proposal", status="ACCEPTED", source_type="TEST", fixture_classification="SYNTHETIC_OWNER_TEST")
         revision = ProposalAcceptedRevision(id="six-revision", proposal_id=proposal.id, revision_number=1, snapshot={"title": proposal.title}, validation_snapshot={}, content_hash="a" * 64, accepted_by=user.id, status="ACCEPTED")
-        db.add_all([office, user, proposal, revision]); db.commit()
+        db.add_all([office, user, proposal, revision]); _seed_synthetic_proposal_master_content(db); db.commit()
         principal = AuthenticatedPrincipal(auth_mode="TEST", role=Role.SYSTEM_ADMIN, user_id=user.id, office_id=office.id)
         for index, (operation, skill_id) in enumerate(operations):
             result = execute_proposal_intelligence(db, proposal_id=proposal.id, operation=operation, principal=principal, idempotency_key=f"six-exec-{index}", correlation_id=f"six-corr-{index}", settings=_settings(), provider=ProposalDeterministicProvider())
@@ -71,7 +86,7 @@ def test_preaccepted_intelligence_does_not_create_working_revision(tmp_path):
         office = ConsultancyOffice(id="pre-office", office_code="PRE", name_en="PRE", name_ar="PRE")
         user = User(id="pre-user", email="pre@example.test", display_name="Pre", role=Role.PROCESS_CHAMPION, office_id=office.id, active=True)
         proposal = Opportunity(id="pre-proposal", office_id=office.id, opportunity_reference="PRE-001", title="Synthetic intake", status="IN_REVIEW", source_type="TEST", fixture_classification="SYNTHETIC_OWNER_TEST", proposal_fields_json={"scope": "Synthetic"})
-        db.add_all([office, user, proposal]); db.commit()
+        db.add_all([office, user, proposal]); _seed_synthetic_proposal_master_content(db); db.commit()
         principal = AuthenticatedPrincipal(auth_mode="TEST", role=Role.PROCESS_CHAMPION, user_id=user.id, office_id=office.id)
         assert db.scalar(select(ProposalRevision).where(ProposalRevision.proposal_id == proposal.id)) is None
         for index, operation in enumerate(operations):
@@ -134,6 +149,48 @@ def _settings() -> Settings:
         ai_input_price_usd_per_1m_tokens=1, ai_output_price_usd_per_1m_tokens=1,
         ai_pricing_source_reference="p08-test-price",
     )
+
+
+def _seed_synthetic_proposal_master_content(db: Session) -> None:
+    """Provide the governed synthetic source required by Owner-test skills."""
+    document = Document(
+        id="p08-proposal-master-document",
+        document_type=DocumentType.OTHER,
+        logical_name="Synthetic Proposal Master Content",
+        language="EN",
+        source_system="SYNTHETIC_OWNER_TEST",
+    )
+    version = DocumentVersion(
+        id="p08-proposal-master-version",
+        document_id=document.id,
+        version_number=1,
+        source_filename="synthetic-proposal-master.txt",
+        source_path_or_reference="synthetic-db://master/BD-PROP-001",
+        sha256="b" * 64,
+        mime_type="text/plain",
+        file_size=32,
+        language="EN",
+        approval_state=DocumentApprovalState.REVIEWED,
+        source_system="SYNTHETIC_OWNER_TEST",
+        metadata_json={"master_status": "CURRENT", "synthetic_non_business_fixture": True, "synthetic_owner_test_only": True},
+        synthetic_content=b"Synthetic Proposal master content",
+    )
+    document.current_version_id = version.id
+    item = MasterContentItem(
+        id="p08-proposal-master-item",
+        ref="BD-PROP-001",
+        content_type="FORM",
+        title="Synthetic Proposal Master Content",
+        description="Owner-test-only proposal template fixture",
+        used_in=["BD"],
+        source_type_code="SYNTHETIC_OWNER_TEST",
+        status="ACTIVE",
+        needs_review=False,
+        document_id=document.id,
+        current_document_version_id=version.id,
+        created_by="p08-test",
+    )
+    db.add_all([document, version, item])
 
 
 def test_proposal_analysis_is_module_owned_and_revision_selective(tmp_path):
