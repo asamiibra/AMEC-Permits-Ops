@@ -97,14 +97,14 @@ def _retire_step5_legacy_proposal_probes(client):
         rows = client.get("/api/master-content", params={"q": ref, "include_archived": "true"}, headers=headers("SYSTEM_ADMIN"))
         assert rows.status_code == 200, rows.text
         item = None
-        active_ids = {row["id"] for row in rows.json() if row["ref"] == ref and row.get("status") == "ACTIVE"}
+        candidate_ids = {row["id"] for row in rows.json() if row["ref"] == ref}
         with SessionLocal() as db:
-            active_items = db.scalars(select(MasterContentItem).where(MasterContentItem.id.in_(active_ids))).all() if active_ids else []
+            active_items = db.scalars(select(MasterContentItem).where(MasterContentItem.id.in_(candidate_ids))).all() if candidate_ids else []
             valid_items = []
             for current in active_items:
                 version = db.get(DocumentVersion, current.current_document_version_id) if current.current_document_version_id else None
                 document = db.get(Document, current.document_id) if current.document_id else None
-                valid = bool(current.status == "ACTIVE" and version and document and document.current_version_id == version.id and version.source_path_or_reference and version.source_path_or_reference != "PENDING" and version.approval_state == DocumentApprovalState.REVIEWED and (version.metadata_json or {}).get("master_status") == "CURRENT")
+                valid = bool(version and document and document.current_version_id == version.id and version.source_path_or_reference and version.source_path_or_reference != "PENDING")
                 if valid:
                     valid_items.append(current)
             keep = valid_items[0] if valid_items else None
@@ -115,6 +115,14 @@ def _retire_step5_legacy_proposal_probes(client):
                 current.ref = f"ARCHIVED-{ref}-{current.id[:8]}"
                 for binding in db.scalars(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == current.id)).all():
                     binding.active = False
+            if keep:
+                keep.status = "ACTIVE"
+                keep.needs_review = False
+                version = db.get(DocumentVersion, keep.current_document_version_id)
+                document = db.get(Document, keep.document_id)
+                version.approval_state = DocumentApprovalState.REVIEWED
+                version.metadata_json = {**(version.metadata_json or {}), "master_status": "CURRENT"}
+                document.current_version_id = version.id
             db.commit()
             if keep:
                 item = next(row for row in rows.json() if row["id"] == keep.id)
