@@ -347,7 +347,15 @@ def _strict_schema(model: type[BaseModel]) -> dict[str, Any]:
     def close(node: Any) -> Any:
         if isinstance(node, dict):
             if node.get("type") == "object":
+                # Azure OpenAI strict structured outputs require every object
+                # property to be present in `required`, including fields that
+                # have a Pydantic default.  An unconstrained dict is also
+                # represented as an object without properties; close it as an
+                # intentionally empty object so it cannot become an escape
+                # hatch for provider output.
+                properties = node.setdefault("properties", {})
                 node["additionalProperties"] = False
+                node["required"] = list(properties)
             for value in node.values():
                 close(value)
         elif isinstance(node, list):

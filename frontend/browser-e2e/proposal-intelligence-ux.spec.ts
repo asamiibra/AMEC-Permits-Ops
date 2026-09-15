@@ -26,10 +26,12 @@ async function mockProposalApi(route: any) {
   else if (url.pathname === `/api/bd/proposals/${proposal.id}/intelligence` && route.request().method() === "POST") {
     const request = JSON.parse(route.request().postData() || "{}");
     const outputs: Record<string, unknown> = {
-      "intake-analysis": { summary: "Synthetic intake result.", missing_information: [], contradictions: [], unresolved_candidate_facts: [], source_currentness_issues: [], citation_keys: ["CIT-001"] },
-      "scope-technical-analysis": { summary: "Synthetic scope result.", assumptions: [], exclusions: [], unresolved_technical_questions: [], eligibility_dependencies: [], recommendation_notes: [], citation_keys: ["CIT-001"] },
+      "tender-intake-analysis": { summary: "Synthetic intake result.", missing_information: [], contradictions: [], unresolved_candidate_facts: [], source_currentness_issues: [], citation_keys: ["CIT-001"] },
+      "requirement-evidence-analysis": { summary: "Synthetic requirements result.", requirement_candidates: [], open_questions: [], citation_keys: ["CIT-001"] },
+      "section-draft": { summary: "Synthetic evidence-grounded draft.", draft_content: "Synthetic draft content.", assumptions: [], exclusions: [], unresolved_technical_questions: [], recommendation_notes: [], citation_keys: ["CIT-001"] },
+      "commercial-consistency-review": { summary: "Synthetic commercial review.", variances: [], open_questions: [], citation_keys: ["CIT-001"] },
       "lpo-variance-analysis": { summary: "Synthetic LPO result.", accepted_revision_id: "revision-1", lpo_evidence_id: "evidence-1", differences: [], citation_keys: ["CIT-001"] },
-      "readiness-explanation": { explanation: "Synthetic readiness result.", blockers: [], stale_dependencies: [], missing_information: [], next_permissible_human_actions: [], citation_keys: ["CIT-001"] },
+      "handoff-preflight": { summary: "Synthetic handoff preflight.", blockers: [], stale_dependencies: [], missing_information: [], next_permissible_human_actions: [], citation_keys: ["CIT-001"] },
     };
     body = { execution_id: `execution-${request.operation}`, work_product_id: `work-${request.operation}`, skill_id: `proposal.${request.operation}`, output: outputs[request.operation], citations: [{ citation_key: "CIT-001", source_type: "PROPOSAL_ACCEPTED_REVISION", source_id: "revision-1", source_version_or_hash: "revision-hash", locator: { context_key: "proposal-accepted-revision" } }], current_actionable: true };
   } else if (url.pathname === `/api/bd/proposals/${proposal.id}/intelligence/reviews`) body = { items: [] };
@@ -83,21 +85,48 @@ test.describe("P04 canonical Proposal browser proof", () => {
     }
   });
 
+  test("source chooser and evidence file controls preserve the intake contract", async ({ page }) => {
+    await page.goto("/proposals/new");
+    const choices = page.getByRole("button", { name: /Tender Email|Tender Document|Tender Photo \/ Image|Client Information|Start without a source/ });
+    await expect(choices).toHaveCount(5);
+    await expect(page.getByRole("button", { name: /Tender Email.*Selected/ })).toHaveCount(0);
+
+    await page.getByRole("button", { name: "Tender Document" }).click();
+    await expect(page.getByRole("heading", { name: "New Proposal from Tender Document", level: 3 })).toBeVisible();
+    await expect(page.getByLabel("Proposal title")).toHaveAttribute("required", "");
+    await expect(page.getByLabel("Client")).toHaveAttribute("required", "");
+    await expect(page.getByLabel("Tender Document file")).toHaveAttribute("accept", ".pdf,.doc,.docx,.txt");
+
+    await page.getByLabel("Tender Document file").setInputFiles({
+      name: "harbor-tender.pdf",
+      mimeType: "application/pdf",
+      buffer: Buffer.from("synthetic tender evidence"),
+    });
+    await expect(page.getByRole("status")).toContainText("harbor-tender.pdf");
+    await expect(page.getByRole("button", { name: "Replace file" })).toBeVisible();
+    await page.getByRole("button", { name: "Remove" }).click();
+    await expect(page.getByText("No file selected yet.", { exact: true })).toBeVisible();
+
+    await page.getByRole("button", { name: "Start without a source" }).click();
+    await expect(page.getByRole("heading", { name: "New Proposal from Start without a source", level: 3 })).toBeVisible();
+    await expect(page.getByText("Evidence details", { exact: true })).toHaveCount(0);
+  });
+
   test("Proposal Intelligence renders every typed output and creates a fresh key per invocation", async ({ page }) => {
     const keys: string[] = [];
     page.on("request", (request) => {
       if (request.url().includes(`/api/bd/proposals/${proposal.id}/intelligence`) && request.method() === "POST") keys.push(JSON.parse(request.postData() || "{}").idempotency_key);
     });
     await page.goto(`/proposals/${proposal.id}`);
-    for (const operation of ["intake-analysis", "scope-technical-analysis", "lpo-variance-analysis", "readiness-explanation"]) {
+    for (const operation of ["tender-intake-analysis", "requirement-evidence-analysis", "section-draft", "commercial-consistency-review", "lpo-variance-analysis", "handoff-preflight"]) {
       await page.getByLabel("Proposal Intelligence operation").selectOption(operation);
       await page.getByRole("button", { name: "Run Proposal Intelligence" }).click();
       await expect(page.getByTestId("proposal-intelligence-result")).toBeVisible();
       await expect(page.getByRole("heading", { name: "Citations / evidence", level: 5 })).toBeVisible();
       await expect(page.getByText("canonical state unchanged", { exact: false })).toBeVisible();
     }
-    expect(keys).toHaveLength(4);
-    expect(new Set(keys).size).toBe(4);
+    expect(keys).toHaveLength(6);
+    expect(new Set(keys).size).toBe(6);
     expect(keys.every((key) => key.startsWith(`proposal-intelligence:${proposal.id}:`))).toBe(true);
     await expect(page.getByText("None identified.").first()).toBeVisible();
     await expect(page.getByText("PROPOSAL_ACCEPTED_REVISION · revision-1", { exact: true })).toBeVisible();

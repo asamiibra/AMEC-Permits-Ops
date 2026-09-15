@@ -4,6 +4,7 @@ import json
 from uuid import uuid4
 
 from backend.app.ai.skill_registry import SKILL_REGISTRY
+from backend.app.ai.structured_output import _strict_schema, ContentLibraryCandidateOutput
 from backend.app.db import SessionLocal
 from backend.app.models import DocumentVersion
 
@@ -38,6 +39,26 @@ def test_content_library_pack_is_exactly_registered_and_non_authoritative():
         assert manifest.review_trigger == "ALWAYS"
         assert manifest.output_class in {"CANDIDATE", "ANALYSIS", "RECOMMENDATION", "DRAFT"}
         assert definition.output.provider_schema["additionalProperties"] is False
+
+
+def test_content_library_provider_schemas_are_azure_strict():
+    schema = _strict_schema(ContentLibraryCandidateOutput)
+
+    def visit(node):
+        if isinstance(node, dict):
+            if node.get("type") == "object":
+                assert node["additionalProperties"] is False
+                assert set(node["required"]) == set(node.get("properties", {}))
+            for value in node.values():
+                visit(value)
+        elif isinstance(node, list):
+            for value in node:
+                visit(value)
+
+    visit(schema)
+    metadata = schema["properties"]["candidate_metadata"]
+    assert metadata["properties"] == {}
+    assert metadata["required"] == []
 
 
 def _form(client):

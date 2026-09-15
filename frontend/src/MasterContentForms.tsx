@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { api } from "./api";
+import { api, userFacingError } from "./api";
 import { readCanonicalForm, readCanonicalForms } from "./contentLibraryApi";
 import {
   ContentType,
@@ -449,7 +449,7 @@ export function ContentLibraryAiAssist({ itemId, sourceId, categories = [], onAp
       setResult(next);
       setSelectedFields(Object.fromEntries(Object.keys(next.draft_fields || {}).map((key) => [key, true])));
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Content Library intelligence is unavailable.");
+      setError(userFacingError(cause, "Content Library intelligence is unavailable."));
     } finally { setBusy(null); }
   };
   const review = async (decision: "ACCEPT" | "REJECT") => {

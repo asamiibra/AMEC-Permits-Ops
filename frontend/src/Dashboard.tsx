@@ -215,7 +215,7 @@ export function CurrentDashboard({ role }: { role: string }) {
     }
   };
   return (
-    <div className="dashboard-page current-dashboard-v2" data-dashboard-root="v2-evolution" data-testid="current-dashboard">
+    <div className="dashboard-page current-dashboard-v2" data-dashboard-root="content-library" data-testid="current-dashboard">
       <header className="dashboard-page-header">
         <div>
           <span className="eyebrow">AMEC · MASTER / REFERENCE CONTENT</span>
@@ -431,20 +431,20 @@ function DashboardGovernanceOverview() {
     forms.filter((form) => form.owner_status === status).length;
 
   return (
-    <section className="dashboard-v2-overview" aria-label="Dashboard governance overview" data-testid="dashboard-governance-overview">
+    <section className="dashboard-v2-overview" aria-label="Content Library status" data-testid="dashboard-governance-overview">
       <div className="dashboard-v2-overview-heading">
         <div>
-          <span className="eyebrow">GOVERNANCE OVERVIEW</span>
-          <h3>Canonical control plane</h3>
-          <p>One governed view of currentness, review state, source authority, and immutable version history.</p>
+          <span className="eyebrow">LIBRARY STATUS</span>
+          <h3>Library health</h3>
+          <p>See which shared references are current, need review, or remain available as history.</p>
         </div>
-        <span className="dashboard-v2-overview-state">{error ? "Summary unavailable" : loading ? "Reading canonical Forms…" : String(forms.length) + " canonical Forms"}</span>
+        <span className="dashboard-v2-overview-state">{error ? "Status unavailable" : loading ? "Reading Forms…" : String(forms.length) + " Forms"}</span>
       </div>
       <div className="dashboard-v2-overview-grid">
-        <article className="dashboard-v2-summary-card" data-testid="dashboard-current-summary"><span>Current</span><strong>{loading ? "—" : count("Current")}</strong><small>Eligible business status</small></article>
-        <article className="dashboard-v2-summary-card dashboard-v2-summary-review" data-testid="dashboard-review-summary"><span>Needs Review</span><strong>{loading ? "—" : count("Needs Review")}</strong><small>Visible, not resolver eligible</small></article>
-        <article className="dashboard-v2-summary-card" data-testid="dashboard-inactive-summary"><span>Inactive</span><strong>{loading ? "—" : count("Inactive")}</strong><small>Historical versions retained</small></article>
-        <article className="dashboard-v2-source-card" data-testid="dashboard-source-authority-panel"><span className="eyebrow">SOURCE / VERSION</span><strong>Canonical records remain linked</strong><small>MasterContentItem → Document → DocumentVersion</small></article>
+        <article className="dashboard-v2-summary-card" data-testid="dashboard-current-summary"><span>Current</span><strong>{loading ? "—" : count("Current")}</strong><small>Ready for normal use</small></article>
+        <article className="dashboard-v2-summary-card dashboard-v2-summary-review" data-testid="dashboard-review-summary"><span>Needs Review</span><strong>{loading ? "—" : count("Needs Review")}</strong><small>Visible while review is pending</small></article>
+        <article className="dashboard-v2-summary-card" data-testid="dashboard-inactive-summary"><span>Inactive</span><strong>{loading ? "—" : count("Inactive")}</strong><small>Kept for reference</small></article>
+        <article className="dashboard-v2-source-card" data-testid="dashboard-source-authority-panel"><span className="eyebrow">VERSION HISTORY</span><strong>References stay traceable</strong><small>Files and retained versions remain linked.</small></article>
       </div>
     </section>
   );
@@ -894,9 +894,9 @@ function MasterEditor({
               </select>
             </label>
             <label>
-              Additional metadata (authority, edition, effective date, clause/section, applicability notes)
+              Reference notes (authority, edition, effective date, clause/section, applicability)
               <textarea
-                aria-label="Engineering metadata"
+                aria-label="Engineering reference notes"
                 value={metadata}
                 onChange={(event) => setMetadata(event.target.value)}
               />

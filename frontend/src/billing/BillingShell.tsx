@@ -6,9 +6,16 @@ import { InvoiceWorkspace } from "./InvoiceWorkspace";
 import { BillingPlanWorkspace, PaymentWorkspace, ProjectFinanceWorkspace } from "./BillingDetailWorkspaces";
 import type { BillingCapabilityDTO, CommandCenterDTO, InvoiceDetailDTO } from "./billing-types";
 import { StateMessage } from "./components/BillingPrimitives";
+import { ApiError } from "../api";
 import "./billing-experience.css";
 
 type View = "center" | "plans" | "milestones" | "invoices" | "receivables" | "payments" | "controls" | "reports";
+
+function billingErrorMessage(cause: unknown): string {
+  if (cause instanceof ApiError && cause.status === 401) return "Your session has expired. Sign in again to reopen Billing.";
+  if (cause instanceof ApiError && cause.status === 403) return "Your role does not have Billing access in this workspace. Contact an Owner or system administrator if access is required.";
+  return "Billing could not be loaded right now. Retry the workspace, and contact support if the issue continues.";
+}
 
 const viewForPath = (path: string): View => path === "/billing" ? "center" : path.startsWith("/billing/plans") ? "plans" : path.startsWith("/billing/milestones") ? "milestones" : path.startsWith("/billing/receivables") ? "receivables" : path.startsWith("/billing/payments") ? "payments" : path.startsWith("/billing/controls") ? "controls" : path.startsWith("/billing/reports") ? "reports" : "invoices";
 
@@ -24,8 +31,8 @@ export function BillingShell() {
   const planId = path.startsWith("/billing/plans/") ? path.split("/")[3] : "";
   const paymentId = path.startsWith("/billing/payments/") ? path.split("/")[3] : "";
   const projectId = path.startsWith("/billing/projects/") ? path.split("/")[3] : "";
-  const loadCapabilities = () => { setCapabilityError(""); void billingApi.capabilities().then(setCapabilities).catch((cause: unknown) => { setCapabilities(null); setCapabilityError(cause instanceof Error ? cause.message : "Capability resolution failed."); }); };
-  const loadCenter = () => { setCenterLoading(true); setCenterError(""); void billingApi.commandCenter().then(setCenter).catch((cause: unknown) => setCenterError(cause instanceof Error ? cause.message : "Command Center unavailable.")).finally(() => setCenterLoading(false)); };
+  const loadCapabilities = () => { setCapabilityError(""); void billingApi.capabilities().then(setCapabilities).catch((cause: unknown) => { setCapabilities(null); setCapabilityError(billingErrorMessage(cause)); }); };
+  const loadCenter = () => { setCenterLoading(true); setCenterError(""); void billingApi.commandCenter().then(setCenter).catch((cause: unknown) => setCenterError(billingErrorMessage(cause))).finally(() => setCenterLoading(false)); };
   const loadDetail = () => { if (!invoiceId) { setDetail(null); return; } void billingApi.invoice(invoiceId).then(setDetail).catch(() => setDetail(null)); };
   useEffect(() => { loadCapabilities(); }, []);
   useEffect(() => { const sync = () => setPath(window.location.pathname); window.addEventListener("popstate", sync); return () => window.removeEventListener("popstate", sync); }, []);
