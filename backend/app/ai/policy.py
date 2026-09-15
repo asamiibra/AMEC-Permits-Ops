@@ -14,7 +14,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..api.dependencies import AuthenticatedPrincipal
-from ..models import AuthorityCase, EngineeringProjectMember, Opportunity, Project, Role
+from ..models import AuthorityCase, EngineeringProjectMember, MasterContentItem, Opportunity, Project, Role, User
 from ..services.backend_realignment import CAPABILITY_MATRIX, persona_for_role
 from .contracts import (
     AIExecutionMode,
@@ -90,9 +90,64 @@ PROPOSAL_INTELLIGENCE_POLICY = AIPurposePolicy(
 )
 
 
+def _proposal_skill_policy(purpose: AIPurpose) -> AIPurposePolicy:
+    """Return the shared fail-closed policy for one precise Proposal skill."""
+
+    return AIPurposePolicy(
+        purpose_id=purpose,
+        policy_version="PROPOSAL_INTELLIGENCE_V1-1.0",
+        allowed_roles=frozenset({Role.OWNER_SPONSOR, Role.SYSTEM_ADMIN, Role.PROCESS_CHAMPION, Role.RESPONSIBLE_ENGINEER}),
+        required_capabilities=("BD_PROPOSAL_READ",),
+        allowed_target_entity_types=frozenset({AITargetEntityType.PROPOSAL}),
+        allowed_execution_modes=frozenset({AIExecutionMode.INTERACTIVE}),
+        allow_master_content=True,
+        allow_transactional_evidence=True,
+        allow_definitions=True,
+        allowed_sensitivity_classes=frozenset({"NONE", "SYNTHETIC"}),
+        allow_historical=False,
+        allow_superseded=False,
+        real_content_allowed=False,
+        protected_action_authority="ZERO",
+        canonical_write_authority="ZERO",
+    )
+
+
+PROPOSAL_V1_POLICIES = {
+    purpose: _proposal_skill_policy(purpose)
+    for purpose in (
+        AIPurpose.PROPOSAL_TENDER_INTAKE_ANALYSIS,
+        AIPurpose.PROPOSAL_REQUIREMENT_EVIDENCE_ANALYSIS,
+        AIPurpose.PROPOSAL_SECTION_DRAFT,
+        AIPurpose.PROPOSAL_COMMERCIAL_CONSISTENCY_REVIEW,
+        AIPurpose.PROPOSAL_LPO_VARIANCE_ANALYSIS,
+        AIPurpose.PROPOSAL_HANDOFF_PREFLIGHT,
+    )
+}
+
+MASTER_CONTENT_INTELLIGENCE_POLICY = AIPurposePolicy(
+    purpose_id=AIPurpose.MASTER_CONTENT_INTELLIGENCE,
+    policy_version="MASTER_CONTENT_INTELLIGENCE-1.0",
+    allowed_roles=frozenset({Role.OWNER_SPONSOR, Role.SYSTEM_ADMIN}),
+    required_capabilities=("READ_ALL",),
+    allowed_target_entity_types=frozenset({AITargetEntityType.MASTER_CONTENT_ITEM}),
+    allowed_execution_modes=frozenset({AIExecutionMode.INTERACTIVE}),
+    allow_master_content=True,
+    allow_transactional_evidence=False,
+    allow_definitions=True,
+    allowed_sensitivity_classes=frozenset({"NONE", "SYNTHETIC"}),
+    allow_historical=False,
+    allow_superseded=False,
+    real_content_allowed=False,
+    protected_action_authority="ZERO",
+    canonical_write_authority="ZERO",
+)
+
+
 AI_PURPOSE_POLICIES = {
     AIPurpose.ENGINEERING_TECHNICAL_DRAFT: ENGINEERING_TECHNICAL_DRAFT_POLICY,
     AIPurpose.PROPOSAL_INTELLIGENCE: PROPOSAL_INTELLIGENCE_POLICY,
+    **PROPOSAL_V1_POLICIES,
+    AIPurpose.MASTER_CONTENT_INTELLIGENCE: MASTER_CONTENT_INTELLIGENCE_POLICY,
 }
 
 
@@ -100,7 +155,7 @@ AI_PURPOSE_POLICIES = {
 class ResolvedAITarget:
     target_entity_type: AITargetEntityType
     target_entity_id: str
-    project_id: str
+    project_id: str | None
 
 
 @dataclass(frozen=True)
@@ -113,7 +168,7 @@ class AIAuthorizationContext:
     execution_mode: AIExecutionMode
     target_entity_type: AITargetEntityType
     target_entity_id: str
-    resolved_project_id: str
+    resolved_project_id: str | None
     required_capabilities: tuple[str, ...]
     scope_decision: str
     decision_code: str
@@ -169,6 +224,12 @@ def resolve_target(
             return ResolvedAITarget(target_entity_type, target_entity_id, proposal.id)
         return ResolvedAITarget(target_entity_type, target_entity_id, proposal.project_id)
 
+    if target_entity_type is AITargetEntityType.MASTER_CONTENT_ITEM:
+        item = db.get(MasterContentItem, target_entity_id)
+        if item is None:
+            raise ai_error(404, "AI_CONTEXT_TARGET_NOT_FOUND")
+        return ResolvedAITarget(target_entity_type, target_entity_id, None)
+
     case = db.get(AuthorityCase, target_entity_id)
     if case is None:
         raise ai_error(404, "AI_CONTEXT_TARGET_NOT_FOUND")
@@ -190,6 +251,7 @@ def authorize_ai_request(
     target_entity_id: str,
     synthetic_only: bool,
     real_data_allowed: bool,
+    require_environment_synthetic: bool = True,
 ) -> tuple[AIAuthorizationContext, ResolvedAITarget, AIPurposePolicy]:
     purpose = parse_purpose(purpose_value)
     execution_mode = parse_execution_mode(execution_mode_value)
@@ -207,11 +269,20 @@ def authorize_ai_request(
         raise ai_error(403, "AI_PURPOSE_NOT_AUTHORIZED")
     if not all(_has_capability(principal.role, capability) for capability in policy.required_capabilities):
         raise ai_error(403, "AI_PURPOSE_NOT_AUTHORIZED")
-    if not synthetic_only or real_data_allowed:
+    if require_environment_synthetic and (not synthetic_only or real_data_allowed):
         raise ai_error(403, "AI_REAL_CONTENT_NOT_AUTHORIZED")
 
     target = resolve_target(db, target_entity_type, target_entity_id)
-    if principal.role not in OWNER_ROLES:
+    if target_entity_type is AITargetEntityType.PROPOSAL:
+        proposal = db.get(Opportunity, target_entity_id)
+        user = db.get(User, principal.user_id) if principal.user_id else None
+        if user is None or not user.active or user.role != principal.role:
+            raise ai_error(403, "PROPOSAL_SCOPE_NOT_PROVABLE")
+        if principal.role not in OWNER_ROLES and user.office_id != proposal.office_id:
+            raise ai_error(403, "PROPOSAL_SCOPE_NOT_PROVABLE")
+        if principal.office_id and principal.role not in OWNER_ROLES and principal.office_id != proposal.office_id:
+            raise ai_error(403, "PROPOSAL_SCOPE_NOT_PROVABLE")
+    elif principal.role not in OWNER_ROLES:
         if not principal.user_id:
             raise ai_error(403, "PROJECT_SCOPE_NOT_PROVABLE")
         member = db.scalar(

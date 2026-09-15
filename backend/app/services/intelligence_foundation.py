@@ -45,6 +45,7 @@ from ..models import (
     Project,
     Opportunity,
     ProposalAcceptedRevision,
+    ProposalRevision,
     VerifiedAssertion,
 )
 from .intelligence_contracts import IntelligenceContractError, stable_hash
@@ -152,11 +153,21 @@ def dependency_current(db: Session, dependency: ContextDependency | AIWorkProduc
             accepted = db.scalars(select(ProposalAcceptedRevision).where(
                 ProposalAcceptedRevision.proposal_id == proposal.id,
                 ProposalAcceptedRevision.status == "ACCEPTED",
-            ).order_by(ProposalAcceptedRevision.revision_number.desc())).all()
-            if len(accepted) != 1:
+            ).order_by(ProposalAcceptedRevision.revision_number.desc(), ProposalAcceptedRevision.accepted_at.desc())).first()
+            working = db.scalar(select(ProposalRevision).where(
+                ProposalRevision.proposal_id == proposal.id,
+                ProposalRevision.status == "DRAFT",
+            ).order_by(ProposalRevision.revision_number.desc()))
+            if metadata.get("accepted_revision_required") and accepted is None:
                 return False
-            revision = accepted[0]
-            current = f"{revision.id}:{revision.revision_number}:{revision.content_hash}"
+            if working is not None and accepted is not None and working.base_accepted_revision_id and working.base_accepted_revision_id != accepted.id:
+                return False
+            selected_revision = accepted if metadata.get("accepted_revision_required") and accepted else (working if working else accepted)
+            current = (
+                f"{selected_revision.id}:{selected_revision.revision_number}:{selected_revision.content_hash}"
+                if selected_revision is not None
+                else stable_hash({"proposal_id": proposal.id, "proposal_fields": proposal.proposal_fields_json, "updated_at": proposal.updated_at.isoformat()})
+            )
             return current == expected
         project = db.get(Project, dependency.dependency_id)
         if project is None:

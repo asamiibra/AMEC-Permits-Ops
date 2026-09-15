@@ -3,6 +3,7 @@ import { ApiError, api } from "./api";
 import { ContractMobilizationPage } from "./AdministrationOwner";
 import { CurrentDashboard } from "./Dashboard";
 import { BillingInvoicePage } from "./BillingInvoice";
+import { BillingShell } from "./billing/BillingShell";
 import { HomePage } from "./Home";
 import { ProposalRoutes } from "./features/proposals/ProposalRoutes";
 import type { ProposalRole } from "./features/proposals/types";
@@ -331,7 +332,7 @@ export default function App() {
           {page === "home" && <HomePage />}
           {page === "opportunities" && <ProposalRoutes role={moduleRole as ProposalRole} />}
           {page === "contract-mobilization" && <ContractMobilizationPage />}
-          {page === "billing" && <BillingInvoicePage />}
+          {page === "billing" && <BillingShell />}
           {page === "content-library" && <CurrentDashboard role={role} />}
         </div>
       </main>

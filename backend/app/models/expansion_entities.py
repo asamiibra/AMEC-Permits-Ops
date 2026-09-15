@@ -86,6 +86,9 @@ class Opportunity(Base, TimestampMixin):
     canonical_project_reference: Mapped[str | None] = mapped_column(String(100), index=True)
     canonicalized_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     canonicalized_by: Mapped[str | None] = mapped_column(String(200))
+    # Server-owned fixture classification.  Only the dedicated owner-test
+    # seed may set SYNTHETIC_OWNER_TEST; normal API input cannot relabel data.
+    fixture_classification: Mapped[str] = mapped_column(String(40), default="NON_SYNTHETIC", nullable=False, index=True)
 
 
 class ClientAccount(Base, TimestampMixin):
@@ -374,7 +377,10 @@ class CommunicationDelivery(Base):
 
 class Invoice(Base, TimestampMixin):
     __tablename__ = "invoices"
-    __table_args__ = (Index("uq_invoice_project_ordinal", "project_id", "project_invoice_ordinal", unique=True, mssql_where=text("project_id IS NOT NULL AND project_invoice_ordinal IS NOT NULL")),)
+    __table_args__ = (
+        Index("uq_invoice_project_ordinal", "project_id", "project_invoice_ordinal", unique=True, mssql_where=text("project_id IS NOT NULL AND project_invoice_ordinal IS NOT NULL")),
+        Index("ix_invoices_clone_idempotency_key", "clone_idempotency_key", unique=True, mssql_where=text("clone_idempotency_key IS NOT NULL")),
+    )
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
     contract_id: Mapped[str] = mapped_column(ForeignKey("contracts.id"), nullable=False, index=True)
     project_id: Mapped[str | None] = mapped_column(ForeignKey("projects.id"), index=True)
@@ -386,6 +392,8 @@ class Invoice(Base, TimestampMixin):
     status: Mapped[str] = mapped_column(String(50), default="DRAFT", nullable=False)
     current_revision_id: Mapped[str | None] = mapped_column(String(36))
     requirement_decision_id: Mapped[str | None] = mapped_column(ForeignKey("invoice_requirement_decisions.id"))
+    source_clone_id: Mapped[str | None] = mapped_column(ForeignKey("invoices.id"), index=True)
+    clone_idempotency_key: Mapped[str | None] = mapped_column(String(200))
 
 
 class InvoiceRevision(Base):
@@ -414,6 +422,9 @@ class InvoiceRevision(Base):
     due_date_source_event_id: Mapped[str | None] = mapped_column(String(36))
     due_date_derived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     service_period: Mapped[str | None] = mapped_column(String(120))
+    service_period_start: Mapped[date | None] = mapped_column(Date)
+    service_period_end: Mapped[date | None] = mapped_column(Date)
+    service_period_label: Mapped[str | None] = mapped_column(String(120))
     planned_collection_date: Mapped[date | None] = mapped_column(Date)
     actual_collection_date: Mapped[date | None] = mapped_column(Date)
     actual_collection_date_source: Mapped[str | None] = mapped_column(String(80))

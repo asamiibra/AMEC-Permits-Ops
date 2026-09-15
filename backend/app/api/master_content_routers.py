@@ -13,7 +13,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import func, or_, select, true
 from sqlalchemy.orm import Session
 
-from ..api.dependencies import current_user_role
+from ..api.dependencies import current_principal, current_user_role
 from ..audit.service import audit
 from ..db import get_db
 from ..config.settings import get_settings
@@ -61,8 +61,50 @@ from ..services.forms_governance import (
     update_source_section,
     update_governance,
 )
+from ..services.content_library_intelligence import (
+    ContentLibraryDeterministicProvider,
+    content_library_intelligence_reviews,
+    execute_content_library_intelligence,
+)
+from ..services.intelligence_contracts import IntelligenceContractError
 
 router = APIRouter(prefix="/api", tags=["master-content"])
+
+
+@router.post("/master-content/{item_id}/intelligence/{skill_name}")
+def run_content_library_intelligence(
+    item_id: str,
+    skill_name: str,
+    request: Request,
+    idempotency_key: str | None = Header(default=None, alias="Idempotency-Key"),
+    db: Session = Depends(get_db),
+    principal=Depends(current_principal),
+):
+    try:
+        settings = get_settings()
+        provider = ContentLibraryDeterministicProvider() if settings.synthetic_only and settings.app_env.upper() in {"TEST", "DEV"} else None
+        return execute_content_library_intelligence(
+            db,
+            item_id=item_id,
+            skill_id=skill_name,
+            principal=principal,
+            idempotency_key=idempotency_key or str(uuid.uuid4()),
+            correlation_id=request.state.correlation_id,
+            settings=settings,
+            provider=provider,
+        )
+    except IntelligenceContractError as exc:
+        raise HTTPException(409, {"code": exc.code}) from exc
+
+
+@router.get("/master-content/{item_id}/intelligence/reviews")
+def list_content_library_intelligence_reviews(
+    item_id: str,
+    db: Session = Depends(get_db),
+    role: Role = Depends(current_user_role),
+):
+    require_capability(role, "READ_ALL")
+    return {"item_id": item_id, "reviews": content_library_intelligence_reviews(db, item_id)}
 
 
 @router.post("/test-support/master-content/owner-cleanup")

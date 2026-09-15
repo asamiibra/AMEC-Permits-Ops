@@ -15,12 +15,13 @@ from sqlalchemy import select
 from .api.admin_owner_ready import router as admin_owner_ready_router
 from .api.bd_proposal_routers import router as bd_proposal_router
 from .api.billing_invoice_routers import router as billing_invoice_router
+from .api.billing_intelligence_routers import router as billing_intelligence_router
 from .api.completion_asbuilt_routers import router as completion_asbuilt_router
 from .api.construction_routers import router as construction_router
 from .api.contract_workspace_routers import router as contract_workspace_router
 from .api.dashboard_inputs_routers import router as dashboard_inputs_router
 from .api.dashboard_v2_routers import router as dashboard_v2_router
-from .api.dependencies import trusted_current_principal
+from .api.dependencies import bind_request_context, clear_request_context, trusted_current_principal
 from .api.e5_e6_routers import router as e5_e6_router
 from .api.expansion_routers import router as expansion_router
 from .api.handover_closeout_routers import router as handover_closeout_router
@@ -269,6 +270,7 @@ def _trusted_request_actor(
 
 app.include_router(governed_prefill_router, dependencies=API_AUTH_DEPENDENCIES)
 app.include_router(ai_router, dependencies=API_AUTH_DEPENDENCIES)
+app.include_router(billing_intelligence_router, dependencies=API_AUTH_DEPENDENCIES)
 app.include_router(bridge_intake_router)
 app.include_router(auth_context_router)
 
@@ -279,6 +281,7 @@ async def correlation_middleware(
     call_next,
 ):
     started = time.perf_counter()
+    bind_request_context(request)
     incoming = request.headers.get(
         "X-Correlation-ID"
     )
@@ -349,6 +352,7 @@ async def correlation_middleware(
         )
     )
 
+    clear_request_context()
     return response
 
 
@@ -372,6 +376,7 @@ async def safe_error_handler(
     request: Request,
     exc: Exception,
 ):
+    clear_request_context()
     logger.exception(
         "Unhandled request error",
         extra={

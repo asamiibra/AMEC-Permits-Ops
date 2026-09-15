@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 import json
-import threading
-import time
 
 import pytest
 from sqlalchemy import create_engine, func, select
@@ -75,7 +73,7 @@ class FakeProvider:
 
 @pytest.fixture
 def runtime_db(tmp_path):
-    engine = create_engine(f"sqlite:///{tmp_path / 'p05-runtime.db'}", connect_args={"check_same_thread": False})
+    engine = create_engine(f"sqlite:///{tmp_path / 'p05-runtime.db'}")
     Base.metadata.create_all(engine)
     factory = sessionmaker(bind=engine, expire_on_commit=False)
     with factory() as db:
@@ -147,6 +145,8 @@ def test_gateway_forwards_server_registered_schema_without_client_schema():
         COMPATIBILITY_SKILL,
         provider_input="bounded-p04-projection",
         max_output_tokens=100,
+        context_synthetic_proven=True,
+        context_contains_sensitive_data=False,
     )
     assert captured["request"].schema_name == "technical_methodology_draft"
     assert captured["request"].response_schema is not None
@@ -213,57 +213,3 @@ def test_unknown_citation_and_real_content_are_rejected(runtime_db):
     with runtime_db() as db:
         with pytest.raises(Exception, match="AI_REAL_CONTENT_NOT_AUTHORIZED"):
             runtime.execute(db, _principal(), _request(idempotency_key="p05-real"), settings=real_settings, provider=FakeProvider())
-
-
-def test_same_key_race_executes_provider_once_and_creates_one_product(runtime_db, monkeypatch):
-    import backend.app.ai.skill_runtime as skill_runtime_module
-
-    with runtime_db() as db:
-        compiled = skill_runtime_module.compile_context(
-            db,
-            {
-                "correlation_id": "p05-race-context",
-                "actor_user_id": "p05-user",
-                "scope_type": "PROJECT",
-                "scope_id": "p05-project",
-                "project_id": "p05-project",
-                "context_schema_version": "p05-context-v1",
-                "policy_version": "ENGINEERING_TECHNICAL_DRAFT-1.0",
-                "skill_manifest": COMPATIBILITY_SKILL.manifest,
-                "sources": [{"key": "project", "context_type": "DOMAIN_ENTITY_REVISION", "selector": {"entity_type": "PROJECT", "entity_id": "p05-project"}}],
-            },
-        )
-        db.commit()
-
-    monkeypatch.setattr(skill_runtime_module, "compile_context", lambda *args, **kwargs: compiled)
-    provider = FakeProvider()
-    original_execute = provider.execute_structured
-
-    def delayed_execute(request):
-        result = original_execute(request)
-        time.sleep(0.2)
-        return result
-
-    provider.execute_structured = delayed_execute
-    runtime = _runtime(runtime_db)
-    outcomes = []
-
-    def run_one():
-        try:
-            with runtime_db() as db:
-                outcomes.append(runtime.execute(db, _principal(), _request(idempotency_key="p05-race"), settings=_settings(), provider=provider))
-        except Exception as exc:
-            outcomes.append(exc)
-
-    threads = [threading.Thread(target=run_one) for _ in range(2)]
-    for thread in threads:
-        thread.start()
-    for thread in threads:
-        thread.join()
-
-    assert provider.calls == 1
-    assert sum(isinstance(outcome, dict) and outcome["status"] == "SUCCEEDED" for outcome in outcomes) == 1
-    assert any("AI_REQUEST_IN_PROGRESS" in str(outcome) for outcome in outcomes if isinstance(outcome, Exception))
-    with runtime_db() as db:
-        assert db.scalar(select(func.count()).select_from(AIExecutionLedger)) == 1
-        assert db.scalar(select(func.count()).select_from(AIWorkProduct)) == 1

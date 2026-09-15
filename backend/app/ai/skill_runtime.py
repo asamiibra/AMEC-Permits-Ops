@@ -275,6 +275,7 @@ class SkillRuntime:
                 target_entity_id=request.target_entity_id,
                 synthetic_only=settings.synthetic_only,
                 real_data_allowed=settings.real_data_allowed or settings.ai_real_content_allowed,
+                require_environment_synthetic=False,
             )
             compiled = compile_context(
                 db,
@@ -372,6 +373,8 @@ class SkillRuntime:
                 skill,
                 provider_input=provider_input,
                 max_output_tokens=settings.ai_max_output_tokens,
+                context_synthetic_proven=compiled.synthetic_only,
+                context_contains_sensitive_data=compiled.contains_sensitive_data,
             )
             output = skill.output.validator(result.payload)
             citations = validate_compiled_citations(output, compiled, skill.output)

@@ -14,8 +14,8 @@ def create_binary_store() -> BinaryStorePort:
     settings = get_settings()
     provider = settings.storage_provider.lower()
     if provider == "mock":
-        if settings.app_env.upper() in {"PROD", "PRODUCTION"}:
-            raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "The mock binary store is forbidden in production")
+        if settings.app_env.upper() in {"AZURE-PREPROD", "PROD", "PRODUCTION"} or not settings.synthetic_only:
+            raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "The mock binary store is forbidden outside synthetic TEST/DEV")
         root = Path(settings.mock_systems_root)
         if not root.is_absolute():
             root = repo_root() / root

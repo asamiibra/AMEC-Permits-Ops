@@ -18,7 +18,10 @@ class Settings(BaseSettings):
     mock_systems_root: str = "./mock-systems"
     synthetic_only: bool = True
     real_data_allowed: bool = False
+    owner_test_mode: bool = False
     auth_mode: str = "DEV_HEADER"
+    # Deployment configuration; blank fails closed for calendar reporting.
+    business_local_timezone: str = ""
 
     # Microsoft Entra ID configuration for Azure preprod.
     # These are identifiers only; no client secret is stored in the web app.
@@ -193,8 +196,11 @@ class Settings(BaseSettings):
             return
         if not self.ai_d4_commissioning_id.strip():
             raise ValueError("AI_D4_COMMISSIONING_ID is required when external inference is enabled")
-        if not self.synthetic_only or self.real_data_allowed or self.ai_real_content_allowed:
-            raise ValueError("D4 external inference requires synthetic-only and real-content=false")
+        # Production is a mixed-data environment.  Synthetic safety is an
+        # execution-scoped property proven by the compiled context, not an
+        # environment-wide switch.  Real-data inference remains disabled.
+        if self.real_data_allowed or self.ai_real_content_allowed:
+            raise ValueError("D4 external inference requires real-content=false")
         for setting_name, value in (
             ("AI_UAMI_CLIENT_ID", self.ai_uami_client_id),
             ("AI_UAMI_PRINCIPAL_ID", self.ai_uami_principal_id),
@@ -213,9 +219,14 @@ class Settings(BaseSettings):
         for setting_name, expected in expected_binding.items():
             if getattr(self, setting_name.lower()) != expected:
                 raise ValueError(f"{setting_name} must equal the D4 commissioned binding {expected}")
-        from ..ai.runtime_binding import AIRuntimeBinding
-
-        AIRuntimeBinding.from_settings(self).validate()
+        endpoint = urlsplit(self.ai_azure_openai_endpoint.rstrip("/"))
+        if endpoint.scheme.lower() != "https" or not endpoint.hostname or endpoint.path.rstrip("/"):
+            raise ValueError("AI endpoint must be an HTTPS Azure OpenAI resource origin")
+        host = endpoint.hostname.lower()
+        if not (host.endswith(".openai.azure.com") or host.endswith(".cognitiveservices.azure.com")):
+            raise ValueError("AI endpoint host is not an approved Azure OpenAI host")
+        if self.ai_azure_openai_deployment_type not in {"Standard", "GlobalStandard", "DataZoneStandard"}:
+            raise ValueError("AI runtime deployment type is not synchronous")
         for setting_name, value in (
             ("AI_MAX_INPUT_TOKEN_UPPER_BOUND", self.ai_max_input_token_upper_bound),
             ("AI_MAX_OUTPUT_TOKENS", self.ai_max_output_tokens),

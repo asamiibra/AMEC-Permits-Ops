@@ -4,6 +4,7 @@ import { CanonicalFormsLibrary } from "./MasterContentForms";
 import { readDemoRole } from "./rebrand";
 import { Icon } from "./Icon";
 import { OwnerDecisionCenterPage } from "./OwnerDecisionCenter";
+import { ContractIntelligence } from "./contract/ContractIntelligence";
 
 type AdminCategory = { key: string; label: string; route: string; status: string };
 
@@ -218,6 +219,7 @@ function ContractWorkbench({ data, onBack: _onBack, onRefresh, onNavigate }: { d
   return <div className="contract-center">
     <ContractSectionNav />
     <ContractOverview data={data} />
+    <ContractIntelligence contractId={data.id} />
     <ProposalOriginSection data={data} />
     <ClientEvidenceSection data={data} onRefresh={onRefresh} />
     <ExecutedEvidenceSection data={data} onRefresh={onRefresh} />

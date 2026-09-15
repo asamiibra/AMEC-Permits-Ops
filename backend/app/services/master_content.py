@@ -799,7 +799,10 @@ def reconcile_preprod_canonical_master_content(
         else:
             version = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
             marker = (item.engineering_metadata or {}).get("preprod_canonical")
-            if not marker or not version or not version.source_path_or_reference.startswith("synthetic-db://"):
+            if not marker or not version or not (
+                version.source_path_or_reference.startswith("synthetic-db://")
+                or version.source_path_or_reference.startswith("storage://")
+            ):
                 raise RuntimeError(f"PREPROD_CANONICAL_MASTER_CONTENT_NON_SYNTHETIC_COLLISION: {spec['title']}")
             preserved.append(spec["ref"])
 
@@ -1311,11 +1314,13 @@ def _verify_and_promote(
             version.rendition_file_size = None
         version.metadata_json = {**(version.metadata_json or {}), "master_status": "VERIFIED", "read_back_verified": True, "storage_provider": "synthetic-db"}
         db.flush()
-    elif get_settings().storage_provider.lower() == "smb":
+    elif get_settings().storage_provider.lower() in {"smb", "azure_blob"}:
         try:
             store = create_binary_store()
             service = DocumentStorageService(store)
-            target = StorageTarget(getattr(store, "provider_id", "smb"), getattr(getattr(store, "config", None), "share", ""), configured_destination)
+            config = getattr(store, "config", None)
+            share_id = getattr(config, "share", None) or getattr(config, "container", None) or ""
+            target = StorageTarget(getattr(store, "provider_id", get_settings().storage_provider.lower()), share_id, configured_destination)
             service.store_version(
                 db,
                 document=document,
@@ -1335,8 +1340,9 @@ def _verify_and_promote(
             version.metadata_json = {**(version.metadata_json or {}), "master_status": exc.code.value}
             db.flush()
             raise _error(exc.code.value, 502) from exc
-        if _deployed_synthetic():
-            version.synthetic_content = content
+        # Production-shaped stores are authoritative. Never persist a copy
+        # of the bytes in synthetic_content when Azure Blob/SMB is configured.
+        version.synthetic_content = None
         if version.mime_type == "application/pdf" or Path(version.source_filename).suffix.lower() == ".pdf":
             version.rendition_status = "SOURCE_PDF"
             version.rendition_path_or_reference = version.source_path_or_reference
@@ -1349,7 +1355,7 @@ def _verify_and_promote(
             version.rendition_sha256 = None
             version.rendition_mime_type = None
             version.rendition_file_size = None
-        version.metadata_json = {**(version.metadata_json or {}), "master_status": "VERIFIED", "read_back_verified": True, "storage_provider": "smb"}
+        version.metadata_json = {**(version.metadata_json or {}), "master_status": "VERIFIED", "read_back_verified": True, "storage_provider": getattr(store, "provider_id", get_settings().storage_provider.lower())}
         db.flush()
     else:
         adapter = _adapter()

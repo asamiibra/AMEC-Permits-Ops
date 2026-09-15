@@ -20,6 +20,7 @@ from backend.app.models import (
     IntelligenceCitation,
     IntelligenceReviewDecision, Opportunity, ProposalAcceptedRevision,
     ProposalIntelligenceReviewBinding, User, WorkflowTask, WorkflowTaskStatus,
+    ProposalRevision, ProposalSourceLink,
 )
 from backend.app.services.backend_realignment import persona_for_role, require_capability
 from backend.app.services.intelligence_contracts import IntelligenceContractError, stable_hash
@@ -29,7 +30,7 @@ from backend.app.services.intelligence_foundation import (
 )
 
 
-P08_POLICY_VERSION = "PROPOSAL_INTELLIGENCE-1.0"
+P08_POLICY_VERSION = "PROPOSAL_INTELLIGENCE_V1-1.0"
 P08_REVIEW_CAPABILITY = "BD_PROPOSAL_INTELLIGENCE_REVIEW"
 P08_EVAL_PACK_ID = "proposal-intelligence-v1"
 P08_EVAL_PACK_VERSION = "1.0.0"
@@ -43,27 +44,34 @@ P08_CRITICAL_CASES = (
 )
 P08_EVAL_PACK_HASH = stable_hash({"eval_pack_id": P08_EVAL_PACK_ID, "version": P08_EVAL_PACK_VERSION, "owning_module": "proposal", "critical_case_policy": "ALL_SECURITY_CURRENTNESS_AUTHORITY_CRITICAL", "acceptance_threshold_policy": "CRITICAL_100_PERCENT_NO_SKIPS"})
 OPERATION_TO_SKILL = {
-    "intake-analysis": "proposal.intake-analysis",
-    "scope-technical-analysis": "proposal.scope-technical-analysis",
+    "tender-intake-analysis": "proposal.tender-intake-analysis",
+    "requirement-evidence-analysis": "proposal.requirement-evidence-analysis",
+    "section-draft": "proposal.section-draft",
+    "commercial-consistency-review": "proposal.commercial-consistency-review",
     "lpo-variance-analysis": "proposal.lpo-variance-analysis",
-    "readiness-explanation": "proposal.readiness-explanation",
+    "handoff-preflight": "proposal.handoff-preflight",
+    "intake-analysis": "proposal.tender-intake-analysis",
+    "scope-technical-analysis": "proposal.section-draft",
+    "readiness-explanation": "proposal.handoff-preflight",
 }
 _SKILLS = {item.manifest.skill_id: item for item in PROPOSAL_SKILLS}
 _REVIEW_PERSONA_BY_SKILL = {
-    "proposal.intake-analysis": "BUSINESS_DEVELOPMENT",
-    "proposal.scope-technical-analysis": "ENGINEERING",
+    "proposal.tender-intake-analysis": "BUSINESS_DEVELOPMENT",
+    "proposal.requirement-evidence-analysis": "BUSINESS_DEVELOPMENT",
+    "proposal.section-draft": "ENGINEERING",
+    "proposal.commercial-consistency-review": "BUSINESS_DEVELOPMENT",
     "proposal.lpo-variance-analysis": "BUSINESS_DEVELOPMENT",
-    "proposal.readiness-explanation": "BUSINESS_DEVELOPMENT",
+    "proposal.handoff-preflight": "BUSINESS_DEVELOPMENT",
 }
 
 
 def _review_persona_for_work_product(work_product: AIWorkProduct) -> str:
-    """Return the accountable module reviewer for this analysis skill."""
+    """Return the accountable module reviewer for this Proposal skill."""
     return _REVIEW_PERSONA_BY_SKILL.get(work_product.skill_id, "BUSINESS_DEVELOPMENT")
 
 
 def _allowed_review_personas(binding: ProposalIntelligenceReviewBinding) -> set[str]:
-    """Keep Owner override explicit while preserving module reviewer routing."""
+    """Allow Owner override without widening the module review boundary."""
     return {"OWNER", "SYSTEM_ADMIN", binding.required_persona}
 
 
@@ -96,14 +104,85 @@ def _runtime_settings(settings: Settings, provider: Any | None) -> Settings:
     })
 
 
-def _accepted(db: Session, proposal_id: str) -> ProposalAcceptedRevision:
-    rows = db.scalars(select(ProposalAcceptedRevision).where(
+def _accepted(db: Session, proposal_id: str) -> ProposalAcceptedRevision | None:
+    return db.scalar(select(ProposalAcceptedRevision).where(
         ProposalAcceptedRevision.proposal_id == proposal_id,
         ProposalAcceptedRevision.status == "ACCEPTED",
-    ).order_by(ProposalAcceptedRevision.revision_number.desc())).all()
-    if len(rows) != 1:
-        raise IntelligenceContractError("PROPOSAL_ACCEPTED_REVISION_CURRENTNESS_UNRESOLVED")
-    return rows[0]
+    ).order_by(ProposalAcceptedRevision.revision_number.desc(), ProposalAcceptedRevision.accepted_at.desc()))
+
+
+def _working(db: Session, proposal_id: str) -> ProposalRevision | None:
+    return db.scalar(select(ProposalRevision).where(
+        ProposalRevision.proposal_id == proposal_id,
+        ProposalRevision.status == "DRAFT",
+    ).order_by(ProposalRevision.revision_number.desc()))
+
+
+def _current_revision_identity(
+    proposal: Opportunity,
+    accepted: ProposalAcceptedRevision | None,
+    working: ProposalRevision | None,
+    *,
+    accepted_required: bool,
+) -> str:
+    selected_revision = accepted if accepted_required and accepted is not None else (working if working is not None else accepted)
+    if selected_revision is not None:
+        return f"{selected_revision.id}:{selected_revision.revision_number}:{selected_revision.content_hash}"
+    return stable_hash({
+        "proposal_id": proposal.id,
+        "proposal_fields": proposal.proposal_fields_json,
+        "updated_at": proposal.updated_at.isoformat(),
+    })
+
+
+def _proposal_sources(db: Session, context: ProposalContext) -> list[dict[str, Any]]:
+    """Build the source set server-side from Proposal-owned bindings.
+
+    The browser supplies only the requested skill.  Source links, evidence,
+    and test Master Content are selected from governed records here.
+    """
+    sources: list[dict[str, Any]] = [{
+        "key": "proposal-current-state",
+        "context_type": "DOMAIN_ENTITY_REVISION",
+        "selector": {"entity_type": "PROPOSAL", "entity_id": context.proposal.id},
+    }]
+    links = db.scalars(select(ProposalSourceLink).where(
+        ProposalSourceLink.proposal_id == context.proposal.id,
+        ProposalSourceLink.active == true(),
+    ).order_by(ProposalSourceLink.created_at, ProposalSourceLink.id)).all()
+    accepted_only = context.skill.manifest.skill_id in ACCEPTED_REVISION_SKILLS
+    for index, link in enumerate(links, 1):
+        role = link.source_role.upper()
+        if accepted_only and role not in {"LPO_PO", "CLIENT_ACCEPTANCE", "CLIENT_RESPONSE", "DISTRIBUTION", "TENDER_DOCUMENT"}:
+            continue
+        sources.append({
+            "key": f"proposal-source-{index}",
+            "context_type": "DOCUMENT_VERSION",
+            "selector": {"id": link.document_version_id},
+            "required": role in {"TENDER", "TENDER_DOCUMENT", "LPO_PO"},
+        })
+    if context.skill.manifest.skill_id in {
+        "proposal.requirement-evidence-analysis",
+        "proposal.section-draft",
+        "proposal.commercial-consistency-review",
+    }:
+        from .master_content import resolve_master_content_purpose
+        resolution = resolve_master_content_purpose(db, module="BD", usage_type="PROPOSAL_TEMPLATE")
+        if resolution["status"] == "RESOLVED":
+            item = resolution["item"]
+            sources.append({
+                "key": "proposal-test-master-content",
+                "context_type": "MASTER_CONTENT",
+                "selector": {"master_content_item_id": item["id"], "document_version_id": item["version_id"], "content_type": item["content_type"]},
+                "required": True,
+            })
+    return sources
+
+
+ACCEPTED_REVISION_SKILLS = frozenset({
+    "proposal.lpo-variance-analysis",
+    "proposal.handoff-preflight",
+})
 
 
 def _revision_dependency(proposal: Opportunity, revision: ProposalAcceptedRevision) -> dict[str, Any]:
@@ -141,21 +220,26 @@ class ProposalDeterministicProvider:
         projection = item.get("projection", {})
         citation = ["CIT-001"]
         name = request.schema_name
-        if name == "proposal_intake_analysis":
+        if name in {"proposal_intake_analysis", "proposal_tender_intake_analysis"}:
             payload = {"summary": "Synthetic governed Proposal intake analysis.", "missing_information": [], "contradictions": [], "unresolved_candidate_facts": [], "source_currentness_issues": [], "citation_keys": citation}
-        elif name == "proposal_scope_technical_analysis":
-            payload = {"summary": "Synthetic governed technical scope recommendation.", "assumptions": [], "exclusions": [], "unresolved_technical_questions": [], "eligibility_dependencies": [], "recommendation_notes": ["Human BD / Engineering review remains required."], "citation_keys": citation}
+        elif name == "proposal_requirement_evidence_analysis":
+            payload = {"summary": "Synthetic requirement and evidence candidate map.", "requirement_candidates": [], "open_questions": [], "citation_keys": citation}
+        elif name == "proposal_section_draft":
+            payload = {"section_type": "Executive Summary", "draft_content": "Synthetic draft for human editing only.", "approved_content_used": [], "canonical_facts_used": [], "open_questions": [], "assumptions": [], "unsupported_claims": [], "citation_keys": citation, "draft_only": True}
+        elif name == "proposal_commercial_consistency_review":
+            payload = {"summary": "Synthetic commercial consistency review; disposition remains human-owned.", "variances": [], "open_questions": [], "citation_keys": citation}
         elif name == "proposal_lpo_variance_analysis":
             payload = {"summary": "Synthetic typed LPO comparison; no adjudication performed.", "accepted_revision_id": projection.get("accepted_revision_id", "unresolved"), "lpo_evidence_id": projection.get("lpo_evidence_id"), "differences": [], "citation_keys": citation}
         else:
-            payload = {"explanation": "Synthetic governed Proposal readiness explanation.", "blockers": [], "stale_dependencies": [], "missing_information": [], "next_permissible_human_actions": ["Review the analysis inside the Proposal workspace."], "citation_keys": citation}
+            payload = {"summary": "Synthetic governed Contract handoff preflight explanation.", "deterministic_state": "UNKNOWN", "deterministic_blockers": [], "candidate_issues": [], "next_permissible_human_actions": ["Review the preflight inside the Proposal workspace."], "citation_keys": citation}
         return AIProviderResult(f"synthetic-proposal-{name}", payload, AIProviderUsage(1, 1, 2))
 
 
 @dataclass(frozen=True)
 class ProposalContext:
     proposal: Opportunity
-    accepted_revision: ProposalAcceptedRevision
+    accepted_revision: ProposalAcceptedRevision | None
+    working_revision: ProposalRevision | None
     skill: SkillDefinition
 
 
@@ -164,8 +248,16 @@ def build_proposal_context(db: Session, *, proposal_id: str, operation: str, pri
     proposal = db.get(Opportunity, proposal_id)
     if proposal is None:
         raise IntelligenceContractError("PROPOSAL_NOT_FOUND")
+    skill = _skill(operation)
     accepted = _accepted(db, proposal.id)
-    return ProposalContext(proposal=proposal, accepted_revision=accepted, skill=_skill(operation))
+    working = _working(db, proposal.id)
+    if skill.manifest.skill_id in ACCEPTED_REVISION_SKILLS and accepted is None:
+        raise IntelligenceContractError("PROPOSAL_ACCEPTED_REVISION_REQUIRED")
+    # Intelligence is read-only with respect to Proposal business state.  A
+    # pre-acceptance run may compile the current intake projection when no
+    # mutable working revision exists, but only an explicit Proposal-domain
+    # command may create that ProposalRevision.
+    return ProposalContext(proposal=proposal, accepted_revision=accepted, working_revision=working, skill=skill)
 
 
 def execute_proposal_intelligence(
@@ -183,11 +275,11 @@ def execute_proposal_intelligence(
     request = SkillExecutionRequest(
         idempotency_key=idempotency_key, correlation_id=correlation_id,
         skill_id=context.skill.manifest.skill_id, skill_version=context.skill.manifest.version,
-        skill_manifest_hash=context.skill.manifest.manifest_hash, purpose="PROPOSAL_INTELLIGENCE",
+        skill_manifest_hash=context.skill.manifest.manifest_hash, purpose=context.skill.manifest.purpose,
         execution_mode="INTERACTIVE", scope_type="PROPOSAL", scope_id=proposal.id,
         project_id=proposal.project_id, target_entity_type="PROPOSAL", target_entity_id=proposal.id,
         context_schema_version="proposal-context-v1", policy_version=P08_POLICY_VERSION,
-        sources=({"key": "proposal-accepted-revision", "context_type": "DOMAIN_ENTITY_REVISION", "selector": {"entity_type": "PROPOSAL", "entity_id": proposal.id}},),
+        sources=tuple(_proposal_sources(db, context)),
     )
     # Proposal API execution uses the request transaction's configured
     # database. The shared runtime remains the sole execution path, while a
@@ -206,14 +298,15 @@ def execute_proposal_intelligence(
     return result
 
 
-def _create_work_review(db: Session, *, proposal: Opportunity, revision: ProposalAcceptedRevision, work_product: AIWorkProduct, correlation_id: str) -> ProposalIntelligenceReviewBinding:
+def _create_work_review(db: Session, *, proposal: Opportunity, revision: ProposalAcceptedRevision | None, work_product: AIWorkProduct, correlation_id: str) -> ProposalIntelligenceReviewBinding:
     existing = db.scalar(select(ProposalIntelligenceReviewBinding).where(ProposalIntelligenceReviewBinding.work_product_id == work_product.id))
     if existing:
         return existing
+    review_persona = _review_persona_for_work_product(work_product)
     task = WorkflowTask(
         task_type="PROPOSAL_INTELLIGENCE_REVIEW", title="Review Proposal Intelligence result",
         description="Review the structured Proposal analysis; this does not authorize a protected Proposal action.",
-        owner_role=_review_persona_for_work_product(work_product), status=WorkflowTaskStatus.OPEN, priority="NORMAL",
+        owner_role="RESPONSIBLE_ENGINEER" if review_persona == "ENGINEERING" else "BUSINESS_DEVELOPMENT", status=WorkflowTaskStatus.OPEN, priority="NORMAL",
         correlation_id=correlation_id, task_family="PROPOSAL_INTELLIGENCE", context_type="PROPOSAL",
         context_id=proposal.id, blocking=False, next_action_code="REVIEW_PROPOSAL_INTELLIGENCE",
         deep_link=f"/proposals/{proposal.id}", evidence_summary={"work_product_id": work_product.id},
@@ -232,7 +325,7 @@ def _create_work_review(db: Session, *, proposal: Opportunity, revision: Proposa
         review_subject_id=work_product.id, work_product_id=work_product.id,
         context_snapshot_id=work_product.context_snapshot_id, dependency_type=dependency.dependency_type,
         dependency_id=dependency.dependency_id, dependency_version_or_hash=dependency.dependency_version_or_hash,
-        required_persona=_review_persona_for_work_product(work_product), required_capability=P08_REVIEW_CAPABILITY,
+        required_persona=review_persona, required_capability=P08_REVIEW_CAPABILITY,
         correlation_id=correlation_id, idempotency_key=f"proposal-review:{work_product.id}",
         precondition_version=dependency.dependency_version_or_hash, actionable=True,
     )
@@ -383,10 +476,17 @@ def submit_proposal_review(
         db.commit()
         return {"decision_id": decision_row.id, "decision": decision_row.decision, "verified_assertion_id": verified_id, "protected_action_executed": False}
     revision = _accepted(db, proposal.id)
-    current_revision_hash = f"{revision.id}:{revision.revision_number}:{revision.content_hash}"
+    working = _working(db, proposal.id)
+    work_product = db.get(AIWorkProduct, binding.work_product_id) if binding.work_product_id else None
+    current_revision_hash = _current_revision_identity(
+        proposal,
+        revision,
+        working,
+        accepted_required=bool(work_product and work_product.skill_id in ACCEPTED_REVISION_SKILLS),
+    )
     if current_revision_hash != binding.dependency_version_or_hash:
         raise IntelligenceContractError("PROPOSAL_REVIEW_STALE")
-    wp = db.get(AIWorkProduct, binding.work_product_id) if binding.work_product_id else None
+    wp = work_product
     if wp is None or str(wp.state) != "CURRENT":
         raise IntelligenceContractError("PROPOSAL_REVIEW_STALE")
     decision_row = record_module_review_decision(
@@ -395,7 +495,7 @@ def submit_proposal_review(
         correlation_id=correlation_id, authorizing_capability=P08_REVIEW_CAPABILITY,
         precondition_version=precondition_version, work_product_id=wp.id,
         context_snapshot_id=binding.context_snapshot_id,
-        source_currentness_identity={"proposal_id": proposal.id, "accepted_revision_id": revision.id, "accepted_revision_hash": revision.content_hash},
+        source_currentness_identity={"proposal_id": proposal.id, "accepted_revision_id": revision.id if revision else None, "accepted_revision_hash": revision.content_hash if revision else None, "working_revision_id": working.id if working else None, "working_revision_hash": working.content_hash if working else None},
         correction_payload=correction_payload, reason=reason,
     )
     binding.actionable = False
@@ -431,3 +531,86 @@ def submit_candidate_review(
         verified_id = verified.id
     db.commit()
     return {"decision_id": row.id, "decision": row.decision, "verified_assertion_id": verified_id, "protected_action_executed": False}
+
+
+SECTION_DRAFT_ALLOWLIST = frozenset({
+    "EXECUTIVE_SUMMARY",
+    "UNDERSTANDING_OF_REQUIREMENTS",
+    "METHODOLOGY",
+    "SCOPE_OF_SERVICES",
+    "DELIVERABLES",
+    "PROGRAMME",
+    "COMMERCIALS",
+    "ASSUMPTIONS",
+    "EXCLUSIONS",
+})
+
+
+def apply_section_draft(
+    db: Session,
+    *,
+    proposal_id: str,
+    work_product_id: str,
+    working_revision_id: str,
+    working_revision_hash: str,
+    section_type: str,
+    edited_content: str,
+    principal: AuthenticatedPrincipal,
+    correlation_id: str,
+) -> dict[str, Any]:
+    """Apply a reviewed section draft only to the current mutable revision."""
+    principal = _principal(db, principal)
+    require_capability(principal.role, "BD_PROPOSAL_WRITE")
+    proposal = db.get(Opportunity, proposal_id)
+    revision = db.get(ProposalRevision, working_revision_id)
+    work_product = db.get(AIWorkProduct, work_product_id)
+    if proposal is None or revision is None or revision.proposal_id != proposal_id:
+        raise IntelligenceContractError("PROPOSAL_WORKING_REVISION_NOT_FOUND")
+    if revision.status != "DRAFT" or revision.content_hash != working_revision_hash:
+        raise IntelligenceContractError("PROPOSAL_WORKING_REVISION_STALE")
+    if work_product is None or work_product.skill_id != "proposal.section-draft" or str(work_product.state) != "CURRENT":
+        raise IntelligenceContractError("PROPOSAL_SECTION_DRAFT_STALE")
+    if not edited_content.strip():
+        raise IntelligenceContractError("PROPOSAL_SECTION_DRAFT_CONTENT_REQUIRED")
+    section_key = section_type.strip().upper().replace(" ", "_")
+    if section_key not in SECTION_DRAFT_ALLOWLIST:
+        raise IntelligenceContractError("PROPOSAL_SECTION_NOT_ALLOWED")
+    decision = db.scalar(select(IntelligenceReviewDecision).where(
+        IntelligenceReviewDecision.work_product_id == work_product.id,
+        IntelligenceReviewDecision.owning_module == "proposal",
+        IntelligenceReviewDecision.decision.in_( ("ACCEPT", "CORRECT") ),
+    ).order_by(IntelligenceReviewDecision.decided_at.desc()))
+    if decision is None:
+        raise IntelligenceContractError("PROPOSAL_SECTION_REVIEW_REQUIRED")
+    snapshot = dict(revision.snapshot or {})
+    sections = dict(snapshot.get("working_sections") or {})
+    sections[section_key] = {
+        "content": edited_content,
+        "source_work_product_id": work_product.id,
+        "review_decision_id": decision.id,
+        "applied_by": principal.user_id,
+        "correlation_id": correlation_id,
+    }
+    snapshot["working_sections"] = sections
+    revision.snapshot = snapshot
+    revision.content_hash = stable_hash(snapshot)
+    revision.change_summary = {
+        **dict(revision.change_summary or {}),
+        "last_intelligence_apply": {
+            "section_type": section_key,
+            "work_product_id": work_product.id,
+            "review_decision_id": decision.id,
+        },
+    }
+    db.flush()
+    return {
+        "proposal_id": proposal.id,
+        "working_revision_id": revision.id,
+        "revision_number": revision.revision_number,
+        "working_revision_hash": revision.content_hash,
+        "section_type": section_key,
+        "work_product_id": work_product.id,
+        "review_decision_id": decision.id,
+        "canonical_state_mutated": False,
+        "accepted_revision_mutated": False,
+    }

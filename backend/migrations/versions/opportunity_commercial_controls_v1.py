@@ -166,5 +166,6 @@ def downgrade() -> None:
         "proposal_commercial_releases",
         "proposal_service_eligibility",
         "proposal_scope_confirmations",
+        "proposal_technical_assessments",
     ):
         op.drop_table(table)

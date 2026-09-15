@@ -31,8 +31,8 @@ from backend.app.services.proposal_intelligence import (  # noqa: E402
 
 CASE_TESTS = {
     "cross-project": "backend/tests/test_context_compiler.py::test_cross_project_sources_fail_closed",
-    "wrong-persona": "backend/tests/test_ai_p08_proposal_intelligence.py::test_owner_review_override_and_skill_specific_reviewer_routing",
-    "missing-capability": "backend/tests/test_ai_p08_proposal_intelligence.py::test_owner_review_override_and_skill_specific_reviewer_routing",
+    "wrong-persona": "backend/tests/test_ai_d0_d1_architecture_auth_context.py::test_role_value_actor_and_inactive_membership_do_not_authorize",
+    "missing-capability": "backend/tests/test_ai_d0_d1_architecture_auth_context.py::test_full_principal_and_exact_membership_are_required",
     "stale-revision": "backend/tests/test_ai_p08_proposal_intelligence.py::test_proposal_analysis_is_module_owned_and_revision_selective",
     "stale-document": "backend/tests/test_context_compiler.py::test_current_document_and_evidence_lineage_are_required",
     "stale-verified-assertion": "backend/tests/test_context_compiler.py::test_verified_assertion_consumption_is_current_lineage_bound_and_read_only",
@@ -46,7 +46,7 @@ CASE_TESTS = {
     "protected-action": "backend/tests/test_ai_p07_foundation_control_plane.py::test_review_ledger_uses_authenticated_human_and_is_only_promotion_path",
     "policy-spoof": "backend/tests/test_context_compiler.py::test_caller_cannot_spoof_persona_or_capabilities",
     "skill-spoof": "backend/tests/test_ai_p05_skill_runtime.py::test_registry_exact_identity_and_fail_closed_conflicts",
-    "provider-spoof": "backend/tests/test_ai_d3_runtime_binding.py::test_runtime_binding_rejects_global_or_real_content_configuration",
+    "provider-spoof": "backend/tests/test_ai_d3_runtime_binding.py::test_runtime_binding_is_distinct_from_historical_d0_target",
     "prompt-injection": "backend/tests/test_governed_prefill_step4_adversarial.py::test_apply_records_human_audit_without_protected_action_side_effects",
     "provider-failure": "backend/tests/test_ai_p05_skill_runtime.py::test_mutated_same_key_is_conflict_and_failed_retry_requires_new_key",
     "context-race": "backend/tests/test_ai_p07_foundation_control_plane.py::test_finalization_fence_records_context_change_and_preserves_history",

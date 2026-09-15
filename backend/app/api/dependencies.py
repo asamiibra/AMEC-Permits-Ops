@@ -1,3 +1,4 @@
+from contextvars import ContextVar
 from dataclasses import dataclass
 
 from fastapi import Depends, Header, HTTPException, Request
@@ -5,7 +6,7 @@ from fastapi.security import (
     HTTPAuthorizationCredentials,
     HTTPBearer,
 )
-from sqlalchemy import select
+from sqlalchemy import select, true
 from sqlalchemy.orm import Session
 
 from ..auth.entra import (
@@ -40,6 +41,39 @@ class AuthenticatedPrincipal:
     preferred_username: str | None = None
 
 
+_principal_context: ContextVar[AuthenticatedPrincipal | None] = ContextVar(
+    "proposalops_authenticated_principal", default=None
+)
+_request_context: ContextVar[Request | None] = ContextVar(
+    "proposalops_request", default=None
+)
+
+
+def bind_request_context(request: Request) -> None:
+    _request_context.set(request)
+
+
+def clear_request_context() -> None:
+    """Prevent an authenticated principal leaking into a later request task."""
+    _principal_context.set(None)
+    _request_context.set(None)
+
+
+def authenticated_principal_context() -> AuthenticatedPrincipal | None:
+    request = _request_context.get()
+    request_principal = getattr(request.state, "authenticated_principal", None) if request else None
+    if request_principal is not None:
+        return request_principal
+    return _principal_context.get()
+
+
+def authenticated_actor() -> str | None:
+    principal = authenticated_principal_context()
+    if principal is None:
+        return None
+    return principal.user_id or f"dev-role:{principal.role.value}"
+
+
 def _resolve_dev_role(
     x_dev_role: str | None,
 ) -> Role:
@@ -64,16 +98,63 @@ def current_principal(
     x_dev_role: str | None = Header(
         default="SYSTEM_ADMIN"
     ),
+    x_dev_user: str | None = Header(
+        default=None
+    ),
     db: Session = Depends(get_db),
 ) -> AuthenticatedPrincipal:
     settings = get_settings()
     auth_mode = settings.auth_mode.upper()
 
     if auth_mode == "DEV_HEADER":
-        return AuthenticatedPrincipal(
+        role = _resolve_dev_role(x_dev_role)
+        user = None
+        # Direct unit calls may omit a dependency parameter and therefore
+        # receive FastAPI's Header sentinel rather than the injected None.
+        supplied_dev_user = x_dev_user if isinstance(x_dev_user, str) else None
+        if supplied_dev_user:
+            user = db.scalar(
+                select(User).where(
+                    (User.id == supplied_dev_user)
+                    | (User.email == supplied_dev_user),
+                    User.active == true(),
+                )
+            )
+        elif x_dev_role is not None:
+            # Synthetic DEV_HEADER callers historically supplied only a role.
+            # Resolve that explicit role to the seeded synthetic identity so
+            # scoped Finance authorization can remain fail-closed without
+            # weakening the production Entra path.
+            seeded_email_by_role = {
+                Role.OWNER_SPONSOR: "owner@amec.synthetic",
+                Role.SYSTEM_ADMIN: "admin@amec.synthetic",
+                Role.PROCESS_CHAMPION: "champion@amec.synthetic",
+                Role.REQUIREMENT_STEWARD: "steward@amec.synthetic",
+                Role.RESPONSIBLE_ENGINEER: "engineer@amec.synthetic",
+                Role.PERMIT_PREPARER: "preparer@amec.synthetic",
+                Role.FINAL_SUBMITTER: "submitter@amec.synthetic",
+            }
+            seeded_email = seeded_email_by_role.get(role)
+            if seeded_email:
+                user = db.scalar(
+                    select(User).where(
+                        User.email == seeded_email,
+                        User.active == true(),
+                    )
+                )
+        if user is not None and user.role != role:
+            raise HTTPException(
+                status_code=403,
+                detail="Development role does not match development user",
+            )
+        principal = AuthenticatedPrincipal(
             auth_mode="DEV_HEADER",
-            role=_resolve_dev_role(x_dev_role),
+            role=role,
+            user_id=user.id if user is not None else None,
+            office_id=user.office_id if user is not None else None,
         )
+        _principal_context.set(principal)
+        return principal
 
     if auth_mode != "ENTRA":
         raise HTTPException(
@@ -120,7 +201,7 @@ def current_principal(
             detail="ProposalOps access is not authorized",
         )
 
-    return AuthenticatedPrincipal(
+    principal = AuthenticatedPrincipal(
         auth_mode="ENTRA",
         role=user.role,
         user_id=user.id,
@@ -130,6 +211,8 @@ def current_principal(
         display_name=identity.display_name,
         preferred_username=identity.preferred_username,
     )
+    _principal_context.set(principal)
+    return principal
 
 
 def trusted_current_principal(
@@ -150,10 +233,15 @@ def trusted_current_principal(
 
 
 def current_user_role(
+    request: Request,
     principal: AuthenticatedPrincipal = Depends(
         current_principal
     ),
 ) -> Role:
+    # Proposal routers depend on this lightweight role dependency directly;
+    # bind the verified principal to the request so actor/audit resolution
+    # cannot reuse a ContextVar from an earlier request.
+    request.state.authenticated_principal = principal
     return principal.role
 
 

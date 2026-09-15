@@ -53,6 +53,7 @@ export type CanonicalForm = {
   requirement_policy_lineage?: V2Lineage[];
   technical_rule_lineage?: V2Lineage[];
   automation_profiles?: V2AutomationProfile[];
+  current_document_version_id?: string | null;
 };
 
 type V2Applicability = {
@@ -401,9 +402,46 @@ function FormDetails({ item, role, surface, onRefresh, onModify, onClose }: { it
     <section className="form-governance-section readiness-panel"><h3>Readiness</h3><strong>{readiness.state.replaceAll("_", " ")}</strong>{readiness.blocking_reasons.length > 0 && <><b>Blocking reasons</b><ul>{readiness.blocking_reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul></>}{readiness.warnings.length > 0 && <><b>Warnings</b><ul>{readiness.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul></>}</section>
     <V2GovernanceDetails item={item} role={role} onRefresh={onRefresh} />
     </>}
+    {ownerRoles.has(role) && <ContentLibraryIntelligencePanel item={item} />}
     {(surface === "DASHBOARD" || !profile.restricted_reference_sample) && <a className="button-secondary" href={`/api/master-content/${item.id}/download`} download>Download current source</a>}
     {ownerRoles.has(role) && <div className="detail-actions"><button type="button" className="button-secondary" onClick={onModify}>Modify</button><button type="button" className="button-secondary" onClick={onModify}>Upload version</button></div>}
   </Drawer>;
+}
+
+const CONTENT_LIBRARY_INTELLIGENCE_SKILLS = [
+  ["master-content.intake-governance-analysis", "Intake governance"],
+  ["master-content.quality-gap-analysis", "Quality gaps"],
+  ["master-content.version-change-analysis", "Version change"],
+  ["master-content.dependency-impact-analysis", "Dependency impact"],
+  ["master-content.reuse-applicability-analysis", "Reuse & applicability"],
+  ["master-content.description-draft", "Description draft"],
+  ["master-content.source-grounded-assist", "Source-grounded assist"],
+] as const;
+
+function ContentLibraryIntelligencePanel({ item }: { item: CanonicalForm }) {
+  const [busy, setBusy] = useState<string | null>(null);
+  const [result, setResult] = useState<Record<string, any> | null>(null);
+  const [error, setError] = useState("");
+  const run = async (skillId: string) => {
+    setBusy(skillId); setError("");
+    try {
+      setResult(await api<Record<string, any>>(`/api/master-content/${item.id}/intelligence/${skillId}`, {
+        method: "POST",
+        headers: { "Idempotency-Key": crypto.randomUUID() },
+      }));
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Content Library intelligence is unavailable.");
+    } finally { setBusy(null); }
+  };
+  return <section className="form-governance-section content-library-intelligence" aria-label="Content Library Intelligence">
+    <h3>Content Library Intelligence</h3>
+    <p>Governed, source-grounded suggestions for Owner review. Running a skill never changes canonical content.</p>
+    <div className="v2-governance-actions">
+      {CONTENT_LIBRARY_INTELLIGENCE_SKILLS.map(([skillId, label]) => <button key={skillId} type="button" className="button-secondary" disabled={Boolean(busy)} onClick={() => void run(skillId)}>{busy === skillId ? "Running…" : label}</button>)}
+    </div>
+    {error && <div className="dashboard-error" role="alert">{error}</div>}
+    {result && <div className="ai-result-summary"><b>Review required</b><span>{result.work_product_id || "Work product created"} · no canonical mutation</span><p>{result.output?.summary || result.summary || "Advisory result is ready for human review."}</p></div>}
+  </section>;
 }
 
 function V2GovernanceDetails({ item, role, onRefresh }: { item: CanonicalForm; role: string; onRefresh: () => Promise<void> }) {
