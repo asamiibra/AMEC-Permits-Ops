@@ -103,6 +103,7 @@ def _retire_step5_legacy_proposal_probes(client):
             # not recreate the same ref with different bytes and trip the SOR
             # version immutability guard.
             legacy_ref = "F-0003" if usage == "PROPOSAL_TEMPLATE" else "F-0004"
+            seeded_ref = "SYN-QUAL-PROPOSAL-TEMPLATE-V1" if usage == "PROPOSAL_TEMPLATE" else "SYN-QUAL-PROPOSAL-CHECKLIST-V1"
             active_items = [
                 current
                 for current in db.scalars(select(MasterContentItem).where(MasterContentItem.content_type == "FORM")).all()
@@ -111,6 +112,8 @@ def _retire_step5_legacy_proposal_probes(client):
                     or current.ref.startswith(f"ARCHIVED-{ref}-")
                     or current.ref == legacy_ref
                     or current.ref.startswith(f"ARCHIVED-{legacy_ref}-")
+                    or current.ref == seeded_ref
+                    or current.ref.startswith(f"ARCHIVED-{seeded_ref}-")
                 )
             ]
             valid_items = []
