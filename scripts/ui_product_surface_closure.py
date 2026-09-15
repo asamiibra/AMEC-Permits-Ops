@@ -541,7 +541,7 @@ def main() -> None:
     manifest_files = sorted(path for path in OUT.rglob("*") if path.is_file() and path.name != "MANIFEST.sha256")
     write_json(OUT / "MANIFEST.json", {
         "package": "ui-product-surface-closure",
-        "status": "BRANCH_LOCAL_UI_CLOSURE_BLOCKED_BY_FUNCTIONAL_EXPOSURE_GAPS",
+        "status": "BRANCH_UI_CLOSURE_NOT_TERMINAL_GATES_REMAIN",
         "executable_head": current_sha,
         "executable_tree": current_tree,
         "files": [str(path.relative_to(ROOT)) for path in manifest_files],
