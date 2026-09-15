@@ -55,6 +55,24 @@ OPERATION_TO_SKILL = {
     "readiness-explanation": "proposal.handoff-preflight",
 }
 _SKILLS = {item.manifest.skill_id: item for item in PROPOSAL_SKILLS}
+_REVIEW_PERSONA_BY_SKILL = {
+    "proposal.tender-intake-analysis": "BUSINESS_DEVELOPMENT",
+    "proposal.requirement-evidence-analysis": "BUSINESS_DEVELOPMENT",
+    "proposal.section-draft": "ENGINEERING",
+    "proposal.commercial-consistency-review": "BUSINESS_DEVELOPMENT",
+    "proposal.lpo-variance-analysis": "BUSINESS_DEVELOPMENT",
+    "proposal.handoff-preflight": "BUSINESS_DEVELOPMENT",
+}
+
+
+def _review_persona_for_work_product(work_product: AIWorkProduct) -> str:
+    """Return the accountable module reviewer for this Proposal skill."""
+    return _REVIEW_PERSONA_BY_SKILL.get(work_product.skill_id, "BUSINESS_DEVELOPMENT")
+
+
+def _allowed_review_personas(binding: ProposalIntelligenceReviewBinding) -> set[str]:
+    """Allow Owner override without widening the module review boundary."""
+    return {"OWNER", "SYSTEM_ADMIN", binding.required_persona}
 
 
 def _runtime_settings(settings: Settings, provider: Any | None) -> Settings:
@@ -287,10 +305,11 @@ def _create_work_review(db: Session, *, proposal: Opportunity, revision: Proposa
     existing = db.scalar(select(ProposalIntelligenceReviewBinding).where(ProposalIntelligenceReviewBinding.work_product_id == work_product.id))
     if existing:
         return existing
+    review_persona = _review_persona_for_work_product(work_product)
     task = WorkflowTask(
         task_type="PROPOSAL_INTELLIGENCE_REVIEW", title="Review Proposal Intelligence result",
         description="Review the structured Proposal analysis; this does not authorize a protected Proposal action.",
-        owner_role="BUSINESS_DEVELOPMENT", status=WorkflowTaskStatus.OPEN, priority="NORMAL",
+        owner_role="RESPONSIBLE_ENGINEER" if review_persona == "ENGINEERING" else "BUSINESS_DEVELOPMENT", status=WorkflowTaskStatus.OPEN, priority="NORMAL",
         correlation_id=correlation_id, task_family="PROPOSAL_INTELLIGENCE", context_type="PROPOSAL",
         context_id=proposal.id, blocking=False, next_action_code="REVIEW_PROPOSAL_INTELLIGENCE",
         deep_link=f"/proposals/{proposal.id}", evidence_summary={"work_product_id": work_product.id},
@@ -309,7 +328,7 @@ def _create_work_review(db: Session, *, proposal: Opportunity, revision: Proposa
         review_subject_id=work_product.id, work_product_id=work_product.id,
         context_snapshot_id=work_product.context_snapshot_id, dependency_type=dependency.dependency_type,
         dependency_id=dependency.dependency_id, dependency_version_or_hash=dependency.dependency_version_or_hash,
-        required_persona="BUSINESS_DEVELOPMENT", required_capability=P08_REVIEW_CAPABILITY,
+        required_persona=review_persona, required_capability=P08_REVIEW_CAPABILITY,
         correlation_id=correlation_id, idempotency_key=f"proposal-review:{work_product.id}",
         precondition_version=dependency.dependency_version_or_hash, actionable=True,
     )
@@ -436,7 +455,7 @@ def submit_proposal_review(
     if precondition_version != binding.precondition_version:
         raise IntelligenceContractError("PROPOSAL_REVIEW_PRECONDITION_FAILED")
     require_capability(principal.role, P08_REVIEW_CAPABILITY)
-    if principal.role.value != "SYSTEM_ADMIN" and persona_for_role(principal.role) != binding.required_persona:
+    if principal.role.value != "SYSTEM_ADMIN" and persona_for_role(principal.role) not in _allowed_review_personas(binding):
         raise IntelligenceContractError("PROPOSAL_REVIEW_PERSONA_DENIED")
     if binding.candidate_assertion_id:
         candidate = db.get(CandidateAssertion, binding.candidate_assertion_id)
