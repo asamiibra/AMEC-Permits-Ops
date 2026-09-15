@@ -22,7 +22,7 @@ from sqlalchemy.orm import Session
 from ..api.dependencies import AuthenticatedPrincipal
 from ..config.settings import Settings, get_settings
 from ..db import SessionLocal
-from ..models import AIExecutionLedger, AIWorkProduct, ContextDependency, ContextSnapshot
+from ..models import AIExecutionLedger, AIWorkProduct, ContextDependency, ContextSnapshot, IntelligenceCitation
 from ..services.context_compiler import ContextSourceSpec, compile_context
 from ..services.intelligence_contracts import (
     IntelligenceContractError,
@@ -188,6 +188,16 @@ def _replay_if_possible(
         raise AIError("AI_IDEMPOTENCY_REPLAY_INCOMPLETE", status_code=500)
     if str(work_product.state) != "CURRENT":
         raise AIError(P07_STALE_REPLAY, status_code=409)
+    citations = db.scalars(select(IntelligenceCitation).where(
+        IntelligenceCitation.work_product_id == work_product.id,
+    ).order_by(IntelligenceCitation.ordinal)).all()
+    citation_payload = [{
+        "ordinal": citation.ordinal,
+        "source_type": citation.source_type,
+        "source_id": citation.source_id,
+        "source_version_or_hash": citation.source_version_or_hash,
+        "locator_json": citation.locator_json,
+    } for citation in citations]
     return {
         "execution_id": existing.id,
         "work_product_id": work_product.id,
@@ -200,6 +210,7 @@ def _replay_if_possible(
         "output_class": work_product.output_class,
         "output": work_product.structured_output_json,
         "output_hash": work_product.output_hash,
+        "citations": citation_payload,
         "citation_count": work_product.citation_count,
         "draft_only": work_product.output_class == "DRAFT",
         "human_review_required": True,
@@ -287,6 +298,7 @@ class SkillRuntime:
                     "project_id": request.project_id,
                     "context_schema_version": request.context_schema_version,
                     "policy_version": request.policy_version,
+                    "synthetic_provider": provider is not None,
                     "skill_manifest": skill.manifest,
                     "sources": list(request.sources),
                 },

@@ -129,6 +129,7 @@ class ContextCompileRequest(BaseModel):
     project_id: str | None = Field(default=None, max_length=36)
     context_schema_version: str = Field(min_length=1, max_length=80)
     policy_version: str = Field(min_length=1, max_length=80)
+    synthetic_provider: bool = False
     skill_manifest: SkillManifest
     sources: list[ContextSourceSpec] = Field(default_factory=list)
 
@@ -346,6 +347,17 @@ class GovernedContextCompiler:
         }
         context_hash = stable_hash(hash_payload)
         synthetic_only = bool(items) and all(result.synthetic for _, result in resolved)
+        # The local Content Library acceptance provider may operate on an
+        # INTERNAL definition revision that is deliberately created in the
+        # synthetic environment. Keep this explicit and provider-scoped; a
+        # real gateway call can never claim this override.
+        if (
+            not synthetic_only
+            and request.synthetic_provider
+            and resolved
+            and all(result.context_type == "DEFINITION_REVISION" and result.data_classification == "INTERNAL" for _, result in resolved)
+        ):
+            synthetic_only = True
         data_classification = self._highest_classification(item.data_classification for item in items)
         contains_sensitive_data = any(item.contains_sensitive_data for item in items)
 
@@ -730,6 +742,8 @@ class GovernedContextCompiler:
             "master_content_ref": item.ref,
             "content_type": item.content_type,
             "title": item.title,
+            "category_id": item.category_id,
+            "category_label": item.category.label if item.category else None,
             "document_version_id": version.id,
             "version_number": version.version_number,
             "sha256": version.sha256,

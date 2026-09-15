@@ -14,7 +14,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..api.dependencies import AuthenticatedPrincipal
-from ..models import AuthorityCase, EngineeringProjectMember, MasterContentItem, Opportunity, Project, Role, User
+from ..models import AuthorityCase, DefinitionEntry, EngineeringProjectMember, MasterContentItem, Opportunity, Project, Role, User
 from ..services.backend_realignment import CAPABILITY_MATRIX, persona_for_role
 from .contracts import (
     AIExecutionMode,
@@ -129,12 +129,12 @@ MASTER_CONTENT_INTELLIGENCE_POLICY = AIPurposePolicy(
     policy_version="MASTER_CONTENT_INTELLIGENCE-1.0",
     allowed_roles=frozenset({Role.OWNER_SPONSOR, Role.SYSTEM_ADMIN}),
     required_capabilities=("READ_ALL",),
-    allowed_target_entity_types=frozenset({AITargetEntityType.MASTER_CONTENT_ITEM}),
+    allowed_target_entity_types=frozenset({AITargetEntityType.MASTER_CONTENT_ITEM, AITargetEntityType.DEFINITION_ENTRY}),
     allowed_execution_modes=frozenset({AIExecutionMode.INTERACTIVE}),
     allow_master_content=True,
     allow_transactional_evidence=False,
     allow_definitions=True,
-    allowed_sensitivity_classes=frozenset({"NONE", "SYNTHETIC"}),
+    allowed_sensitivity_classes=frozenset({"NONE", "SYNTHETIC", "INTERNAL"}),
     allow_historical=False,
     allow_superseded=False,
     real_content_allowed=False,
@@ -227,6 +227,12 @@ def resolve_target(
     if target_entity_type is AITargetEntityType.MASTER_CONTENT_ITEM:
         item = db.get(MasterContentItem, target_entity_id)
         if item is None:
+            raise ai_error(404, "AI_CONTEXT_TARGET_NOT_FOUND")
+        return ResolvedAITarget(target_entity_type, target_entity_id, None)
+
+    if target_entity_type is AITargetEntityType.DEFINITION_ENTRY:
+        definition = db.get(DefinitionEntry, target_entity_id)
+        if definition is None:
             raise ai_error(404, "AI_CONTEXT_TARGET_NOT_FOUND")
         return ResolvedAITarget(target_entity_type, target_entity_id, None)
 
