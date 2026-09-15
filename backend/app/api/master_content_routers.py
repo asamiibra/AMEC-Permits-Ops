@@ -65,6 +65,9 @@ from ..services.content_library_intelligence import (
     ContentLibraryDeterministicProvider,
     content_library_intelligence_reviews,
     execute_content_library_intelligence,
+    execute_definition_intelligence,
+    submit_content_library_intelligence_review,
+    submit_definition_intelligence_review,
 )
 from ..services.intelligence_contracts import IntelligenceContractError
 
@@ -105,6 +108,102 @@ def list_content_library_intelligence_reviews(
 ):
     require_capability(role, "READ_ALL")
     return {"item_id": item_id, "reviews": content_library_intelligence_reviews(db, item_id)}
+
+
+class ContentLibraryIntelligenceReviewRequest(BaseModel):
+    decision: str = Field(min_length=1, max_length=30)
+    idempotency_key: str = Field(min_length=1, max_length=200)
+    precondition_version: str = Field(min_length=1, max_length=200)
+    accepted_fields: dict[str, Any] = Field(default_factory=dict)
+    reason: str | None = Field(default=None, max_length=2000)
+
+
+@router.post("/definitions/{definition_id}/intelligence/{skill_name}")
+def run_definition_intelligence(
+    definition_id: str,
+    skill_name: str,
+    request: Request,
+    idempotency_key: str | None = Header(default=None, alias="Idempotency-Key"),
+    db: Session = Depends(get_db),
+    principal=Depends(current_principal),
+):
+    try:
+        settings = get_settings()
+        provider = ContentLibraryDeterministicProvider() if settings.synthetic_only and settings.app_env.upper() in {"TEST", "DEV"} else None
+        return execute_definition_intelligence(
+            db,
+            definition_id=definition_id,
+            skill_id=skill_name,
+            principal=principal,
+            idempotency_key=idempotency_key or str(uuid.uuid4()),
+            correlation_id=request.state.correlation_id,
+            settings=settings,
+            provider=provider,
+        )
+    except IntelligenceContractError as exc:
+        raise HTTPException(409, {"code": exc.code}) from exc
+
+
+@router.get("/definitions/{definition_id}/intelligence/reviews")
+def list_definition_intelligence_reviews(
+    definition_id: str,
+    db: Session = Depends(get_db),
+    role: Role = Depends(current_user_role),
+):
+    require_capability(role, "READ_ALL")
+    return {"definition_id": definition_id, "reviews": content_library_intelligence_reviews(db, definition_id, context_type="DEFINITION_ENTRY")}
+
+
+@router.post("/master-content/{item_id}/intelligence/{work_product_id}/review")
+def review_content_library_intelligence(
+    item_id: str,
+    work_product_id: str,
+    payload: ContentLibraryIntelligenceReviewRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+    principal=Depends(current_principal),
+):
+    try:
+        return submit_content_library_intelligence_review(
+            db,
+            item_id=item_id,
+            work_product_id=work_product_id,
+            decision=payload.decision,
+            idempotency_key=payload.idempotency_key,
+            precondition_version=payload.precondition_version,
+            accepted_fields=payload.accepted_fields,
+            principal=principal,
+            correlation_id=request.state.correlation_id,
+            reason=payload.reason,
+        )
+    except IntelligenceContractError as exc:
+        raise HTTPException(409, {"code": exc.code}) from exc
+
+
+@router.post("/definitions/{definition_id}/intelligence/{work_product_id}/review")
+def review_definition_intelligence(
+    definition_id: str,
+    work_product_id: str,
+    payload: ContentLibraryIntelligenceReviewRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+    principal=Depends(current_principal),
+):
+    try:
+        return submit_definition_intelligence_review(
+            db,
+            definition_id=definition_id,
+            work_product_id=work_product_id,
+            decision=payload.decision,
+            idempotency_key=payload.idempotency_key,
+            precondition_version=payload.precondition_version,
+            accepted_fields=payload.accepted_fields,
+            principal=principal,
+            correlation_id=request.state.correlation_id,
+            reason=payload.reason,
+        )
+    except IntelligenceContractError as exc:
+        raise HTTPException(409, {"code": exc.code}) from exc
 
 
 @router.post("/test-support/master-content/owner-cleanup")
@@ -399,8 +498,14 @@ def eligible(use: str = "ENGINEERING_AI", db: Session = Depends(get_db), role: R
 
 
 @router.post("/master-content/ai-assist")
-def ai_assist_disabled(payload: AIAssistRequest, role: Role = Depends(current_user_role)):
-    raise HTTPException(409, {"code": "AI_ASSIST_NOT_ENABLED", "request_type": payload.request_type})
+def ai_assist_retired(payload: AIAssistRequest, role: Role = Depends(current_user_role)):
+    """Keep a deterministic migration response for stale clients."""
+
+    raise HTTPException(410, {
+        "code": "AI_ASSIST_RETIRED",
+        "request_type": payload.request_type,
+        "replacement_path": "/api/master-content/{item_id}/intelligence/{skill_name}",
+    })
 
 
 @router.post("/master-content")
