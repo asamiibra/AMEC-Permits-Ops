@@ -1,8 +1,10 @@
-export type DemoRole = "SYSTEM_ADMIN" | "PROCESS_CHAMPION" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER";
+export type DemoRole = "SYSTEM_ADMIN" | "OWNER_SPONSOR" | "PROCESS_CHAMPION" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER";
 
 export const DEMO_PERSONAS: Array<{ value: DemoRole; label: string }> = [
+  { value: "OWNER_SPONSOR", label: "Owner" },
   { value: "SYSTEM_ADMIN", label: "System Admin" },
   { value: "PROCESS_CHAMPION", label: "Business Development" },
+  { value: "COMMERCIAL_APPROVER", label: "Business Development · Commercial Approver" },
   { value: "RESPONSIBLE_ENGINEER", label: "Engineering" },
 ];
 

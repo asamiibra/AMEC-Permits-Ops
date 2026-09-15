@@ -16,6 +16,7 @@ import { browserAuthMode, getSignedInAccountIdentity, signOut } from "./auth";
 import { readDemoRole } from "./rebrand";
 import { classifyPublicRoute, type PublicPage } from "./domainOwnershipRoutes";
 import { getPrimaryNavigation, isSupportedShellRole, personaForRole } from "./featureAvailability";
+import { EnvironmentBlockedSurface, environmentIndicator, isSyntheticEnvironment, runtimeEnvironment } from "./environment";
 import { AuthzSurface, type AuthzSurfaceState } from "./AuthFailureSurface";
 import "./dashboard.css";
 import "./billing-invoice.css";
@@ -61,6 +62,7 @@ function pageFromPath(): PublicPage {
 }
 
 export default function App() {
+  const environment = runtimeEnvironment();
   const [page, setPage] = useState<PublicPage>(pageFromPath);
   const [currentPath, setCurrentPath] = useState(() => window.location.pathname);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -143,16 +145,17 @@ export default function App() {
   useEffect(() => {
     const syncLocation = () => {
       const route = classifyPublicRoute(window.location.pathname);
-      if (!route.allowed) {
+      const administrationDenied = route.page === "administration" && role !== "SYSTEM_ADMIN";
+      if (!route.allowed || administrationDenied) {
         window.history.replaceState({}, "", "/home");
       }
-      setPage(route.page);
+      setPage(administrationDenied ? "home" : route.page);
       setCurrentPath(window.location.pathname);
     };
     syncLocation();
     window.addEventListener("popstate", syncLocation);
     return () => window.removeEventListener("popstate", syncLocation);
-  }, []);
+  }, [role]);
 
   const navigate = (id: string) => {
     const item = getPrimaryNavigation(role).find((candidate) => candidate.id === id);
@@ -193,6 +196,8 @@ export default function App() {
     }
   };
 
+  if (environment === "UNKNOWN") return <EnvironmentBlockedSurface />;
+
   if (authzState !== "AUTHZ_AUTHORIZED") {
     return (
       <AuthzSurface
@@ -226,7 +231,7 @@ export default function App() {
           <span className="dot" />
           <span>AMEC Engineering</span>
           <br />
-          <small>QEC-DOHA · SYNTHETIC COMMISSIONING</small>
+          {environment !== "PRODUCTION" && <small>QEC-DOHA · SYNTHETIC COMMISSIONING</small>}
         </div>
         <nav aria-label="Primary navigation">
           {visibleNavigation.map((item) => (
@@ -246,7 +251,9 @@ export default function App() {
           <span className="lock">▣</span>
           <span>
             <b>Safe boundary</b>
-            <small>Synthetic data only<br />No portal writes<br />No closure automation</small>
+            {environment === "PRODUCTION"
+              ? <small>No portal writes<br />Human-controlled closure</small>
+              : <small>Synthetic data only<br />No portal writes<br />No closure automation</small>}
           </span>
         </div>
       </aside>
@@ -285,8 +292,8 @@ export default function App() {
             </div>
           </div>
           <div className="top-actions">
-            <span className="env-chip">
-              <span className="dot green" /> SYNTHETIC PROTOTYPE
+              <span className="env-chip" data-runtime-environment={environment}>
+              <span className="dot green" /> {environmentIndicator(environment)}
             </span>
             {browserAuthMode() === "DEV_HEADER" && (
               <label aria-label="Demo as" className="role-switcher">
@@ -299,6 +306,7 @@ export default function App() {
                   <option value="OWNER_SPONSOR">Owner</option>
                   <option value="SYSTEM_ADMIN">System Admin</option>
                   <option value="PROCESS_CHAMPION">Business Development</option>
+                  <option value="COMMERCIAL_APPROVER">Business Development · Commercial Approver</option>
                   <option value="RESPONSIBLE_ENGINEER">Engineering</option>
                 </select>
               </label>
@@ -349,7 +357,9 @@ export default function App() {
         </header>
         <div className="content">
           <div className="synthetic-note compact-environment-badge">
-            SYNTHETIC OWNER-UAT · NO PRODUCTION WRITES · HUMAN SUBMISSION REQUIRED
+            {isSyntheticEnvironment(environment)
+              ? "SYNTHETIC OWNER-UAT · NO PRODUCTION WRITES · HUMAN SUBMISSION REQUIRED"
+              : "PRODUCTION · NO AUTOMATED EXTERNAL SUBMISSION · HUMAN CONTROL REQUIRED"}
           </div>
           <ContextualNavigation page={page} currentPath={currentPath} />
           {page === "home" && <HomeCommandCenter role={role} />}

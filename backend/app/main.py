@@ -501,6 +501,7 @@ def health(request: Request):
         "synthetic_only": (
             settings.synthetic_only
         ),
+        "real_data_allowed": settings.real_data_allowed,
         "database_configured": (
             database_configured
         ),

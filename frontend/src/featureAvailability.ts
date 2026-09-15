@@ -56,7 +56,7 @@ export function personaForRole(role: string): Persona | null {
   if (role === "SYSTEM_ADMIN") return "SYSTEM_ADMIN_TECHNICAL";
   return null;
 }
-export function isSupportedShellRole(role: string): boolean { return ["OWNER_SPONSOR", "PROCESS_CHAMPION", "RESPONSIBLE_ENGINEER", "SYSTEM_ADMIN"].includes(role); }
+export function isSupportedShellRole(role: string): boolean { return ["OWNER_SPONSOR", "PROCESS_CHAMPION", "COMMERCIAL_APPROVER", "RESPONSIBLE_ENGINEER", "SYSTEM_ADMIN"].includes(role); }
 export function featureVisible(feature: FeatureKey, role: string): boolean { const persona = personaForRole(role); return Boolean(featureAvailability[feature] && persona && personaCapabilities[persona].has(feature)); }
 export function getPrimaryNavigation(role: string): PrimaryNavigationItem[] { return primaryNavigation.filter((item) => !item.feature || featureVisible(item.feature, role)); }
 
