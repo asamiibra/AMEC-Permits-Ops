@@ -150,6 +150,7 @@ TERMINAL_CLASSES = (
     "BACKEND_ONLY_INTERNAL", "AUTOMATION_OR_SYSTEM_ONLY", "ADMIN_CAPABILITY_UI",
     "LATER_PRODUCTION_GATE", "AI_HANDOFF_INTEGRATION_BRANCH", "BLOCKING_UI_GAP",
 )
+ANALYSIS_STATES = TERMINAL_CLASSES + ("ADJUDICATION_PENDING",)
 
 # Exact, positive evidence currently exists only for framework/runtime and
 # deliberately deferred AI operations. Human operations must be added as exact
@@ -183,16 +184,19 @@ def semantic_adjudication(item: dict[str, Any], refs: list[dict[str, str]]) -> d
         return {"terminal_classification": "AUTOMATION_OR_SYSTEM_ONLY", "reviewer_disposition": "EXACT_RUNTIME_SURFACE_REVIEWED", "reason": "Exact framework/runtime operation; no human business decision or product capability is exposed."}
     if key in EXACT_AI_OPERATIONS:
         return {"terminal_classification": "AI_HANDOFF_INTEGRATION_BRANCH", "reviewer_disposition": "EXACT_SCOPE_HANDOFF_REVIEWED", "reason": "Exact AI/intelligence operation deliberately transferred to the integration branch; no current-branch UI or write authority is claimed."}
-    # Deliberately fail closed. A missing exact review is a blocking gap until
-    # a reviewer records the control, request trace, readback, state coverage,
-    # rationale, and named browser evidence for this operation.
-    return {"terminal_classification": "BLOCKING_UI_GAP", "reviewer_disposition": "UNREVIEWED_OPERATION", "reason": "No explicit row-level adjudication with control, request trace, authoritative readback, state coverage, rationale, and named browser evidence exists for this exact operation."}
+    # Deliberately keep unreviewed operations pending. A pending row is not a
+    # confirmed product gap: it still requires semantic review to determine
+    # whether it is human-facing, internal, derived, automated, future-gated,
+    # or genuinely missing from the UI.
+    return {"terminal_classification": "ADJUDICATION_PENDING", "reviewer_disposition": "ADJUDICATION_PENDING", "reason": "Exact row-level review is still required for human intent, scope, workflow ownership, UI exposure, authority, state coverage, and browser evidence."}
 
 
 def calculate_terminal_metrics(rows: list[dict[str, Any]]) -> dict[str, int]:
     return {
-        "UI_UNKNOWN_CLASSIFICATION_ROWS": sum(row.get("terminal_classification") not in TERMINAL_CLASSES for row in rows),
-        "UI_UNJUSTIFIED_CLASSIFICATION_ROWS": sum(not str(row.get("semantic_reason", "")).strip() or row.get("reviewer_disposition") == "UNREVIEWED_OPERATION" for row in rows),
+        "UI_UNKNOWN_CLASSIFICATION_ROWS": sum(row.get("terminal_classification") not in ANALYSIS_STATES for row in rows),
+        "UI_UNJUSTIFIED_CLASSIFICATION_ROWS": sum(not str(row.get("semantic_reason", "")).strip() or row.get("reviewer_disposition") in {"MISSING", "UNREVIEWED_OPERATION"} for row in rows),
+        "UI_ADJUDICATION_PENDING_COUNT": sum(row.get("terminal_classification") == "ADJUDICATION_PENDING" for row in rows),
+        "UI_CONFIRMED_BLOCKING_GAP_COUNT": sum(row.get("terminal_classification") == "BLOCKING_UI_GAP" for row in rows),
         "UI_BLOCKING_GAP_COUNT": sum(row.get("terminal_classification") == "BLOCKING_UI_GAP" for row in rows),
         "USER_SURFACE_UNMAPPED_COUNT": sum(row.get("terminal_classification") == "BLOCKING_UI_GAP" and row.get("classification") == "USER_SURFACE_REQUIRED" for row in rows),
         "UI_SUPPORT_API_UNJUSTIFIED_UNUSED_COUNT": sum(row.get("terminal_classification") == "BLOCKING_UI_GAP" and row.get("classification") == "UI_SUPPORT_API" for row in rows),
@@ -231,6 +235,7 @@ def main() -> None:
     parser.add_argument("--executable-head", default=None, help="Durable executable commit to bind evidence to")
     parser.add_argument("--executable-tree", default=None, help="Durable executable tree to bind evidence to")
     parser.add_argument("--evidence-head", default=None, help="Commit containing this evidence package, when already known")
+    parser.add_argument("--evidence-tree", default=None, help="Tree for the evidence commit, when already known")
     parser.add_argument("--frontend-source-tree", default=None)
     parser.add_argument("--frontend-test-tree", default=None)
     parser.add_argument("--backend-ui-contract-tree", default=None)
@@ -249,15 +254,38 @@ def main() -> None:
         human_facing = operation["classification"] in {"USER_SURFACE_REQUIRED", "UI_SUPPORT_API"}
         rows.append({
             **operation,
+            "operation_id": f"{operation['method']} {operation['path']} :: {operation['name']}",
+            "HTTP_method": operation["method"],
+            "route_or_service": operation["path"],
+            "backend_source_file": operation["endpoint"],
             "frontend_references": matched,
             "terminal_classification": exposure,
+            "adjudication_state": "TERMINAL" if exposure in TERMINAL_CLASSES else "PENDING",
             "semantic_reason": adjudication["reason"],
             "reviewer_disposition": adjudication.get("reviewer_disposition", "MISSING"),
             "workflow_id": workflow_id,
             "workflow": proof.get("workflow"),
+            "business_domain": workflow_id,
+            "business_object": None,
+            "source_requirement_reference": None,
+            "authorized_persona_or_access_class": None,
+            "human_intent": None,
+            "owning_workflow": proof.get("workflow"),
+            "classification_reason": adjudication["reason"],
             "surface_route": proof.get("route"),
             "human_control_or_consumer": proof.get("control"),
             "authoritative_readback": proof.get("readback"),
+            "read_model_or_readback": proof.get("readback"),
+            "mutation_authority": None,
+            "negative_authorization_boundary": None,
+            "normal_success_state": "NOT_PROVEN",
+            "validation_state": "NOT_PROVEN",
+            "server_error_state": "NOT_PROVEN",
+            "authorization_denied_state": "NOT_PROVEN",
+            "conflict_or_stale_state": "NOT_PROVEN",
+            "audit_or_history_visibility": proof.get("evidence"),
+            "test_evidence": None,
+            "reviewer": None,
             "history_or_evidence": proof.get("evidence"),
             "human_facing": human_facing,
             "business_persona": None if human_facing else "NOT_HUMAN",
@@ -298,11 +326,12 @@ def main() -> None:
         "USER_SURFACE_REQUIRED", "UI_SUPPORT_API", "SYSTEM_ONLY", "INTERNAL_ONLY", "DEFERRED_AI", "LATER_PRODUCTION_GATE"
     )}
     terminal_classes = TERMINAL_CLASSES
-    terminal_counts = {name: sum(row["terminal_classification"] == name for row in rows) for name in terminal_classes}
+    terminal_counts = {name: sum(row["terminal_classification"] == name for row in rows) for name in ANALYSIS_STATES}
     terminal_metrics = calculate_terminal_metrics(rows)
     unknown = terminal_metrics["UI_UNKNOWN_CLASSIFICATION_ROWS"]
     unjustified = terminal_metrics["UI_UNJUSTIFIED_CLASSIFICATION_ROWS"]
-    blocking = terminal_metrics["UI_BLOCKING_GAP_COUNT"]
+    pending = terminal_metrics["UI_ADJUDICATION_PENDING_COUNT"]
+    blocking = terminal_metrics["UI_CONFIRMED_BLOCKING_GAP_COUNT"]
     # Discovery gaps are intentionally reported as provenance, not as product
     # gaps. They are expected where a generic command builder or normalized
     # read projection owns the UI interaction.
@@ -313,6 +342,7 @@ def main() -> None:
     current_sha = args.executable_head or git("rev-parse", "HEAD")
     current_tree = args.executable_tree or git("rev-parse", "HEAD^{tree}")
     evidence_head = args.evidence_head or git("rev-parse", "HEAD")
+    evidence_tree = args.evidence_tree or git("rev-parse", "HEAD^{tree}")
     source_tree = args.frontend_source_tree or git("rev-parse", "HEAD:frontend/src")
     test_tree = args.frontend_test_tree or git("rev-parse", "HEAD:frontend/tests")
     backend_tree = args.backend_ui_contract_tree or git("rev-parse", "HEAD:backend")
@@ -326,7 +356,8 @@ def main() -> None:
         "executable_tree": current_tree,
         "FINAL_UI_EXECUTABLE_HEAD": current_sha,
         "FINAL_UI_EXECUTABLE_TREE": current_tree,
-        "FINAL_UI_EVIDENCE_HEAD": evidence_head,
+        "UI_FINAL_EVIDENCE_HEAD": evidence_head,
+        "UI_FINAL_EVIDENCE_TREE": evidence_tree,
         "FRONTEND_SOURCE_TREE": source_tree,
         "FRONTEND_TEST_TREE": test_tree,
         "BACKEND_UI_CONTRACT_TREE": backend_tree,
@@ -335,7 +366,8 @@ def main() -> None:
         "unclassified_count": sum(row["classification"] not in counts for row in rows),
         "classification_counts": counts,
         "terminal_classification_counts": terminal_counts,
-        "semantic_adjudication": "PASS" if unknown == 0 and unjustified == 0 and blocking == 0 else "FAIL",
+        "semantic_adjudication": "PASS" if unknown == 0 and unjustified == 0 and pending == 0 and blocking == 0 else "NOT_TERMINAL",
+        "analysis_state_counts": terminal_counts,
         "operations": rows,
     })
     write_json(OUT / "backend-ui-functional-coverage.json", {
@@ -344,19 +376,21 @@ def main() -> None:
         "executable_tree": current_tree,
         "row_count": len(rows),
         "metrics": {
-            "UI_CAPABILITY_SEMANTIC_ADJUDICATION": "PASS" if unknown == 0 and unjustified == 0 else "FAIL",
-            "UI_BACKEND_OPERATION_SEMANTIC_ADJUDICATION": "PASS" if unknown == 0 and unjustified == 0 and blocking == 0 else "FAIL",
+            "UI_CAPABILITY_SEMANTIC_ADJUDICATION": "PASS" if unknown == 0 and unjustified == 0 and pending == 0 and blocking == 0 else "NOT_PROVEN",
+            "UI_BACKEND_OPERATION_SEMANTIC_ADJUDICATION": "PASS" if unknown == 0 and unjustified == 0 and pending == 0 and blocking == 0 else "NOT_PROVEN",
             "UI_OPERATION_ADJUDICATION_HEURISTIC_ONLY": False,
             "UI_CLOSURE_HARNESS_FALSE_POSITIVE_TESTS": args.harness_status,
             "UI_UNKNOWN_CLASSIFICATION_ROWS": unknown,
             "UI_UNJUSTIFIED_CLASSIFICATION_ROWS": unjustified,
+            "UI_ADJUDICATION_PENDING_COUNT": pending,
+            "UI_CONFIRMED_BLOCKING_GAP_COUNT": blocking,
             "UI_BLOCKING_GAP_COUNT": blocking,
-            "UI_REQUIRED_HUMAN_CAPABILITIES_SURFACED": "PASS" if blocking == 0 else "FAIL",
+            "UI_REQUIRED_HUMAN_CAPABILITIES_SURFACED": "PASS" if pending == 0 and blocking == 0 else "NOT_PROVEN",
             "DISCOVERY_ONLY_UNMAPPED_USER_SURFACE_COUNT": discovery_unmapped,
             "DISCOVERY_ONLY_UNUSED_UI_SUPPORT_COUNT": discovery_unused_support,
             "USER_SURFACE_UNMAPPED_COUNT": unmapped,
             "UI_SUPPORT_API_UNJUSTIFIED_UNUSED_COUNT": unused_support,
-            "BACKEND_TO_UI_FUNCTIONAL_EXPOSURE": "PASS" if unknown == 0 and unjustified == 0 and blocking == 0 else "FAIL",
+            "BACKEND_TO_UI_FUNCTIONAL_EXPOSURE": "PASS" if unknown == 0 and unjustified == 0 and pending == 0 and blocking == 0 else "NOT_PROVEN",
         },
         "rows": rows,
     })
@@ -378,7 +412,8 @@ def main() -> None:
         "terminal_unknown_count": unknown,
         "terminal_unjustified_count": unjustified,
         "terminal_blocking_gap_count": blocking,
-        "status": "PASS" if unknown == 0 and unjustified == 0 and blocking == 0 else "FAIL",
+        "status": "PASS" if unknown == 0 and unjustified == 0 and pending == 0 and blocking == 0 else "NOT_TERMINAL",
+        "analysis_state_counts": terminal_counts,
         "discovery_is_not_terminal_evidence": True,
         "prior_heuristic_semantic_adjudication": "SUPERSEDED_AS_TERMINAL_EVIDENCE",
         "workflows": workflow_acceptance,
@@ -391,7 +426,7 @@ def main() -> None:
         "executable_head": current_sha,
         "executable_tree": current_tree,
         "status": "REAL_STACK_SYNTHETIC_E2E_PASS" if args.real_stack_status == "PASS" else "NOT_PROVEN",
-        "semantic_adjudication": "PASS" if unknown == 0 and unjustified == 0 and blocking == 0 else "FAIL",
+        "semantic_adjudication": "PASS" if unknown == 0 and unjustified == 0 and pending == 0 and blocking == 0 else "NOT_TERMINAL",
         "workflow_count": len(WORKFLOW_PROOFS),
     })
     write_json(workflow_path, workflow)
@@ -464,11 +499,14 @@ def main() -> None:
     browser_real_files = sorted(str(p.relative_to(ROOT)) for p in (ROOT / "frontend/browser-real-stack").glob("*.spec.ts"))
     final_status = {
         "document": "AMEC ProposalOps final end-to-end product UI surface closure",
-        "generated_at_head": current_sha,
-        "generated_at_tree": current_tree,
+        "generated_at_head": evidence_head,
+        "generated_at_tree": evidence_tree,
+        "UI_EXECUTABLE_HEAD": current_sha,
+        "UI_EXECUTABLE_TREE": current_tree,
+        "UI_FINAL_EVIDENCE_HEAD": evidence_head,
+        "UI_FINAL_EVIDENCE_TREE": evidence_tree,
         "FINAL_UI_EXECUTABLE_HEAD": current_sha,
         "FINAL_UI_EXECUTABLE_TREE": current_tree,
-        "FINAL_UI_EVIDENCE_HEAD": evidence_head,
         "FRONTEND_SOURCE_TREE": source_tree,
         "FRONTEND_TEST_TREE": test_tree,
         "BACKEND_UI_CONTRACT_TREE": backend_tree,
@@ -476,15 +514,17 @@ def main() -> None:
         "metrics": {
             "BACKEND_OPERATION_CLASSIFICATION_COMPLETENESS": "PASS",
             "BACKEND_OPERATION_COUNT": len(rows),
-            "UI_CAPABILITY_SEMANTIC_ADJUDICATION": "PASS" if unknown == 0 and unjustified == 0 else "FAIL",
-            "UI_BACKEND_OPERATION_SEMANTIC_ADJUDICATION": "PASS" if unknown == 0 and unjustified == 0 and blocking == 0 else "FAIL",
+            "UI_CAPABILITY_SEMANTIC_ADJUDICATION": "PASS" if unknown == 0 and unjustified == 0 and pending == 0 and blocking == 0 else "NOT_PROVEN",
+            "UI_BACKEND_OPERATION_SEMANTIC_ADJUDICATION": "PASS" if unknown == 0 and unjustified == 0 and pending == 0 and blocking == 0 else "NOT_PROVEN",
             "UI_OPERATION_ADJUDICATION_HEURISTIC_ONLY": False,
             "UI_CLOSURE_HARNESS_FALSE_POSITIVE_TESTS": args.harness_status,
             "UI_UNKNOWN_CLASSIFICATION_ROWS": unknown,
             "UI_UNJUSTIFIED_CLASSIFICATION_ROWS": unjustified,
+            "UI_ADJUDICATION_PENDING_COUNT": pending,
+            "UI_CONFIRMED_BLOCKING_GAP_COUNT": blocking,
             "UI_BLOCKING_GAP_COUNT": blocking,
-            "UI_REQUIRED_HUMAN_CAPABILITIES_SURFACED": "PASS" if blocking == 0 else "FAIL",
-            "UI_REQUIRED_WORKFLOW_CONNECTIVITY": "PASS" if args.real_stack_status == "PASS" and blocking == 0 else "NOT_PROVEN",
+            "UI_REQUIRED_HUMAN_CAPABILITIES_SURFACED": "PASS" if pending == 0 and blocking == 0 else "NOT_PROVEN",
+            "UI_REQUIRED_WORKFLOW_CONNECTIVITY": "PASS" if args.real_stack_status == "PASS" and pending == 0 and blocking == 0 else "NOT_PROVEN",
             "UI_PERSONA_TASK_ACCEPTANCE": "NOT_PROVEN",
             "UI_STATE_ERROR_CONFLICT_ACCEPTANCE": "NOT_PROVEN",
             "UI_PERSONA_MODEL_CANONICAL": "PASS",
@@ -497,7 +537,7 @@ def main() -> None:
             "USER_SURFACE_REQUIRED_OPERATION_COUNT": counts["USER_SURFACE_REQUIRED"],
             "USER_SURFACE_UNMAPPED_COUNT": unmapped,
             "UI_SUPPORT_API_UNJUSTIFIED_UNUSED_COUNT": unused_support,
-            "BACKEND_TO_UI_FUNCTIONAL_EXPOSURE": "PASS" if not unmapped and not unused_support else "FAIL",
+            "BACKEND_TO_UI_FUNCTIONAL_EXPOSURE": "PASS" if pending == 0 and blocking == 0 and not unmapped and not unused_support else "NOT_PROVEN",
             "PRIMARY_NAV_DESTINATION_COUNT": 7,
             "PRIMARY_ROUTE_ORPHAN_COUNT": 0,
             "CANONICAL_DEEP_LINK_FAILURE_COUNT": 0 if args.real_stack_status == "PASS" else None,
@@ -573,7 +613,8 @@ def main() -> None:
         "executable_tree": current_tree,
         "FINAL_UI_EXECUTABLE_HEAD": current_sha,
         "FINAL_UI_EXECUTABLE_TREE": current_tree,
-        "FINAL_UI_EVIDENCE_HEAD": evidence_head,
+        "UI_FINAL_EVIDENCE_HEAD": evidence_head,
+        "UI_FINAL_EVIDENCE_TREE": evidence_tree,
         "FRONTEND_SOURCE_TREE": source_tree,
         "FRONTEND_TEST_TREE": test_tree,
         "BACKEND_UI_CONTRACT_TREE": backend_tree,
@@ -593,7 +634,7 @@ def main() -> None:
     docs.write_text(
         "# AMEC ProposalOps UI Product-Surface Closure\n\n"
         f"This evidence run is bound to executable head `{current_sha}` and tree `{current_tree}`.\n\n"
-        f"The executable census reports {len(rows)} operations. The corrected adjudicator is fail-closed: {blocking} operations remain `BLOCKING_UI_GAP` because they lack exact row-level control, request trace, authoritative readback, state coverage, rationale, and named browser evidence. The discovery-only scan still records `{discovery_unmapped}` apparent unmapped user rows and `{discovery_unused_support}` apparent unused support rows; those counts are provenance, not terminal closure metrics.\n\n"
+        f"The executable census reports {len(rows)} operations. The corrected adjudicator is fail-closed: {pending} operations remain `ADJUDICATION_PENDING`; none are counted as confirmed UI gaps until row-level semantic review proves human intent, scope, workflow ownership, missing exposure, and evidence requirements. Confirmed `BLOCKING_UI_GAP` count is {blocking}. The discovery-only scan still records `{discovery_unmapped}` apparent unmapped user rows and `{discovery_unused_support}` apparent unused support rows; those counts are provenance, not terminal closure metrics.\n\n"
         "The semantic ledger no longer uses URL prefixes, HTTP verbs, or frontend string references as terminal evidence. It deliberately does not create endpoint-per-screen UI.\n\n"
         "The frontend unit suite remains 27 files / 139 tests passing and the production build passes. The real-stack, responsive, accessibility, authz, persona-task, state/error/conflict, owner-UAT, and exact-head CI lanes are recorded separately and are not inferred from route existence.\n\n"
         "AI/intelligence remains formally deferred to the integration branch. No merge, deployment, DNS, production-data, protected human action, or AI production mutation was performed.\n",
