@@ -17,6 +17,7 @@ from backend.app.api.dependencies import AuthenticatedPrincipal
 from backend.app.config.settings import Settings
 from backend.app.models import (
     AIWorkProduct, CandidateAssertion, ContextDependency, ContextSnapshot,
+    IntelligenceCitation,
     IntelligenceReviewDecision, Opportunity, ProposalAcceptedRevision,
     ProposalIntelligenceReviewBinding, User, WorkflowTask, WorkflowTaskStatus,
     ProposalRevision, ProposalSourceLink,
@@ -393,7 +394,24 @@ def proposal_reviews(db: Session, proposal_id: str) -> list[dict[str, Any]]:
         refresh_review_currentness(db, row)
         wp = db.get(AIWorkProduct, row.work_product_id) if row.work_product_id else None
         task = db.get(WorkflowTask, row.workflow_task_id)
-        result.append({"binding_id": row.id, "workflow_task_id": row.workflow_task_id, "proposal_id": row.proposal_id, "review_subject_type": row.review_subject_type, "review_subject_id": row.review_subject_id, "work_product_id": row.work_product_id, "context_snapshot_id": row.context_snapshot_id, "required_persona": row.required_persona, "required_capability": row.required_capability, "correlation_id": row.correlation_id, "precondition_version": row.precondition_version, "actionable": row.actionable and bool(wp and str(wp.state) == "CURRENT"), "stale_reason": row.stale_reason, "task_status": task.status if task else None, "output": wp.structured_output_json if wp and str(wp.state) == "CURRENT" else (wp.structured_output_json if wp else None), "work_product_state": str(wp.state) if wp else None, "skill_id": wp.skill_id if wp else None, "skill_version": wp.skill_version if wp else None})
+        citations = []
+        if wp is not None:
+            citations = [
+                {
+                    "citation_key": (citation.locator_json or {}).get("citation_key", f"CIT-{citation.ordinal:03d}"),
+                    "ordinal": citation.ordinal,
+                    "source_type": citation.source_type,
+                    "source_id": citation.source_id,
+                    "source_version_or_hash": citation.source_version_or_hash,
+                    "locator": citation.locator_json,
+                }
+                for citation in db.scalars(
+                    select(IntelligenceCitation)
+                    .where(IntelligenceCitation.work_product_id == wp.id)
+                    .order_by(IntelligenceCitation.ordinal)
+                ).all()
+            ]
+        result.append({"binding_id": row.id, "workflow_task_id": row.workflow_task_id, "proposal_id": row.proposal_id, "review_subject_type": row.review_subject_type, "review_subject_id": row.review_subject_id, "work_product_id": row.work_product_id, "context_snapshot_id": row.context_snapshot_id, "required_persona": row.required_persona, "required_capability": row.required_capability, "correlation_id": row.correlation_id, "precondition_version": row.precondition_version, "actionable": row.actionable and bool(wp and str(wp.state) == "CURRENT"), "stale_reason": row.stale_reason, "task_status": task.status if task else None, "output": wp.structured_output_json if wp and str(wp.state) == "CURRENT" else (wp.structured_output_json if wp else None), "citations": citations, "work_product_state": str(wp.state) if wp else None, "skill_id": wp.skill_id if wp else None, "skill_version": wp.skill_version if wp else None})
     db.commit()
     return result
 
