@@ -14,6 +14,7 @@ import "./ui-productionization.css";
 import "./ui-system-closure.css";
 import "./mobile-navigation.css";
 import "./contract/contract-intelligence.css";
+import "./ux-closure.css";
 
 class AppErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
   state = { hasError: false };

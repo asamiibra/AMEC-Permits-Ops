@@ -13,6 +13,7 @@ import { readDemoRole } from "./rebrand";
 import { classifyPublicRoute, type PublicPage } from "./domainOwnershipRoutes";
 import { getPrimaryNavigation, isSupportedShellRole } from "./featureAvailability";
 import { AuthzSurface, type AuthzSurfaceState } from "./AuthFailureSurface";
+import { Icon } from "./Icon";
 import "./dashboard.css";
 import "./billing-invoice.css";
 import "./admin-owner.css";
@@ -217,20 +218,22 @@ export default function App() {
         </div>
         <nav aria-label="Primary navigation">
           {visibleNavigation.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              aria-label={item.label}
-              className={page === item.page ? "nav-item active" : "nav-item"}
-              onClick={() => navigate(item.id)}
-            >
-              <span className="nav-icon">{item.icon}</span>
-              <span>{item.label}</span>
-            </button>
+            <div key={item.id}>
+              {item.id === "opportunity" && <div className="nav-section-label">WORKFLOW</div>}
+              <button
+                type="button"
+                aria-label={item.label}
+                className={page === item.page ? "nav-item active" : "nav-item"}
+                onClick={() => navigate(item.id)}
+              >
+                <span className="nav-icon"><Icon name={item.icon} size={18} /></span>
+                <span>{item.label}</span>
+              </button>
+            </div>
           ))}
         </nav>
         <div className="sidebar-foot">
-          <span className="lock">▣</span>
+          <span className="lock"><Icon name="shield" size={17} /></span>
           <span>
             <b>Safe boundary</b>
             <small>Synthetic data only<br />No portal writes<br />No closure automation</small>
@@ -243,20 +246,22 @@ export default function App() {
             <aside className="mobile-nav-drawer" role="dialog" aria-modal="true" aria-label="Mobile primary navigation" onClick={(event) => event.stopPropagation()}>
               <div className="mobile-nav-drawer-head">
                 <div><b>AMEC System</b><small>PROPOSALOPS WORKSPACE</small></div>
-                <button className="mobile-nav-close" type="button" aria-label="Close navigation" onClick={() => setMobileNavOpen(false)}>×</button>
+                <button className="mobile-nav-close" type="button" aria-label="Close navigation" onClick={() => setMobileNavOpen(false)}><Icon name="close" size={18} /></button>
               </div>
               <nav aria-label="Mobile primary navigation">
                 {visibleNavigation.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    aria-label={item.label}
-                    className={page === item.page ? "nav-item active" : "nav-item"}
-                    onClick={() => navigate(item.id)}
-                  >
-                    <span className="nav-icon">{item.icon}</span>
-                    <span>{item.label}</span>
-                  </button>
+                  <div key={item.id}>
+                    {item.id === "opportunity" && <div className="nav-section-label">WORKFLOW</div>}
+                    <button
+                      type="button"
+                      aria-label={item.label}
+                      className={page === item.page ? "nav-item active" : "nav-item"}
+                      onClick={() => navigate(item.id)}
+                    >
+                      <span className="nav-icon"><Icon name={item.icon} size={18} /></span>
+                      <span>{item.label}</span>
+                    </button>
+                  </div>
                 ))}
               </nav>
             </aside>
@@ -264,7 +269,7 @@ export default function App() {
         )}
         <header className="topbar">
           <div className="topbar-heading">
-            <button className="mobile-nav-trigger" type="button" aria-label="Open navigation" aria-expanded={mobileNavOpen} onClick={() => setMobileNavOpen(true)} />
+            <button className="mobile-nav-trigger" type="button" aria-label="Open navigation" aria-expanded={mobileNavOpen} onClick={() => setMobileNavOpen(true)}><Icon name="menu" size={18} /></button>
             <AmecLogo size="sm" className="mobile-topbar-amec-logo" />
             <div>
               <span className="eyebrow">AMEC SYSTEM WORKSPACE</span>

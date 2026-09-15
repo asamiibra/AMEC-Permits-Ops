@@ -19,6 +19,7 @@ import {
   Landmark,
   Library,
   ListTodo,
+  Menu,
   Minus,
   Plus,
   PackageCheck,
@@ -69,7 +70,8 @@ export type IconName =
   | "library"
   | "sparkles"
   | "users"
-  | "current";
+  | "current"
+  | "menu";
 
 const iconComponents: Record<IconName, LucideIcon> = {
   dashboard: House,
@@ -105,6 +107,7 @@ const iconComponents: Record<IconName, LucideIcon> = {
   sparkles: Sparkles,
   users: UsersRound,
   current: Circle,
+  menu: Menu,
 };
 
 export function Icon({
