@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     real_data_allowed: bool = False
     owner_test_mode: bool = False
     auth_mode: str = "DEV_HEADER"
+    # Deployment configuration; blank fails closed for calendar reporting.
+    business_local_timezone: str = ""
 
     # Microsoft Entra ID configuration for Azure preprod.
     # These are identifiers only; no client secret is stored in the web app.

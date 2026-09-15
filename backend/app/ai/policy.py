@@ -14,7 +14,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..api.dependencies import AuthenticatedPrincipal
-from ..models import AuthorityCase, EngineeringProjectMember, Opportunity, Project, Role, User
+from ..models import AuthorityCase, EngineeringProjectMember, MasterContentItem, Opportunity, Project, Role, User
 from ..services.backend_realignment import CAPABILITY_MATRIX, persona_for_role
 from .contracts import (
     AIExecutionMode,
@@ -124,11 +124,30 @@ PROPOSAL_V1_POLICIES = {
     )
 }
 
+MASTER_CONTENT_INTELLIGENCE_POLICY = AIPurposePolicy(
+    purpose_id=AIPurpose.MASTER_CONTENT_INTELLIGENCE,
+    policy_version="MASTER_CONTENT_INTELLIGENCE-1.0",
+    allowed_roles=frozenset({Role.OWNER_SPONSOR, Role.SYSTEM_ADMIN}),
+    required_capabilities=("READ_ALL",),
+    allowed_target_entity_types=frozenset({AITargetEntityType.MASTER_CONTENT_ITEM}),
+    allowed_execution_modes=frozenset({AIExecutionMode.INTERACTIVE}),
+    allow_master_content=True,
+    allow_transactional_evidence=False,
+    allow_definitions=True,
+    allowed_sensitivity_classes=frozenset({"NONE", "SYNTHETIC"}),
+    allow_historical=False,
+    allow_superseded=False,
+    real_content_allowed=False,
+    protected_action_authority="ZERO",
+    canonical_write_authority="ZERO",
+)
+
 
 AI_PURPOSE_POLICIES = {
     AIPurpose.ENGINEERING_TECHNICAL_DRAFT: ENGINEERING_TECHNICAL_DRAFT_POLICY,
     AIPurpose.PROPOSAL_INTELLIGENCE: PROPOSAL_INTELLIGENCE_POLICY,
     **PROPOSAL_V1_POLICIES,
+    AIPurpose.MASTER_CONTENT_INTELLIGENCE: MASTER_CONTENT_INTELLIGENCE_POLICY,
 }
 
 
@@ -136,7 +155,7 @@ AI_PURPOSE_POLICIES = {
 class ResolvedAITarget:
     target_entity_type: AITargetEntityType
     target_entity_id: str
-    project_id: str
+    project_id: str | None
 
 
 @dataclass(frozen=True)
@@ -149,7 +168,7 @@ class AIAuthorizationContext:
     execution_mode: AIExecutionMode
     target_entity_type: AITargetEntityType
     target_entity_id: str
-    resolved_project_id: str
+    resolved_project_id: str | None
     required_capabilities: tuple[str, ...]
     scope_decision: str
     decision_code: str
@@ -204,6 +223,12 @@ def resolve_target(
             # but it must not be presented as a project-scoped operation.
             return ResolvedAITarget(target_entity_type, target_entity_id, proposal.id)
         return ResolvedAITarget(target_entity_type, target_entity_id, proposal.project_id)
+
+    if target_entity_type is AITargetEntityType.MASTER_CONTENT_ITEM:
+        item = db.get(MasterContentItem, target_entity_id)
+        if item is None:
+            raise ai_error(404, "AI_CONTEXT_TARGET_NOT_FOUND")
+        return ResolvedAITarget(target_entity_type, target_entity_id, None)
 
     case = db.get(AuthorityCase, target_entity_id)
     if case is None:

@@ -20,6 +20,8 @@ from sqlalchemy.orm import Session
 from backend.app.models import (
     AssertionStatus,
     CandidateAssertion,
+    Contract,
+    ContractRevision,
     ContextDependency,
     ContextSnapshot,
     DefinitionEntry,
@@ -456,6 +458,20 @@ class GovernedContextCompiler:
             if request.project_id is not None and proposal.project_id != request.project_id:
                 raise IntelligenceContractError("CONTEXT_PROJECT_SCOPE_MISMATCH")
             return scope_type, proposal.project_id
+        if scope_type in {"CONTRACT", "CONTRACT_REVISION"}:
+            contract = self.db.get(Contract, request.scope_id)
+            if contract is None:
+                raise IntelligenceContractError("CONTEXT_CONTRACT_NOT_FOUND")
+            if request.project_id is not None and contract.project_id != request.project_id:
+                raise IntelligenceContractError("CONTEXT_PROJECT_SCOPE_MISMATCH")
+            return scope_type, contract.project_id
+        if scope_type == "MASTER_CONTENT_ITEM":
+            item = self.db.get(MasterContentItem, request.scope_id)
+            if item is None:
+                raise IntelligenceContractError("CONTEXT_MASTER_CONTENT_ITEM_NOT_FOUND")
+            if request.project_id is not None:
+                raise IntelligenceContractError("CONTEXT_NON_PROJECT_HAS_PROJECT_ID")
+            return scope_type, None
         if request.project_id is not None:
             raise IntelligenceContractError("CONTEXT_NON_PROJECT_HAS_PROJECT_ID")
         return scope_type, None
@@ -486,6 +502,8 @@ class GovernedContextCompiler:
         if scope_type == "PROJECT" and project_id != request_project_id:
             raise IntelligenceContractError("CONTEXT_CROSS_PROJECT_SOURCE")
         if scope_type == "PROPOSAL" and project_id != request_project_id:
+            raise IntelligenceContractError("CONTEXT_CROSS_PROJECT_SOURCE")
+        if scope_type in {"CONTRACT", "CONTRACT_REVISION"} and project_id not in {None, request_project_id}:
             raise IntelligenceContractError("CONTEXT_CROSS_PROJECT_SOURCE")
         if project_id is not None and scope_type not in {"PROJECT", "PROPOSAL"}:
             raise IntelligenceContractError("CONTEXT_NON_PROJECT_SOURCE_SCOPE")
@@ -586,6 +604,10 @@ class GovernedContextCompiler:
             return None
         self._current_document_version(version)
         self._check_project(version.document.project_id, request)
+        if request.scope_type.upper() in {"CONTRACT", "CONTRACT_REVISION"}:
+            metadata = version.metadata_json if isinstance(version.metadata_json, dict) else {}
+            if metadata.get("contract_id") != request.scope_id:
+                raise IntelligenceContractError("CONTEXT_CONTRACT_SOURCE_SCOPE_MISMATCH")
         synthetic = self._synthetic_version(version)
         return _ResolvedSource(
             "DOCUMENT_VERSION", "DOCUMENT_VERSION", version.id, version.sha256,
@@ -747,6 +769,33 @@ class GovernedContextCompiler:
     def _resolve_domain_entity_revision(self, request: ContextCompileRequest, source: ContextSourceSpec, capabilities: set[str]) -> _ResolvedSource | None:
         selector = self._validate_selector(source, {"entity_type", "entity_id"})
         entity_type = str(selector.get("entity_type", "")).upper()
+        if entity_type == "CONTRACT":
+            if request.scope_type.upper() not in {"CONTRACT", "CONTRACT_REVISION"}:
+                raise IntelligenceContractError("CONTEXT_CROSS_PROJECT_SOURCE")
+            entity_id = str(selector.get("entity_id") or request.scope_id)
+            if entity_id != request.scope_id:
+                raise IntelligenceContractError("CONTEXT_CROSS_PROJECT_SOURCE")
+            contract = self.db.get(Contract, entity_id)
+            if contract is None:
+                return None
+            revision = getattr(contract, "current_revision_id", None)
+            current_revision = self.db.get(ContractRevision, revision) if revision else None
+            revision_identity = current_revision.content_hash if current_revision else stable_hash({"contract_id": contract.id, "updated_at": contract.updated_at.isoformat()})
+            self._check_project(contract.project_id, request)
+            projection = self._safe_projection({
+                "entity_type": "CONTRACT", "entity_id": contract.id,
+                "contract_reference": contract.contract_reference, "status": contract.status,
+                "stage": contract.stage, "project_id": contract.project_id,
+                "current_revision_id": current_revision.id if current_revision else None,
+                "current_revision_number": current_revision.revision_number if current_revision else None,
+                "current_revision_identity": revision_identity,
+            })
+            synthetic = str(contract.id).lower().startswith("synthetic-") or bool(contract.project_id and str(contract.project_id).lower().startswith("synthetic-"))
+            return _ResolvedSource(
+                "DOMAIN_ENTITY_REVISION", "DOMAIN_ENTITY_REVISION", contract.id, revision_identity,
+                "CANONICAL", "CURRENT", "SYNTHETIC" if synthetic else "INTERNAL", False, synthetic,
+                projection, {"domain_entity": "CONTRACT", "current_revision_id": current_revision.id if current_revision else None},
+            )
         if entity_type == "PROPOSAL":
             if request.scope_type.upper() != "PROPOSAL":
                 raise IntelligenceContractError("CONTEXT_CROSS_PROJECT_SOURCE")

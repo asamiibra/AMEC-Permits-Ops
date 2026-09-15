@@ -7,7 +7,7 @@ from backend.app.config.settings import get_settings
 from backend.app.api.dependencies import AuthenticatedPrincipal
 from backend.app.api import bd_proposal_routers
 from backend.app.db import SessionLocal
-from backend.app.models import AuditEvent, ClientAccount, ConsultancyOffice, Project, Role
+from backend.app.models import AuditEvent, ClientAccount, ConsultancyOffice, Project, Role, User
 from backend.app.storage import StorageError, create_binary_store
 from backend.app.services.proposal_production_boundary import require_authorized_office
 from backend.app.services.proposal_workspace import snapshot_for_accept
@@ -42,7 +42,8 @@ def test_audit_identity_ignores_caller_actor(client):
     assert response.status_code == 200, response.text
     with SessionLocal() as db:
         event = db.query(AuditEvent).filter(AuditEvent.entity_id == response.json()["id"], AuditEvent.event_type == "BD_PROPOSAL_DRAFT_CREATED").one()
-        assert event.actor_id == "dev-role:PROCESS_CHAMPION"
+        champion = db.query(User).filter(User.email == "champion@amec.synthetic").one()
+        assert event.actor_id == champion.id
         assert event.actor_id != "spoofed-caller"
         assert event.metadata_json["auth_mode"] == "DEV_HEADER"
 

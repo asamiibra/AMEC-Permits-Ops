@@ -1,0 +1,59 @@
+{
+  "artifact": "content-library-functional-acceptance-matrix",
+  "version": "1.0",
+  "candidate_branch": "branch/proposalops-convergence-v1",
+  "scope": "Content Library adapter in the single Proposal/Billing/Contract convergence candidate",
+  "authority_boundary": {
+    "canonical_write_authority": "ZERO",
+    "protected_action_authority": "ZERO",
+    "tools": [],
+    "review_required": true
+  },
+  "skills": [
+    "master-content.intake-governance-analysis",
+    "master-content.quality-gap-analysis",
+    "master-content.version-change-analysis",
+    "master-content.dependency-impact-analysis",
+    "master-content.reuse-applicability-analysis",
+    "master-content.description-draft",
+    "master-content.source-grounded-assist"
+  ],
+  "checks": [
+    {
+      "id": "CL-REGISTRY-001",
+      "claim": "Exactly seven server-owned Content Library skills resolve from the shared registry",
+      "status": "PASS",
+      "evidence": "backend/tests/test_content_library_intelligence_skill_pack.py::test_content_library_pack_is_exactly_registered_and_non_authoritative"
+    },
+    {
+      "id": "CL-RUNTIME-001",
+      "claim": "Content Library execution uses the shared SkillRuntime and governed context compiler",
+      "status": "PASS",
+      "evidence": "backend/tests/test_content_library_intelligence_skill_pack.py::test_content_library_intelligence_uses_shared_runtime_and_requires_owner_review"
+    },
+    {
+      "id": "CL-REVIEW-001",
+      "claim": "Every result creates or reuses one module-owned human review task and cannot mutate canonical state",
+      "status": "PASS",
+      "evidence": "backend/tests/test_content_library_intelligence_skill_pack.py::test_content_library_intelligence_uses_shared_runtime_and_requires_owner_review"
+    },
+    {
+      "id": "CL-RBAC-001",
+      "claim": "Non-owner Content Library intelligence execution is denied",
+      "status": "PASS",
+      "evidence": "backend/tests/test_content_library_intelligence_skill_pack.py::test_content_library_intelligence_uses_shared_runtime_and_requires_owner_review"
+    },
+    {
+      "id": "CL-HOSTED-001",
+      "claim": "Hosted Azure OpenAI execution on the final deployed SHA",
+      "status": "PENDING_COMBINED_RELEASE",
+      "evidence": "Requires final candidate deployment and commissioned-provider proof"
+    },
+    {
+      "id": "CL-BROWSER-001",
+      "claim": "Cold independent Entra Owner browser acceptance on the final deployed pair",
+      "status": "PENDING_COMBINED_RELEASE",
+      "evidence": "Requires final candidate deployment"
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import { OpportunitiesPage } from "./Opportunities";
 import { ContractMobilizationPage } from "./AdministrationOwner";
 import { CurrentDashboard } from "./Dashboard";
 import { BillingInvoicePage } from "./BillingInvoice";
+import { BillingShell } from "./billing/BillingShell";
 import { HomePage } from "./Home";
 import { AmecLogo } from "./AmecLogo";
 import { browserAuthMode, getSignedInAccountIdentity, signOut } from "./auth";
@@ -330,7 +331,7 @@ export default function App() {
           {page === "home" && <HomePage />}
           {page === "opportunities" && <OpportunitiesPage role={moduleRole} />}
           {page === "contract-mobilization" && <ContractMobilizationPage />}
-          {page === "billing" && <BillingInvoicePage />}
+          {page === "billing" && <BillingShell />}
           {page === "content-library" && <CurrentDashboard role={role} />}
         </div>
       </main>

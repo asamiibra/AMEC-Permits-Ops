@@ -59,3 +59,15 @@ class StorageOutboxEvent(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
     processed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
+
+class ContractReconciliationSchedulerState(Base):
+    """Durable lease and forward-only cursor for contract reconciliation."""
+
+    __tablename__ = "contract_reconciliation_scheduler_state"
+
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    last_contract_id: Mapped[str | None] = mapped_column(String(36), index=True)
+    cycle_number: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    lease_owner: Mapped[str | None] = mapped_column(String(100))
+    lease_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)

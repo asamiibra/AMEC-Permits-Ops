@@ -71,7 +71,7 @@ def _create_version_table(
 def test_repository_migration_head_is_current_intelligence_contract_head():
     assert (
         database.repository_migration_head()
-        == "proposal_owner_test_profile_v1"
+        == "proposal_billing_contract_convergence_v1"
     )
 
 

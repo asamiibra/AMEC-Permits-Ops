@@ -191,7 +191,12 @@ PROPOSAL_SKILLS = (
     _proposal_skill("proposal.handoff-preflight", "PROPOSAL_HANDOFF_PREFLIGHT", PROPOSAL_HANDOFF_PREFLIGHT_OUTPUT, "ANALYSIS"),
 )
 
-SKILL_REGISTRY = SkillRegistry((COMPATIBILITY_SKILL, *PROPOSAL_SKILLS))
+from .billing_skill_pack import BILLING_SKILLS
+from .contract_skills import CONTRACT_SKILLS
+from .content_library_skill_pack import CONTENT_LIBRARY_SKILLS
+
+
+SKILL_REGISTRY = SkillRegistry((COMPATIBILITY_SKILL, *PROPOSAL_SKILLS, *BILLING_SKILLS, *CONTRACT_SKILLS, *CONTENT_LIBRARY_SKILLS))
 
 
 def build_skill_definition(

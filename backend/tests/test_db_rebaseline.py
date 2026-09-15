@@ -35,6 +35,15 @@ def test_active_graph_and_legacy_archive_are_exact():
         "p08_proposal_intelligence.py",
         "proposal_intelligence_combined_merge_v1.py",
         "proposal_owner_test_profile_v1.py",
+        "billing_finance_experience_v1.py",
+        "billing_finance_experience_closure_v1.py",
+        "scoped_finance_capability_assignment_v1.py",
+        "billing_finance_production_hardening_v1.py",
+        "governed_signatory_authority_v1.py",
+        "governed_signatory_authority_governance_v2.py",
+        "billing_intelligence_final_merge_v1.py",
+        "contract_reconciliation_scheduler_v1.py",
+        "proposal_billing_contract_convergence_v1.py",
     }
     phase4_source = PHASE4.read_text(encoding="utf-8")
     assert 'revision = "phase4_corpus_app_integration_v1"' in phase4_source
