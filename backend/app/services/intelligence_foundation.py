@@ -162,10 +162,10 @@ def dependency_current(db: Session, dependency: ContextDependency | AIWorkProduc
                 return False
             if working is not None and accepted is not None and working.base_accepted_revision_id and working.base_accepted_revision_id != accepted.id:
                 return False
+            selected_revision = accepted if metadata.get("accepted_revision_required") and accepted else (working if working else accepted)
             current = (
-                accepted.content_hash if metadata.get("accepted_revision_required") and accepted
-                else working.content_hash if working
-                else accepted.content_hash if accepted
+                f"{selected_revision.id}:{selected_revision.revision_number}:{selected_revision.content_hash}"
+                if selected_revision is not None
                 else stable_hash({"proposal_id": proposal.id, "proposal_fields": proposal.proposal_fields_json, "updated_at": proposal.updated_at.isoformat()})
             )
             return current == expected

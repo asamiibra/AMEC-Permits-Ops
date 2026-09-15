@@ -825,7 +825,12 @@ class GovernedContextCompiler:
                 # projection until a mutable working revision is created.
                 revision_identity = stable_hash({"proposal_id": proposal.id, "proposal_fields": proposal.proposal_fields_json, "updated_at": proposal.updated_at.isoformat()})
             else:
-                revision_identity = accepted.content_hash if accepted_required and accepted else (working.content_hash if working else accepted.content_hash)
+                selected_revision = accepted if accepted_required and accepted else (working if working else accepted)
+                revision_identity = (
+                    f"{selected_revision.id}:{selected_revision.revision_number}:{selected_revision.content_hash}"
+                    if selected_revision is not None
+                    else stable_hash({"proposal_id": proposal.id, "proposal_fields": proposal.proposal_fields_json, "updated_at": proposal.updated_at.isoformat()})
+                )
             self._check_project(proposal.project_id, request)
             lpo = self.db.scalar(select(ProposalLpoReconciliation).where(
                 ProposalLpoReconciliation.proposal_id == proposal.id,

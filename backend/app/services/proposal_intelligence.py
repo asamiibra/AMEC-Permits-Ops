@@ -125,12 +125,9 @@ def _current_revision_identity(
     *,
     accepted_required: bool,
 ) -> str:
-    if accepted_required and accepted is not None:
-        return accepted.content_hash
-    if working is not None:
-        return working.content_hash
-    if accepted is not None:
-        return accepted.content_hash
+    selected_revision = accepted if accepted_required and accepted is not None else (working if working is not None else accepted)
+    if selected_revision is not None:
+        return f"{selected_revision.id}:{selected_revision.revision_number}:{selected_revision.content_hash}"
     return stable_hash({
         "proposal_id": proposal.id,
         "proposal_fields": proposal.proposal_fields_json,
