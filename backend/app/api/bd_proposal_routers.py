@@ -902,17 +902,21 @@ def accept(proposal_id: str, request: Request, db: Session = Depends(get_db), ro
             continue
         try:
             content, render_lineage = production_output_bytes(db, revision, artifact_type)
+            output_content_type = render_lineage.get("content_type", "application/pdf")
+            output_format = str(render_lineage.get("format", "PDF")).lower()
+            output_extension = "docx" if output_format == "docx" else "pdf"
+            filename = f"{item.opportunity_reference}-r{revision_number}-{artifact_type.lower()}.{output_extension}"
             store = create_binary_store()
             target = StorageTarget(store.provider_id, getattr(getattr(store, "config", None), "container", None) or getattr(getattr(store, "config", None), "share", ""), f"proposal-outputs/{item.id}/{revision.id}/{artifact_type.lower()}")
             document = Document(project_id=item.project_id, document_type=DocumentType.OTHER, logical_name=f"{item.opportunity_reference}:{artifact_type}:r{revision_number}", language="EN", source_system="PROPOSAL_OUTPUT")
             db.add(document)
             db.flush()
-            stored = DocumentStorageService(store).store_version(db, document=document, content=content, filename=filename, mime_type="application/pdf", target=target, actor=_actor(role, actor), correlation_id=request.state.correlation_id, idempotency_key=f"proposal-output:{revision.id}:{artifact_type}", source_system="PROPOSAL_OUTPUT", metadata={"proposal_id": item.id, "accepted_revision_id": revision.id, "renderer": render_lineage["renderer"]})
+            stored = DocumentStorageService(store).store_version(db, document=document, content=content, filename=filename, mime_type=output_content_type, target=target, actor=_actor(role, actor), correlation_id=request.state.correlation_id, idempotency_key=f"proposal-output:{revision.id}:{artifact_type}", source_system="PROPOSAL_OUTPUT", metadata={"proposal_id": item.id, "accepted_revision_id": revision.id, "renderer": render_lineage["renderer"]})
             with DocumentStorageService(store).read_verified(stored.version) as readback:
                 readback_bytes = readback.read()
             if hashlib.sha256(readback_bytes).hexdigest() != hashlib.sha256(content).hexdigest() or len(readback_bytes) != len(content):
                 raise ValueError("PRODUCTION_ARTIFACT_READBACK_MISMATCH")
-            db.add(ProposalOutputArtifact(revision_id=revision.id, proposal_id=item.id, artifact_type=artifact_type, filename=filename, content_type="application/pdf", content_hash=hashlib.sha256(content).hexdigest(), storage_reference=stored.version.source_path_or_reference, document_version_id=stored.version.id, lineage={**render_lineage, "proposal_content_hash": content_hash, "source_ids": snapshot["source_ids"], "read_back_verified": True, "storage_operation_id": stored.operation.id}, file_size=len(content), synthetic_only=False))
+            db.add(ProposalOutputArtifact(revision_id=revision.id, proposal_id=item.id, artifact_type=artifact_type, filename=filename, content_type=output_content_type, content_hash=hashlib.sha256(content).hexdigest(), storage_reference=stored.version.source_path_or_reference, document_version_id=stored.version.id, lineage={**render_lineage, "proposal_content_hash": content_hash, "source_ids": snapshot["source_ids"], "read_back_verified": True, "storage_operation_id": stored.operation.id}, file_size=len(content), synthetic_only=False))
         except StorageError as exc:
             raise domain_error(503, "PRODUCTION_ARTIFACT_STORAGE_FAILED", storage_code=exc.code.value) from exc
         except ValueError as exc:
