@@ -7,8 +7,8 @@ from fastapi import HTTPException
 
 from backend.app.ai import orchestration
 from backend.app.ai.contracts import AIContextItem, AIContextManifest, AIContextScope, AIExecutionMode, AIPurpose, AITargetEntityType
-from backend.app.ai.provider import AIProviderRequest, AIProviderResult, AIProviderUsage, AzureOpenAIResponsesProvider
-from backend.app.ai.structured_output import PROVIDER_JSON_SCHEMA, validate_draft
+from backend.app.ai.provider import AIProviderRequest, AIProviderResult, AIProviderUsage, AzureOpenAIResponsesProvider, _azure_structured_schema
+from backend.app.ai.structured_output import PROVIDER_JSON_SCHEMA, PROPOSAL_TENDER_INTAKE_ANALYSIS_OUTPUT, validate_draft
 from backend.app.api.dependencies import AuthenticatedPrincipal
 from backend.app.config.settings import Settings
 from backend.app.db import SessionLocal
@@ -110,6 +110,46 @@ def test_provider_schema_is_compiled_to_azure_supported_strict_subset():
     assert not unsupported.intersection(schema)
     assert set(schema["required"]) == set(schema["properties"])
     assert schema["properties"]["draft_only"]["enum"] == [True]
+
+
+def test_provider_schema_stripping_does_not_weaken_original_pydantic_validation():
+    original_schema = PROPOSAL_TENDER_INTAKE_ANALYSIS_OUTPUT.provider_schema
+    transport_schema = _azure_structured_schema(original_schema)
+
+    assert "maxLength" in original_schema["properties"]["summary"]
+    assert "maxLength" not in transport_schema["properties"]["summary"]
+
+    invalid = {
+        "summary": "x" * 4001,
+        "missing_information": [],
+        "contradictions": [],
+        "unresolved_candidate_facts": [],
+        "source_currentness_issues": [],
+        "citation_keys": ["CIT-001"],
+    }
+    with pytest.raises(Exception):
+        PROPOSAL_TENDER_INTAKE_ANALYSIS_OUTPUT.validator(invalid)
+
+
+def test_provider_schema_preserves_nullable_optional_semantics():
+    original_schema = {
+        "type": "object",
+        "properties": {
+            "optional_note": {
+                "anyOf": [{"type": "string"}, {"type": "null"}],
+                "maxLength": 10,
+            },
+        },
+        "required": [],
+        "additionalProperties": False,
+    }
+    transport_schema = _azure_structured_schema(original_schema)
+
+    assert transport_schema["required"] == ["optional_note"]
+    assert transport_schema["properties"]["optional_note"]["anyOf"] == [
+        {"type": "string"},
+        {"type": "null"},
+    ]
 
 
 def test_structured_output_rejects_missing_section_citation():

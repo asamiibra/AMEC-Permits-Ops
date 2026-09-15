@@ -81,12 +81,19 @@ const text = (value: unknown, fallback = "Not recorded"): string =>
     ? fallback
     : Array.isArray(value)
       ? value.length
-        ? value.join(", ")
+        ? value.map((item) => text(item, "")).filter(Boolean).join(", ") || fallback
         : fallback
       : typeof value === "object"
-        ? Object.entries(value as Record<string, unknown>)
-            .map(([k, v]) => `${k.replaceAll("_", " ")}: ${String(v)}`)
-            .join(" · ") || fallback
+        ? (() => {
+            const item = record(value);
+            for (const key of ["message", "detail", "code", "label", "name", "status"]) {
+              const candidate = item[key];
+              if (candidate !== undefined && typeof candidate !== "object") {
+                return text(candidate, fallback);
+              }
+            }
+            return fallback;
+          })()
         : String(value);
 const dateText = (value: unknown): string =>
   value

@@ -24,6 +24,21 @@ export class ApiError extends Error {
   }
 }
 
+function safeErrorDetail(payload: unknown): string {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    return "Request failed";
+  }
+  const detail = (payload as Record<string, unknown>).detail;
+  if (typeof detail === "string" && detail.trim()) return detail;
+  if (detail && typeof detail === "object" && !Array.isArray(detail)) {
+    const code = (detail as Record<string, unknown>).code;
+    if (typeof code === "string" && code.trim()) return code;
+    const message = (detail as Record<string, unknown>).message;
+    if (typeof message === "string" && message.trim()) return message;
+  }
+  return "Request failed";
+}
+
 export async function api<T>(
   path: string,
   init?: RequestInit,
@@ -185,14 +200,7 @@ export async function api<T>(
       );
     }
 
-    const detail =
-      payload
-      && typeof payload === "object"
-      && "detail" in payload
-        ? String(
-            payload.detail,
-          )
-        : "Request failed";
+    const detail = safeErrorDetail(payload);
 
     throw new ApiError(
       `${detail} [${response.status} ${path}]`
