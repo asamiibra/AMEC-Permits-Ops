@@ -96,6 +96,44 @@ def validate(spec_path: Path, acceptance_path: Path, evidence_dir: Path, candida
     return result
 
 
+def validate_mutation(spec_path: Path, acceptance_path: Path, evidence_dir: Path, candidate: str, validation: str, run_id: str, category: str, assertion: str) -> dict[str, Any]:
+    """Independently recompute only the assertion changed by a mutation.
+
+    The caller performs a complete independent validation before entering the
+    mutation loop.  This focused oracle intentionally repeats the independent
+    artifact read, type check, predicate evaluation, and supplied-proof
+    comparison for the affected row only.
+    """
+    try:
+        spec = _json(spec_path)
+        entry = next(item for item in spec.get("entries", []) if item.get("category") == category and item.get("assertion") == assertion)
+        acceptance = _json(acceptance_path)
+        check = next(item for item in acceptance.get("checks", []) if item.get("category") == category and item.get("assertion") == assertion)
+        recomputed = []
+        failed = False
+        for proof in entry.get("proofs", []):
+            producer = proof.get("producer_id")
+            kind = proof.get("artifact_kind")
+            path = evidence_dir / f"{producer}.{'meta.json' if kind == 'meta' else 'result.json'}"
+            try:
+                payload = _json(path)
+                observed = _at(payload, proof["json_path"])
+                passed = _type_matches(observed, proof.get("expected_type", "")) and _evaluate(proof["operator"], observed, proof.get("expected"))
+                if kind == "meta":
+                    passed = passed and payload.get("producer_id") == producer and payload.get("candidate_sha") == candidate and payload.get("validation_sha") == validation and str(payload.get("run_id")) == str(run_id) and payload.get("exit_code") == 0
+            except (OSError, json.JSONDecodeError, KeyError, TypeError):
+                observed = "MISSING"
+                passed = False
+            recomputed.append({"producer_id": producer, "json_path": proof.get("json_path"), "observed": observed, "result": "PASS" if passed else "FAIL"})
+            failed = failed or not passed
+        supplied = check.get("semantic_proofs", [])
+        if len(supplied) != len(recomputed) or any((a.get("producer_id"), a.get("json_path"), a.get("observed"), a.get("result")) != (b.get("producer_id"), b.get("json_path"), b.get("observed"), b.get("result")) for a, b in zip(supplied, recomputed)):
+            failed = True
+        return {"version": 1, "result": "FAIL" if failed else "PASS", "category": category, "assertion": assertion, "semantic_proof_count": len(recomputed), "semantic_failure_count": sum(row["result"] != "PASS" for row in recomputed)}
+    except (OSError, json.JSONDecodeError, StopIteration, KeyError, TypeError):
+        return {"version": 1, "result": "FAIL", "category": category, "assertion": assertion, "semantic_proof_count": 0, "semantic_failure_count": 1}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--spec", type=Path, required=True)
