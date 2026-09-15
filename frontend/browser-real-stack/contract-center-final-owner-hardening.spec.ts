@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 
 async function waitForContractRef(page: import("@playwright/test").Page, contractRef: string) {
   await expect.poll(async () => {
@@ -10,6 +11,8 @@ async function waitForContractRef(page: import("@playwright/test").Page, contrac
 }
 
 test.describe("Contract Center final Owner hardening", () => {
+  test.describe.configure({ timeout: 90_000 });
+
   test("opens the Proposal-derived golden Contract with truthful gates and ordered sections", async ({ page }) => {
     await waitForContractRef(page, "SYN-CTR-0007");
     await page.goto("/contract-mobilization");
@@ -18,12 +21,19 @@ test.describe("Contract Center final Owner hardening", () => {
     await expect(goldenRow).toBeVisible({ timeout: 45_000 });
     await goldenRow.getByRole("button", { name: "Open", exact: true }).click();
     await expect(page).toHaveURL(/\/contract-mobilization\/contracts\//);
-    await expect(page.getByRole("heading", { name: "Accepted Proposal" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Accepted Proposal" })).toBeVisible({ timeout: 45_000 });
+    await expect(page.getByRole("heading", { name: "Capability catalogue", exact: true })).toBeVisible();
+    await expect(page.getByText("Catalogue only · shared Intelligence execution runtime is not integrated", { exact: true })).toBeVisible();
+    await expect(page.locator(".ci-skill-card button")).toHaveCount(0);
     await expect(page.locator("#proposal-origin").getByText("SYN-OPP-0007", { exact: false })).toBeVisible();
     await expect(page.locator("#proposal-origin")).toContainText("Synthetic Engineering Advisory Proposal");
     await expect(page.getByText("Requirement not configured", { exact: true }).first()).toBeVisible();
     await expect(page.getByText("NEEDED", { exact: true })).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "Accept Contract", exact: true })).toBeEnabled();
+    await expect(page.getByRole("button", { name: "Accept Contract", exact: true })).toBeDisabled();
+    await page.getByPlaceholder("Why accept this exact revision?").fill("Confirm exact current Contract revision after authority review");
+    await expect(page.getByRole("button", { name: "Accept Contract", exact: true })).toBeDisabled();
+    await expect(page.locator("#contract-overview")).toContainText(/\d+ blocker\(s\) need attention/);
+    await expect(page.locator(".contract-next-note")).toContainText("Recorded independent Contract maker/checker and Proposal reconciliation");
     await expect(page.getByRole("textbox", { name: "Project Code" })).toBeDisabled();
     await expect(page.getByRole("button", { name: "Activate Project", exact: true })).toBeDisabled();
     await expect(page.getByText("Locked until Contract acceptance", { exact: true })).toBeVisible();
@@ -33,6 +43,63 @@ test.describe("Contract Center final Owner hardening", () => {
     await expect(page.locator('.contract-section-nav a[href="#overview"]')).toHaveAttribute("href", "#overview");
     await expect(page.getByRole("button", { name: "+ Add Payment Term", exact: true })).toBeVisible();
     await expect(page.getByRole("textbox", { name: "Payment Term name" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Forms & authorizations", exact: true })).toBeVisible();
+    await expect(page.locator(".contract-document-grid").getByText("Purchase Order", { exact: true })).toBeVisible();
+    await expect(page.locator(".contract-document-grid").getByText("Letter of Purchase Order", { exact: true })).toBeVisible();
+  });
+
+  test("records a real browser multipart source mutation and re-renders the committed state", async ({ page }) => {
+    await waitForContractRef(page, "SYN-CTR-0007");
+    await page.goto("/contract-mobilization");
+    await page.locator(".admin-owner-row").filter({ hasText: "SYN-CTR-0007" }).getByRole("button", { name: "Open", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Client Document / PO / LPO", exact: true })).toBeVisible({ timeout: 45_000 });
+    const intake = page.locator("label").filter({ hasText: "Select source file" }).last();
+    await page.getByLabel("Source role").selectOption("PO");
+    await intake.locator("input[type=file]").setInputFiles({ name: "browser-purchase-order.pdf", mimeType: "application/pdf", buffer: Buffer.from("%PDF-1.7\\0browser-po\\xff") });
+    await page.getByRole("button", { name: "Store exact version", exact: true }).click();
+    await expect(page.locator(".contract-message[role=status]").last()).toContainText("PO stored as an exact current DocumentVersion", { timeout: 45_000 });
+    await page.reload();
+    await expect(page.locator(".contract-document-grid").getByText("browser-purchase-order.pdf", { exact: false })).toBeVisible({ timeout: 45_000 });
+    await expect(page.getByRole("heading", { name: "Extension request & history", exact: true })).toBeVisible();
+  });
+
+  test("records an extension request through the authority UI and preserves historical dates", async ({ page }) => {
+    await waitForContractRef(page, "SYN-CTR-0007");
+    const response = await page.request.get("/api/admin/contracts?filter=ALL");
+    const body = await response.json();
+    const contractId = (body.items || []).find((item: { contract_ref?: string }) => item.contract_ref === "SYN-CTR-0007")?.id;
+    expect(contractId).toBeTruthy();
+    const before = await page.request.get(`/api/admin/contracts/${contractId}`);
+    const beforeBody = await before.json();
+    const originalEnd = beforeBody.contract?.expected_close_date;
+    const request = await page.request.post(`/api/admin/contracts/${contractId}/extension-requests`, { data: { requested_end_date: "2027-01-31", source_reference: `browser-extension:${Date.now()}`, reason: "Client-approved schedule movement requires authority review" } });
+    expect(request.ok()).toBeTruthy();
+    await page.goto(`/contract-mobilization/contracts/${contractId}`);
+    await expect(page.getByRole("heading", { name: "Extension authority decision", exact: true })).toBeVisible({ timeout: 45_000 });
+    await page.getByPlaceholder("Explain the authority decision").fill("Approve for prospective amendment after owner review");
+    await page.getByRole("button", { name: "Approve extension", exact: true }).click();
+    await expect(page.locator(".contract-message[role=status]").last()).toContainText("APPROVE recorded", { timeout: 45_000 });
+    await page.reload();
+    await expect(page.getByRole("heading", { name: "Extension authority decision", exact: true })).toBeVisible();
+    await expect(page.getByText("APPROVE", { exact: true }).last()).toBeVisible();
+    const after = await page.request.get(`/api/admin/contracts/${contractId}`);
+    const afterBody = await after.json();
+    expect(afterBody.contract?.expected_close_date).toBe(originalEnd);
+  });
+
+  test("header next action only focuses its owning panel", async ({ page }) => {
+    await waitForContractRef(page, "SYN-CTR-0007");
+    await page.goto("/contract-mobilization");
+    const goldenRow = page.locator(".admin-owner-row").filter({ hasText: "SYN-CTR-0007" });
+    await goldenRow.getByRole("button", { name: "Open", exact: true }).click();
+    await expect(page.getByRole("button", { name: "Open Contract Review", exact: true })).toBeVisible({ timeout: 45_000 });
+    const postRequests: string[] = [];
+    page.on("request", (request) => { if (request.method() === "POST") postRequests.push(request.url()); });
+    await page.getByRole("button", { name: "Open Contract Review", exact: true }).click();
+    await expect(page.locator("#contract-review")).toBeFocused();
+    expect(postRequests).toEqual([]);
+    await expect(page.getByRole("textbox", { name: "Project Code" })).toBeDisabled();
+    await expect(page.getByRole("textbox", { name: "Project Start Date" })).toBeDisabled();
   });
 
   test("keeps the legacy Contract safe and separate", async ({ page }) => {
@@ -42,10 +109,45 @@ test.describe("Contract Center final Owner hardening", () => {
     const legacyRow = page.locator(".admin-owner-row").filter({ hasText: "SYN-CTR-0001" });
     await expect(legacyRow).toBeVisible({ timeout: 45_000 });
     await legacyRow.getByRole("button", { name: "Open", exact: true }).click();
-    await expect(page.getByRole("heading", { name: "Legacy Contract" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Legacy Contract" })).toBeVisible({ timeout: 45_000 });
     await expect(page.locator("#proposal-origin").getByText("Proposal origin requires reconciliation", { exact: true })).toBeVisible();
     await expect(page.locator("#commercial")).toContainText("Project Description");
     await expect(page.locator("#commercial")).not.toContainText("origin unresolved");
     await expect(page.getByRole("button", { name: "Accept Contract", exact: true })).toBeDisabled();
+  });
+
+  test("converges the historical Contract detail route on the canonical workspace", async ({ page }) => {
+    await waitForContractRef(page, "SYN-CTR-0007");
+    const response = await page.request.get("/api/admin/contracts?filter=ALL");
+    const body = await response.json();
+    const contractId = (body.items || []).find((item: { contract_ref?: string }) => item.contract_ref === "SYN-CTR-0007")?.id;
+    expect(contractId).toBeTruthy();
+    await page.goto(`/contracts/${contractId}`);
+    await expect(page).toHaveURL(new RegExp(`/contract-mobilization/contracts/${contractId}$`));
+    await expect(page.getByRole("heading", { name: "Capability catalogue", exact: true })).toBeVisible({ timeout: 45_000 });
+  });
+
+  test("keeps the canonical workspace accessible and usable on mobile", async ({ page }) => {
+    await waitForContractRef(page, "SYN-CTR-0007");
+    const response = await page.request.get("/api/admin/contracts?filter=ALL");
+    const body = await response.json();
+    const contractId = (body.items || []).find((item: { contract_ref?: string }) => item.contract_ref === "SYN-CTR-0007")?.id;
+    expect(contractId).toBeTruthy();
+    await page.goto(`/contract-mobilization/contracts/${contractId}`);
+    await expect(page.getByRole("heading", { name: "Capability catalogue", exact: true })).toBeVisible({ timeout: 45_000 });
+    await expect(page.getByRole("tablist", { name: "Contract workspace sections" })).toBeVisible();
+    await expect(page.getByRole("tab")).toHaveCount(8);
+    const axe = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
+    expect(axe.violations.filter((item) => ["serious", "critical"].includes(item.impact || ""))).toEqual([]);
+
+    for (const viewport of [{ width: 1440, height: 900 }, { width: 1024, height: 900 }, { width: 768, height: 900 }, { width: 390, height: 844 }]) {
+      await page.setViewportSize(viewport);
+      await page.reload();
+      await expect(page.getByRole("heading", { name: "Capability catalogue", exact: true })).toBeVisible({ timeout: 45_000 });
+      await expect(page.getByRole("button", { name: "Open Contract Review", exact: true })).toBeVisible();
+      await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBeTruthy();
+    }
+    await page.locator(".contract-section-nav button").first().focus();
+    await expect(page.locator(":focus")).toBeVisible();
   });
 });

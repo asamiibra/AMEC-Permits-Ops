@@ -5,9 +5,12 @@ import json
 import os
 import socket
 import sys
+import time
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import select
+from sqlalchemy import null, or_, select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from .config.settings import get_settings
@@ -16,10 +19,13 @@ from .db import (
     verify_database_migration_head,
 )
 from .models import (
+    Contract,
+    ContractReconciliationSchedulerState,
     DocumentVersion,
     StorageOutboxEvent,
 )
 from .models.base import utcnow
+from .services.contract_workspace import evaluate_contract_exceptions
 from .storage.outbox import (
     claim_pending_events,
     complete_event,
@@ -30,6 +36,13 @@ from .storage.outbox import (
 MAX_BATCH_SIZE = 100
 MIN_LEASE_SECONDS = 30
 MAX_LEASE_SECONDS = 900
+RECONCILIATION_SCHEDULER_ID = "contract-exceptions"
+
+
+def _as_utc(value: datetime | None) -> datetime | None:
+    if value is None:
+        return None
+    return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value
 
 
 @dataclass(frozen=True)
@@ -38,6 +51,10 @@ class WorkerResult:
     claimed: int
     processed: int
     failed: int
+    contracts_reconciled: int = 0
+    contract_reconciliation_failed: int = 0
+    exceptions_created: int = 0
+    exceptions_resolved: int = 0
 
 
 def _default_worker_id() -> str:
@@ -214,6 +231,215 @@ def _process_event(
         )
 
 
+def _ensure_reconciliation_scheduler_state(
+    db: Session,
+) -> ContractReconciliationSchedulerState:
+    """Return the singleton scheduler row, tolerating concurrent first use."""
+    state = db.get(
+        ContractReconciliationSchedulerState,
+        RECONCILIATION_SCHEDULER_ID,
+    )
+    if state is None:
+        try:
+            with db.begin_nested():
+                db.add(
+                    ContractReconciliationSchedulerState(
+                        id=RECONCILIATION_SCHEDULER_ID,
+                        cycle_number=0,
+                    )
+                )
+        except IntegrityError:
+            pass
+        state = db.get(
+            ContractReconciliationSchedulerState,
+            RECONCILIATION_SCHEDULER_ID,
+        )
+    if state is None:
+        raise RuntimeError("Contract reconciliation scheduler state is unavailable.")
+    return state
+
+
+def _release_reconciliation_lease(*, worker_id: str) -> None:
+    with SessionLocal() as db:
+        state = db.scalar(
+            select(ContractReconciliationSchedulerState)
+            .where(
+                ContractReconciliationSchedulerState.id
+                == RECONCILIATION_SCHEDULER_ID
+            )
+            .with_for_update()
+        )
+        if state is not None and state.lease_owner == worker_id:
+            state.lease_owner = None
+            state.lease_expires_at = None
+            state.updated_at = utcnow()
+            db.commit()
+
+
+def _acquire_reconciliation_lease(
+    *,
+    worker_id: str,
+    now: datetime,
+    lease_seconds: int,
+) -> bool:
+    """Acquire the singleton lease with a database compare-and-set."""
+    lease_expires_at = now + timedelta(seconds=lease_seconds)
+    with SessionLocal() as db:
+        _ensure_reconciliation_scheduler_state(db)
+        # End the initialization/read transaction before the compare-and-set.
+        # This matters on SQLite, whose deferred snapshot can otherwise retain
+        # the pre-race lease row while the write lock is being acquired.
+        db.commit()
+        result = db.execute(
+            update(ContractReconciliationSchedulerState)
+            .where(
+                ContractReconciliationSchedulerState.id
+                == RECONCILIATION_SCHEDULER_ID,
+                or_(
+                    ContractReconciliationSchedulerState.lease_owner == null(),
+                    ContractReconciliationSchedulerState.lease_expires_at == null(),
+                    ContractReconciliationSchedulerState.lease_expires_at <= now,
+                ),
+            )
+            .values(
+                lease_owner=worker_id,
+                lease_expires_at=lease_expires_at,
+                updated_at=now,
+            )
+        )
+        if result.rowcount != 1:
+            db.rollback()
+            return False
+        db.commit()
+        return True
+
+
+def _advance_reconciliation_cursor(
+    *,
+    worker_id: str,
+    contract_id: str,
+    lease_seconds: int,
+) -> None:
+    """Advance after a failed item so one bad contract cannot starve later items."""
+    with SessionLocal() as db:
+        state = db.scalar(
+            select(ContractReconciliationSchedulerState)
+            .where(
+                ContractReconciliationSchedulerState.id
+                == RECONCILIATION_SCHEDULER_ID
+            )
+            .with_for_update()
+        )
+        if state is None or state.lease_owner != worker_id:
+            return
+        state.last_contract_id = contract_id
+        state.lease_expires_at = utcnow() + timedelta(seconds=lease_seconds)
+        state.updated_at = utcnow()
+        db.commit()
+
+
+def reconcile_contract_exceptions_once(
+    *,
+    worker_id: str,
+    limit: int = 50,
+    lease_seconds: int = 60,
+) -> tuple[int, int, int, int]:
+    """Reconcile one fair, leased page of Contracts against the canonical queue."""
+    _validate_worker_options(
+        worker_id=worker_id,
+        limit=limit,
+        lease_seconds=lease_seconds,
+    )
+
+    now = utcnow()
+    if not _acquire_reconciliation_lease(
+        worker_id=worker_id,
+        now=now,
+        lease_seconds=lease_seconds,
+    ):
+        return 0, 0, 0, 0
+
+    with SessionLocal() as db:
+        state = _ensure_reconciliation_scheduler_state(db)
+
+        contract_query = select(Contract.id).order_by(Contract.id)
+        if state.last_contract_id is not None:
+            contract_query = contract_query.where(
+                Contract.id > state.last_contract_id
+            )
+        contract_ids = list(db.scalars(contract_query.limit(limit)).all())
+
+        if not contract_ids and state.last_contract_id is not None:
+            wrapped_query = (
+                select(Contract.id)
+                .order_by(Contract.id)
+                .limit(limit)
+            )
+            wrapped_ids = list(db.scalars(wrapped_query).all())
+            if wrapped_ids:
+                contract_ids.extend(wrapped_ids)
+                state.cycle_number += 1
+                state.updated_at = utcnow()
+                db.commit()
+
+    if not contract_ids:
+        _release_reconciliation_lease(worker_id=worker_id)
+        return 0, 0, 0, 0
+
+    reconciled = 0
+    failed = 0
+    created = 0
+    resolved = 0
+
+    for contract_id in contract_ids:
+        with SessionLocal() as db:
+            try:
+                state = db.scalar(
+                    select(ContractReconciliationSchedulerState)
+                    .where(
+                        ContractReconciliationSchedulerState.id
+                        == RECONCILIATION_SCHEDULER_ID
+                    )
+                    .with_for_update()
+                )
+                if state is None or state.lease_owner != worker_id:
+                    break
+                state.lease_expires_at = utcnow() + timedelta(seconds=lease_seconds)
+                contract = db.get(Contract, contract_id)
+                if contract is None:
+                    state.last_contract_id = contract_id
+                    state.updated_at = utcnow()
+                    db.commit()
+                    continue
+                result = evaluate_contract_exceptions(
+                    db,
+                    contract,
+                    actor=f"worker:{worker_id}",
+                    correlation_id=(
+                        f"worker:{worker_id}:contract:{contract_id}"
+                    )[:100],
+                )
+                state.last_contract_id = contract_id
+                state.updated_at = utcnow()
+                db.commit()
+            except Exception:
+                db.rollback()
+                _advance_reconciliation_cursor(
+                    worker_id=worker_id,
+                    contract_id=contract_id,
+                    lease_seconds=lease_seconds,
+                )
+                failed += 1
+                continue
+
+            reconciled += 1
+            created += len(result.get("created", []))
+            resolved += int(result.get("resolved", 0))
+
+    _release_reconciliation_lease(worker_id=worker_id)
+    return reconciled, failed, created, resolved
+
+
 def run_worker_once(
     *,
     worker_id: str | None = None,
@@ -315,11 +541,35 @@ def run_worker_once(
 
             processed += 1
 
+    contracts_reconciled = 0
+    contract_reconciliation_failed = 0
+    exceptions_created = 0
+    exceptions_resolved = 0
+    if getattr(
+        settings,
+        "worker_contract_reconciliation_enabled",
+        True,
+    ):
+        (
+            contracts_reconciled,
+            contract_reconciliation_failed,
+            exceptions_created,
+            exceptions_resolved,
+        ) = reconcile_contract_exceptions_once(
+            worker_id=resolved_worker_id,
+            limit=limit,
+            lease_seconds=lease_seconds,
+        )
+
     return WorkerResult(
         recovered=recovered,
         claimed=len(event_ids),
         processed=processed,
         failed=failed,
+        contracts_reconciled=contracts_reconciled,
+        contract_reconciliation_failed=contract_reconciliation_failed,
+        exceptions_created=exceptions_created,
+        exceptions_resolved=exceptions_resolved,
     )
 
 
@@ -357,62 +607,114 @@ def main(
     args = _parser().parse_args(
         argv
     )
-
+    continuous = os.getenv(
+        "WORKER_CONTINUOUS",
+        "false",
+    ).strip().lower() in {"1", "true", "yes"}
     try:
-        result = run_worker_once(
-            worker_id=args.worker_id,
-            limit=args.limit,
-            lease_seconds=(
-                args.lease_seconds
+        poll_interval = int(
+            os.getenv(
+                "WORKER_POLL_INTERVAL_SECONDS",
+                "60",
+            )
+        )
+    except ValueError:
+        print(
+            json.dumps(
+                {
+                    "event": "proposalops_outbox_worker",
+                    "status": "FAILED",
+                    "error_class": "INVALID_WORKER_POLL_INTERVAL",
+                },
+                sort_keys=True,
             ),
+            file=sys.stderr,
+        )
+        return 1
+    if not 5 <= poll_interval <= 3600:
+        print(
+            json.dumps(
+                {
+                    "event": "proposalops_outbox_worker",
+                    "status": "FAILED",
+                    "error_class": "WORKER_POLL_INTERVAL_OUT_OF_RANGE",
+                },
+                sort_keys=True,
+            ),
+            file=sys.stderr,
+        )
+        return 1
+
+    while True:
+        try:
+            result = run_worker_once(
+                worker_id=args.worker_id,
+                limit=args.limit,
+                lease_seconds=(
+                    args.lease_seconds
+                ),
+            )
+
+        except Exception as exc:
+            print(
+                json.dumps(
+                    {
+                        "event": (
+                            "proposalops_outbox_worker"
+                        ),
+                        "status": "FAILED",
+                        "error_class": (
+                            type(exc).__name__
+                        ),
+                    },
+                    sort_keys=True,
+                ),
+                file=sys.stderr,
+            )
+
+            return 1
+
+        status = (
+            "SUCCEEDED"
+            if (
+                result.failed == 0
+                and result.contract_reconciliation_failed == 0
+            )
+            else "PARTIAL_FAILURE"
         )
 
-    except Exception as exc:
         print(
             json.dumps(
                 {
                     "event": (
                         "proposalops_outbox_worker"
                     ),
-                    "status": "FAILED",
-                    "error_class": (
-                        type(exc).__name__
+                    "status": status,
+                    "recovered": result.recovered,
+                    "claimed": result.claimed,
+                    "processed": result.processed,
+                    "failed": result.failed,
+                    "contracts_reconciled": (
+                        result.contracts_reconciled
+                    ),
+                    "contract_reconciliation_failed": (
+                        result.contract_reconciliation_failed
+                    ),
+                    "exceptions_created": (
+                        result.exceptions_created
+                    ),
+                    "exceptions_resolved": (
+                        result.exceptions_resolved
                     ),
                 },
                 sort_keys=True,
-            ),
-            file=sys.stderr,
+            )
         )
 
-        return 1
+        if not continuous:
+            return 0 if status == "SUCCEEDED" else 1
 
-    status = (
-        "SUCCEEDED"
-        if result.failed == 0
-        else "PARTIAL_FAILURE"
-    )
-
-    print(
-        json.dumps(
-            {
-                "event": (
-                    "proposalops_outbox_worker"
-                ),
-                "status": status,
-                "recovered": result.recovered,
-                "claimed": result.claimed,
-                "processed": result.processed,
-                "failed": result.failed,
-            },
-            sort_keys=True,
-        )
-    )
-
-    return (
-        0
-        if result.failed == 0
-        else 1
-    )
+        time.sleep(poll_interval)
 
 
 if __name__ == "__main__":

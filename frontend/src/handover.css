@@ -21,4 +21,9 @@
 .handover-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 10px 0; border-bottom: 1px solid #edf1f3; }
 .handover-row span { color: #617485; text-align: right; }
 .handover-detail code { color: #2c6f73; }
+.service-scope-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 10px; }
+.service-scope-form label { display: grid; gap: 5px; color: #466177; font-size: 13px; font-weight: 700; }
+.service-scope-form textarea { min-height: 76px; }
+.service-scope-form button { align-self: end; justify-self: start; }
 @media (max-width: 900px) { .handover-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .handover-list-item { grid-template-columns: 1fr; } .handover-banner, .handover-overview { align-items: start; flex-direction: column; } .handover-row { align-items: start; flex-direction: column; } .handover-row span { text-align: left; } }
+@media (max-width: 620px) { .service-scope-form { grid-template-columns: 1fr; } }

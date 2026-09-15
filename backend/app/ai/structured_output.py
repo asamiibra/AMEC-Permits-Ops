@@ -106,6 +106,24 @@ class ProposalReadinessExplanation(BaseModel):
     citation_keys: list[str] = Field(min_length=1, max_length=30)
 
 
+class ContractIntelligenceFinding(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    title: str = Field(min_length=1, max_length=240)
+    detail: str = Field(min_length=1, max_length=3000)
+    disposition: Literal["OBSERVATION", "REVIEW_REQUIRED", "MISMATCH", "RECOMMENDATION"]
+    citation_keys: list[str] = Field(default_factory=list, max_length=16)
+
+
+class ContractIntelligenceOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    summary: str = Field(min_length=1, max_length=4000)
+    findings: list[ContractIntelligenceFinding] = Field(min_length=1, max_length=30)
+    human_review_actions: list[str] = Field(default_factory=list, max_length=30)
+    limitations: list[str] = Field(default_factory=list, max_length=20)
+    citation_keys: list[str] = Field(min_length=1, max_length=30)
+    advisory_only: Literal[True] = True
+
+
 def _proposal_citation_keys(value: BaseModel) -> tuple[str, ...]:
     return tuple(value.citation_keys)
 
@@ -215,4 +233,15 @@ PROPOSAL_READINESS_EXPLANATION_OUTPUT = StructuredOutputDefinition(
     schema_name="proposal_readiness_explanation", schema_version="1", output_class="ANALYSIS",
     provider_schema=_strict_schema(ProposalReadinessExplanation), validator=lambda value: _validate_proposal(ProposalReadinessExplanation, value),
     citation_keys=_proposal_citation_keys, requires_grounding=True,
+)
+
+
+CONTRACT_INTELLIGENCE_OUTPUT = StructuredOutputDefinition(
+    schema_name="contract_intelligence_advisory",
+    schema_version="1",
+    output_class="ANALYSIS",
+    provider_schema=_strict_schema(ContractIntelligenceOutput),
+    validator=lambda value: _validate_proposal(ContractIntelligenceOutput, value),
+    citation_keys=_proposal_citation_keys,
+    requires_grounding=True,
 )

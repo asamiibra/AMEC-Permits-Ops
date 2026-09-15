@@ -70,6 +70,9 @@ def test_settings_accepts_only_secure_mssql_target_for_azure_preprod(monkeypatch
         database_migration_url=MSSQL_TARGET.replace("proposalops?", "migration?"),
         storage_provider="azure_blob",
         managed_artifact_store_required=True,
+        contract_upload_scanner="clamav",
+        contract_upload_clamav_host="127.0.0.1",
+        contract_upload_clamav_port=3310,
         azure_blob_account_url="https://stproposalopsg8p60912.blob.core.windows.net",
         azure_blob_container="managed-artifacts",
         azure_blob_uami_client_id="88888888-8888-4888-8888-888888888888",
@@ -99,6 +102,9 @@ def _azure_preprod_settings(database_url: str) -> Settings:
         database_migration_url=MSSQL_TARGET.replace("proposalops?", "migration?"),
         storage_provider="azure_blob",
         managed_artifact_store_required=True,
+        contract_upload_scanner="clamav",
+        contract_upload_clamav_host="127.0.0.1",
+        contract_upload_clamav_port=3310,
         azure_blob_account_url="https://stproposalopsg8p60912.blob.core.windows.net",
         azure_blob_container="managed-artifacts",
         azure_blob_uami_client_id="88888888-8888-4888-8888-888888888888",
@@ -175,6 +181,7 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
         "source18_committee_implementation_v1.py",
         "source18_regulatory_current_state_v1.py",
         "step5_content_library_azure_sql_v2.py",
+        "contract_reconciliation_scheduler_v1.py",
         "intelligence_v1_shared_contracts.py",
         "p07_intelligence_foundation_closure.py",
         "p08_proposal_intelligence.py",
@@ -193,6 +200,7 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
         "opportunity_proposal_idempotency_v1",
         "billing_module_closure_v8",
         "17c6ebd99c4a",
+        "contract_reconciliation_scheduler_v1",
         "intelligence_v1_shared_contracts",
         "p07_intelligence_foundation_closure",
         "p08_proposal_intelligence",
@@ -220,6 +228,9 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
     assert "opportunity_proposal_idempotency_v1" in merge_point
     assert "op.create_" not in merge_point
     assert "db.execute" not in merge_point
+    scheduler = by_revision["contract_reconciliation_scheduler_v1"].read_text(encoding="utf-8")
+    assert 'revision = "contract_reconciliation_scheduler_v1"' in scheduler
+    assert 'down_revision = "17c6ebd99c4a"' in scheduler
     assert 'revision = "source18_regulatory_current_state_v1"' in source18
     assert 'down_revision = "ai_d2_execution_ledger_v1"' in source18
     ledger = by_revision["ai_d2_execution_ledger_v1"]

@@ -1,0 +1,1388 @@
+import { useState, type ChangeEvent } from "react";
+import { api } from "../api";
+import type { ContractData } from "./contractTypes";
+
+type RefreshProps = { data: ContractData; onRefresh: () => Promise<void> | void };
+
+const errorText = (cause: unknown, fallback: string) =>
+  cause instanceof Error ? cause.message : fallback;
+const human = (value: unknown, fallback = "Not recorded") =>
+  value === null || value === undefined || value === ""
+    ? fallback
+    : String(value).replaceAll("_", " ");
+
+async function base64FromFile(file: File) {
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  let binary = "";
+  const chunk = 0x8000;
+  for (let offset = 0; offset < bytes.length; offset += chunk)
+    binary += String.fromCharCode(...bytes.subarray(offset, offset + chunk));
+  return btoa(binary);
+}
+
+function Notice({
+  message,
+  error = false,
+}: {
+  message: string;
+  error?: boolean;
+}) {
+  return message ? (
+    <div
+      className={
+        error ? "contract-message contract-message-error" : "contract-message"
+      }
+      role={error ? "alert" : "status"}
+    >
+      {message}
+    </div>
+  ) : null;
+}
+
+export function ContractRevisionEditor({ data, onRefresh }: RefreshProps) {
+  const contract = data.contract || {};
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState("");
+  const [form, setForm] = useState({
+    contract_name: contract.name || "",
+    project_opportunity_ref: contract.project_opportunity_ref || "",
+    amount: contract.amount ? String(contract.amount) : "",
+    currency: contract.currency || "",
+    duration: contract.duration || "",
+    expected_close_date: contract.expected_close_date || "",
+    actual_close_date: "",
+    payment_condition_text: contract.payment_condition_text || "",
+    contracted_scope_text: contract.contracted_scope_text || "",
+    valuation_amount: "",
+    valuation_currency: "",
+    valuation_basis: "",
+    reason: "",
+  });
+  const save = async () => {
+    if (!form.reason.trim()) {
+      setMessage(
+        "A meaningful change reason is required before creating a Contract revision.",
+      );
+      return;
+    }
+    try {
+      await api(`/api/admin/contracts/${data.id}`, {
+        method: "PATCH",
+        body: JSON.stringify(form),
+      });
+      await onRefresh();
+      setMessage(
+        "New prospective Contract revision recorded; prior history remains immutable.",
+      );
+      setOpen(false);
+
+    } catch (cause) {
+      setMessage(errorText(cause, "Contract revision could not be saved."));
+    }
+  };
+  return (
+    <section className="contract-panel contract-governed-editor">
+      <div className="contract-panel-heading">
+        <div>
+          <span className="eyebrow">GOVERNED REVISION</span>
+          <h2>Contract terms</h2>
+          <p>
+            Edit creates a prospective revision. Finalized revisions are never
+            changed in place.
+          </p>
+        </div>
+        <button className="button-secondary" onClick={() => setOpen(!open)}>
+          {open ? "Cancel edit" : "Edit Contract"}
+        </button>
+      </div>
+      <div className="contract-field-grid">
+        <div className="contract-field">
+          <span>Contract name</span>
+          <strong>{human(contract.name)}</strong>
+        </div>
+        <div className="contract-field">
+          <span>Project / Opportunity Ref</span>
+          <strong>{human(contract.project_opportunity_ref)}</strong>
+        </div>
+        <div className="contract-field">
+          <span>Amount / Currency</span>
+          <strong>
+            {contract.amount
+              ? `${contract.amount} ${contract.currency || ""}`
+              : "Not confirmed"}
+          </strong>
+        </div>
+        <div className="contract-field">
+          <span>Duration</span>
+          <strong>{human(contract.duration)}</strong>
+        </div>
+        <div className="contract-field">
+          <span>Payment conditions</span>
+          <strong>{human(contract.payment_condition_text)}</strong>
+        </div>
+        <div className="contract-field">
+          <span>Contracted scope</span>
+          <strong>{human(contract.contracted_scope_text)}</strong>
+        </div>
+      </div>
+      {open && (
+        <div className="contract-edit-form">
+          <label>
+            Contract name
+            <input
+              value={form.contract_name}
+              onChange={(event) =>
+                setForm({ ...form, contract_name: event.target.value })
+              }
+            />
+          </label>
+          <label>
+            Project / Opportunity Ref
+            <input
+              value={form.project_opportunity_ref}
+              onChange={(event) =>
+                setForm({
+                  ...form,
+                  project_opportunity_ref: event.target.value,
+                })
+              }
+            />
+          </label>
+          <label>
+            Amount
+            <input
+              value={form.amount}
+              onChange={(event) =>
+                setForm({ ...form, amount: event.target.value })
+              }
+            />
+          </label>
+          <label>
+            Currency
+            <input
+              value={form.currency}
+              onChange={(event) =>
+                setForm({ ...form, currency: event.target.value })
+              }
+            />
+          </label>
+          <label>
+            Duration
+            <input
+              value={form.duration}
+              onChange={(event) =>
+                setForm({ ...form, duration: event.target.value })
+              }
+            />
+          </label>
+          <label>
+            Expected close date
+            <input
+              type="date"
+              value={form.expected_close_date}
+              onChange={(event) =>
+                setForm({ ...form, expected_close_date: event.target.value })
+              }
+            />
+          </label>
+          <label className="contract-wide-field">
+            Payment conditions
+            <textarea
+              value={form.payment_condition_text}
+              onChange={(event) =>
+                setForm({ ...form, payment_condition_text: event.target.value })
+              }
+            />
+          </label>
+          <label className="contract-wide-field">
+            Contracted scope / detailed works
+            <textarea
+              value={form.contracted_scope_text}
+              onChange={(event) =>
+                setForm({ ...form, contracted_scope_text: event.target.value })
+              }
+            />
+          </label>
+          <label className="contract-wide-field">
+            Change reason (required)
+            <input
+              value={form.reason}
+              onChange={(event) =>
+                setForm({ ...form, reason: event.target.value })
+              }
+            />
+          </label>
+          <button className="button-primary" onClick={() => void save()}>
+            Save Contract revision
+          </button>
+        </div>
+      )}
+      <Notice
+        message={message}
+        error={message.includes("could not") || message.includes("required")}
+      />
+    </section>
+  );
+}
+
+function CommitmentPanel({
+  data,
+  kind,
+  onRefresh,
+}: RefreshProps & { kind: "payment" | "input" | "deliverable" }) {
+  const config =
+    kind === "payment"
+      ? {
+          title: "Payment Terms",
+          label: "Payment Term",
+          endpoint: "commercial-terms",
+          items: data.payment_terms || [],
+        }
+      : kind === "input"
+        ? {
+            title: "Client Inputs / Documents Needed",
+            label: "Client Input",
+            endpoint: "client-inputs",
+            items: data.client_inputs || [],
+          }
+        : {
+            title: "Deliverables",
+            label: "Deliverable",
+            endpoint: "deliverables",
+            items: data.deliverables || [],
+          };
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState("");
+  const [first, setFirst] = useState("");
+  const [second, setSecond] = useState("");
+  const [reason, setReason] = useState("");
+  const [basisType, setBasisType] = useState("");
+  const [percentage, setPercentage] = useState("");
+  const [fixedAmount, setFixedAmount] = useState("");
+  const [currency, setCurrency] = useState("");
+  const [triggerType, setTriggerType] = useState("");
+  const [triggerDescription, setTriggerDescription] = useState("");
+  const [dueDays, setDueDays] = useState("");
+  const [sourceClause, setSourceClause] = useState("");
+  const [sourceDocumentVersionId, setSourceDocumentVersionId] = useState("");
+  const [humanVerified, setHumanVerified] = useState(false);
+  const sourceOptions = [
+    ["", "No source version selected"],
+    [
+      data.po?.document?.id || "",
+      `PO · ${data.po?.document?.filename || "not received"}`,
+    ],
+    [
+      data.lpo?.document?.id || "",
+      `LPO · ${data.lpo?.document?.filename || "not received"}`,
+    ],
+    [
+      data.client_document?.document?.id || "",
+      `Client Document · ${data.client_document?.document?.filename || "not received"}`,
+    ],
+  ].filter(([id], index) => index === 0 || Boolean(id));
+  const add = async () => {
+    if (
+      !first.trim() ||
+      !reason.trim() ||
+      (kind === "payment" && !second.trim())
+    ) {
+      setMessage(
+        `${config.label}, description where applicable, and reason are required.`,
+      );
+      return;
+    }
+    const body =
+      kind === "payment"
+        ? {
+            sequence: config.items.length + 1,
+            label: first,
+            term_text: second,
+            basis_type: basisType || undefined,
+            percentage: percentage || undefined,
+            fixed_amount: fixedAmount || undefined,
+            currency: currency || undefined,
+            trigger_type: triggerType || undefined,
+            trigger_description: triggerDescription || undefined,
+            due_days: dueDays ? Number(dueDays) : undefined,
+            source_clause: sourceClause || undefined,
+            source_document_version_id: sourceDocumentVersionId || undefined,
+            human_verified: humanVerified,
+            reason,
+          }
+        : kind === "input"
+          ? {
+              sequence: config.items.length + 1,
+              title: first,
+              description: second,
+              source_document_version_id: sourceDocumentVersionId || undefined,
+              reason,
+            }
+          : {
+              sequence: config.items.length + 1,
+              name: first,
+              description: second,
+              source_document_version_id: sourceDocumentVersionId || undefined,
+              reason,
+            };
+    try {
+      await api(`/api/admin/contracts/${data.id}/${config.endpoint}`, {
+        method: "POST",
+        body: JSON.stringify(body),
+      });
+      await onRefresh();
+      setMessage(`${config.label} created on the current mutable revision.`);
+      setFirst("");
+      setSecond("");
+      setReason("");
+      setOpen(false);
+
+    } catch (cause) {
+      setMessage(errorText(cause, `${config.label} could not be created.`));
+    }
+  };
+  return (
+    <section className="contract-commitment-card">
+      <div className="contract-card-heading">
+        <div>
+          <span className="eyebrow">STRUCTURED COMMITMENT</span>
+          <h3>{config.title}</h3>
+        </div>
+        <button className="button-secondary" onClick={() => setOpen(!open)}>
+          + Add {config.label}
+        </button>
+      </div>
+      {config.items.length ? (
+        config.items.map((item) => (
+          <div className="contract-list-item" key={item.id}>
+            <div>
+              <strong>{item.label || item.title || item.name}</strong>
+              <span>
+                {item.term_text ||
+                  item.description ||
+                  "Description not recorded"}
+              </span>
+              <small>
+                {item.required === false ? "Optional" : "Required"} ·{" "}
+                {item.source_document?.id
+                  ? `DocumentVersion ${item.source_document.id} · v${item.source_document.version_number} · ${item.source_document.sha256}`
+                  : "Source version not linked"}{" "}
+                ·{" "}
+                {item.human_verified_by
+                  ? `Verified by ${item.human_verified_by}`
+                  : "Human verification pending"}
+              </small>
+              {kind === "payment" && (
+                <small>
+                  {human(item.basis_type, "Basis pending")} ·{" "}
+                  {item.percentage
+                    ? `${item.percentage}%`
+                    : item.fixed_amount
+                      ? `${item.fixed_amount} ${item.currency || ""}`
+                      : "Amount pending"}{" "}
+                  · {human(item.trigger_type, "Trigger pending")} ·{" "}
+                  {item.due_days ?? "—"} due days · {human(item.status)}
+                </small>
+              )}
+            </div>
+            <span className="contract-status-chip status-canonical">
+              {human(item.status)}
+            </span>
+          </div>
+        ))
+      ) : (
+        <p className="contract-empty">
+          No {config.title.toLowerCase()} recorded.
+        </p>
+      )}
+      {open && (
+        <div className="contract-edit-form">
+          <label>
+            {config.label}
+            <input
+              value={first}
+              onChange={(event) => setFirst(event.target.value)}
+            />
+          </label>
+          <label>
+            {kind === "payment"
+              ? "Exact condition"
+              : "Description / why needed"}
+            <textarea
+              value={second}
+              onChange={(event) => setSecond(event.target.value)}
+            />
+          </label>
+          {kind === "payment" && (
+            <>
+              <label>
+                Basis type
+                <input
+                  value={basisType}
+                  onChange={(event) => setBasisType(event.target.value)}
+                  placeholder="CONTRACT_VALUE / FIXED_AMOUNT"
+                />
+              </label>
+              <label>
+                Percentage
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={percentage}
+                  onChange={(event) => setPercentage(event.target.value)}
+                />
+              </label>
+              <label>
+                Fixed amount
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={fixedAmount}
+                  onChange={(event) => setFixedAmount(event.target.value)}
+                />
+              </label>
+              <label>
+                Currency
+                <input
+                  value={currency}
+                  onChange={(event) => setCurrency(event.target.value)}
+                  placeholder="QAR"
+                />
+              </label>
+              <label>
+                Trigger type
+                <input
+                  value={triggerType}
+                  onChange={(event) => setTriggerType(event.target.value)}
+                  placeholder="MILESTONE / SIGNATURE / DATE"
+                />
+              </label>
+              <label>
+                Trigger description
+                <input
+                  value={triggerDescription}
+                  onChange={(event) =>
+                    setTriggerDescription(event.target.value)
+                  }
+                />
+              </label>
+              <label>
+                Due days
+                <input
+                  type="number"
+                  min="0"
+                  value={dueDays}
+                  onChange={(event) => setDueDays(event.target.value)}
+                />
+              </label>
+              <label>
+                Source clause
+                <input
+                  value={sourceClause}
+                  onChange={(event) => setSourceClause(event.target.value)}
+                  placeholder="Clause 4.2"
+                />
+              </label>
+              <label>
+                Human verification
+                <input
+                  type="checkbox"
+                  checked={humanVerified}
+                  onChange={(event) => setHumanVerified(event.target.checked)}
+                />{" "}
+                I verified this exact source-backed term
+              </label>
+            </>
+          )}
+          {(kind === "payment" ||
+            kind === "input" ||
+            kind === "deliverable") && (
+            <label>
+              Source DocumentVersion
+              <select
+                value={sourceDocumentVersionId}
+                onChange={(event) =>
+                  setSourceDocumentVersionId(event.target.value)
+                }
+              >
+                {sourceOptions.map(([id, label]) => (
+                  <option key={`${id}-${label}`} value={id}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          <label>
+            Reason
+            <input
+              value={reason}
+              onChange={(event) => setReason(event.target.value)}
+            />
+          </label>
+          <button className="button-primary" onClick={() => void add()}>
+            Save {config.label}
+          </button>
+        </div>
+      )}
+      <Notice
+        message={message}
+        error={message.includes("could not") || message.includes("required")}
+      />
+    </section>
+  );
+}
+
+export function ContractCommitments({ data, onRefresh }: RefreshProps) {
+  return (
+    <section id="contract-commitments" className="contract-panel">
+      <div className="contract-panel-heading">
+        <div>
+          <span className="eyebrow">CONTROLLED COMMITMENTS</span>
+          <h2>Terms, inputs &amp; deliverables</h2>
+          <p>
+            Each mutation is authenticated, reasoned, and attached to the
+            current Contract revision.
+          </p>
+        </div>
+      </div>
+      <div className="contract-card-columns">
+        <CommitmentPanel data={data} kind="payment" onRefresh={onRefresh} />
+        <CommitmentPanel data={data} kind="input" onRefresh={onRefresh} />
+        <CommitmentPanel data={data} kind="deliverable" onRefresh={onRefresh} />
+      </div>
+    </section>
+  );
+}
+
+type FileState = {
+  filename: string;
+  mime_type: string;
+  content_base64: string;
+};
+function BinaryDocumentInput({
+  label,
+  onChange,
+}: {
+  label: string;
+  onChange: (file: FileState) => void;
+}) {
+  const select = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    onChange({
+      filename: file.name,
+      mime_type: file.type || "application/octet-stream",
+      content_base64: await base64FromFile(file),
+    });
+  };
+  return (
+    <label>
+      {label}
+      <input
+        type="file"
+        accept=".pdf,.doc,.docx,.txt"
+        onChange={(event) => void select(event)}
+      />
+      <small>
+        Binary-safe intake: exact bytes, MIME, size, and SHA-256 are retained by
+        the canonical DocumentVersion.
+      </small>
+    </label>
+  );
+}
+
+export function ContractSourceIntake({ data, onRefresh }: RefreshProps) {
+  const [role, setRole] = useState("CLIENT_DOCUMENT");
+  const [file, setFile] = useState<File | null>(null);
+  const [message, setMessage] = useState("");
+  const save = async () => {
+    if (!file) {
+      setMessage("Choose a PDF, DOCX, or TXT file first.");
+      return;
+    }
+    const form = new FormData();
+    form.append("source_role", role);
+    form.append("reason", `Owner recorded ${role} source`);
+    form.append("file", file);
+    try {
+      await api(`/api/admin/contracts/${data.id}/documents/upload`, {
+        method: "POST",
+        body: form,
+      });
+      await onRefresh();
+      setMessage(
+        `${role.replaceAll("_", " ")} stored as an exact current DocumentVersion.`,
+      );
+      setFile(null);
+
+    } catch (cause) {
+      setMessage(errorText(cause, "Document intake failed."));
+    }
+  };
+  return (
+    <section className="contract-panel">
+      <div className="contract-panel-heading">
+        <div>
+          <span className="eyebrow">CANONICAL DOCUMENT INTAKE</span>
+          <h2>Client Document / PO / LPO</h2>
+          <p>
+            Multipart intake preserves larger PDF/DOCX bytes, exact hash, MIME,
+            size, and current DocumentVersion lineage.
+          </p>
+        </div>
+      </div>
+      <div className="contract-document-grid">
+        {(
+          [
+            ["CLIENT_DOCUMENT", "Client Document", data.client_document],
+            ["PO", "Purchase Order", data.po],
+            ["LPO", "Letter of Purchase Order", data.lpo],
+          ] as const
+        ).map(([itemRole, label, item]) => (
+          <article key={itemRole}>
+            <strong>{label}</strong>
+            <span>
+              {item?.document
+                ? `${item.document.filename} · v${item.document.version_number} · ${item.document.sha256}`
+                : "Not received"}
+            </span>
+            <small>
+              {item?.document
+                ? "Current canonical version"
+                : item?.requiredness?.label || "Requirement not configured"}
+            </small>
+          </article>
+        ))}
+      </div>
+      <div className="contract-edit-form">
+        <label>
+          Source role
+          <select
+            value={role}
+            onChange={(event) => setRole(event.target.value)}
+          >
+            <option value="CLIENT_DOCUMENT">Client Document</option>
+            <option value="PO">Purchase Order</option>
+            <option value="LPO">Letter of Purchase Order</option>
+          </select>
+        </label>
+        <label>
+          Select source file
+          <input
+            type="file"
+            accept=".pdf,.doc,.docx,.txt"
+            onChange={(event) => setFile(event.target.files?.[0] || null)}
+          />
+          <small>Binary-safe multipart upload; no UTF-8 conversion.</small>
+        </label>
+        {file && (
+          <small>
+            Selected: {file.name} · {file.size} bytes
+          </small>
+        )}
+        <button
+          className="button-primary"
+          disabled={!file}
+          onClick={() => void save()}
+        >
+          Store exact version
+        </button>
+      </div>
+      <Notice
+        message={message}
+        error={message.includes("failed") || message.includes("first")}
+      />
+    </section>
+  );
+}
+
+export function ContractExtensionPanel({ data, onRefresh }: RefreshProps) {
+  const history = data.operations?.contract_clock?.extension_history || [];
+  const [requestedEndDate, setRequestedEndDate] = useState("");
+  const [reason, setReason] = useState("");
+  const [message, setMessage] = useState("");
+  const request = async () => {
+    if (!reason.trim()) {
+      setMessage("A reason and source reference are required.");
+      return;
+    }
+    try {
+      await api(`/api/admin/contracts/${data.id}/extension-requests`, {
+        method: "POST",
+        body: JSON.stringify({
+          requested_end_date: requestedEndDate || undefined,
+          source_reference: `owner-extension:${data.id}`,
+          reason,
+        }),
+      });
+      await onRefresh();
+      setMessage(
+        "Extension request recorded. Original Contract dates remain unchanged; approval requires a prospective amendment.",
+      );
+      setReason("");
+
+    } catch (cause) {
+      setMessage(errorText(cause, "Extension request could not be recorded."));
+    }
+  };
+  return (
+    <section className="contract-panel">
+      <div className="contract-panel-heading">
+        <div>
+          <span className="eyebrow">CONTRACT TIME CONTROL</span>
+          <h2>Extension request &amp; history</h2>
+          <p>
+            Requests and decisions are append-only evidence. An approved
+            extension never rewrites the accepted Contract; create a prospective
+            amendment.
+          </p>
+        </div>
+      </div>
+      <div className="contract-list-item">
+        <div>
+          <strong>Current expected end</strong>
+          <span>
+            {data.operations?.contract_clock?.current_expected_end ||
+              "Not configured"}{" "}
+            ·{" "}
+            {data.operations?.contract_clock?.extension_state ||
+              "No extension state"}
+          </span>
+        </div>
+        <span className="contract-status-chip status-canonical">
+          {history.length ? `${history.length} history item(s)` : "No history"}
+        </span>
+      </div>
+      {history.map((item) => (
+        <div className="contract-list-item" key={item.id}>
+          <div>
+            <strong>
+              {human(
+                item.metadata?.event ||
+                  item.metadata?.decision ||
+                  "Extension record",
+              )}
+            </strong>
+            <span>
+              {item.metadata?.requested_end_date ||
+                item.metadata?.approved_end_date ||
+                "Date not specified"}{" "}
+              · {item.source_reference}
+            </span>
+          </div>
+          <span className="contract-status-chip status-canonical">
+            {human(item.metadata?.decision || item.status)}
+          </span>
+        </div>
+      ))}
+      <div className="contract-edit-form">
+        <label>
+          Requested end date
+          <input
+            type="date"
+            value={requestedEndDate}
+            onChange={(event) => setRequestedEndDate(event.target.value)}
+          />
+        </label>
+        <label>
+          Source reference
+          <input value={`owner-extension:${data.id}`} readOnly />
+        </label>
+        <label>
+          Reason
+          <textarea
+            value={reason}
+            onChange={(event) => setReason(event.target.value)}
+          />
+        </label>
+        <button className="button-secondary" onClick={() => void request()}>
+          Request Contract extension
+        </button>
+      </div>
+      <Notice
+        message={message}
+        error={message.includes("could not") || message.includes("required")}
+      />
+    </section>
+  );
+}
+
+export function ContractExtensionDecisionPanel({
+  data,
+  onRefresh,
+}: RefreshProps) {
+  const history = data.operations?.contract_clock?.extension_history || [];
+  const request = history.find(
+    (item) => item.metadata?.event === "REQUESTED",
+  );
+  const [reason, setReason] = useState("");
+  const [approvedEndDate, setApprovedEndDate] = useState(
+    request?.metadata?.requested_end_date || "",
+  );
+  const [message, setMessage] = useState("");
+  const field = (label: string, value: unknown, source: string) => (
+    <div className="contract-field">
+      <span>{label}</span>
+      <strong>{human(value)}</strong>
+      <small>{source}</small>
+    </div>
+  );
+  const decide = async (decision: "APPROVE" | "RETURN" | "REJECT") => {
+    if (!reason.trim()) {
+      setMessage(
+        "A reason is required for every extension authority decision.",
+      );
+      return;
+    }
+    try {
+      await api(`/api/admin/contracts/${data.id}/extension-decisions`, {
+        method: "POST",
+        body: JSON.stringify({
+          decision,
+          reason,
+          approved_end_date: approvedEndDate || undefined,
+        }),
+      });
+      await onRefresh();
+      setMessage(
+        `${decision} recorded. Original Contract dates remain historical; approval requires a prospective amendment.`,
+      );
+      setReason("");
+
+    } catch (cause) {
+      setMessage(
+        errorText(cause, "Extension authority decision could not be recorded."),
+      );
+    }
+  };
+  return (
+    <section
+      className="contract-panel"
+      aria-labelledby="contract-extension-authority-title"
+    >
+      <div className="contract-panel-heading">
+        <div>
+          <span className="eyebrow">HUMAN EXTENSION AUTHORITY</span>
+          <h2 id="contract-extension-authority-title">
+            Extension authority decision
+          </h2>
+          <p>
+            Only an authorized Contract-review user may decide. Approval records
+            prospective intent and never rewrites historical Contract dates.
+          </p>
+        </div>
+      </div>
+      <div className="contract-review-grid">
+        {field(
+          "Original Contract end date",
+          data.operations?.contract_clock?.original_expected_end,
+          "Historical Contract fact",
+        )}
+        {field(
+          "Current expected end",
+          data.operations?.contract_clock?.current_expected_end,
+          "Canonical operations projection",
+        )}
+        {field(
+          "Request actor / time",
+          request
+            ? `${request.recorded_by || "Human actor"} · ${request.recorded_at || "time not recorded"}`
+            : "No request recorded",
+          "CONTRACT_EXTENSION evidence",
+        )}
+        {field(
+          "Requested end date",
+          request?.metadata?.requested_end_date,
+          request?.metadata?.reason || "Request basis not recorded",
+        )}
+      </div>
+      {request ? (
+        <div className="contract-edit-form">
+          <label>
+            Approval end date
+            <input
+              type="date"
+              value={approvedEndDate}
+              onChange={(event) => setApprovedEndDate(event.target.value)}
+            />
+          </label>
+          <label>
+            Required decision reason
+            <textarea
+              value={reason}
+              onChange={(event) => setReason(event.target.value)}
+              placeholder="Explain the authority decision"
+            />
+          </label>
+          <div className="contract-action-row">
+            <button
+              className="button-primary"
+              onClick={() => void decide("APPROVE")}
+            >
+              Approve extension
+            </button>
+            <button
+              className="button-secondary"
+              onClick={() => void decide("RETURN")}
+            >
+              Return for correction
+            </button>
+            <button
+              className="button-secondary"
+              onClick={() => void decide("REJECT")}
+            >
+              Reject extension
+            </button>
+          </div>
+        </div>
+      ) : (
+        <p className="contract-empty">
+          No extension request is awaiting authority decision.
+        </p>
+      )}
+      <Notice
+        message={message}
+        error={message.includes("could not") || message.includes("required")}
+      />
+      <div className="contract-human-boundary">
+        <strong>Prospective-only rule</strong>
+        <span>
+          Approve does not change the original Contract end date. A new
+          prospective Contract revision/amendment is required.
+        </span>
+      </div>
+    </section>
+  );
+}
+
+export function ContractExecutionHandoff({ data, onRefresh }: RefreshProps) {
+  const accepted = Boolean(data.current_revision?.accepted);
+  const executed = (data.executed_evidence?.length || 0) > 0;
+  const distributed = Boolean(
+    data.handoff_evidence?.CLIENT_COPY_DISTRIBUTION?.length,
+  );
+  const [file, setFile] = useState<File | null>(null);
+  const [message, setMessage] = useState("");
+  const [reference, setReference] = useState("");
+  const recordExecuted = async () => {
+    if (!file) {
+      setMessage("Select the exact executed Contract file.");
+      return;
+    }
+    try {
+      const form = new FormData();
+      form.append("source_role", "EXECUTED_CONTRACT");
+      form.append("reason", "Human received executed Contract copy");
+      form.append("file", file);
+      const uploaded = await api<{ document_version_id: string; source_path_or_reference?: string; sha256?: string }>(`/api/admin/contracts/${data.id}/documents/upload`, { method: "POST", body: form });
+      await api(`/api/admin/contracts/${data.id}/executed-evidence`, {
+        method: "POST",
+        body: JSON.stringify({
+          document_version_id: uploaded.document_version_id,
+          evidence_reference:
+            uploaded.source_path_or_reference || `contract:${data.id}:executed`,
+          content_hash: uploaded.sha256,
+          reason: "Owner recorded exact executed Contract evidence",
+        }),
+      });
+      await onRefresh();
+      setMessage(
+        "Executed evidence recorded against the exact accepted revision.",
+      );
+      setFile(null);
+
+    } catch (cause) {
+      setMessage(errorText(cause, "Executed evidence could not be recorded."));
+    }
+  };
+  const handoff = async (
+    kind: "client-copy-distribution" | "operations-handoff",
+  ) => {
+    if (!reference.trim()) {
+      setMessage("Enter a human handoff reference before recording this fact.");
+      return;
+    }
+    try {
+      await api(`/api/admin/contracts/${data.id}/${kind}`, {
+        method: "POST",
+        body: JSON.stringify({
+          evidence_reference: reference,
+          metadata: {
+            exact_contract_revision_id: data.current_revision?.id,
+            exact_executed_evidence_id: data.executed_evidence?.[0]?.id,
+            external_send: false,
+          },
+          reason: `Owner recorded ${kind.replaceAll("-", " ")}`,
+        }),
+      });
+      await onRefresh();
+      setMessage(
+        `${kind.replaceAll("-", " ")} recorded. No external send was performed.`,
+      );
+      setReference("");
+
+    } catch (cause) {
+      setMessage(errorText(cause, `${kind} could not be recorded.`));
+    }
+  };
+  return (
+    <section id="contract-execution" tabIndex={-1} className="contract-panel">
+      <div className="contract-panel-heading">
+        <div>
+          <span className="eyebrow">EXECUTION · DELIVERY · HANDOFF</span>
+          <h2>Protected evidence sequence</h2>
+          <p>
+            Acceptance, executed evidence, client delivery, and Operations
+            handoff are distinct server-enforced facts.
+          </p>
+        </div>
+      </div>
+      <div className="contract-evidence-sequence">
+        <div>
+          <strong>Accepted revision</strong>
+          <span>
+            {accepted
+              ? `Revision ${data.current_revision?.revision_number}`
+              : "Required first"}
+          </span>
+        </div>
+        <div>
+          <strong>Executed Contract</strong>
+          <span>{executed ? "Recorded" : "Pending"}</span>
+        </div>
+        <div>
+          <strong>Client copy distribution</strong>
+          <span>{distributed ? "Recorded" : "Pending"}</span>
+        </div>
+        <div>
+          <strong>Operations handoff</strong>
+          <span>
+            {data.handoff_evidence?.OPERATIONS_HANDOFF?.length
+              ? "Recorded"
+              : "Pending"}
+          </span>
+        </div>
+      </div>
+      <div className="contract-edit-form">
+        <label>Executed-copy file<input type="file" accept=".pdf,.docx,.txt" disabled={!accepted} onChange={event => setFile(event.target.files?.[0] || null)} /></label>
+        <button
+          className="button-primary"
+          disabled={!accepted || !file}
+          onClick={() => void recordExecuted()}
+        >
+          Record executed evidence
+        </button>
+        <label>
+          Distribution / handoff reference
+          <input
+            value={reference}
+            onChange={(event) => setReference(event.target.value)}
+            placeholder="Human record / channel / reference"
+          />
+        </label>
+        <div className="contract-action-row">
+          <button
+            className="button-secondary"
+            disabled={!executed}
+            onClick={() => void handoff("client-copy-distribution")}
+          >
+            Record Client Copy Distribution
+          </button>
+          <button
+            className="button-secondary"
+            disabled={!distributed}
+            onClick={() => void handoff("operations-handoff")}
+          >
+            Record Operations Handoff
+          </button>
+        </div>
+      </div>
+      <Notice
+        message={message}
+        error={
+          message.includes("could not") ||
+          message.includes("required") ||
+          message.includes("Select")
+        }
+      />
+    </section>
+  );
+}
+
+export function ContractMissingDocumentFollowup({
+  data,
+  onRefresh,
+}: RefreshProps) {
+  const missing = (data.client_inputs || []).find(
+    (item) =>
+      !["RECEIVED", "VERIFIED", "COMPLETE", "CLOSED"].includes(
+        String(item.status || "").toUpperCase(),
+      ),
+  );
+  const [message, setMessage] = useState("");
+  const [nextAction, setNextAction] = useState(
+    "Review the missing document with the accountable human owner.",
+  );
+  const follow = async () => {
+    if (!missing) {
+      setMessage(
+        "No unresolved client document requirement is currently projected.",
+      );
+      return;
+    }
+    try {
+      await api(`/api/admin/contracts/${data.id}/missing-document-follow-up`, {
+        method: "POST",
+        body: JSON.stringify({
+          missing_requirement:
+            missing.title || missing.input_code || "Client document",
+          next_action: nextAction,
+          reason: "Owner routed missing Contract document follow-up",
+        }),
+      });
+      await onRefresh();
+      setMessage(
+        "Canonical AMEC work and in-app notification created; no external communication was sent.",
+      );
+
+    } catch (cause) {
+      setMessage(
+        errorText(cause, "Missing-document follow-up could not be created."),
+      );
+    }
+  };
+  return (
+    <section className="contract-panel">
+      <div className="contract-panel-heading">
+        <div>
+          <span className="eyebrow">CLIENT INPUT FOLLOW-UP</span>
+          <h2>Missing-document work</h2>
+          <p>
+            Follow-up creates accountable AMEC work only. Human review and human
+            send remain separate.
+          </p>
+        </div>
+      </div>
+      {missing ? (
+        <div className="contract-blocker-list">
+          <div className="contract-blocker">
+            <strong>{missing.title || missing.input_code}</strong>
+            <span>
+              {missing.required ? "Required" : "Optional"} ·{" "}
+              {human(missing.status)} ·{" "}
+              {missing.description || "Description not recorded"}
+            </span>
+          </div>
+        </div>
+      ) : (
+        <p className="contract-empty">
+          No unresolved client input is currently visible.
+        </p>
+      )}
+      <label>
+        Next action
+        <input
+          value={nextAction}
+          onChange={(event) => setNextAction(event.target.value)}
+        />
+      </label>
+      <button
+        className="button-secondary"
+        disabled={!missing}
+        onClick={() => void follow()}
+      >
+        Create missing-document follow-up
+      </button>
+      <Notice message={message} error={message.includes("could not")} />
+    </section>
+  );
+}
+
+export function ContractContactRouting({ data, onRefresh }: RefreshProps) {
+  const routing = data.operations?.operational_contact_routing || {};
+  const purposes = Object.keys(routing.purposes || {});
+  const [purpose, setPurpose] = useState(
+    purposes[0] || "MISSING_DOCUMENT_REQUEST",
+  );
+  const [optionId, setOptionId] = useState("");
+  const [reason, setReason] = useState("");
+  const [message, setMessage] = useState("");
+  const options = routing.purposes?.[purpose]?.eligible_options || [];
+  const save = async () => {
+    const option = options.find(
+      (item) => item.contact_point_id === optionId,
+    );
+    if (!option || !reason.trim()) {
+      setMessage(
+        "Choose an eligible purpose-specific contact and record a reason.",
+      );
+      return;
+    }
+    try {
+      await api(`/api/admin/contracts/${data.id}/operational-contact-routing`, {
+        method: "POST",
+        body: JSON.stringify({
+          purpose,
+          contact_point_id: option.contact_point_id,
+          organization_party_id: option.organization_party_id,
+          practical_role: option.practical_role,
+          reason,
+        }),
+      });
+      await onRefresh();
+      setMessage(
+        "Purpose-specific contact routing recorded; no external communication was sent.",
+      );
+      setReason("");
+
+    } catch (cause) {
+      setMessage(errorText(cause, "Contact routing could not be recorded."));
+    }
+  };
+  return (
+    <section className="contract-panel">
+      <div className="contract-panel-heading">
+        <div>
+          <span className="eyebrow">PURPOSE-SPECIFIC ROUTING</span>
+          <h2>Operational contacts</h2>
+          <p>
+            Bind only a current, verified ContactPoint and matching
+            PartyRoleAssignment. Generic ClientContact fallback is disallowed.
+          </p>
+        </div>
+      </div>
+      <div className="contract-contact-routing-grid">
+        {purposes.map((item) => (
+          <div key={item} className="contract-list-item">
+            <div>
+              <strong>{human(item)}</strong>
+              <span>{human(routing.purposes?.[item]?.status)}</span>
+            </div>
+            <span>
+              {routing.purposes?.[item]?.generic_fallback_used
+                ? "Fallback used"
+                : "No generic fallback"}
+            </span>
+          </div>
+        ))}
+      </div>
+      <div className="contract-edit-form">
+        <label>
+          Purpose
+          <select
+            value={purpose}
+            onChange={(event) => {
+              setPurpose(event.target.value);
+              setOptionId("");
+            }}
+          >
+            {purposes.map((item) => (
+              <option key={item} value={item}>
+                {human(item)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Eligible contact
+          <select
+            aria-label="Eligible operational contact"
+            value={optionId}
+            onChange={(event) => setOptionId(event.target.value)}
+            disabled={!options.length}
+          >
+            <option value="">
+              {options.length
+                ? "Select verified contact…"
+                : "No eligible project contact"}
+            </option>
+            {options.map((item) => (
+              <option key={item.contact_point_id} value={item.contact_point_id}>
+                {item.operational_contact?.name || item.contact_point_id} ·{" "}
+                {human(item.channel)} ·{" "}
+                {item.organization?.name || "Organization"}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Reason
+          <input
+            value={reason}
+            onChange={(event) => setReason(event.target.value)}
+            placeholder="Why bind this operational contact?"
+          />
+        </label>
+        <button
+          className="button-secondary"
+          disabled={!options.length || !optionId || !reason.trim()}
+          onClick={() => void save()}
+        >
+          Bind operational contact
+        </button>
+      </div>
+      <Notice
+        message={message}
+        error={message.includes("could not") || message.includes("Choose")}
+      />
+    </section>
+  );
+}
+
+export function ContractServiceScope({
+  data,
+  onNavigate,
+}: {
+  data: ContractData;
+  onNavigate: (route: string) => void;
+}) {
+  const services = data.operations?.mobilization?.service_engagements || [];
+  const context =
+    data.project?.id && data.current_revision?.id
+      ? `/handover?project_id=${encodeURIComponent(data.project.id)}&contract_id=${encodeURIComponent(data.id)}&contract_revision_id=${encodeURIComponent(data.current_revision.id)}`
+      : "/handover";
+  return (
+    <section className="contract-panel">
+      <div className="contract-panel-heading">
+        <div>
+          <span className="eyebrow">SERVICEENGAGEMENT CONTEXT</span>
+          <h2>Service Scope</h2>
+          <p>
+            ServiceEngagement is an owning-domain record, not a Contract-local
+            duplicate.
+          </p>
+        </div>
+        <button
+          className="button-secondary"
+          onClick={() => onNavigate(context)}
+        >
+          Set up Service Scope in Handover
+        </button>
+      </div>
+      {services.length ? (
+        services.map((item) => (
+          <div className="contract-list-item" key={item.id}>
+            <div>
+              <strong>{item.service_ref}</strong>
+              <span>
+                Contract {data.id} · Revision {item.contract_revision_id} ·
+                Project {item.project_id}
+              </span>
+            </div>
+            <span className="contract-status-chip status-canonical">
+              {human(item.status)}
+            </span>
+          </div>
+        ))
+      ) : (
+        <p className="contract-empty">
+          No ServiceEngagement record is projected. No synthetic scope was
+          created.
+        </p>
+      )}
+    </section>
+  );
+}

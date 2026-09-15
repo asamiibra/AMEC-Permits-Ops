@@ -24,9 +24,12 @@ from ..models import (
     ProposalDistributionEvent,
     ProposalEngineeringContribution,
     ProposalLpoReconciliation,
+    ProposalOutputArtifact,
+    Document,
     ProposalScopeConfirmation,
     ProposalServiceEligibility,
     ProposalSourceEvidence,
+    DocumentVersion,
     ProposalSourceLink,
     ProposalStalenessEvent,
     ProposalTechnicalAssessment,
@@ -247,6 +250,72 @@ def verify_acceptance(db: Session, proposal_id: str, payload: dict[str, Any], *,
     db.add(row)
     db.flush()
     return row, False
+
+
+def record_signed_commercial_acceptance(db: Session, proposal_id: str, payload: dict[str, Any], *, actor: str, correlation_id: str) -> dict[str, Any]:
+    """Record signed Proposal/PO/LPO acceptance through the existing Proposal revision.
+
+    This is a convenience transaction over the existing response, verification,
+    and LPO reconciliation records; it does not create a Contract acceptance
+    or a second commercial truth engine.
+    """
+    proposal = _proposal(db, proposal_id)
+    revision = latest_accepted(db, proposal_id)
+    acceptance_kind = str(payload.get("acceptance_kind") or "").upper()
+    if acceptance_kind not in {"SIGNED_PROPOSAL", "SIGNED_PO", "SIGNED_LPO"}:
+        raise ValueError("SIGNED_COMMERCIAL_ACCEPTANCE_KIND_INVALID")
+    evidence_reference = str(payload.get("evidence_reference") or "").strip()
+    if not evidence_reference or not payload.get("evidence_document_version_id"):
+        raise ValueError("SIGNED_COMMERCIAL_ACCEPTANCE_EVIDENCE_REQUIRED")
+    evidence_document = db.get(DocumentVersion, payload.get("evidence_document_version_id"))
+    if not evidence_document or evidence_document.superseded_by:
+        raise ValueError("SIGNED_COMMERCIAL_ACCEPTANCE_EVIDENCE_LINEAGE_INVALID")
+    if acceptance_kind == "SIGNED_PROPOSAL":
+        artifact = db.scalar(select(ProposalOutputArtifact).where(ProposalOutputArtifact.revision_id == revision.id, ProposalOutputArtifact.proposal_id == proposal_id, ProposalOutputArtifact.artifact_type == "PROPOSAL"))
+        distribution = db.scalar(select(ProposalDistributionEvent).where(ProposalDistributionEvent.proposal_id == proposal_id, ProposalDistributionEvent.accepted_revision_id == revision.id).order_by(ProposalDistributionEvent.sent_at.desc()))
+        lineage = (artifact.lineage or {}) if artifact else {}
+        distribution_matches = bool(distribution and (not distribution.evidence_document_version_id or distribution.evidence_document_version_id == evidence_document.id))
+        reference_matches = bool(distribution and evidence_reference in {distribution.evidence_reference, artifact.storage_reference if artifact else None})
+        if not artifact or artifact.content_hash != lineage.get("artifact_content_hash", artifact.content_hash) or lineage.get("accepted_revision_id") != revision.id or lineage.get("proposal_content_hash") != revision.content_hash or not distribution or not distribution_matches or not reference_matches:
+            raise ValueError("SIGNED_PROPOSAL_OUTPUT_DISTRIBUTION_LINEAGE_REQUIRED")
+    else:
+        document = db.get(Document, evidence_document.document_id)
+        linked_source = db.scalar(select(ProposalSourceEvidence).where(ProposalSourceEvidence.proposal_id == proposal_id, ProposalSourceEvidence.content_hash == evidence_document.sha256, ProposalSourceEvidence.status == "CURRENT"))
+        if not document or document.current_version_id != evidence_document.id or not linked_source:
+            raise ValueError("SIGNED_COMMERCIAL_ACCEPTANCE_EVIDENCE_LINEAGE_INVALID")
+        source_terms = (evidence_document.metadata_json or {}).get("commercial_terms") if isinstance(evidence_document.metadata_json, dict) else None
+        source_terms = source_terms or (linked_source.provenance or {}).get("commercial_terms")
+        if not isinstance(source_terms, dict) or not source_terms:
+            raise ValueError("SIGNED_ORDER_TERMS_UNSTRUCTURED")
+    key = str(payload.get("idempotency_key") or f"signed-commercial-acceptance:{proposal_id}:{revision.id}:{acceptance_kind}")
+    existing = db.scalar(select(ProposalAcceptanceVerification).where(ProposalAcceptanceVerification.proposal_id == proposal_id, ProposalAcceptanceVerification.accepted_revision_id == revision.id, ProposalAcceptanceVerification.evidence_reference == evidence_reference))
+    if existing:
+        return {"acceptance_verification": existing, "lpo_reconciliation": db.scalar(select(ProposalLpoReconciliation).where(ProposalLpoReconciliation.proposal_id == proposal_id, ProposalLpoReconciliation.accepted_revision_id == revision.id)), "idempotent": True}
+    response = ProposalClientResponse(proposal_id=proposal_id, accepted_revision_id=revision.id, response_type="ACCEPTED", evidence_reference=evidence_reference, notes=payload.get("notes"), recorded_by=actor, idempotency_key=key)
+    db.add(response)
+    db.flush()
+    verification = ProposalAcceptanceVerification(proposal_id=proposal_id, accepted_revision_id=revision.id, client_response_id=response.id, evidence_reference=evidence_reference, evidence_document_version_id=payload.get("evidence_document_version_id"), verified_by=actor, verification_note=f"{acceptance_kind}; exact accepted Proposal revision", verified_at=_now(), audit_correlation_id=correlation_id)
+    db.add(verification)
+    db.flush()
+    lpo = None
+    if acceptance_kind in {"SIGNED_PO", "SIGNED_LPO"}:
+        accepted_fields = (revision.snapshot or {}).get("fields") or {}
+        order_terms = source_terms
+        aliases = {"amount": ("amount", "price", "total", "value"), "currency": ("currency",), "duration": ("duration", "period"), "scope": ("scope", "scope_of_work", "service_scope")}
+        fields_compared: list[str] = []
+        variances: list[dict[str, Any]] = []
+        for field, keys in aliases.items():
+            proposal_value = next((accepted_fields.get(key) for key in keys if accepted_fields.get(key) not in (None, "")), None)
+            order_value = next((order_terms.get(key) for key in keys if order_terms.get(key) not in (None, "")), None)
+            if proposal_value is None and order_value is None:
+                continue
+            fields_compared.append(field)
+            if str(proposal_value).strip().upper() != str(order_value).strip().upper():
+                variances.append({"field": field, "proposal": proposal_value, "order": order_value, "source": "SERVER_DERIVED"})
+        lpo, _ = reconcile_lpo(db, proposal_id, {"applies": True, "client_document_version_id": evidence_document.id, "client_artifact_reference": evidence_reference, "fields_compared": fields_compared, "variances": variances, "adjudication_note": "Server-derived deterministic comparison; human adjudication required for any variance." if variances else None, "idempotency_key": f"signed-lpo:{proposal_id}:{revision.id}:{acceptance_kind}"}, actor=actor, correlation_id=correlation_id)
+    else:
+        lpo, _ = reconcile_lpo(db, proposal_id, {"applies": False, "fields_compared": [], "variances": [], "adjudication_note": "NOT_REQUIRED_BY_GOVERNING_REQUIREMENT: signed Proposal output is the accepted commercial artifact; no PO/LPO is required.", "idempotency_key": f"signed-proposal-no-lpo:{proposal_id}:{revision.id}"}, actor=actor, correlation_id=correlation_id)
+    return {"acceptance_verification": verification, "lpo_reconciliation": lpo, "idempotent": False}
 
 
 def reconcile_lpo(db: Session, proposal_id: str, payload: dict[str, Any], *, actor: str, correlation_id: str) -> tuple[ProposalLpoReconciliation, bool]:

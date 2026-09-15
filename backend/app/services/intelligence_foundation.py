@@ -30,6 +30,8 @@ from ..models import (
     CandidateAssertion,
     ContextDependency,
     ContextSnapshot,
+    Contract,
+    ContractRevision,
     DefinitionEntry,
     DefinitionRevision,
     DocumentApprovalState,
@@ -156,6 +158,15 @@ def dependency_current(db: Session, dependency: ContextDependency | AIWorkProduc
             if len(accepted) != 1:
                 return False
             revision = accepted[0]
+            current = f"{revision.id}:{revision.revision_number}:{revision.content_hash}"
+            return current == expected
+        if str(metadata.get("domain_entity", "")).upper() == "CONTRACT":
+            contract = db.get(Contract, dependency.dependency_id)
+            if contract is None or not contract.current_revision_id:
+                return False
+            revision = db.get(ContractRevision, contract.current_revision_id)
+            if revision is None:
+                return False
             current = f"{revision.id}:{revision.revision_number}:{revision.content_hash}"
             return current == expected
         project = db.get(Project, dependency.dependency_id)

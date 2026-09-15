@@ -52,6 +52,9 @@ class Settings(BaseSettings):
     azure_blob_account_url: str = ""
     azure_blob_container: str = "managed-artifacts"
     azure_blob_uami_client_id: str = ""
+    contract_upload_scanner: str = "synthetic"
+    contract_upload_clamav_host: str = ""
+    contract_upload_clamav_port: int = 3310
     smb_server: str = ""
     smb_port: int = 445
     smb_share: str = ""
@@ -91,6 +94,12 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     monitoring_mode: str = "DISABLED"
     applicationinsights_connection_string: str = ""
+
+    # Canonical ACA worker controls. The cadence is operational polling
+    # configuration, not an Owner business deadline or SLA.
+    worker_continuous: bool = False
+    worker_poll_interval_seconds: int = 60
+    worker_contract_reconciliation_enabled: bool = True
 
     # AI-D2/D3 has two independent deployment gates. The feature may be
     # present in the product while external inference remains disabled until
@@ -184,6 +193,21 @@ class Settings(BaseSettings):
             raise ValueError(
                 f"{setting_name} forbids URL credentials, UID, PWD, Authentication, "
                 "and Trusted_Connection"
+            )
+
+    def _validate_clamav_contract(self, environment: str) -> None:
+        if self.contract_upload_scanner.strip().lower() != "clamav":
+            raise ValueError(
+                f"{environment} requires CONTRACT_UPLOAD_SCANNER=clamav"
+            )
+        host = self.contract_upload_clamav_host.strip()
+        if not host or any(token in host for token in ("/", "\\", " ")):
+            raise ValueError(
+                f"{environment} requires a valid CONTRACT_UPLOAD_CLAMAV_HOST"
+            )
+        if not 1 <= self.contract_upload_clamav_port <= 65535:
+            raise ValueError(
+                f"{environment} requires CONTRACT_UPLOAD_CLAMAV_PORT between 1 and 65535"
             )
 
     def _validate_ai_d4_lock(self) -> None:
@@ -462,6 +486,7 @@ class Settings(BaseSettings):
                     self.azure_blob_uami_client_id,
                     "AZURE_BLOB_UAMI_CLIENT_ID",
                 )
+                self._validate_clamav_contract("AZURE-PREPROD")
 
             if (
                 self.smb_server
@@ -553,6 +578,8 @@ class Settings(BaseSettings):
                 if not self.azure_blob_uami_client_id:
                     raise ValueError("PROD requires AZURE_BLOB_UAMI_CLIENT_ID when managed artifact storage is launch-required")
                 self._require_guid(self.azure_blob_uami_client_id, "AZURE_BLOB_UAMI_CLIENT_ID")
+
+            self._validate_clamav_contract("PROD")
 
         if environment != "PROD" and any(
             token in self.database_url.lower()

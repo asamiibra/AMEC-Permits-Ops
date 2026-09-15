@@ -3,7 +3,8 @@ export type PublicPage =
   | "opportunities"
   | "contract-mobilization"
   | "billing"
-  | "content-library";
+  | "content-library"
+  | "work" | "engineering" | "regulatory" | "committee" | "construction" | "completion" | "handover" | "administration";
 
 export type PublicRoute = {
   page: PublicPage;
@@ -16,7 +17,7 @@ const startsWithRoute = (path: string, route: string) =>
 
 /**
  * Positive allowlist for the current public release. A route is public only
- * when it belongs to Home or one of the four active modules; all other paths
+ * when it belongs to Home or one of the active business modules; all other paths
  * resolve to Home without deleting their underlying domain implementation.
  */
 export function classifyPublicRoute(pathname: string): PublicRoute {
@@ -26,7 +27,11 @@ export function classifyPublicRoute(pathname: string): PublicRoute {
     return { page: "home", canonicalPath: "/home", allowed: true };
   }
   if (path === "/work") {
-    return { page: "home", canonicalPath: "/home", allowed: false };
+    return { page: "work", canonicalPath: "/work", allowed: true };
+  }
+  const legacyContract = path.match(/^\/admin\/(?:contracts|project-activation)(?:\/([^/]+))?$/);
+  if (legacyContract) {
+    return { page: "contract-mobilization", canonicalPath: legacyContract[1] ? `/contract-mobilization/contracts/${legacyContract[1]}` : "/contract-mobilization", allowed: true };
   }
   if (
     startsWithRoute(path, "/opportunities") ||
@@ -42,6 +47,11 @@ export function classifyPublicRoute(pathname: string): PublicRoute {
   if (startsWithRoute(path, "/billing")) {
     return { page: "billing", canonicalPath: path, allowed: true };
   }
+  if (startsWithRoute(path, "/admin")) {
+    return { page: "administration", canonicalPath: path, allowed: true };
+  }
+  const routes: Array<[string, PublicPage]> = [["/engineering", "engineering"], ["/regulatory", "regulatory"], ["/committee", "committee"], ["/construction", "construction"], ["/completion", "completion"], ["/handover", "handover"], ["/administration", "administration"]];
+  for (const [prefix, page] of routes) if (startsWithRoute(path, prefix)) return { page, canonicalPath: path, allowed: true };
   if (
     startsWithRoute(path, "/content-library") ||
     path === "/dashboard" ||

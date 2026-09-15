@@ -24,6 +24,14 @@ export const featureAvailability = {
   moduleContractMobilization: true,
   moduleBillingInvoiceReceivablesCollection: true,
   moduleContentLibrary: true,
+  moduleMyWork: true,
+  moduleDesignEngineering: true,
+  moduleRegulatorySubmissions: true,
+  moduleEngineersCommittee: true,
+  moduleConstruction: true,
+  moduleCompletion: true,
+  moduleHandover: true,
+  moduleAdministration: true,
 
   evidenceReview: false,
   classifierReview: false,
@@ -43,8 +51,8 @@ export const featureAvailability = {
 export type FeatureKey = keyof typeof featureAvailability;
 
 export type PrimaryNavigationItem = {
-  id: "home" | "opportunity" | "contract" | "billing" | "content-library";
-  page: "home" | "opportunities" | "contract-mobilization" | "billing" | "content-library";
+  id: string;
+  page: string;
   route: string;
   label: string;
   icon: string;
@@ -54,10 +62,13 @@ export type PrimaryNavigationItem = {
 export const primaryNavigation: readonly PrimaryNavigationItem[] = [
   { id: "home", page: "home", route: "/home", label: "Home", icon: "⌂" },
   {
+    id: "work", page: "work", route: "/work", label: "My Work", icon: "✓", feature: "moduleMyWork",
+  },
+  {
     id: "opportunity",
     page: "opportunities",
     route: "/opportunities",
-    label: "Opportunity / Proposal / Client Tender",
+    label: "Opportunities & Proposals",
     icon: "↗",
     feature: "moduleOpportunityProposalClientTender",
   },
@@ -65,7 +76,7 @@ export const primaryNavigation: readonly PrimaryNavigationItem[] = [
     id: "contract",
     page: "contract-mobilization",
     route: "/contract-mobilization",
-    label: "Contract / Mobilization",
+    label: "Contracts & Mobilization",
     icon: "▤",
     feature: "moduleContractMobilization",
   },
@@ -73,7 +84,7 @@ export const primaryNavigation: readonly PrimaryNavigationItem[] = [
     id: "billing",
     page: "billing",
     route: "/billing",
-    label: "Billing / Invoice / Receivables / Collection",
+    label: "Billing & Receivables",
     icon: "¤",
     feature: "moduleBillingInvoiceReceivablesCollection",
   },
@@ -85,6 +96,13 @@ export const primaryNavigation: readonly PrimaryNavigationItem[] = [
     icon: "▦",
     feature: "moduleContentLibrary",
   },
+  { id: "engineering", page: "engineering", route: "/engineering", label: "Design & Engineering", icon: "⌁", feature: "moduleDesignEngineering" },
+  { id: "regulatory", page: "regulatory", route: "/regulatory", label: "Regulatory & Submissions", icon: "◫", feature: "moduleRegulatorySubmissions" },
+  { id: "committee", page: "committee", route: "/committee", label: "Engineers Committee", icon: "◈", feature: "moduleEngineersCommittee" },
+  { id: "construction", page: "construction", route: "/construction", label: "Construction", icon: "⌂", feature: "moduleConstruction" },
+  { id: "completion", page: "completion", route: "/completion", label: "Completion & As-Built", icon: "□", feature: "moduleCompletion" },
+  { id: "handover", page: "handover", route: "/handover", label: "Handover & Closeout", icon: "⇢", feature: "moduleHandover" },
+  { id: "administration", page: "administration", route: "/administration", label: "Administration", icon: "⚙", feature: "moduleAdministration" },
 ];
 
 const personaCapabilities: Record<Persona, Set<FeatureKey>> = {
@@ -93,24 +111,28 @@ const personaCapabilities: Record<Persona, Set<FeatureKey>> = {
     "moduleContractMobilization",
     "moduleBillingInvoiceReceivablesCollection",
     "moduleContentLibrary",
+    "moduleMyWork", "moduleDesignEngineering", "moduleRegulatorySubmissions", "moduleEngineersCommittee", "moduleConstruction", "moduleCompletion", "moduleHandover", "moduleAdministration",
   ]),
   BUSINESS_DEVELOPMENT: new Set([
     "moduleOpportunityProposalClientTender",
     "moduleContractMobilization",
     "moduleBillingInvoiceReceivablesCollection",
     "moduleContentLibrary",
+    "moduleMyWork", "moduleDesignEngineering", "moduleRegulatorySubmissions", "moduleEngineersCommittee", "moduleConstruction", "moduleCompletion", "moduleHandover", "moduleAdministration",
   ]),
   ENGINEERING: new Set([
     "moduleOpportunityProposalClientTender",
     "moduleContractMobilization",
     "moduleBillingInvoiceReceivablesCollection",
     "moduleContentLibrary",
+    "moduleMyWork", "moduleDesignEngineering", "moduleRegulatorySubmissions", "moduleEngineersCommittee", "moduleConstruction", "moduleCompletion", "moduleHandover", "moduleAdministration",
   ]),
   SYSTEM_ADMIN_TECHNICAL: new Set([
     "moduleOpportunityProposalClientTender",
     "moduleContractMobilization",
     "moduleBillingInvoiceReceivablesCollection",
     "moduleContentLibrary",
+    "moduleMyWork", "moduleDesignEngineering", "moduleRegulatorySubmissions", "moduleEngineersCommittee", "moduleConstruction", "moduleCompletion", "moduleHandover", "moduleAdministration",
   ]),
 };
 
@@ -147,16 +169,9 @@ export function getPrimaryNavigation(role: string): PrimaryNavigationItem[] {
 const disabledTopLevelPatterns: RegExp[] = [
   /^\/phase4\/review(?:\/|$)/,
   /^\/phase5\/review(?:\/|$)/,
-  /^\/source18\/committee(?:\/|$)/,
-  /^\/engineering(?:\/|$)/,
-  /^\/engineering-closeout(?:\/|$)/,
   /^\/authority-cases(?:\/|$)/,
-  /^\/construction(?:\/|$)/,
-  /^\/completion(?:\/|$)/,
-  /^\/handover(?:\/|$)/,
   /^\/notifications(?:\/|$)/,
   /^\/settings(?:\/|$)/,
-  /^\/admin(?:\/|$)/,
   /^\/dashboard\/inputs-go-live(?:\/|$)/,
   /^\/dashboard-v2\/inputs-go-live(?:\/|$)/,
   /^\/admin\/go-live-readiness(?:\/|$)/,
@@ -172,8 +187,8 @@ export function isDisabledTopLevelRoute(pathname: string): boolean {
 }
 
 export const ownerShellAcceptance = {
-  ACTIVE_TOP_LEVEL_MODULE_COUNT: 4,
-  OWNER_PRIMARY_DESTINATION_COUNT: 5,
+  ACTIVE_TOP_LEVEL_MODULE_COUNT: 12,
+  OWNER_PRIMARY_DESTINATION_COUNT: 13,
   HOME_VISIBLE: true,
   CONTENT_LIBRARY_TOP_LEVEL_MODULE_COUNT: 1,
   CONTENT_LIBRARY_INTERNAL_LIBRARY_COUNT: 4,

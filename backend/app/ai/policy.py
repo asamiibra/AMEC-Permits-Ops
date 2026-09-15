@@ -14,7 +14,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..api.dependencies import AuthenticatedPrincipal
-from ..models import AuthorityCase, EngineeringProjectMember, Opportunity, Project, Role
+from ..models import AuthorityCase, Contract, EngineeringProjectMember, Opportunity, Project, Role
 from ..services.backend_realignment import CAPABILITY_MATRIX, persona_for_role
 from .contracts import (
     AIExecutionMode,
@@ -89,10 +89,29 @@ PROPOSAL_INTELLIGENCE_POLICY = AIPurposePolicy(
     canonical_write_authority="ZERO",
 )
 
+CONTRACT_INTELLIGENCE_POLICY = AIPurposePolicy(
+    purpose_id=AIPurpose.CONTRACT_INTELLIGENCE,
+    policy_version="CONTRACT_INTELLIGENCE-1.0",
+    allowed_roles=frozenset({Role.OWNER_SPONSOR, Role.SYSTEM_ADMIN, Role.PROCESS_CHAMPION, Role.RESPONSIBLE_ENGINEER}),
+    required_capabilities=("CONTRACT_READ",),
+    allowed_target_entity_types=frozenset({AITargetEntityType.CONTRACT}),
+    allowed_execution_modes=frozenset({AIExecutionMode.INTERACTIVE, AIExecutionMode.BACKGROUND}),
+    allow_master_content=False,
+    allow_transactional_evidence=True,
+    allow_definitions=False,
+    allowed_sensitivity_classes=frozenset({"NONE", "SYNTHETIC"}),
+    allow_historical=False,
+    allow_superseded=False,
+    real_content_allowed=False,
+    protected_action_authority="ZERO",
+    canonical_write_authority="ZERO",
+)
+
 
 AI_PURPOSE_POLICIES = {
     AIPurpose.ENGINEERING_TECHNICAL_DRAFT: ENGINEERING_TECHNICAL_DRAFT_POLICY,
     AIPurpose.PROPOSAL_INTELLIGENCE: PROPOSAL_INTELLIGENCE_POLICY,
+    AIPurpose.CONTRACT_INTELLIGENCE: CONTRACT_INTELLIGENCE_POLICY,
 }
 
 
@@ -168,6 +187,12 @@ def resolve_target(
             # but it must not be presented as a project-scoped operation.
             return ResolvedAITarget(target_entity_type, target_entity_id, proposal.id)
         return ResolvedAITarget(target_entity_type, target_entity_id, proposal.project_id)
+
+    if target_entity_type is AITargetEntityType.CONTRACT:
+        contract = db.get(Contract, target_entity_id)
+        if contract is None or not contract.project_id:
+            raise ai_error(404, "AI_CONTEXT_TARGET_NOT_FOUND")
+        return ResolvedAITarget(target_entity_type, target_entity_id, contract.project_id)
 
     case = db.get(AuthorityCase, target_entity_id)
     if case is None:
