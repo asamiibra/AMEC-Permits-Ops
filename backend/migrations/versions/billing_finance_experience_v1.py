@@ -45,14 +45,23 @@ def upgrade() -> None:
         ("ix_invoices_clone_idempotency_key", "invoices", ["clone_idempotency_key"], True, "clone_idempotency_key IS NOT NULL"),
     ):
         if name not in indexes(table_name):
-            op.create_index(name, table_name, column_names, unique=unique, mssql_where=sa.text(where) if where else None)
+            if name == "ix_invoices_clone_idempotency_key":
+                op.create_index(
+                    "ix_invoices_clone_idempotency_key",
+                    "invoices",
+                    ["clone_idempotency_key"],
+                    unique=True,
+                    mssql_where=sa.text("clone_idempotency_key IS NOT NULL"),
+                )
+            else:
+                op.create_index(name, table_name, column_names)
     if "fk_invoices_source_clone_id" not in foreign_keys("invoices"):
         op.create_foreign_key("fk_invoices_source_clone_id", "invoices", "invoices", ["source_clone_id"], ["id"])
 
     table_name = "billing_readiness_requests"
     if table_name not in sa.inspect(bind).get_table_names():
         op.create_table(
-            table_name,
+            "billing_readiness_requests",
             sa.Column("id", sa.String(length=36), primary_key=True),
             sa.Column("project_id", sa.String(length=36), nullable=False),
             sa.Column("contract_id", sa.String(length=36), nullable=False),

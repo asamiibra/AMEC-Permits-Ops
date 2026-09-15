@@ -15,7 +15,7 @@ def upgrade() -> None:
     table_name = "governed_signatory_authorities"
     if table_name not in sa.inspect(bind).get_table_names():
         op.create_table(
-            table_name,
+            "governed_signatory_authorities",
             sa.Column("id", sa.String(length=36), nullable=False),
             sa.Column("user_id", sa.String(length=36), nullable=False),
             sa.Column("office_id", sa.String(length=36), nullable=False),

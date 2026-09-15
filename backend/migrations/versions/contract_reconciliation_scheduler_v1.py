@@ -16,7 +16,7 @@ def upgrade() -> None:
     table_name = "contract_reconciliation_scheduler_state"
     if table_name not in inspector.get_table_names():
         op.create_table(
-            table_name,
+            "contract_reconciliation_scheduler_state",
             sa.Column("id", sa.String(length=80), nullable=False),
             sa.Column("last_contract_id", sa.String(length=36), nullable=True),
             sa.Column("cycle_number", sa.Integer(), nullable=False),

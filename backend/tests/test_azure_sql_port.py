@@ -212,6 +212,7 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
         "p08_proposal_intelligence",
         "proposal_intelligence_combined_merge_v1",
         "proposal_owner_test_profile_v1",
+        "proposal_hardening_schema_repair_v2",
         "billing_finance_experience_v1",
         "billing_finance_experience_closure_v1",
         "scoped_finance_capability_assignment_v1",

@@ -15,7 +15,7 @@ def upgrade() -> None:
     table_name = "scoped_capability_assignments"
     if table_name not in sa.inspect(bind).get_table_names():
         op.create_table(
-            table_name,
+            "scoped_capability_assignments",
             sa.Column("id", sa.String(length=36), primary_key=True),
             sa.Column("user_id", sa.String(length=36), nullable=False),
             sa.Column("capability_code", sa.String(length=120), nullable=False),
