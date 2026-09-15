@@ -18,7 +18,9 @@ export function ConstructionPage() {
   const [busy, setBusy] = useState(false);
   const load = async () => {
     try {
-      const rows = await api<Execution[]>("/api/construction"); setExecutions(rows);
+      const response = await api<unknown>("/api/construction");
+      const rows = Array.isArray(response) ? response as Execution[] : [];
+      setExecutions(rows);
       const next = selectedId || rows[0]?.id || ""; setSelectedId(next);
       if (next) { const [d, r] = await Promise.all([api<Detail>(`/api/construction/executions/${next}`), api<Readiness>(`/api/construction/executions/${next}/readiness/latest`)]); setDetail(d); setReadiness(r); }
       else { setDetail(null); setReadiness(null); }

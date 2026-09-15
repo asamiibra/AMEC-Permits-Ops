@@ -1,0 +1,12 @@
+{
+  "document": "AMEC ProposalOps workflow connectivity matrix",
+  "status": "IMPLEMENTED_BY_ROUTE_BINDING; SYNTHETIC_BROWSER_E2E_PASS",
+  "flows": [
+    { "flow": "Proposal → Contract → Project", "routes": ["/proposals", "/contract-mobilization", "/engineering"], "separate_decisions": ["Proceed", "Contract Accept", "Project Activation"] },
+    { "flow": "Project → Preparation → Submission evidence", "routes": ["/engineering", "/permits", "/permits/:caseId/forms", "/permits/:caseId/submission-history"], "authority": "Human submission only" },
+    { "flow": "Approved design → Construction → Completion → Handover", "routes": ["/engineering", "/construction", "/completion", "/handover"], "authority": "Human-gated state transitions" },
+    { "flow": "Billing → invoice → acknowledgement → payment evidence → allocation → receivable", "routes": ["/billing", "/billing/invoices/:invoiceId"], "authority": "Server capability and evidence state" },
+    { "flow": "Issue / notification → owning workspace", "routes": ["/issues", "/notifications", "/work"], "authority": "Persona-scoped API authorization" },
+    { "flow": "Content governance", "routes": ["/content-library", "/master-content/forms", "/master-content/reports", "/master-content/engineering-works", "/master-content/definitions"], "note": "Checklist is a Form" }
+  ]
+}

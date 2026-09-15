@@ -1,0 +1,39 @@
+{
+  "document": "AMEC ProposalOps UI product-surface backend census",
+  "starting_sha": "9eaf9e01749b7c1fd3a1ab66d1bb38502818db83",
+  "starting_tree": "52757fd5359b0e0bf71444b74fcccd2d9c980e35",
+  "source": "backend.app.main:app after router inclusion",
+  "generated_by": "backend/scripts/ui_surface_census.py",
+  "complete_operation_rows_command": "PYTHONPATH=. python3 backend/scripts/ui_surface_census.py",
+  "operation_count": 958,
+  "unclassified_count": 0,
+  "classification_classes": [
+    "USER_SURFACE_REQUIRED",
+    "UI_SUPPORT_API",
+    "SYSTEM_ONLY",
+    "INTERNAL_ONLY",
+    "DEFERRED_AI",
+    "LATER_PRODUCTION_GATE"
+  ],
+  "classification_counts": {
+    "USER_SURFACE_REQUIRED": 517,
+    "UI_SUPPORT_API": 366,
+    "SYSTEM_ONLY": 59,
+    "INTERNAL_ONLY": 3,
+    "DEFERRED_AI": 9,
+    "LATER_PRODUCTION_GATE": 4
+  },
+  "classification_policy": {
+    "USER_SURFACE_REQUIRED": "Human workflow command or evidence mutation; server authorization remains authoritative.",
+    "UI_SUPPORT_API": "Read model or register consumed by a human workspace.",
+    "SYSTEM_ONLY": "Framework, health, historical, qualification, or non-business runtime surface.",
+    "INTERNAL_ONLY": "Test, fixture, development, or diagnostic support surface.",
+    "DEFERRED_AI": "AI/intelligence endpoint; excluded from this branch's UI closure.",
+    "LATER_PRODUCTION_GATE": "Readiness or production gate requiring a later release decision."
+  },
+  "notes": [
+    "The rows are emitted by the executable census script rather than inferred from filenames.",
+    "FastAPI included-router candidates are expanded before methods are counted.",
+    "The static summary is evidence metadata; rerun the generator after a backend route change."
+  ]
+}

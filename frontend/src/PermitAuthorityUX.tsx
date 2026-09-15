@@ -96,7 +96,8 @@ export function PermitCasePage() {
     if (tab === "requirements") return <Detail title="Requirements"><Rows items={workspace.requirements} render={(x: any) => <><b><Status value={x.status} /></b><small>{pretty(x.applicability)} · {x.reason}</small></>} /></Detail>;
     if (tab === "documents") return <Detail title="Documents"><Rows items={workspace.documents} render={(x: any) => <><b>{x.document.logical_name}</b><small>{x.versions.length} immutable version(s) · canonical View / Upload / Replace controls</small></>} /></Detail>;
     if (tab === "drawings") return <Detail title="Drawings"><Rows items={workspace.drawings} render={(x: any) => <><b>{x.deliverable?.deliverable_ref || "Drawing"} · {x.revision?.title || "Untitled"}</b><small>{x.revision?.revision_code || "Revision pending"} · {x.discipline || "Discipline not configured"} · professional approval {x.professional_approval?.status || "not evidenced"}</small></>} /></Detail>;
-    if (tab === "forms") {
+    if (tab === "forms") return <Detail title="Forms"><p>Forms remain available for human review and completion. Checklist is governed as a Form; no automated drafting or AI action is enabled in this branch.</p><Rows items={workspace.forms} render={(x: any) => <><b>{x.form.context_type} form</b><small>{pretty(x.form.status)} · draft revision {x.form.draft_revision ?? 0} · generated artifacts {x.generated_artifacts.length} · signatures and stamps remain human gates</small></>} /></Detail>;
+    if (tab === "forms" && false) {
       const draftForms = workspace.forms.filter((row: any) => row.form?.status === "DRAFT");
       return <Detail title="Forms">
         <div className="assist-toolbar">
@@ -119,7 +120,7 @@ export function PermitCasePage() {
         {assistError && <div className="error-banner" role="alert">{assistError}</div>}
         {assistForms && <div className="assist-panel">
           <h4>Eligible canonical forms</h4>
-          {assistForms.length ? assistForms.map((form: any) => <div className="assist-choice" key={form.id}>
+          {(assistForms || []).length ? (assistForms || []).map((form: any) => <div className="assist-choice" key={form.id}>
             <div><b>{form.ref} · {form.title}</b><small>{form.owner_status} · current version {form.current_version_id || form.document_version_id || "not pinned"}</small></div>
             <button className="button-secondary" onClick={() => void previewAssist(form)} disabled={assistBusy || !assistTargetId}>Review suggestion</button>
           </div>) : <p>No eligible governed form is available for this case.</p>}

@@ -1,0 +1,8 @@
+.header-link { color: #147c6f; font-size: 11px; font-weight: 800; text-decoration: none; }
+.header-link:hover, .header-link:focus-visible { text-decoration: underline; }
+.contextual-nav { display: flex; gap: 7px; flex-wrap: wrap; align-items: center; margin: 0 0 18px; padding: 8px 10px; border: 1px solid #dfe8ec; border-radius: 8px; background: #fff; }
+.contextual-nav::before { content: "WORKSPACE"; color: #718592; font-size: 9px; font-weight: 800; letter-spacing: .1em; margin-right: 5px; }
+.contextual-nav a { color: #526d79; border-radius: 5px; padding: 6px 8px; font-size: 11px; font-weight: 700; text-decoration: none; }
+.contextual-nav a:hover, .contextual-nav a:focus-visible, .contextual-nav a.active { color: #0d6258; background: #eaf6f3; outline: none; }
+@media (max-width: 900px) { .header-link { display: none; } }
+@media (max-width: 700px) { .contextual-nav { overflow-x: auto; flex-wrap: nowrap; } .contextual-nav::before { position: sticky; left: 0; background: #fff; } .contextual-nav a { white-space: nowrap; } }

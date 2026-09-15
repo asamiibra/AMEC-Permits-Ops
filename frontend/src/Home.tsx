@@ -8,11 +8,11 @@ export function HomePage(_props?: { role?: string }) {
       <header className="home-hero">
         <div>
           <span className="eyebrow">PROPOSALOPS COMMAND CENTER</span>
-          <h2>Work across the active ProposalOps modules.</h2>
+          <h2>Work across the active ProposalOps workspaces.</h2>
           <p>
             Start with the business context you need. Home keeps the current
-            four-module operating model visible without exposing future or
-            internal workspaces.
+            human-facing operating workspaces visible without exposing
+            historical or internal implementation screens.
           </p>
         </div>
         <span className="tag">OWNER SHELL</span>

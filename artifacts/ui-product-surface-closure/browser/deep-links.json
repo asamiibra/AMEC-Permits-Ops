@@ -1,0 +1,14 @@
+{
+  "routes": [
+    "/engineering",
+    "/engineering/drawing-review",
+    "/permits",
+    "/construction",
+    "/completion",
+    "/handover",
+    "/issues",
+    "/notifications",
+    "/owner-decisions"
+  ],
+  "api_mode": "synthetic_mocked_no_writes"
+}

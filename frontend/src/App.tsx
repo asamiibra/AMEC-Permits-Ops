@@ -2,18 +2,25 @@ import { useEffect, useState } from "react";
 import { ApiError, api } from "./api";
 import { OpportunitiesPage } from "./Opportunities";
 import { ContractMobilizationPage } from "./AdministrationOwner";
+import { AdministrationOwnerPage } from "./AdministrationOwner";
 import { CurrentDashboard } from "./Dashboard";
 import { BillingInvoicePage } from "./BillingInvoice";
-import { HomePage } from "./Home";
+import { HomeCommandCenter } from "./HomeCommandCenter";
+import { AMECWorkPage } from "./AMECWork";
+import { ProductDeliveryPage } from "./ProductDelivery";
+import { OwnerDecisionCenterPage } from "./OwnerDecisionCenter";
+import { PersonaIssueDetailPage, PersonaIssuesPage, PersonaNotificationsPage, type Persona as IssuePersona } from "./PersonaIssuesNotifications";
+import { NotificationBell } from "./NotificationBell";
 import { AmecLogo } from "./AmecLogo";
 import { browserAuthMode, getSignedInAccountIdentity, signOut } from "./auth";
 import { readDemoRole } from "./rebrand";
 import { classifyPublicRoute, type PublicPage } from "./domainOwnershipRoutes";
-import { getPrimaryNavigation, isSupportedShellRole } from "./featureAvailability";
+import { getPrimaryNavigation, isSupportedShellRole, personaForRole } from "./featureAvailability";
 import { AuthzSurface, type AuthzSurfaceState } from "./AuthFailureSurface";
 import "./dashboard.css";
 import "./billing-invoice.css";
 import "./admin-owner.css";
+import "./product-surface.css";
 
 type AuthSession = {
   authenticated: boolean;
@@ -55,6 +62,7 @@ function pageFromPath(): PublicPage {
 
 export default function App() {
   const [page, setPage] = useState<PublicPage>(pageFromPath);
+  const [currentPath, setCurrentPath] = useState(() => window.location.pathname);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
@@ -139,6 +147,7 @@ export default function App() {
         window.history.replaceState({}, "", "/home");
       }
       setPage(route.page);
+      setCurrentPath(window.location.pathname);
     };
     syncLocation();
     window.addEventListener("popstate", syncLocation);
@@ -159,7 +168,13 @@ export default function App() {
   };
 
   const visibleNavigation = getPrimaryNavigation(role);
-  const title = visibleNavigation.find((item) => item.page === page)?.label || "Home";
+  const title = page === "work" ? "My Work"
+    : page === "project-delivery" ? "Projects & Delivery"
+      : page === "issues" ? "Issues"
+        : page === "notifications" ? "Notifications"
+          : page === "owner-decisions" ? "Owner Decisions"
+            : page === "administration" ? "Administration"
+              : visibleNavigation.find((item) => item.page === page)?.label || "Home";
   const moduleRole = role as DemoRole;
   const displayName = authSession?.identity.display_name?.trim() || accountIdentity?.displayName?.trim() || "";
   const preferredUsername = authSession?.identity.preferred_username?.trim() || accountIdentity?.preferredUsername?.trim() || "";
@@ -281,12 +296,16 @@ export default function App() {
                   value={role}
                   onChange={(event) => setRole(event.target.value)}
                 >
+                  <option value="OWNER_SPONSOR">Owner</option>
                   <option value="SYSTEM_ADMIN">System Admin</option>
                   <option value="PROCESS_CHAMPION">Business Development</option>
                   <option value="RESPONSIBLE_ENGINEER">Engineering</option>
                 </select>
               </label>
             )}
+            <a className="header-link" href="/issues">Issues</a>
+            <a className="header-link" href="/notifications">Notifications</a>
+            <NotificationBell persona={issuePersonaForRole(role)} />
             <div className="account-control">
               <button
                 className="avatar"
@@ -314,6 +333,11 @@ export default function App() {
                     <span>AMEC System role</span>
                     <b>{roleLabel(authSession?.identity.role || (browserAuthMode() === "DEV_HEADER" ? role : ""))}</b>
                   </div>
+                  {role === "SYSTEM_ADMIN" && (
+                    <a className="account-menu-signout" role="menuitem" href="/admin" onClick={() => setAccountMenuOpen(false)}>
+                      Administration
+                    </a>
+                  )}
                   {signOutError && <p className="account-menu-error" role="alert">{signOutError}</p>}
                   <button className="account-menu-signout" type="button" role="menuitem" onClick={() => void handleSignOut()} disabled={signingOut}>
                     {signingOut ? "Signing out…" : "Sign out"}
@@ -325,15 +349,47 @@ export default function App() {
         </header>
         <div className="content">
           <div className="synthetic-note compact-environment-badge">
-            SYNTHETIC PROTOTYPE · NO PORTAL WRITES · HUMAN SUBMISSION REQUIRED
+            SYNTHETIC OWNER-UAT · NO PRODUCTION WRITES · HUMAN SUBMISSION REQUIRED
           </div>
-          {page === "home" && <HomePage />}
+          <ContextualNavigation page={page} currentPath={currentPath} />
+          {page === "home" && <HomeCommandCenter role={role} />}
+          {page === "work" && <AMECWorkPage />}
           {page === "opportunities" && <OpportunitiesPage role={moduleRole} />}
           {page === "contract-mobilization" && <ContractMobilizationPage />}
+          {page === "project-delivery" && <ProductDeliveryPage />}
           {page === "billing" && <BillingInvoicePage />}
           {page === "content-library" && <CurrentDashboard role={role} />}
+          {page === "issues" && <IssueRoute role={role} currentPath={currentPath} />}
+          {page === "notifications" && <PersonaNotificationsPage persona={issuePersonaForRole(role)} />}
+          {page === "owner-decisions" && <OwnerDecisionCenterPage />}
+          {page === "administration" && <AdministrationOwnerPage />}
         </div>
       </main>
     </div>
   );
+}
+
+function issuePersonaForRole(role: string): IssuePersona {
+  const persona = personaForRole(role);
+  return persona === "BUSINESS_DEVELOPMENT" ? "BUSINESS_DEVELOPMENT" : persona === "ENGINEERING" ? "ENGINEERING" : "OWNER";
+}
+
+function IssueRoute({ role, currentPath }: { role: string; currentPath: string }) {
+  const persona = issuePersonaForRole(role);
+  const match = currentPath.match(/^\/issues\/([^/]+)$/);
+  return match ? <PersonaIssueDetailPage persona={persona} issueId={match[1]} /> : <PersonaIssuesPage persona={persona} />;
+}
+
+function ContextualNavigation({ page, currentPath }: { page: PublicPage; currentPath: string }) {
+  const links = page === "project-delivery" ? [
+    ["Engineering Works", "/engineering"], ["Drawing Review", "/engineering/drawing-review"],
+    ["Preparation & Submission", "/permits"], ["Construction", "/construction"],
+    ["Completion / As-Built", "/completion"], ["Handover & Closeout", "/handover"],
+  ] : page === "billing" ? [["Finance register", "/billing"], ["Project Finance", "/billing?view=project-finance"]]
+    : page === "opportunities" ? [["Proposal register", "/proposals"], ["New Proposal", "/proposals/new"]]
+      : page === "contract-mobilization" ? [["Contracts", "/contract-mobilization"], ["Owner decisions", "/owner-decisions"]]
+        : page === "content-library" ? [["Forms", "/master-content/forms"], ["Reports", "/master-content/reports"], ["Engineering Works", "/master-content/engineering-works"], ["Definitions", "/master-content/definitions"]]
+          : [];
+  if (!links.length) return null;
+  return <nav className="contextual-nav" aria-label="Current workspace navigation">{links.map(([label, route]) => <a className={currentPath === route ? "active" : ""} href={route} key={route}>{label}</a>)}</nav>;
 }

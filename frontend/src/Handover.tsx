@@ -13,7 +13,7 @@ export function HandoverPage() {
   const [error, setError] = useState("");
   const detailId = path.startsWith("/handover/") ? path.split("/")[2] : "";
   const navigate = (next: string) => { window.history.pushState({}, "", next); window.dispatchEvent(new PopStateEvent("popstate")); };
-  const load = async () => { try { setError(""); if (detailId) setWorkspace(await api<Workspace>(`/api/handover/${detailId}`)); else setRows((await api<{ items: PackageRow[] }>("/api/handover")).items); } catch (cause) { setError(cause instanceof Error ? cause.message : "Handover data unavailable"); } };
+  const load = async () => { try { setError(""); if (detailId) setWorkspace(await api<Workspace>(`/api/handover/${detailId}`)); else { const response = await api<unknown>("/api/handover"); setRows(response && typeof response === "object" && Array.isArray((response as { items?: unknown }).items) ? (response as { items: PackageRow[] }).items : []); } } catch (cause) { setError(cause instanceof Error ? cause.message : "Handover data unavailable"); } };
   useEffect(() => { const sync = () => { setPath(window.location.pathname); setWorkspace(null); }; window.addEventListener("popstate", sync); return () => window.removeEventListener("popstate", sync); }, []);
   useEffect(() => { void load(); }, [detailId]);
   if (detailId && workspace) return <HandoverWorkspace workspace={workspace} onBack={() => navigate("/handover")} onRefresh={() => void load()} />;

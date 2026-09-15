@@ -22,6 +22,9 @@ export function OwnerDecisionCenterPage() {
   const load = () => {
     setError("");
     api<any>("/api/owner-decisions").then((result) => {
+      if (!result || typeof result !== "object" || !Array.isArray(result.groups) || !result.summary || !result.go_live) {
+        throw new Error("Owner Decision Center response is incomplete; no decision state was synthesized.");
+      }
       setData(result);
       if (!selectedKey && result.items?.[0]) setSelectedKey(result.items[0].key);
     }).catch((cause) => setError(cause instanceof Error ? cause.message : "Owner Decision Center is unavailable."));

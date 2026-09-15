@@ -8,29 +8,31 @@ import {
 import { classifyPublicRoute } from "../src/domainOwnershipRoutes";
 
 describe("Owner shell feature registry", () => {
-  it("keeps exactly four active modules and Home", () => {
-    expect(Object.values(featureAvailability).filter(Boolean)).toHaveLength(4);
+  it("keeps the complete work-oriented shell and Home", () => {
+    expect(Object.values(featureAvailability).filter(Boolean)).toHaveLength(9);
     expect(getPrimaryNavigation("SYSTEM_ADMIN").map((item) => item.label)).toEqual([
       "Home",
-      "Opportunity / Proposal / Client Tender",
-      "Contract / Mobilization",
-      "Billing / Invoice / Receivables / Collection",
+      "My Work",
+      "Opportunities & Proposals",
+      "Contract & Mobilization",
+      "Projects & Delivery",
+      "Billing & Finance",
       "Content Library",
     ]);
-    expect(ownerShellAcceptance.OWNER_PRIMARY_DESTINATION_COUNT).toBe(5);
+    expect(ownerShellAcceptance.OWNER_PRIMARY_DESTINATION_COUNT).toBe(7);
   });
 
   it("lets OFF flags win over the Owner and demo SYSTEM_ADMIN aliases", () => {
-    expect(featureAvailability.admin).toBe(false);
+    expect(featureAvailability.admin).toBe(true);
     expect(featureAvailability.inputsGoLive).toBe(false);
     expect(featureAvailability.notifications).toBe(false);
     expect(getPrimaryNavigation("SYSTEM_ADMIN")).not.toContainEqual(
       expect.objectContaining({ label: "Admin" }),
     );
-    expect(isDisabledTopLevelRoute("/admin")).toBe(true);
+    expect(isDisabledTopLevelRoute("/admin")).toBe(false);
     expect(isDisabledTopLevelRoute("/dashboard/inputs-go-live")).toBe(true);
-    expect(isDisabledTopLevelRoute("/notifications")).toBe(true);
-    expect(isDisabledTopLevelRoute("/construction/exec-1")).toBe(true);
+    expect(isDisabledTopLevelRoute("/notifications")).toBe(false);
+    expect(isDisabledTopLevelRoute("/construction/exec-1")).toBe(false);
   });
 
   it("enforces the positive public route allowlist", () => {
@@ -39,10 +41,10 @@ describe("Owner shell feature registry", () => {
     expect(classifyPublicRoute("/contract-mobilization/contracts/example")).toMatchObject({ page: "contract-mobilization", allowed: true });
     expect(classifyPublicRoute("/billing/invoices/example")).toMatchObject({ page: "billing", allowed: true });
     expect(classifyPublicRoute("/master-content/forms")).toMatchObject({ page: "content-library", allowed: true });
+    expect(classifyPublicRoute("/permits")).toMatchObject({ page: "project-delivery", allowed: true });
+    expect(classifyPublicRoute("/issues/example")).toMatchObject({ page: "issues", allowed: true });
+    expect(classifyPublicRoute("/notifications")).toMatchObject({ page: "notifications", allowed: true });
     for (const path of [
-      "/permits",
-      "/engineering",
-      "/issues/example",
       "/admin/contracts",
       "/dashboard/inputs-go-live",
       "/unknown-route",

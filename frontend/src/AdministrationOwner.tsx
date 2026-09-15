@@ -59,7 +59,7 @@ export function ContractMobilizationPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const contractId = path.match(/^\/contract-mobilization\/contracts\/([^/]+)/)?.[1] || null;
+  const contractId = path.match(/^(?:\/contract-mobilization\/contracts|\/contracts)\/([^/]+)/)?.[1] || null;
   const endpoint = contractId ? `/api/admin/contracts/${contractId}` : "/api/admin/contracts?filter=ALL";
   const go = (route: string) => { window.history.pushState({}, "", route); window.dispatchEvent(new PopStateEvent("popstate")); };
 

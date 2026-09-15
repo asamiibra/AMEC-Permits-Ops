@@ -1,0 +1,19 @@
+{
+  "package": "ui-product-surface-closure",
+  "status": "IMPLEMENTATION_PROVEN_LOCALLY_PENDING_POST_CHANGE_REQUIRED_CI",
+  "files": [
+    "backend-operation-census.json",
+    "frontend-route-surface.json",
+    "workflow-connectivity.json",
+    "final-status.json",
+    "../../backend/scripts/ui_surface_census.py",
+    "browser/home-1440.png",
+    "browser/deep-links.json"
+  ],
+  "preserved_external_evidence": [
+    "G6.4 pre-AI native inventory logs",
+    "targeted billing qualification evidence",
+    "repository-required CI run 34905129500 (storage-contract PASS)",
+    "release-critical-gates non-registration evidence for PR head"
+  ]
+}

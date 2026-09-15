@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { api } from "./api";
 import { CanonicalFormsLibrary } from "./MasterContentForms";
 import {
-  AIAssistCompact,
   CONTENT_LABELS,
   Drawer,
   MODULE_LABELS,
@@ -903,7 +902,6 @@ function MasterEditor({
             </label>
           </section>
         )}
-        <AIAssistCompact />
       </form>
     </Drawer>
   );
@@ -1026,7 +1024,6 @@ function DefinitionEditor({
             </label>
           </section>
         )}
-        <AIAssistCompact />
       </form>
     </Drawer>
   );

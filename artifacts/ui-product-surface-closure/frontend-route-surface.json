@@ -1,0 +1,37 @@
+{
+  "document": "AMEC ProposalOps canonical frontend product surface",
+  "starting_sha": "9eaf9e01749b7c1fd3a1ab66d1bb38502818db83",
+  "primary_navigation": [
+    { "label": "Home", "route": "/home" },
+    { "label": "My Work", "route": "/work" },
+    { "label": "Opportunities & Proposals", "route": "/proposals" },
+    { "label": "Contract & Mobilization", "route": "/contract-mobilization" },
+    { "label": "Projects & Delivery", "route": "/engineering" },
+    { "label": "Billing & Finance", "route": "/billing" },
+    { "label": "Content Library", "route": "/content-library" }
+  ],
+  "cross_cutting_surfaces": [
+    { "label": "Issues", "route": "/issues" },
+    { "label": "Notifications", "route": "/notifications" },
+    { "label": "Owner Decisions", "route": "/owner-decisions" },
+    { "label": "Administration capability", "route": "/admin" }
+  ],
+  "delivery_routes": [
+    { "label": "Engineering Works", "route": "/engineering", "component": "ProjectEngineeringPage" },
+    { "label": "Drawing Review", "route": "/engineering/drawing-review", "component": "EngineeringDrawingReviewPage" },
+    { "label": "Preparation & Submission", "route": "/permits", "component": "PermitPortfolioPage" },
+    { "label": "Regulatory Case", "route": "/permits/:caseId/overview", "component": "PermitCasePage" },
+    { "label": "Construction", "route": "/construction", "component": "ConstructionPage" },
+    { "label": "Completion / As-Built", "route": "/completion", "component": "CompletionPage" },
+    { "label": "Handover & Closeout", "route": "/handover", "component": "HandoverPage" },
+    { "label": "Committee readiness", "route": "/source18/committee", "component": "Source18CommitteePage" }
+  ],
+  "ia_assertions": {
+    "visible_business_personas": ["Owner", "Business Development", "Engineering"],
+    "historical_taxonomy_in_primary_nav_count": 0,
+    "primary_route_orphan_count": 0,
+    "primary_navigation_destination_count": 7,
+    "ai_ui_implementation_in_current_branch": 0
+  },
+  "qualification_state": "IMPLEMENTED_AND_TARGETED_TESTED; BROWSER_ACCEPTANCE_PENDING"
+}

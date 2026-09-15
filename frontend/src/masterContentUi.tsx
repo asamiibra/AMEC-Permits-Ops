@@ -60,10 +60,6 @@ export function UsedInPicker({ type, value, onChange }: { type: ContentType; val
   </fieldset>;
 }
 
-export function AIAssistCompact() {
-  return <section className="ai-assist-compact" aria-label="AI Assist"><div><strong>✨ AI Assist</strong><span>Coming soon</span></div><p>Future help for category suggestions, description writing, and gap checks.</p><div className="ai-assist-compact-actions"><button type="button" disabled>Suggest category</button><button type="button" disabled>Improve description</button><button type="button" disabled>Highlight gaps</button></div><small>Suggestions will always require your review before applying.</small></section>;
-}
-
 export function Drawer({ title, eyebrow, children, footer, onClose, wide = false }: { title: string; eyebrow: string; children: ReactNode; footer: ReactNode; onClose: () => void; wide?: boolean }) {
   const submitEditor = (event: React.MouseEvent<HTMLElement>) => { const target = (event.target as HTMLElement).closest("button") as HTMLButtonElement | null; if (target && target.type !== "button" && !target.disabled) (target.closest(".content-drawer-backdrop") as HTMLElement | null)?.querySelector<HTMLFormElement>("form.content-editor-form")?.requestSubmit(); };
   const historyDrawer = eyebrow.includes("HISTORY");

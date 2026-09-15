@@ -1,0 +1,41 @@
+{
+  "document": "AMEC ProposalOps final end-to-end product UI surface closure",
+  "base_sha": "9eaf9e01749b7c1fd3a1ab66d1bb38502818db83",
+  "base_tree": "52757fd5359b0e0bf71444b74fcccd2d9c980e35",
+  "ai_scope": "DEFERRED_TO_INTEGRATION_BRANCH",
+  "AI_UI_IMPLEMENTATION_IN_CURRENT_BRANCH": 0,
+  "AI_CANONICAL_WRITE_AUTHORITY": "ZERO",
+  "AI_PROTECTED_HUMAN_ACTION_AUTHORITY": false,
+  "VERCEL_FRONTEND_PREVIEW": "NONCANONICAL_INFORMATIONAL",
+  "VERCEL_BACKEND_PREVIEW": "NONCANONICAL_INFORMATIONAL",
+  "VERCEL_REQUIRED_FOR_RELEASE": false,
+  "VERCEL_REQUIRED_FOR_OWNER_UAT": false,
+  "VERCEL_REQUIRED_FOR_PRODUCTION": false,
+  "implemented_assertions": {
+    "UI_GLOBAL_APP_SHELL": "IMPLEMENTED_AND_TARGETED_TESTED",
+    "UI_INFORMATION_ARCHITECTURE": "IMPLEMENTED_AND_TARGETED_TESTED",
+    "UI_ENGINEERING_LIFECYCLE": "IMPLEMENTED_BY_REACHABLE_ROUTES",
+    "UI_PREPARATION_SUBMISSION": "IMPLEMENTED_BY_REACHABLE_ROUTES",
+    "UI_CONSTRUCTION_POST_APPROVAL": "IMPLEMENTED_BY_REACHABLE_ROUTES",
+    "UI_COMPLETION_ASBUILT": "IMPLEMENTED_BY_REACHABLE_ROUTES",
+    "UI_HANDOVER_CLOSEOUT": "IMPLEMENTED_BY_REACHABLE_ROUTES",
+    "UI_SYNTHETIC_BROWSER_ACCEPTANCE": "PASS_2_TESTS_9_DEEP_LINKS",
+    "UI_ACCESSIBILITY_SMOKE": "PASS_NO_SERIOUS_OR_CRITICAL_VIOLATIONS",
+    "UI_FRONTEND_REGRESSION": "PASS_27_FILES_139_TESTS_SERIAL",
+    "UI_PRODUCTION_BUILD": "PASS"
+  },
+  "browser_evidence": {
+    "test_file": "frontend/browser-e2e/ui-product-surface-closure.spec.ts",
+    "api_mode": "synthetic_mocked_no_writes",
+    "home_screenshot": "artifacts/ui-product-surface-closure/browser/home-1440.png",
+    "deep_links": "artifacts/ui-product-surface-closure/browser/deep-links.json"
+  },
+  "not_yet_proven": [
+    "Responsive screenshots at all required viewport sizes",
+    "EXACT_HEAD_REQUIRED_CI on the post-change head",
+    "Independent owner review"
+  ],
+  "PR46_UI_PRODUCT_SURFACE_CLOSED": false,
+  "EXACT_HEAD_REQUIRED_CI": "BLOCKED_RELEASE_CRITICAL_CHECK_DID_NOT_REGISTER_FOR_PR_HEAD",
+  "next_exact_action": "Resolve the repository-required GitHub Actions registration defect, then run only the causally required browser acceptance on the frozen UI head."
+}

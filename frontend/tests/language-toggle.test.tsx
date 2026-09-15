@@ -22,7 +22,7 @@ describe("operating-guide-only language boundary", () => {
   it("ignores stale global locale state and keeps the operational shell English/LTR", async () => {
     localStorage.setItem("permitops.locale", "ar-EG");
     render(<App />);
-    await waitFor(() => expect(screen.getByRole("heading", { name: "Work across the active ProposalOps modules." })).toBeVisible());
+    await waitFor(() => expect(screen.getAllByRole("heading", { name: "Home" })).toHaveLength(2));
     expect(document.documentElement.lang).toBe("en");
     expect(document.documentElement.dir).toBe("ltr");
     expect(document.querySelector(".global-language-switch")).toBeNull();

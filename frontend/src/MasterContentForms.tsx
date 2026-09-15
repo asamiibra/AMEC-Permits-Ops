@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { api } from "./api";
 import { readCanonicalForm, readCanonicalForms } from "./contentLibraryApi";
 import {
-  AIAssistCompact,
   ContentType,
   Drawer,
   MODULE_LABELS,
@@ -628,7 +627,6 @@ function FormEditor({
             </label>
           </section>
         )}
-        <AIAssistCompact />
       </form>
     </Drawer>
   );
