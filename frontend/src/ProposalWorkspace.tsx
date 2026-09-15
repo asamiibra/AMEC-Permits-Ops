@@ -3217,6 +3217,12 @@ export function ProposalWorkspace({
     setMessage,
     onNavigate: navigate,
   };
+  const errorMessage =
+    error instanceof Error
+      ? error.message
+      : error
+        ? text(error, "Proposal action failed.")
+        : "";
   return (
     <div className="proposal-workspace-shell">
       <ProposalHeader
@@ -3228,7 +3234,7 @@ export function ProposalWorkspace({
       />
       <div className="proposal-toolbar">
         <span className="proposal-toolbar-status">
-          {message || error || "Canonical Proposal projection loaded"}
+          {message || errorMessage || "Canonical Proposal projection loaded"}
         </span>
         <button
           className="button-secondary"
@@ -3243,7 +3249,7 @@ export function ProposalWorkspace({
       </div>
       {error && (
         <div className="error-state" role="alert">
-          {error instanceof Error ? error.message : String(error)}
+          {errorMessage}
           <button className="text-button" onClick={() => setError("")}>
             Dismiss
           </button>

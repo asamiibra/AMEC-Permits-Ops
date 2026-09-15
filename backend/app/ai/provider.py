@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any, Protocol
 from urllib.parse import urlsplit
@@ -13,6 +14,50 @@ from ..config.settings import Settings
 from .errors import AIError
 from .identity import acquire_ai_token
 from .structured_output import PROVIDER_JSON_SCHEMA
+
+
+# Azure structured outputs intentionally accept a smaller JSON-Schema subset
+# than Pydantic emits. Keep the server-side schema unchanged for validation,
+# but compile a provider-only schema that satisfies Azure's transport rules.
+_AZURE_UNSUPPORTED_SCHEMA_KEYS = frozenset({
+    "minLength", "maxLength", "pattern", "format",
+    "minimum", "maximum", "multipleOf", "exclusiveMinimum", "exclusiveMaximum",
+    "patternProperties", "unevaluatedProperties", "propertyNames",
+    "minProperties", "maxProperties", "unevaluatedItems", "contains",
+    "minContains", "maxContains", "minItems", "maxItems", "uniqueItems",
+    "default",
+})
+
+
+def _azure_structured_schema(schema: dict[str, Any]) -> dict[str, Any]:
+    """Compile Pydantic's schema to Azure's supported strict subset.
+
+    Azure requires every object property to be listed in ``required`` and
+    rejects type-specific bounds such as ``maxLength``/``maxItems``. Those
+    bounds remain enforced by the server validator after the provider returns.
+    ``const`` is represented as a one-value enum because enum is supported by
+    Azure structured outputs while const is not.
+    """
+
+    def compile_node(node: Any) -> Any:
+        if isinstance(node, list):
+            return [compile_node(item) for item in node]
+        if not isinstance(node, dict):
+            return node
+        compiled = {
+            key: compile_node(value)
+            for key, value in node.items()
+            if key not in _AZURE_UNSUPPORTED_SCHEMA_KEYS
+        }
+        if "const" in node:
+            compiled.pop("const", None)
+            compiled["enum"] = [node["const"]]
+        if compiled.get("type") == "object" and isinstance(compiled.get("properties"), dict):
+            compiled["additionalProperties"] = False
+            compiled["required"] = list(compiled["properties"])
+        return compiled
+
+    return deepcopy(compile_node(schema))
 
 
 @dataclass(frozen=True)
@@ -100,7 +145,7 @@ class AzureOpenAIResponsesProvider:
             "max_output_tokens": request.max_output_tokens,
             "input": request.provider_input,
             "tools": list(request.tools),
-            "text": {"format": {"type": "json_schema", "name": request.schema_name, "strict": True, "schema": request.response_schema or PROVIDER_JSON_SCHEMA}},
+            "text": {"format": {"type": "json_schema", "name": request.schema_name, "strict": True, "schema": _azure_structured_schema(request.response_schema or PROVIDER_JSON_SCHEMA)}},
         }
         timeout = httpx.Timeout(connect=self.settings.ai_provider_connect_timeout_seconds, read=self.settings.ai_provider_read_timeout_seconds, write=self.settings.ai_provider_write_timeout_seconds, pool=self.settings.ai_provider_connect_timeout_seconds)
         try:
