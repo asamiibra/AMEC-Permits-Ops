@@ -10,21 +10,33 @@ branch_labels = None
 depends_on = None
 
 
+def _has_column(table: str, column: str) -> bool:
+    bind = op.get_bind()
+    return any(item["name"] == column for item in sa.inspect(bind).get_columns(table))
+
+
+def _has_index(table: str, name: str) -> bool:
+    bind = op.get_bind()
+    return any(item["name"] == name for item in sa.inspect(bind).get_indexes(table))
+
+
 def upgrade() -> None:
-    op.add_column(
-        "opportunities",
-        sa.Column(
-            "fixture_classification",
-            sa.String(length=40),
-            nullable=False,
-            server_default="NON_SYNTHETIC",
-        ),
-    )
-    op.create_index(
-        "ix_opportunities_fixture_classification",
-        "opportunities",
-        ["fixture_classification"],
-    )
+    if not _has_column("opportunities", "fixture_classification"):
+        op.add_column(
+            "opportunities",
+            sa.Column(
+                "fixture_classification",
+                sa.String(length=40),
+                nullable=False,
+                server_default="NON_SYNTHETIC",
+            ),
+        )
+    if not _has_index("opportunities", "ix_opportunities_fixture_classification"):
+        op.create_index(
+            "ix_opportunities_fixture_classification",
+            "opportunities",
+            ["fixture_classification"],
+        )
 
 
 def downgrade() -> None:
