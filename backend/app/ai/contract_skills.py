@@ -9,7 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..config.settings import get_settings
-from ..models import Contract, ContractAdminEvidence
+from ..models import Contract, ContractAdminEvidence, ContractTemplateSnapshot
 from ..services.context_compiler import ContextSourceSpec
 from .provider import AIProviderRequest, AIProviderResult, AIProviderUsage
 from .skill_registry import CONTRACT_SKILLS, SkillDefinition, SKILL_REGISTRY
@@ -44,6 +44,21 @@ def contract_context_specs(db: Session, contract: Contract) -> tuple[ContextSour
         selector={"entity_type": "CONTRACT", "entity_id": contract.id},
         required=True,
     )]
+    snapshot = db.scalar(
+        select(ContractTemplateSnapshot)
+        .where(
+            ContractTemplateSnapshot.contract_id == contract.id,
+            ContractTemplateSnapshot.contract_revision_id == contract.current_revision_id,
+        )
+        .order_by(ContractTemplateSnapshot.captured_at.desc())
+    )
+    if snapshot:
+        sources.append(ContextSourceSpec(
+            key="contract-template-snapshot",
+            context_type="DOCUMENT_VERSION",
+            selector={"id": snapshot.document_version_id},
+            required=True,
+        ))
     evidence = db.scalars(
         select(ContractAdminEvidence)
         .where(

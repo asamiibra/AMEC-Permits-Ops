@@ -22,6 +22,7 @@ from backend.app.models import (
     CandidateAssertion,
     Contract,
     ContractRevision,
+    ContractTemplateSnapshot,
     ContextDependency,
     ContextSnapshot,
     DefinitionEntry,
@@ -596,7 +597,13 @@ class GovernedContextCompiler:
         self._check_project(version.document.project_id, request)
         if request.scope_type.upper() == "CONTRACT":
             metadata = version.metadata_json if isinstance(version.metadata_json, dict) else {}
-            if metadata.get("contract_id") != request.scope_id:
+            template_snapshot = self.db.scalar(
+                select(ContractTemplateSnapshot).where(
+                    ContractTemplateSnapshot.contract_id == request.scope_id,
+                    ContractTemplateSnapshot.document_version_id == version.id,
+                )
+            )
+            if metadata.get("contract_id") != request.scope_id and template_snapshot is None:
                 raise IntelligenceContractError("CONTEXT_CROSS_CONTRACT_SOURCE")
             if metadata.get("client_account_id") and metadata.get("client_account_id") != self.db.get(Contract, request.scope_id).client_account_id:
                 raise IntelligenceContractError("CONTEXT_CROSS_CLIENT_SOURCE")
