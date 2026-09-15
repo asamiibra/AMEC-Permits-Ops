@@ -37,5 +37,5 @@
   ],
   "PR46_UI_PRODUCT_SURFACE_CLOSED": false,
   "EXACT_HEAD_REQUIRED_CI": "BLOCKED_RELEASE_CRITICAL_CHECK_DID_NOT_REGISTER_FOR_PR_HEAD",
-  "next_exact_action": "Resolve the repository-required GitHub Actions registration defect, then run only the causally required browser acceptance on the frozen UI head."
+  "next_exact_action": "Resolve the repository-required GitHub Actions registration/base reconciliation defect; owner review follows only after exact-head required CI is proven."
 }
