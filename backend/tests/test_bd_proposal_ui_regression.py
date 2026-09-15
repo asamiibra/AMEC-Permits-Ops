@@ -27,6 +27,15 @@ def test_register_public_response_contract_serializes_every_visible_row(client):
         assert {"id", "proposal", "client", "activity", "stage", "stage_code", "next_action", "owner_lane", "contract_eligible", "validation"} <= row.keys()
 
 
+def test_proposal_intake_clients_returns_active_canonical_choices(client):
+    response = client.get("/api/bd/proposals/clients", headers=_headers())
+    assert response.status_code == 200, response.text
+    payload = response.json()
+    assert payload["count"] == len(payload["items"])
+    assert all({"id", "name", "reference", "status"} <= item.keys() for item in payload["items"])
+    assert all(item["status"] == "ACTIVE" for item in payload["items"])
+
+
 @pytest.mark.parametrize(
     ("source_type", "filename", "mime_type", "file_body"),
     (

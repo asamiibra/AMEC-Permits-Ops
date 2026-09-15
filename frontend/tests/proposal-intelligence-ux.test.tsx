@@ -81,6 +81,22 @@ describe("P04 canonical Proposal experience", () => {
     expect(screen.queryByRole("button", { name: /Analyze|Generate|Ask AI/ })).toBeNull();
   });
 
+  it("binds a Proposal to the canonical Client returned by intake lookup", async () => {
+    mockedApi.mockImplementation(async (path: string) => path === "/api/bd/proposals/clients"
+      ? { items: [{ id: "client-1", name: "Canonical Client" }] }
+      : { id: "proposal-1" });
+    render(<ProposalRoutes role="COMMERCIAL_APPROVER" />);
+    fireEvent.click(await screen.findByRole("button", { name: /New Proposal/ }));
+    fireEvent.click(await screen.findByRole("button", { name: /Start without a source/ }));
+    fireEvent.change(screen.getByLabelText("Proposal title"), { target: { value: "Canonical intake" } });
+    fireEvent.change(screen.getByLabelText("Client"), { target: { value: "Canonical Client" } });
+    fireEvent.click(screen.getByRole("button", { name: "Create Proposal draft" }));
+    await waitFor(() => expect(window.location.pathname).toBe("/proposals/proposal-1"));
+    const createCall = mockedApi.mock.calls.find(([path]) => path === "/api/bd/proposals");
+    expect(createCall).toBeTruthy();
+    expect(JSON.parse(String((createCall?.[1] as RequestInit).body))).toMatchObject({ client_account_id: "client-1" });
+  });
+
   it("renders lifecycle workspace state and confirms protected acceptance", async () => {
     window.history.pushState({}, "", "/proposals/proposal-1");
     render(<ProposalRoutes role="SYSTEM_ADMIN" />);

@@ -185,14 +185,18 @@ export async function api<T>(
       );
     }
 
-    const detail =
+    const detailValue =
       payload
       && typeof payload === "object"
       && "detail" in payload
-        ? String(
-            payload.detail,
-          )
-        : "Request failed";
+        ? payload.detail
+        : undefined;
+    const detail =
+      typeof detailValue === "string"
+        ? detailValue
+        : detailValue === undefined
+          ? "Request failed"
+          : JSON.stringify(detailValue);
 
     throw new ApiError(
       `${detail} [${response.status} ${path}]`

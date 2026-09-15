@@ -252,6 +252,29 @@ def proposal_master_content(db: Session = Depends(get_db), role: Role = Depends(
     return {"proposal_template": master_content_purpose(db, "PROPOSAL_TEMPLATE"), "proposal_checklist": master_content_purpose(db, "PROPOSAL_CHECKLIST"), "definitions": {"lookup": "/api/definitions/lookup/{term}", "truth": "DASHBOARD_DEFINITIONS"}}
 
 
+@router.get("/clients")
+def proposal_clients(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    """Return active canonical Clients available to Proposal intake."""
+    require_capability(role, "BD_PROPOSAL_READ")
+    items = db.scalars(
+        select(ClientAccount)
+        .where(ClientAccount.status == "ACTIVE")
+        .order_by(ClientAccount.display_name, ClientAccount.client_reference)
+    ).all()
+    return {
+        "items": [
+            {
+                "id": item.id,
+                "name": item.display_name,
+                "reference": item.client_reference,
+                "status": item.status,
+            }
+            for item in items
+        ],
+        "count": len(items),
+    }
+
+
 @router.get("/{proposal_id}/configuration")
 def proposal_configuration_view(proposal_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     """Read-only Dashboard configuration consumed by this Proposal."""
