@@ -7,8 +7,9 @@ FINAL_RESULT=BLOCKED_EXTERNAL
 WORKING_BRANCH=module/opportunity-proposal-client-tender
 PR_NUMBER=48
 PR_URL=https://github.com/asamiibra/AMEC-Permits-Ops/pull/48
-FINAL_BRANCH_SHA=cda88ad150add653362de879262a9de4f3bef0f4
-FINAL_BRANCH_TREE=b8cc828112e6d15b9642cbc4272e7702061ab4ba
+FINAL_RUNTIME_SOURCE_SHA=cda88ad150add653362de879262a9de4f3bef0f4
+FINAL_RUNTIME_SOURCE_TREE=b8cc828112e6d15b9642cbc4272e7702061ab4ba
+HANDOFF_RECORD_COMMIT=31875dca6c47fc9b7ed0aa6a67942f11aca67b16
 ENTRY_MAIN_SHA=d92cef6d6fdbb7e4248061ebbcfef30cf2f0011d
 ENTRY_MAIN_TREE=04af916251fb2cf92b8575a9e780d35c3322baf8
 ENTRY_MERGE_BASE=d92cef6d6fdbb7e4248061ebbcfef30cf2f0011d
@@ -44,4 +45,4 @@ OWNER_ACCEPTANCE=PENDING_OWNER_TEST
 
 Owner-test URL: https://www.amecidsystem.com/opportunities
 
-The public `www` host is the sanctioned browser entry point. Direct Container Apps revision URLs are retained for exact deployment provenance; their Entra redirect URI is not registered as a user-facing login origin.
+The public `www` host is the sanctioned browser entry point. Direct Container Apps revision URLs are retained for exact deployment provenance; their Entra redirect URI is not registered as a user-facing login origin. The handoff record was added after the runtime image build; it is documentation-only and does not change the deployed application bundle.
