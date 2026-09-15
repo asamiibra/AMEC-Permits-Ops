@@ -97,9 +97,16 @@ def _retire_step5_legacy_proposal_probes(client):
         rows = client.get("/api/master-content", params={"q": ref, "include_archived": "true"}, headers=headers("SYSTEM_ADMIN"))
         assert rows.status_code == 200, rows.text
         item = None
-        candidate_ids = {row["id"] for row in rows.json() if row["ref"] == ref}
         with SessionLocal() as db:
-            active_items = db.scalars(select(MasterContentItem).where(MasterContentItem.id.in_(candidate_ids))).all() if candidate_ids else []
+            # Earlier fixture repair may have renamed a canonical row before
+            # archiving it.  Its immutable SOR artifact remains reusable; do
+            # not recreate the same ref with different bytes and trip the SOR
+            # version immutability guard.
+            active_items = [
+                current
+                for current in db.scalars(select(MasterContentItem).where(MasterContentItem.content_type == "FORM")).all()
+                if current.ref == ref or current.ref.startswith(f"ARCHIVED-{ref}-")
+            ]
             valid_items = []
             for current in active_items:
                 version = db.get(DocumentVersion, current.current_document_version_id) if current.current_document_version_id else None
@@ -116,6 +123,7 @@ def _retire_step5_legacy_proposal_probes(client):
                 for binding in db.scalars(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == current.id)).all():
                     binding.active = False
             if keep:
+                keep.ref = ref
                 keep.status = "ACTIVE"
                 keep.needs_review = False
                 version = db.get(DocumentVersion, keep.current_document_version_id)
@@ -125,7 +133,7 @@ def _retire_step5_legacy_proposal_probes(client):
                 document.current_version_id = version.id
             db.commit()
             if keep:
-                item = next(row for row in rows.json() if row["id"] == keep.id)
+                item = {"id": keep.id, "ref": ref}
         if item is None:
             created = client.post("/api/master-content", data={"content_type": "FORM", "ref": ref, "title": title, "description": title, "used_in": '["BD"]'}, files={"file": (f"{ref}.txt", b"canonical proposal fixture", "text/plain")}, headers=headers("SYSTEM_ADMIN"))
             assert created.status_code == 200, created.text
