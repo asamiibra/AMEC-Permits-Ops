@@ -19,7 +19,7 @@ from backend.app.models import (
     AIWorkProduct, CandidateAssertion, ContextDependency, ContextSnapshot,
     IntelligenceReviewDecision, Opportunity, ProposalAcceptedRevision,
     ProposalIntelligenceReviewBinding, User, WorkflowTask, WorkflowTaskStatus,
-    ProposalRevision, ProposalSourceLink,
+    ProposalRevision, ProposalSourceLink, DocumentVersion, MasterContentItem,
 )
 from backend.app.services.backend_realignment import persona_for_role, require_capability
 from backend.app.services.intelligence_contracts import IntelligenceContractError, stable_hash
@@ -151,13 +151,36 @@ def _proposal_sources(db: Session, context: ProposalContext) -> list[dict[str, A
         "proposal.commercial-consistency-review",
     }:
         from .master_content import resolve_master_content_purpose
-        resolution = resolve_master_content_purpose(db, module="BD", usage_type="PROPOSAL_TEMPLATE")
+        resolution: dict[str, Any] = {"status": "UNRESOLVED"}
+        item: Any = None
+        version: DocumentVersion | None = None
+        # Synthetic Owner-test executions must not accidentally compile an
+        # internal/real canonical template into a synthetic-only run.
+        if context.proposal.fixture_classification == "SYNTHETIC_OWNER_TEST":
+            item = db.scalar(select(MasterContentItem).where(
+                MasterContentItem.ref == "BD-PROP-001",
+                MasterContentItem.status == "ACTIVE",
+            ))
+            version = db.get(DocumentVersion, item.current_document_version_id) if item and item.current_document_version_id else None
+            if item is None or version is None or not (
+                (version.metadata_json or {}).get("synthetic_non_business_fixture")
+                or str(version.source_system).upper().startswith("SYNTHETIC")
+            ):
+                raise IntelligenceContractError("PROPOSAL_SYNTHETIC_MASTER_CONTENT_REQUIRED")
+            resolution = {"status": "RESOLVED"}
+        else:
+            resolution = resolve_master_content_purpose(db, module="BD", usage_type="PROPOSAL_TEMPLATE")
+            if resolution["status"] == "RESOLVED":
+                item = resolution["item"]
         if resolution["status"] == "RESOLVED":
-            item = resolution["item"]
             sources.append({
                 "key": "proposal-test-master-content",
                 "context_type": "MASTER_CONTENT",
-                "selector": {"master_content_item_id": item["id"], "document_version_id": item["version_id"], "content_type": item["content_type"]},
+                "selector": {
+                    "master_content_item_id": item.id if hasattr(item, "id") else item["id"],
+                    "document_version_id": version.id if version is not None else item["version_id"],
+                    "content_type": item.content_type if hasattr(item, "content_type") else item["content_type"],
+                },
                 "required": True,
             })
     return sources
