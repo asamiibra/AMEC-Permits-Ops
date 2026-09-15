@@ -266,7 +266,7 @@ def get_proposal(proposal_id: str, db: Session = Depends(get_db), role: Role = D
     item = db.get(Opportunity, proposal_id)
     if not item:
         raise HTTPException(404, "PROPOSAL_NOT_FOUND")
-    return proposal_projection(db, item)
+    return proposal_projection(db, item, role)
 
 
 def _proposal_or_404(proposal_id: str, db: Session) -> Opportunity:

@@ -32,6 +32,7 @@ from .master_content import definition_projection, governance_projection
 from .bd_proposal_forms_v2 import forms_v2_projection, snapshot_forms_v2, v2_readiness
 from .owner_decisions import runtime_decision_value
 from .proposal_production_boundary import synthetic_test_mode
+from .backend_realignment import CAPABILITY_MATRIX, persona_for_role
 
 SOURCE_TYPES = ("TENDER_DOCUMENT", "TENDER_EMAIL", "TENDER_PHOTO", "CLIENT_DATA")
 SOURCE_TO_SEMANTIC = {
@@ -436,7 +437,56 @@ def validate_proposal(db: Session, proposal: Opportunity) -> dict[str, Any]:
     }
 
 
-def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
+PROPOSAL_ACTION_CAPABILITIES = {
+    "EDIT_INTAKE": ("BD_PROPOSAL_WRITE", {"RECEIVED", "IN_REVIEW"}),
+    "ADD_SOURCE": ("BD_PROPOSAL_WRITE", {"RECEIVED", "IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS", "CLIENT_RESPONSE_PENDING"}),
+    "EDIT_CONTACT": ("BD_PROPOSAL_WRITE", {"RECEIVED", "IN_REVIEW"}),
+    "EDIT_SITE": ("BD_PROPOSAL_WRITE", {"RECEIVED", "IN_REVIEW", "PROPOSAL_PREPARATION"}),
+    "ADD_STAKEHOLDER": ("BD_PROPOSAL_WRITE", {"RECEIVED", "IN_REVIEW", "PROPOSAL_PREPARATION"}),
+    "ADD_NOTE": ("BD_PROPOSAL_WRITE", {"RECEIVED", "IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS", "CLIENT_RESPONSE_PENDING", "ACCEPTED", "CONTRACT_HANDOVER"}),
+    "ADD_UNKNOWN": ("BD_PROPOSAL_WRITE", {"RECEIVED", "IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS", "CLIENT_RESPONSE_PENDING"}),
+    "ADD_CONFLICT": ("BD_PROPOSAL_WRITE", {"RECEIVED", "IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS", "CLIENT_RESPONSE_PENDING"}),
+    "PROCEED_ENGINEERING": ("PROCEED", {"RECEIVED", "IN_REVIEW"}),
+    "EDIT_TECHNICAL": ("EDIT_TECHNICAL", {"PROPOSAL_PREPARATION"}),
+    "RECORD_TECHNICAL_ASSESSMENT": ("EDIT_TECHNICAL", {"PROPOSAL_PREPARATION"}),
+    "CONFIRM_SCOPE": ("BD_PROPOSAL_WRITE", {"PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER"}),
+    "RECORD_SERVICE_ELIGIBILITY": ("BD_PROPOSAL_WRITE", {"PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER"}),
+    "MARK_ENGINEERING_READY": ("ENGINEERING_READY", {"PROPOSAL_PREPARATION"}),
+    "EDIT_COMMERCIAL": ("EDIT_COMMERCIAL", {"PROPOSAL_HANDOVER", "READY_FOR_QUOTATION", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS", "CLIENT_RESPONSE_PENDING"}),
+    "CREATE_REVISION": ("BD_PROPOSAL_WRITE", {"ACCEPTED", "CLIENT_RESPONSE_PENDING", "CONTRACT_HANDOVER"}),
+    "ACCEPT_PROPOSAL": ("BD_PROPOSAL_ACCEPT", {"PROPOSAL_HANDOVER", "READY_FOR_QUOTATION", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS", "CLIENT_RESPONSE_PENDING", "ACCEPTED"}),
+    "AUTHORIZE_RELEASE": ("BD_PROPOSAL_ACCEPT", {"ACCEPTED", "CONTRACT_HANDOVER"}),
+    "RECORD_DISTRIBUTION": ("BD_PROPOSAL_WRITE", {"ACCEPTED", "CONTRACT_HANDOVER"}),
+    "RECORD_CLIENT_RESPONSE": ("BD_PROPOSAL_WRITE", {"ACCEPTED", "CLIENT_RESPONSE_PENDING"}),
+    "VERIFY_CLIENT_ACCEPTANCE": ("BD_PROPOSAL_WRITE", {"CLIENT_RESPONSE_PENDING", "ACCEPTED"}),
+    "RECONCILE_LPO": ("BD_PROPOSAL_WRITE", {"CLIENT_RESPONSE_PENDING", "ACCEPTED", "CONTRACT_HANDOVER"}),
+    "RECORD_CONTRACT_HANDOFF": ("BD_PROPOSAL_WRITE", {"ACCEPTED", "CONTRACT_HANDOVER"}),
+}
+
+
+def proposal_action_capabilities(proposal: Opportunity, role: Any, *, intake_ready: bool, current_revision: Any, handoff: Any) -> dict[str, dict[str, Any]]:
+    allowed = CAPABILITY_MATRIX.get(persona_for_role(role), set())
+    result: dict[str, dict[str, Any]] = {}
+    for action, (capability, stages) in PROPOSAL_ACTION_CAPABILITIES.items():
+        capability_allowed = capability in allowed
+        stage_allowed = proposal.status in stages
+        eligible = capability_allowed and stage_allowed
+        reason = None
+        if not capability_allowed:
+            reason = "CAPABILITY_DENIED"
+        elif not stage_allowed:
+            reason = "STAGE_READ_ONLY"
+        elif action == "PROCEED_ENGINEERING" and not intake_ready:
+            eligible, reason = False, "INTAKE_READINESS_BLOCKED"
+        elif action == "ACCEPT_PROPOSAL" and not current_revision and proposal.status == "ACCEPTED":
+            eligible, reason = False, "ACCEPTED_REVISION_REQUIRED"
+        elif action == "RECORD_CONTRACT_HANDOFF" and handoff is None:
+            eligible, reason = False, "HANDOFF_PREFLIGHT_REQUIRED"
+        result[action] = {"available": eligible, "capability": capability, "reason": reason}
+    return result
+
+
+def proposal_projection(db: Session, proposal: Opportunity, role: Any = "OWNER_SPONSOR") -> dict[str, Any]:
     fields = proposal.proposal_fields_json or {}
     sources = _sources(db, proposal.id)
     revisions = db.scalars(select(ProposalAcceptedRevision).where(ProposalAcceptedRevision.proposal_id == proposal.id).order_by(ProposalAcceptedRevision.revision_number.desc())).all()
@@ -515,6 +565,7 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
     acceptance_verification = db.scalar(select(ProposalAcceptanceVerification).where(ProposalAcceptanceVerification.proposal_id == proposal.id).order_by(ProposalAcceptanceVerification.verified_at.desc()))
     lpo = db.scalar(select(ProposalLpoReconciliation).where(ProposalLpoReconciliation.proposal_id == proposal.id).order_by(ProposalLpoReconciliation.compared_at.desc()))
     handoff = db.scalar(select(ProposalContractHandoff).where(ProposalContractHandoff.proposal_id == proposal.id).order_by(ProposalContractHandoff.handed_off_at.desc()))
+    action_capabilities = proposal_action_capabilities(proposal, role, intake_ready=intake["ready"], current_revision=current, handoff=handoff)
     handoff_readiness = handoff_predicate(db, proposal.id)
     commercial_controls = {
         "technical_assessment": control_projection(assessment) if assessment else None,
@@ -582,6 +633,7 @@ def proposal_projection(db: Session, proposal: Opportunity) -> dict[str, Any]:
         "revision_history": [{"id": item.id, "revision_number": item.revision_number, "content_hash": item.content_hash, "accepted_at": item.accepted_at.isoformat(), "accepted_by": item.accepted_by} for item in revisions],
         "stage_gate": stage_gate,
         "commercial_controls": commercial_controls,
+        "action_capabilities": action_capabilities,
         "stage_history": [{"event_type": event.event_type, "occurred_at": event.occurred_at.isoformat(), "actor": event.actor_id, "before": event.before_json, "after": event.after_json, "correlation_id": event.correlation_id} for event in stage_events],
         "ai_assist": validation["ai_assist"],
         "contract_eligible": bool(current and handoff_readiness["eligible"]),
