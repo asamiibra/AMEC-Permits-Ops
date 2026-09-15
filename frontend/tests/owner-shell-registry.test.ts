@@ -10,7 +10,7 @@ import { classifyPublicRoute } from "../src/domainOwnershipRoutes";
 describe("Owner shell feature registry", () => {
   it("keeps the complete work-oriented shell and Home", () => {
     expect(Object.values(featureAvailability).filter(Boolean)).toHaveLength(9);
-    expect(getPrimaryNavigation("SYSTEM_ADMIN").map((item) => item.label)).toEqual([
+    expect(getPrimaryNavigation("OWNER_SPONSOR").map((item) => item.label)).toEqual([
       "Home",
       "My Work",
       "Opportunities & Proposals",

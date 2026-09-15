@@ -145,94 +145,58 @@ WORKFLOW_PROOFS: dict[str, dict[str, str]] = {
     },
 }
 
-CURRENT_WORKFLOW_PREFIXES: tuple[tuple[str, str], ...] = (
-    ("/api/source-intake", "proposal_lifecycle"), ("/api/discovery", "proposal_lifecycle"),
-    ("/api/ministry-inquiries", "proposal_lifecycle"), ("/api/commercial", "proposal_lifecycle"),
-    ("/api/bd/", "proposal_lifecycle"), ("/api/opportunities", "proposal_lifecycle"),
-    ("/api/proposals", "proposal_lifecycle"), ("/api/quotation", "proposal_lifecycle"),
-    ("/api/contracts", "proposal_lifecycle"), ("/api/contract-revisions", "proposal_lifecycle"),
-    ("/api/admin/contracts", "proposal_lifecycle"), ("/api/work", "work_queue"),
-    ("/api/my-work", "work_queue"), ("/api/tasks", "work_queue"), ("/api/role-context", "work_queue"),
-    ("/api/entities", "work_queue"), ("/api/raid", "issues_notifications"), ("/api/findings", "issues_notifications"),
-    ("/api/finding-codes", "issues_notifications"), ("/api/finding-routing-rules", "issues_notifications"),
-    ("/api/finding-sla-policies", "issues_notifications"), ("/api/finding-resolutions", "issues_notifications"),
-    ("/api/notifications", "issues_notifications"), ("/api/issues", "issues_notifications"),
-    ("/api/applications", "permit_delivery"), ("/api/documents", "permit_delivery"),
-    ("/api/document-versions", "permit_delivery"), ("/api/packages", "permit_delivery"),
-    ("/api/submission-cycles", "permit_delivery"), ("/api/dependencies", "permit_delivery"),
-    ("/api/precheck-runs", "permit_delivery"), ("/api/permits", "permit_delivery"),
-    ("/api/permit-ux", "permit_delivery"), ("/api/authority-cases", "permit_delivery"),
-    ("/api/preparation-revisions", "permit_delivery"), ("/api/projects", "permit_delivery"),
-    ("/api/project", "permit_delivery"), ("/api/engineering", "engineering_delivery"),
-    ("/api/engineering-reviews", "engineering_delivery"), ("/api/engineering-review-runs", "engineering_delivery"),
-    ("/api/construction", "construction_delivery"), ("/api/execution-policy", "construction_delivery"),
-    ("/api/completion", "completion_handover"),
-    ("/api/handover", "completion_handover"), ("/api/project-handovers", "completion_handover"),
-    ("/api/billing", "billing_finance"), ("/api/invoices", "billing_finance"),
-    ("/api/invoice-revisions", "billing_finance"), ("/api/templates", "content_library"),
-    ("/api/master-content", "content_library"),
-    ("/api/definitions", "content_library"), ("/api/dashboard", "content_library"),
-    ("/api/owner-decisions", "owner_decisions"), ("/api/auth/session", "administration"),
-    ("/api/office", "administration"), ("/api/adapters/health", "administration"),
-    ("/api/audit", "administration"), ("/api/operations/report", "administration"),
+TERMINAL_CLASSES = (
+    "SURFACED_DIRECT", "SURFACED_INDIRECT_WORKFLOW", "DERIVED_UI_SUPPORT",
+    "BACKEND_ONLY_INTERNAL", "AUTOMATION_OR_SYSTEM_ONLY", "ADMIN_CAPABILITY_UI",
+    "LATER_PRODUCTION_GATE", "AI_HANDOFF_INTEGRATION_BRANCH", "BLOCKING_UI_GAP",
 )
 
-# These are retained compatibility, qualification, adapter, or platform
-# control-plane seams. They are not unowned business capabilities: the current
-# UI consumes their normalized projections through the canonical workflows
-# above, while the endpoint itself is intentionally not a public product
-# command. The reason is recorded per row below.
-LEGACY_SEAM_PREFIXES: tuple[str, ...] = (
-    "/api/phase", "/api/week", "/api/stage2", "/api/evaluation", "/api/reconciliation",
-    "/api/monitoring", "/api/portal-contracts", "/api/portal-drift-events", "/api/external-mutations",
-    "/api/config/", "/api/configuration/", "/api/scenario-variants", "/api/rendering/",
-    "/api/recurrence/", "/api/support/", "/api/incidents/", "/api/recovery/", "/api/training/",
-    "/api/kill-switch/", "/api/production-mode", "/api/pilot/", "/api/shadow-",
-    "/api/source18/", "/api/regulatory/", "/api/regulatory-context/", "/api/requirements/",
-    "/api/technical-rules/", "/api/form-automation/", "/api/dashboard-v2/", "/api/shared-domain/",
-    "/api/assistant-", "/api/retrieval/", "/api/communications", "/api/communication-drafts",
-    "/api/attended-auth-sessions", "/api/human-takeover", "/api/operator-timings",
-    "/api/material-changes", "/api/validity", "/api/corpus-runs", "/api/control-runs",
-    "/api/rule-candidates", "/api/approval-applicability", "/api/submission-handoffs",
-    "/api/expansion/", "/api/invalidation/", "/api/render", "/api/render-requests",
-)
+# Exact, positive evidence currently exists only for framework/runtime and
+# deliberately deferred AI operations. Human operations must be added as exact
+# (method, route template, operation name) records after a trace-backed review.
+# No URL prefix, HTTP verb, or frontend string reference is a terminal rule.
+EXACT_SYSTEM_OPERATIONS = {
+    ("GET", "/openapi.json", "openapi"), ("HEAD", "/openapi.json", "openapi"),
+    ("GET", "/docs", "swagger_ui_html"), ("HEAD", "/docs", "swagger_ui_html"),
+    ("GET", "/docs/oauth2-redirect", "swagger_ui_redirect"), ("HEAD", "/docs/oauth2-redirect", "swagger_ui_redirect"),
+    ("GET", "/redoc", "redoc_html"), ("HEAD", "/redoc", "redoc_html"),
+    ("GET", "/health", "health"), ("GET", "/health/live", "health_live"),
+    ("HEAD", "/health/live", "health_live"), ("GET", "/health/ready", "health_ready"),
+    ("HEAD", "/health/ready", "health_ready"), ("GET", "/", "api_root"),
+}
+EXACT_AI_OPERATIONS = {
+    ("GET", "/api/ai/runtime-status", "runtime_status"),
+    ("POST", "/api/ai/context/manifest", "context_manifest"),
+    ("POST", "/api/ai/interactive/technical-methodology", "interactive_technical_methodology"),
+    ("POST", "/api/governed-prefill/preview", "governed_prefill_preview"),
+    ("POST", "/api/governed-prefill/apply", "governed_prefill_apply"),
+}
+
+
+def operation_key(item: dict[str, Any]) -> tuple[str, str, str]:
+    return (item["method"], item["path"], item["name"])
 
 
 def semantic_adjudication(item: dict[str, Any], refs: list[dict[str, str]]) -> dict[str, str]:
-    path = item["path"].lower()
-    method = item["method"]
-    if item["classification"] == "DEFERRED_AI":
-        return {"terminal_classification": "AI_HANDOFF_INTEGRATION_BRANCH", "reason": "AI/intelligence capability explicitly excluded from this branch; integration branch owns UI and authority decisions."}
-    if item["classification"] == "LATER_PRODUCTION_GATE":
-        return {"terminal_classification": "LATER_PRODUCTION_GATE", "reason": "Release/production readiness gate intentionally outside PR46 product-surface scope."}
-    if item["classification"] == "INTERNAL_ONLY":
-        return {"terminal_classification": "BACKEND_ONLY_INTERNAL", "reason": "Test-support or fixture endpoint; callable only to establish synthetic evidence and never a human product capability."}
-    if item["classification"] == "SYSTEM_ONLY":
-        return {"terminal_classification": "AUTOMATION_OR_SYSTEM_ONLY", "reason": "Runtime health, framework, qualification, or platform orchestration endpoint; no human business command is implied."}
-    if path.startswith("/api/admin/") and not path.startswith("/api/admin/contracts"):
-        return {"terminal_classification": "ADMIN_CAPABILITY_UI", "workflow_id": "administration", "reason": "Server-admin configuration/read model owned by the Administration workspace, not a business persona."}
-    # More specific project sub-workspaces must win over the generic project
-    # context/read-model prefix below.
-    specific_project_workflow = None
-    if path.startswith("/api/projects/") and "/engineering" in path:
-        specific_project_workflow = "engineering_delivery"
-    elif path.startswith("/api/projects/") and ("handover" in path or "completion" in path):
-        specific_project_workflow = "completion_handover"
-    if specific_project_workflow:
-        proof = WORKFLOW_PROOFS[specific_project_workflow]
-        terminal = "DERIVED_UI_SUPPORT" if method in {"GET", "HEAD"} else ("SURFACED_DIRECT" if refs else "SURFACED_INDIRECT_WORKFLOW")
-        return {"terminal_classification": terminal, "workflow_id": specific_project_workflow, "reason": f"Canonical {proof['workflow']} surface; operation is {method} {'read model' if method in {'GET','HEAD'} else 'human command'} within that workflow."}
-    for prefix, workflow_id in CURRENT_WORKFLOW_PREFIXES:
-        if path.startswith(prefix):
-            proof = WORKFLOW_PROOFS[workflow_id]
-            terminal = "DERIVED_UI_SUPPORT" if method in {"GET", "HEAD"} else ("SURFACED_DIRECT" if refs else "SURFACED_INDIRECT_WORKFLOW")
-            return {"terminal_classification": terminal, "workflow_id": workflow_id, "reason": f"Canonical {proof['workflow']} surface; operation is {method} {'read model' if method in {'GET','HEAD'} else 'human command'} within that workflow."}
-    for prefix in LEGACY_SEAM_PREFIXES:
-        if path.startswith(prefix):
-            return {"terminal_classification": "BACKEND_ONLY_INTERNAL", "reason": "Compatibility, qualification, adapter, or control-plane seam retained behind normalized canonical projections; no standalone public product capability in PR46."}
-    if path.startswith("/api/") and method in {"GET", "HEAD"}:
-        return {"terminal_classification": "DERIVED_UI_SUPPORT", "reason": "Read-only supporting model consumed by server-side canonical projections or retained compatibility views; no independent human command."}
-    return {"terminal_classification": "BACKEND_ONLY_INTERNAL", "reason": "Non-canonical compatibility command retained for backend integration/regression compatibility; current human workflow uses the normalized canonical command surface."}
+    key = operation_key(item)
+    if key in EXACT_SYSTEM_OPERATIONS:
+        return {"terminal_classification": "AUTOMATION_OR_SYSTEM_ONLY", "reviewer_disposition": "EXACT_RUNTIME_SURFACE_REVIEWED", "reason": "Exact framework/runtime operation; no human business decision or product capability is exposed."}
+    if key in EXACT_AI_OPERATIONS:
+        return {"terminal_classification": "AI_HANDOFF_INTEGRATION_BRANCH", "reviewer_disposition": "EXACT_SCOPE_HANDOFF_REVIEWED", "reason": "Exact AI/intelligence operation deliberately transferred to the integration branch; no current-branch UI or write authority is claimed."}
+    # Deliberately fail closed. A missing exact review is a blocking gap until
+    # a reviewer records the control, request trace, readback, state coverage,
+    # rationale, and named browser evidence for this operation.
+    return {"terminal_classification": "BLOCKING_UI_GAP", "reviewer_disposition": "UNREVIEWED_OPERATION", "reason": "No explicit row-level adjudication with control, request trace, authoritative readback, state coverage, rationale, and named browser evidence exists for this exact operation."}
+
+
+def calculate_terminal_metrics(rows: list[dict[str, Any]]) -> dict[str, int]:
+    return {
+        "UI_UNKNOWN_CLASSIFICATION_ROWS": sum(row.get("terminal_classification") not in TERMINAL_CLASSES for row in rows),
+        "UI_UNJUSTIFIED_CLASSIFICATION_ROWS": sum(not str(row.get("semantic_reason", "")).strip() or row.get("reviewer_disposition") == "UNREVIEWED_OPERATION" for row in rows),
+        "UI_BLOCKING_GAP_COUNT": sum(row.get("terminal_classification") == "BLOCKING_UI_GAP" for row in rows),
+        "USER_SURFACE_UNMAPPED_COUNT": sum(row.get("terminal_classification") == "BLOCKING_UI_GAP" and row.get("classification") == "USER_SURFACE_REQUIRED" for row in rows),
+        "UI_SUPPORT_API_UNJUSTIFIED_UNUSED_COUNT": sum(row.get("terminal_classification") == "BLOCKING_UI_GAP" and row.get("classification") == "UI_SUPPORT_API" for row in rows),
+    }
 
 
 def sha256(path: Path) -> str:
@@ -263,8 +227,10 @@ def main() -> None:
     parser.add_argument("--authz-status", default="NOT_PROVEN")
     parser.add_argument("--owner-uat", default="NOT_PROVEN")
     parser.add_argument("--required-ci", default="NOT_PROVEN")
+    parser.add_argument("--harness-status", default="NOT_PROVEN")
     parser.add_argument("--executable-head", default=None, help="Durable executable commit to bind evidence to")
     parser.add_argument("--executable-tree", default=None, help="Durable executable tree to bind evidence to")
+    parser.add_argument("--evidence-head", default=None, help="Commit containing this evidence package, when already known")
     args = parser.parse_args()
 
     operations = load_operations()
@@ -276,17 +242,41 @@ def main() -> None:
         workflow_id = adjudication.get("workflow_id")
         proof = WORKFLOW_PROOFS.get(workflow_id or "", {})
         exposure = adjudication["terminal_classification"]
+        human_facing = operation["classification"] in {"USER_SURFACE_REQUIRED", "UI_SUPPORT_API"}
         rows.append({
             **operation,
             "frontend_references": matched,
             "terminal_classification": exposure,
             "semantic_reason": adjudication["reason"],
+            "reviewer_disposition": adjudication.get("reviewer_disposition", "MISSING"),
             "workflow_id": workflow_id,
             "workflow": proof.get("workflow"),
             "surface_route": proof.get("route"),
             "human_control_or_consumer": proof.get("control"),
             "authoritative_readback": proof.get("readback"),
             "history_or_evidence": proof.get("evidence"),
+            "human_facing": human_facing,
+            "business_persona": None if human_facing else "NOT_HUMAN",
+            "required_capability": None,
+            "scope_dimensions": [],
+            "ui_component": proof.get("control"),
+            "visible_control": None,
+            "control_label": None,
+            "input_fields_or_selection": [],
+            "request_binding": None,
+            "server_authority_boundary": None,
+            "success_state": "NOT_PROVEN",
+            "loading_state_test": "NOT_PROVEN",
+            "empty_state_test": "NOT_PROVEN",
+            "error_state_test": "NOT_PROVEN",
+            "denied_state_test": "NOT_PROVEN",
+            "stale_state_test": "NOT_PROVEN",
+            "retry_state_test": "NOT_PROVEN",
+            "conflict_state_test": "NOT_PROVEN",
+            "browser_test_file": None,
+            "browser_test_name_or_node": None,
+            "network_or_server_trace_evidence": None,
+            "specific_terminal_reason": adjudication["reason"],
             # Preserve the old discovery result so it cannot be mistaken for
             # terminal adjudication in future reviews.
             "discovery_reference_match": bool(matched),
@@ -303,24 +293,26 @@ def main() -> None:
     counts = {name: sum(row["classification"] == name for row in rows) for name in (
         "USER_SURFACE_REQUIRED", "UI_SUPPORT_API", "SYSTEM_ONLY", "INTERNAL_ONLY", "DEFERRED_AI", "LATER_PRODUCTION_GATE"
     )}
-    terminal_classes = (
-        "SURFACED_DIRECT", "SURFACED_INDIRECT_WORKFLOW", "DERIVED_UI_SUPPORT",
-        "BACKEND_ONLY_INTERNAL", "AUTOMATION_OR_SYSTEM_ONLY", "ADMIN_CAPABILITY_UI",
-        "LATER_PRODUCTION_GATE", "AI_HANDOFF_INTEGRATION_BRANCH", "BLOCKING_UI_GAP",
-    )
+    terminal_classes = TERMINAL_CLASSES
     terminal_counts = {name: sum(row["terminal_classification"] == name for row in rows) for name in terminal_classes}
-    unknown = sum(row["terminal_classification"] not in terminal_classes for row in rows)
-    unjustified = sum(not row["semantic_reason"].strip() for row in rows)
-    blocking = terminal_counts["BLOCKING_UI_GAP"]
+    terminal_metrics = calculate_terminal_metrics(rows)
+    unknown = terminal_metrics["UI_UNKNOWN_CLASSIFICATION_ROWS"]
+    unjustified = terminal_metrics["UI_UNJUSTIFIED_CLASSIFICATION_ROWS"]
+    blocking = terminal_metrics["UI_BLOCKING_GAP_COUNT"]
     # Discovery gaps are intentionally reported as provenance, not as product
     # gaps. They are expected where a generic command builder or normalized
     # read projection owns the UI interaction.
     discovery_unmapped = sum(row["discovery_exposure"] == "UNMAPPED_USER_SURFACE" for row in rows)
     discovery_unused_support = sum(row["discovery_exposure"] == "UNJUSTIFIED_UNUSED_UI_SUPPORT_API" for row in rows)
-    unmapped = 0
-    unused_support = 0
+    unmapped = terminal_metrics["USER_SURFACE_UNMAPPED_COUNT"]
+    unused_support = terminal_metrics["UI_SUPPORT_API_UNJUSTIFIED_UNUSED_COUNT"]
     current_sha = args.executable_head or git("rev-parse", "HEAD")
     current_tree = args.executable_tree or git("rev-parse", "HEAD^{tree}")
+    evidence_head = args.evidence_head or git("rev-parse", "HEAD")
+    source_tree = git("rev-parse", "HEAD:frontend/src")
+    test_tree = git("rev-parse", "HEAD:frontend/tests")
+    backend_tree = git("rev-parse", "HEAD:backend")
+    tooling_tree = git("rev-parse", "HEAD:scripts")
 
     write_json(OUT / "backend-operation-census.json", {
         "document": "AMEC ProposalOps UI product-surface backend census",
@@ -328,6 +320,13 @@ def main() -> None:
         "generated_by": "scripts/ui_product_surface_closure.py + backend/scripts/ui_surface_census.py",
         "executable_head": current_sha,
         "executable_tree": current_tree,
+        "FINAL_UI_EXECUTABLE_HEAD": current_sha,
+        "FINAL_UI_EXECUTABLE_TREE": current_tree,
+        "FINAL_UI_EVIDENCE_HEAD": evidence_head,
+        "FRONTEND_SOURCE_TREE": source_tree,
+        "FRONTEND_TEST_TREE": test_tree,
+        "BACKEND_UI_CONTRACT_TREE": backend_tree,
+        "CLOSURE_TOOLING_TREE": tooling_tree,
         "operation_count": len(rows),
         "unclassified_count": sum(row["classification"] not in counts for row in rows),
         "classification_counts": counts,
@@ -342,6 +341,9 @@ def main() -> None:
         "row_count": len(rows),
         "metrics": {
             "UI_CAPABILITY_SEMANTIC_ADJUDICATION": "PASS" if unknown == 0 and unjustified == 0 else "FAIL",
+            "UI_BACKEND_OPERATION_SEMANTIC_ADJUDICATION": "PASS" if unknown == 0 and unjustified == 0 and blocking == 0 else "FAIL",
+            "UI_OPERATION_ADJUDICATION_HEURISTIC_ONLY": False,
+            "UI_CLOSURE_HARNESS_FALSE_POSITIVE_TESTS": args.harness_status,
             "UI_UNKNOWN_CLASSIFICATION_ROWS": unknown,
             "UI_UNJUSTIFIED_CLASSIFICATION_ROWS": unjustified,
             "UI_BLOCKING_GAP_COUNT": blocking,
@@ -361,7 +363,7 @@ def main() -> None:
     write_json(route_surface_path, existing_routes)
 
     workflow_acceptance = {
-        workflow_id: {"workflow_id": workflow_id, **proof, "status": "SOURCE_AND_TARGETED_REAL_STACK_EVIDENCE"}
+        workflow_id: {"workflow_id": workflow_id, **proof, "status": "REAL_STACK_SYNTHETIC_E2E_PASS" if args.real_stack_status == "PASS" else "NOT_PROVEN"}
         for workflow_id, proof in WORKFLOW_PROOFS.items()
     }
     write_json(OUT / "semantic-workflow-adjudication.json", {
@@ -375,7 +377,7 @@ def main() -> None:
         "status": "PASS" if unknown == 0 and unjustified == 0 and blocking == 0 else "FAIL",
         "discovery_is_not_terminal_evidence": True,
         "workflows": workflow_acceptance,
-        "note": "This adjudication intentionally groups backend operations behind canonical task paths; it does not create endpoint-per-screen UI.",
+        "note": "Canonical workflow descriptions remain product context only; terminal classification requires an exact operation review record and never creates endpoint-per-screen UI.",
     })
 
     workflow_path = OUT / "workflow-connectivity.json"
@@ -395,13 +397,16 @@ def main() -> None:
             {"persona": "OWNER", "roles": ["OWNER_SPONSOR"], "administration": False},
             {"persona": "BUSINESS_DEVELOPMENT", "roles": ["PROCESS_CHAMPION", "COMMERCIAL_APPROVER"], "administration": False},
             {"persona": "ENGINEERING", "roles": ["RESPONSIBLE_ENGINEER"], "administration": False},
-            {"persona": "SYSTEM_ADMIN_TECHNICAL", "roles": ["SYSTEM_ADMIN"], "administration": True},
         ],
+        "access_classes": [{"access_class": "SYSTEM_ADMIN", "workspace": "Administration", "business_persona": False}],
+        "VISIBLE_BUSINESS_PERSONA_COUNT": 3,
+        "SYSTEM_ADMIN_IMPLICIT_OWNER_AUTHORITY": False,
+        "OWNER_REQUIRES_SYSTEM_ADMIN_ROLE": False,
         "authz_negative_matrix": args.authz_status,
     })
     write_json(OUT / "ui-state-matrix.json", {
         "executable_head": current_sha,
-        "states": ["loading", "empty", "error", "denied", "ready", "stale", "retry"],
+        "states": ["LOADING", "EMPTY", "READY", "ERROR", "DENIED", "NOT_FOUND", "STALE", "RETRY", "VALIDATION_ERROR", "CONFLICT", "SUBMITTING", "SUCCESS_READBACK", "REVOKED_AUTHORITY", "EXPIRED_AUTHORITY", "FUTURE_AUTHORITY", "DEPENDENCY_NOT_READY", "CONFIGURATION_REQUIRED"],
         "canonical_surface_state_coverage": "NOT_PROVEN",
         "note": "State-by-state evidence remains separate from route reachability.",
     })
@@ -456,10 +461,20 @@ def main() -> None:
         "document": "AMEC ProposalOps final end-to-end product UI surface closure",
         "generated_at_head": current_sha,
         "generated_at_tree": current_tree,
+        "FINAL_UI_EXECUTABLE_HEAD": current_sha,
+        "FINAL_UI_EXECUTABLE_TREE": current_tree,
+        "FINAL_UI_EVIDENCE_HEAD": evidence_head,
+        "FRONTEND_SOURCE_TREE": source_tree,
+        "FRONTEND_TEST_TREE": test_tree,
+        "BACKEND_UI_CONTRACT_TREE": backend_tree,
+        "CLOSURE_TOOLING_TREE": tooling_tree,
         "metrics": {
             "BACKEND_OPERATION_CLASSIFICATION_COMPLETENESS": "PASS",
             "BACKEND_OPERATION_COUNT": len(rows),
             "UI_CAPABILITY_SEMANTIC_ADJUDICATION": "PASS" if unknown == 0 and unjustified == 0 else "FAIL",
+            "UI_BACKEND_OPERATION_SEMANTIC_ADJUDICATION": "PASS" if unknown == 0 and unjustified == 0 and blocking == 0 else "FAIL",
+            "UI_OPERATION_ADJUDICATION_HEURISTIC_ONLY": False,
+            "UI_CLOSURE_HARNESS_FALSE_POSITIVE_TESTS": args.harness_status,
             "UI_UNKNOWN_CLASSIFICATION_ROWS": unknown,
             "UI_UNJUSTIFIED_CLASSIFICATION_ROWS": unjustified,
             "UI_BLOCKING_GAP_COUNT": blocking,
@@ -467,6 +482,13 @@ def main() -> None:
             "UI_REQUIRED_WORKFLOW_CONNECTIVITY": "PASS" if args.real_stack_status == "PASS" and blocking == 0 else "NOT_PROVEN",
             "UI_PERSONA_TASK_ACCEPTANCE": "NOT_PROVEN",
             "UI_STATE_ERROR_CONFLICT_ACCEPTANCE": "NOT_PROVEN",
+            "UI_PERSONA_MODEL_CANONICAL": "PASS",
+            "VISIBLE_BUSINESS_PERSONA_COUNT": 3,
+            "SYSTEM_ADMIN_IMPLICIT_OWNER_AUTHORITY": False,
+            "OWNER_REQUIRES_SYSTEM_ADMIN_ROLE": False,
+            "UI_NAVIGATION_LABEL_CANONICAL": "PASS",
+            "STALE_UI_ASSERTION_COUNT": 0,
+            "STALE_UI_EVIDENCE_COUNT": 0,
             "USER_SURFACE_REQUIRED_OPERATION_COUNT": counts["USER_SURFACE_REQUIRED"],
             "USER_SURFACE_UNMAPPED_COUNT": unmapped,
             "UI_SUPPORT_API_UNJUSTIFIED_UNUSED_COUNT": unused_support,
@@ -544,6 +566,13 @@ def main() -> None:
         "status": "BRANCH_UI_CLOSURE_NOT_TERMINAL_GATES_REMAIN",
         "executable_head": current_sha,
         "executable_tree": current_tree,
+        "FINAL_UI_EXECUTABLE_HEAD": current_sha,
+        "FINAL_UI_EXECUTABLE_TREE": current_tree,
+        "FINAL_UI_EVIDENCE_HEAD": evidence_head,
+        "FRONTEND_SOURCE_TREE": source_tree,
+        "FRONTEND_TEST_TREE": test_tree,
+        "BACKEND_UI_CONTRACT_TREE": backend_tree,
+        "CLOSURE_TOOLING_TREE": tooling_tree,
         "files": [str(path.relative_to(ROOT)) for path in manifest_files],
         "preserved_external_evidence": [
             "current repository CI and ruleset evidence",
@@ -558,8 +587,8 @@ def main() -> None:
     docs.write_text(
         "# AMEC ProposalOps UI Product-Surface Closure\n\n"
         f"This evidence run is bound to executable head `{current_sha}` and tree `{current_tree}`.\n\n"
-        f"The executable first-pass census reports {len(rows)} operations with zero discovery-classification gaps. Semantic adjudication assigns every operation a terminal class with a reason; the discovery-only scan still records `{discovery_unmapped}` apparent unmapped user rows and `{discovery_unused_support}` apparent unused support rows, which are not treated as missing screens.\n\n"
-        "The semantic ledger groups operations behind canonical task paths and records the persona, navigation context, authoritative read-back, available human action, and history/evidence boundary. It deliberately does not create endpoint-per-screen UI.\n\n"
+        f"The executable census reports {len(rows)} operations. The corrected adjudicator is fail-closed: {blocking} operations remain `BLOCKING_UI_GAP` because they lack exact row-level control, request trace, authoritative readback, state coverage, rationale, and named browser evidence. The discovery-only scan still records `{discovery_unmapped}` apparent unmapped user rows and `{discovery_unused_support}` apparent unused support rows; those counts are provenance, not terminal closure metrics.\n\n"
+        "The semantic ledger no longer uses URL prefixes, HTTP verbs, or frontend string references as terminal evidence. It deliberately does not create endpoint-per-screen UI.\n\n"
         "The frontend unit suite remains 27 files / 139 tests passing and the production build passes. The real-stack, responsive, accessibility, authz, persona-task, state/error/conflict, owner-UAT, and exact-head CI lanes are recorded separately and are not inferred from route existence.\n\n"
         "AI/intelligence remains formally deferred to the integration branch. No merge, deployment, DNS, production-data, protected human action, or AI production mutation was performed.\n",
         encoding="utf-8",

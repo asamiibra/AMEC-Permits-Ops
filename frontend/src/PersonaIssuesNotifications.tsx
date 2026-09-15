@@ -10,7 +10,7 @@ const labels: Record<Persona, string> = {
   BUSINESS_DEVELOPMENT: "Business Development",
   ENGINEERING: "Engineering",
 };
-const roleForPersona = (persona: Persona) => persona === "BUSINESS_DEVELOPMENT" ? "COMMERCIAL_APPROVER" : persona === "ENGINEERING" ? "RESPONSIBLE_ENGINEER" : "SYSTEM_ADMIN";
+const roleForPersona = (persona: Persona) => persona === "BUSINESS_DEVELOPMENT" ? "COMMERCIAL_APPROVER" : persona === "ENGINEERING" ? "RESPONSIBLE_ENGINEER" : "OWNER_SPONSOR";
 
 const issueCopy: Record<Persona, { title: string; description: string; kicker: string }> = {
   OWNER: { kicker: "OWNER CONTROL", title: "Issues across AMEC work", description: "Review blockers and exceptions across proposals, contracts, permits, and system integrity." },

@@ -299,7 +299,7 @@ export default function App() {
               <label aria-label="Demo as" className="role-switcher">
                 Demo as
                 <select
-                  aria-label="Persona"
+                  aria-label="Demo role"
                   value={role}
                   onChange={(event) => setRole(event.target.value)}
                 >
@@ -313,7 +313,7 @@ export default function App() {
             )}
             <a className="header-link" href="/issues">Issues</a>
             <a className="header-link" href="/notifications">Notifications</a>
-            <NotificationBell persona={issuePersonaForRole(role)} />
+            {issuePersonaForRole(role) && <NotificationBell persona={issuePersonaForRole(role) as IssuePersona} />}
             <div className="account-control">
               <button
                 className="avatar"
@@ -370,7 +370,7 @@ export default function App() {
           {page === "billing" && <BillingInvoicePage />}
           {page === "content-library" && <CurrentDashboard role={role} />}
           {page === "issues" && <IssueRoute role={role} currentPath={currentPath} />}
-          {page === "notifications" && <PersonaNotificationsPage persona={issuePersonaForRole(role)} />}
+          {page === "notifications" && <NotificationRoute role={role} />}
           {page === "owner-decisions" && <OwnerDecisionCenterPage />}
           {page === "administration" && <AdministrationOwnerPage />}
         </div>
@@ -379,15 +379,22 @@ export default function App() {
   );
 }
 
-function issuePersonaForRole(role: string): IssuePersona {
+function issuePersonaForRole(role: string): IssuePersona | null {
   const persona = personaForRole(role);
-  return persona === "BUSINESS_DEVELOPMENT" ? "BUSINESS_DEVELOPMENT" : persona === "ENGINEERING" ? "ENGINEERING" : "OWNER";
+  return persona === "BUSINESS_DEVELOPMENT" ? "BUSINESS_DEVELOPMENT" : persona === "ENGINEERING" ? "ENGINEERING" : persona === "OWNER" ? "OWNER" : null;
 }
 
 function IssueRoute({ role, currentPath }: { role: string; currentPath: string }) {
   const persona = issuePersonaForRole(role);
+  if (!persona) return <AuthzSurface state="AUTHZ_UNSUPPORTED_ROLE" role="System Admin" />;
   const match = currentPath.match(/^\/issues\/([^/]+)$/);
   return match ? <PersonaIssueDetailPage persona={persona} issueId={match[1]} /> : <PersonaIssuesPage persona={persona} />;
+}
+
+function NotificationRoute({ role }: { role: string }) {
+  const persona = issuePersonaForRole(role);
+  if (!persona) return <AuthzSurface state="AUTHZ_UNSUPPORTED_ROLE" role="System Admin" />;
+  return <PersonaNotificationsPage persona={persona} />;
 }
 
 function ContextualNavigation({ page, currentPath }: { page: PublicPage; currentPath: string }) {

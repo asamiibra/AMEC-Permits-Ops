@@ -30,11 +30,11 @@ const session = (role: string) => ({
 });
 
 describe("AMEC System authorization closure", () => {
-  it("maps only the four supported application roles", () => {
+  it("keeps business personas separate from the System Admin access class", () => {
     expect(personaForRole("OWNER_SPONSOR")).toBe("OWNER");
     expect(personaForRole("PROCESS_CHAMPION")).toBe("BUSINESS_DEVELOPMENT");
     expect(personaForRole("RESPONSIBLE_ENGINEER")).toBe("ENGINEERING");
-    expect(personaForRole("SYSTEM_ADMIN")).toBe("SYSTEM_ADMIN_TECHNICAL");
+    expect(personaForRole("SYSTEM_ADMIN")).toBeNull();
     expect(personaForRole("REQUIREMENT_STEWARD")).toBeNull();
     expect(personaForRole("garbage")).toBeNull();
     expect(isSupportedShellRole("garbage")).toBe(false);

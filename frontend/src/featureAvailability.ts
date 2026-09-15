@@ -1,5 +1,7 @@
 export type DemoRole = "SYSTEM_ADMIN" | "OWNER_SPONSOR" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER";
-export type Persona = "OWNER" | "BUSINESS_DEVELOPMENT" | "ENGINEERING" | "SYSTEM_ADMIN_TECHNICAL";
+/** Business personas are deliberately limited to the three operating roles. */
+export type Persona = "OWNER" | "BUSINESS_DEVELOPMENT" | "ENGINEERING";
+export type AccessClass = "SYSTEM_ADMIN";
 
 import { isAllowedPublicRoute } from "./domainOwnershipRoutes";
 
@@ -46,18 +48,21 @@ const shared = new Set<FeatureKey>([
 ]);
 const personaCapabilities: Record<Persona, Set<FeatureKey>> = {
   OWNER: new Set(shared), BUSINESS_DEVELOPMENT: new Set(shared), ENGINEERING: new Set(shared),
-  SYSTEM_ADMIN_TECHNICAL: new Set([...shared, "admin"]),
 };
 
 export function personaForRole(role: string): Persona | null {
   if (role === "OWNER_SPONSOR") return "OWNER";
   if (role === "PROCESS_CHAMPION" || role === "COMMERCIAL_APPROVER") return "BUSINESS_DEVELOPMENT";
   if (role === "RESPONSIBLE_ENGINEER") return "ENGINEERING";
-  if (role === "SYSTEM_ADMIN") return "SYSTEM_ADMIN_TECHNICAL";
   return null;
 }
 export function isSupportedShellRole(role: string): boolean { return ["OWNER_SPONSOR", "PROCESS_CHAMPION", "COMMERCIAL_APPROVER", "RESPONSIBLE_ENGINEER", "SYSTEM_ADMIN"].includes(role); }
-export function featureVisible(feature: FeatureKey, role: string): boolean { const persona = personaForRole(role); return Boolean(featureAvailability[feature] && persona && personaCapabilities[persona].has(feature)); }
+export function featureVisible(feature: FeatureKey, role: string): boolean {
+  if (!featureAvailability[feature]) return false;
+  if (role === "SYSTEM_ADMIN") return feature === "admin";
+  const persona = personaForRole(role);
+  return Boolean(persona && personaCapabilities[persona].has(feature));
+}
 export function getPrimaryNavigation(role: string): PrimaryNavigationItem[] { return primaryNavigation.filter((item) => !item.feature || featureVisible(item.feature, role)); }
 
 const historicalOrDeferredPatterns: RegExp[] = [

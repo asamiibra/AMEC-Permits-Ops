@@ -23,9 +23,9 @@ const legacyRoleMap: Record<string, DemoRole> = {
 };
 
 export function readDemoRole(): DemoRole {
-  if (typeof window === "undefined") return "SYSTEM_ADMIN";
+  if (typeof window === "undefined") return "OWNER_SPONSOR";
   const stored = sessionStorage.getItem("proposalops-role") || sessionStorage.getItem("permitops-role");
-  return legacyRoleMap[stored || ""] || "SYSTEM_ADMIN";
+  return legacyRoleMap[stored || ""] || "OWNER_SPONSOR";
 }
 
 export function visibleRebrandText(value: string): string {
@@ -79,8 +79,8 @@ function rewritePersonaSelector() {
   const selectors = Array.from(document.querySelectorAll<HTMLSelectElement>("select"));
   const selector = selectors.find((item) => item.getAttribute("aria-label") === "Role" || Array.from(item.options).some((option) => option.value === "PERMIT_PREPARER"));
   if (!selector) return;
-  selector.setAttribute("aria-label", "Persona");
-  const selected = legacyRoleMap[selector.value] || "SYSTEM_ADMIN";
+  selector.setAttribute("aria-label", "Demo role");
+  const selected = legacyRoleMap[selector.value] || "OWNER_SPONSOR";
   const signature = DEMO_PERSONAS.map((persona) => persona.value).join("|");
   if (Array.from(selector.options).map((option) => option.value).join("|") !== signature) {
     selector.replaceChildren(...DEMO_PERSONAS.map((persona) => new Option(persona.label, persona.value)));
