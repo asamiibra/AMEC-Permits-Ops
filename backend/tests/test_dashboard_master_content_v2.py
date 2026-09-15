@@ -5,6 +5,7 @@ from uuid import uuid4
 import pytest
 
 from backend.app.db import SessionLocal, engine
+from backend.app.models import MasterContentModuleBinding
 from backend.app.services.master_content import create_master_content
 
 
@@ -150,6 +151,17 @@ def test_v3_reference_policy_does_not_renumber_existing_content(client):
 
 def test_v3_consumer_resolvers_are_deterministic_and_contract_is_explicit(client):
     for ref, title, module, purpose in (("F-0003", "Resolver Proposal Template", "BD", "PROPOSAL_TEMPLATE"), ("F-0004", "Resolver Proposal Checklist", "BD", "PROPOSAL_CHECKLIST"), ("CT-TEST-001", "Resolver Contract Template", "ADMIN", "CONTRACT_TEMPLATE")):
+        # This session-scoped test database contains earlier owner/demo
+        # fixtures.  Resolver determinism must be tested against one explicit
+        # active purpose binding, while preserving the resolver's production
+        # fail-closed behavior for real ambiguity.
+        with SessionLocal() as db:
+            db.query(MasterContentModuleBinding).filter(
+                MasterContentModuleBinding.module == module,
+                MasterContentModuleBinding.usage_type == purpose,
+                MasterContentModuleBinding.active.is_(True),
+            ).update({"active": False}, synchronize_session=False)
+            db.commit()
         rows = client.get("/api/master-content", params={"q": ref}, headers={"X-Dev-Role": "SYSTEM_ADMIN"}).json()
         item = next((row for row in rows if row["ref"] == ref), None)
         if not item:

@@ -1820,7 +1820,10 @@ def record_payment(payload: dict[str, Any], request: Request, db: Session = Depe
     key = str(payload.get("idempotency_key") or "").strip()
     if not key: raise HTTPException(422, {"code": "PAYMENT_IDEMPOTENCY_KEY_REQUIRED"})
     existing = db.scalar(select(PaymentReceipt).where(PaymentReceipt.idempotency_key == key))
-    if existing: return _row(existing)
+    if existing:
+        response = _row(existing)
+        response["credit"] = _payment_credit(db, existing)
+        return response
     item = PaymentReceipt(client_account_id=client_id, contract_id=contract.id, project_id=payment_project_id, received_date=_date(payload.get("received_date") or date.today().isoformat(), field="received_date"), amount=amount, currency=currency, reference=str(payload.get("reference") or "").strip(), payment_method=str(payload.get("payment_method") or "").strip().upper() or None, evidence_document_version_id=evidence_id, evidence_reference=str(payload.get("evidence_reference") or "").strip() or None, receipt_voucher_document_version_id=voucher_id, receipt_voucher_evidence_reference=str(payload.get("receipt_voucher_evidence_reference") or "").strip() or None, custodian_context_json=payload.get("custodian_context_json") or None, verification_status="OBSERVED", recorded_by=_actor(request, payload), notes=payload.get("notes"), idempotency_key=key)
     if not item.reference: raise HTTPException(422, {"code": "PAYMENT_REFERENCE_REQUIRED"})
     db.add(item); db.flush(); _audit(db, request, "PAYMENT_RECEIPT_RECORDED", "PaymentReceipt", item.id, _actor(request, payload), {"contract_id": contract.id, "project_id": payment_project_id, "amount": str(amount), "currency": currency, "verification_status": item.verification_status}); db.commit(); response = _row(item); response["credit"] = _payment_credit(db, item); return response
