@@ -44,5 +44,5 @@
       "path": "/api/projects/{project_id}/engineering/drawing-review/{review_id}/ai-comments/{artifact_id}/download"
     }
   ],
-  "executable_head": "3558eee9f7be87edf307f440fb1426c92f203f26"
+  "executable_head": "701cf1e3dc3b1aa6b8874e419da582cadc671ac4"
 }

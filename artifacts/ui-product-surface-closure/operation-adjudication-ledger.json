@@ -1,13 +1,7 @@
 {
-  "BACKEND_UI_CONTRACT_TREE": "8ff31c81ae17e32ccd1057086483705a029078ca",
-  "CLOSURE_TOOLING_TREE": "ab18a2c62dfdbe8297049ede5a5ebc8ea65516fe",
-  "FINAL_UI_EXECUTABLE_HEAD": "701cf1e3dc3b1aa6b8874e419da582cadc671ac4",
-  "FINAL_UI_EXECUTABLE_TREE": "98a6688f6d9fb7c3677f679d4c542a472f98bba7",
-  "FRONTEND_SOURCE_TREE": "5eb30e82122c3f4deb5c1559c22dd48971bcab26",
-  "FRONTEND_TEST_TREE": "8dc5aa3721fcafe7606d3c55788c08d9df774339",
-  "UI_FINAL_EVIDENCE_HEAD": "85cb2aacb15f237f79f62a99b346864d209811a0",
-  "UI_FINAL_EVIDENCE_TREE": "ab18a2c62dfdbe8297049ede5a5ebc8ea65516fe",
-  "analysis_state_counts": {
+  "UI_ADJUDICATION_PENDING_COUNT": 939,
+  "UI_CONFIRMED_BLOCKING_GAP_COUNT": 0,
+  "classification_state_counts": {
     "ADJUDICATION_PENDING": 939,
     "ADMIN_CAPABILITY_UI": 0,
     "AI_HANDOFF_INTEGRATION_BRANCH": 5,
@@ -19,18 +13,7 @@
     "SURFACED_DIRECT": 0,
     "SURFACED_INDIRECT_WORKFLOW": 0
   },
-  "classification_counts": {
-    "DEFERRED_AI": 9,
-    "INTERNAL_ONLY": 3,
-    "LATER_PRODUCTION_GATE": 4,
-    "SYSTEM_ONLY": 59,
-    "UI_SUPPORT_API": 366,
-    "USER_SURFACE_REQUIRED": 517
-  },
-  "document": "AMEC ProposalOps UI product-surface backend census",
-  "executable_head": "701cf1e3dc3b1aa6b8874e419da582cadc671ac4",
-  "executable_tree": "98a6688f6d9fb7c3677f679d4c542a472f98bba7",
-  "generated_by": "scripts/ui_product_surface_closure.py + backend/scripts/ui_surface_census.py",
+  "document": "AMEC exact backend operation adjudication ledger",
   "operation_count": 958,
   "operations": [
     {
@@ -66160,20 +66143,5 @@
       "workflow": null,
       "workflow_id": null
     }
-  ],
-  "semantic_adjudication": "NOT_TERMINAL",
-  "source": "backend.app.main:app after router inclusion",
-  "terminal_classification_counts": {
-    "ADJUDICATION_PENDING": 939,
-    "ADMIN_CAPABILITY_UI": 0,
-    "AI_HANDOFF_INTEGRATION_BRANCH": 5,
-    "AUTOMATION_OR_SYSTEM_ONLY": 14,
-    "BACKEND_ONLY_INTERNAL": 0,
-    "BLOCKING_UI_GAP": 0,
-    "DERIVED_UI_SUPPORT": 0,
-    "LATER_PRODUCTION_GATE": 0,
-    "SURFACED_DIRECT": 0,
-    "SURFACED_INDIRECT_WORKFLOW": 0
-  },
-  "unclassified_count": 0
+  ]
 }

@@ -1,0 +1,7 @@
+{
+  "UI_COLD_REVIEW_BLOCKING_DEFECT_COUNT": null,
+  "UI_INDEPENDENT_COLD_REVIEW": "NOT_PROVEN",
+  "unresolved_findings": [
+    "Independent functional reviewer/process has not completed the exact final executable and pending ledger review."
+  ]
+}

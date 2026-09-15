@@ -1,8 +1,8 @@
 # AMEC ProposalOps UI Product-Surface Closure
 
-This evidence run is bound to executable head `3558eee9f7be87edf307f440fb1426c92f203f26` and tree `ff6a07a970dc520ed91878c366c845ce77131f17`.
+This evidence run is bound to executable head `701cf1e3dc3b1aa6b8874e419da582cadc671ac4` and tree `98a6688f6d9fb7c3677f679d4c542a472f98bba7`.
 
-The executable census reports 958 operations. The corrected adjudicator is fail-closed: 939 operations remain `BLOCKING_UI_GAP` because they lack exact row-level control, request trace, authoritative readback, state coverage, rationale, and named browser evidence. The discovery-only scan still records `376` apparent unmapped user rows and `235` apparent unused support rows; those counts are provenance, not terminal closure metrics.
+The executable census reports 958 operations. The corrected adjudicator is fail-closed: 939 operations remain `ADJUDICATION_PENDING`; none are counted as confirmed UI gaps until row-level semantic review proves human intent, scope, workflow ownership, missing exposure, and evidence requirements. Confirmed `BLOCKING_UI_GAP` count is 0. The discovery-only scan still records `376` apparent unmapped user rows and `235` apparent unused support rows; those counts are provenance, not terminal closure metrics.
 
 The semantic ledger no longer uses URL prefixes, HTTP verbs, or frontend string references as terminal evidence. It deliberately does not create endpoint-per-screen UI.
 

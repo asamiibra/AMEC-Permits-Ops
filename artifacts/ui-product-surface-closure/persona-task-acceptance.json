@@ -1,0 +1,9 @@
+{
+  "UI_PERSONA_TASK_ACCEPTANCE": "NOT_PROVEN",
+  "note": "Route and capability inventory is not substituted for trace-backed persona task acceptance.",
+  "personas": [
+    "OWNER",
+    "BUSINESS_DEVELOPMENT",
+    "ENGINEERING"
+  ]
+}

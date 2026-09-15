@@ -1,37 +1,8 @@
 {
-  "analysis_state_counts": {
-    "ADJUDICATION_PENDING": 939,
-    "ADMIN_CAPABILITY_UI": 0,
-    "AI_HANDOFF_INTEGRATION_BRANCH": 5,
-    "AUTOMATION_OR_SYSTEM_ONLY": 14,
-    "BACKEND_ONLY_INTERNAL": 0,
-    "BLOCKING_UI_GAP": 0,
-    "DERIVED_UI_SUPPORT": 0,
-    "LATER_PRODUCTION_GATE": 0,
-    "SURFACED_DIRECT": 0,
-    "SURFACED_INDIRECT_WORKFLOW": 0
-  },
-  "discovery_is_not_terminal_evidence": true,
-  "document": "AMEC semantic backend capability to UI workflow adjudication",
-  "executable_head": "701cf1e3dc3b1aa6b8874e419da582cadc671ac4",
-  "executable_tree": "98a6688f6d9fb7c3677f679d4c542a472f98bba7",
-  "note": "Canonical workflow descriptions remain product context only; terminal classification requires an exact operation review record and never creates endpoint-per-screen UI.",
-  "prior_heuristic_semantic_adjudication": "SUPERSEDED_AS_TERMINAL_EVIDENCE",
-  "status": "NOT_TERMINAL",
-  "terminal_blocking_gap_count": 0,
-  "terminal_classes": [
-    "SURFACED_DIRECT",
-    "SURFACED_INDIRECT_WORKFLOW",
-    "DERIVED_UI_SUPPORT",
-    "BACKEND_ONLY_INTERNAL",
-    "AUTOMATION_OR_SYSTEM_ONLY",
-    "ADMIN_CAPABILITY_UI",
-    "LATER_PRODUCTION_GATE",
-    "AI_HANDOFF_INTEGRATION_BRANCH",
-    "BLOCKING_UI_GAP"
-  ],
-  "terminal_unjustified_count": 0,
-  "terminal_unknown_count": 0,
+  "UI_EXECUTABLE_HEAD": "701cf1e3dc3b1aa6b8874e419da582cadc671ac4",
+  "UI_EXECUTABLE_TREE": "98a6688f6d9fb7c3677f679d4c542a472f98bba7",
+  "UI_REQUIRED_WORKFLOW_CONNECTIVITY": "NOT_PROVEN",
+  "document": "AMEC workflow coverage acceptance",
   "workflows": {
     "administration": {
       "control": "frontend/src/AdministrationOwner.tsx system-administration sections; business registers remain in owning workspaces.",
