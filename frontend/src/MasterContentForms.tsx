@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { api } from "./api";
+import { api, userFacingError } from "./api";
 import { readCanonicalForm, readCanonicalForms } from "./contentLibraryApi";
 import {
   ContentType,
@@ -429,7 +429,7 @@ function ContentLibraryIntelligencePanel({ item }: { item: CanonicalForm }) {
         headers: { "Idempotency-Key": crypto.randomUUID() },
       }));
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Content Library intelligence is unavailable.");
+      setError(userFacingError(cause, "Content Library intelligence is unavailable."));
     } finally { setBusy(null); }
   };
   return <section className="form-governance-section content-library-intelligence" aria-label="Content Library Intelligence">
