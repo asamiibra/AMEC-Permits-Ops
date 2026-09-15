@@ -260,43 +260,6 @@ class ProposalIntelligenceReviewBinding(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow, nullable=False)
 
 
-class ProposalIntelligenceReviewBinding(Base):
-    """Proposal-owned pin for a canonical WorkflowTask review item.
-
-    This is a binding record, not a queue or a second task lifecycle.  The
-    task remains the canonical work item; this row preserves the exact
-    immutable subject/currentness identity needed by Proposal review.
-    """
-
-    __tablename__ = "proposal_intelligence_review_bindings"
-    __table_args__ = (
-        UniqueConstraint("workflow_task_id", name="uq_proposal_intelligence_review_task"),
-        UniqueConstraint("idempotency_key", name="uq_proposal_intelligence_review_idempotency"),
-        Index("ix_proposal_intelligence_review_proposal", "proposal_id", "actionable"),
-    )
-
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
-    workflow_task_id: Mapped[str] = mapped_column(ForeignKey("workflow_tasks.id"), nullable=False, index=True)
-    proposal_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id"), nullable=False, index=True)
-    review_subject_type: Mapped[str] = mapped_column(String(80), nullable=False)
-    review_subject_id: Mapped[str] = mapped_column(String(160), nullable=False)
-    candidate_assertion_id: Mapped[str | None] = mapped_column(ForeignKey("candidate_assertions.id"), index=True)
-    work_product_id: Mapped[str | None] = mapped_column(ForeignKey("ai_work_products.id"), index=True)
-    context_snapshot_id: Mapped[str | None] = mapped_column(ForeignKey("context_snapshots.id"), index=True)
-    dependency_type: Mapped[str] = mapped_column(String(80), nullable=False)
-    dependency_id: Mapped[str] = mapped_column(String(200), nullable=False)
-    dependency_version_or_hash: Mapped[str] = mapped_column(String(200), nullable=False)
-    required_persona: Mapped[str] = mapped_column(String(80), nullable=False)
-    required_capability: Mapped[str] = mapped_column(String(160), nullable=False)
-    correlation_id: Mapped[str] = mapped_column(String(100), nullable=False)
-    idempotency_key: Mapped[str] = mapped_column(String(200), nullable=False)
-    precondition_version: Mapped[str] = mapped_column(String(200), nullable=False)
-    actionable: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, index=True)
-    stale_reason: Mapped[str | None] = mapped_column(String(160))
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow, nullable=False)
-
-
 class ProposalRevision(Base):
     """Explicit mutable working revision created from an accepted revision."""
 
