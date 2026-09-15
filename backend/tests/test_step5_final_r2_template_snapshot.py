@@ -102,10 +102,16 @@ def _retire_step5_legacy_proposal_probes(client):
             # archiving it.  Its immutable SOR artifact remains reusable; do
             # not recreate the same ref with different bytes and trip the SOR
             # version immutability guard.
+            legacy_ref = "F-0003" if usage == "PROPOSAL_TEMPLATE" else "F-0004"
             active_items = [
                 current
                 for current in db.scalars(select(MasterContentItem).where(MasterContentItem.content_type == "FORM")).all()
-                if current.ref == ref or current.ref.startswith(f"ARCHIVED-{ref}-")
+                if (
+                    current.ref == ref
+                    or current.ref.startswith(f"ARCHIVED-{ref}-")
+                    or current.ref == legacy_ref
+                    or current.ref.startswith(f"ARCHIVED-{legacy_ref}-")
+                )
             ]
             valid_items = []
             for current in active_items:
@@ -115,6 +121,11 @@ def _retire_step5_legacy_proposal_probes(client):
                 if valid:
                     valid_items.append(current)
             keep = valid_items[0] if valid_items else None
+            for current in active_items:
+                if current is keep:
+                    continue
+                current.ref = f"STEP5-RETIRED-{current.id[:24]}"
+            db.flush()
             for current in active_items:
                 if current is keep:
                     continue
