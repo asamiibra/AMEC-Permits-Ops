@@ -9,7 +9,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import null, or_, select, update
+from sqlalchemy import and_, null, or_, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -290,6 +290,12 @@ def _acquire_reconciliation_lease(
         # This matters on SQLite, whose deferred snapshot can otherwise retain
         # the pre-race lease row while the write lock is being acquired.
         db.commit()
+        if db.bind.dialect.name == "sqlite":
+            # SQLite's default deferred transaction allows two contenders to
+            # establish a read snapshot before either writes.  Begin the
+            # compare-and-set transaction as an immediate writer so the
+            # singleton lease is serialized across independent sessions.
+            db.connection().exec_driver_sql("BEGIN IMMEDIATE")
         result = db.execute(
             update(ContractReconciliationSchedulerState)
             .where(
@@ -299,6 +305,24 @@ def _acquire_reconciliation_lease(
                     ContractReconciliationSchedulerState.lease_owner == null(),
                     ContractReconciliationSchedulerState.lease_expires_at == null(),
                     ContractReconciliationSchedulerState.lease_expires_at <= now,
+                ),
+                # A contender may have entered this function before the
+                # current lease holder finished, then reach the UPDATE after
+                # that holder releases the lease.  The release timestamp
+                # makes that stale contender lose the compare-and-set rather
+                # than immediately wrapping and replaying the same page.
+                or_(
+                    # A newly initialized scheduler row receives its
+                    # database default timestamp after the caller captured
+                    # ``now``.  It is safe to admit that first acquisition;
+                    # no page has been processed yet and therefore there is
+                    # no stale cursor that could be replayed.
+                    and_(
+                        ContractReconciliationSchedulerState.last_contract_id
+                        == null(),
+                        ContractReconciliationSchedulerState.cycle_number == 0,
+                    ),
+                    ContractReconciliationSchedulerState.updated_at <= now,
                 ),
             )
             .values(
