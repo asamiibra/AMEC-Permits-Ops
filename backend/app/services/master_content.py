@@ -412,7 +412,7 @@ def canonical_master_content_candidates(
             continue
         if not version.source_path_or_reference or version.source_path_or_reference == "PENDING":
             continue
-        if get_settings().storage_provider.lower() == "azure_blob" and not version.source_path_or_reference.startswith("storage://"):
+        if getattr(get_settings(), "storage_provider", "").lower() == "azure_blob" and not version.source_path_or_reference.startswith("storage://"):
             # PROD canonical consumers may only resolve bytes that were
             # published through the managed artifact store. Legacy synthetic
             # paths remain auditable but are not eligible inputs.

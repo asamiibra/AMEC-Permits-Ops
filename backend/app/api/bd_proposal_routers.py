@@ -12,7 +12,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, File, Form, Header, HTTPException, Request, UploadFile
 from fastapi.responses import Response, StreamingResponse
 from pydantic import BaseModel, Field
-from sqlalchemy import select
+from sqlalchemy import select, true
 from sqlalchemy.orm import Session
 
 from ..api.dependencies import authenticated_actor, authenticated_principal_context, current_user_role
@@ -250,6 +250,39 @@ def create_proposal(payload: ProposalCreate, request: Request, db: Session = Dep
 def proposal_master_content(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "BD_PROPOSAL_READ")
     return {"proposal_template": master_content_purpose(db, "PROPOSAL_TEMPLATE"), "proposal_checklist": master_content_purpose(db, "PROPOSAL_CHECKLIST"), "definitions": {"lookup": "/api/definitions/lookup/{term}", "truth": "DASHBOARD_DEFINITIONS"}}
+
+
+@router.get("/lookups")
+def proposal_governed_lookups(proposal_id: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    """Bounded business-record selectors for the Proposal workspace.
+
+    This is a read-only adapter over canonical Client, Contact, Party and
+    DocumentVersion records. It deliberately returns display labels plus the
+    governed ids required by existing write contracts; it does not create a
+    second source of truth.
+    """
+    require_capability(role, "BD_PROPOSAL_READ")
+    proposal = _proposal_or_404(proposal_id, db) if proposal_id else None
+    client_id = proposal.client_account_id if proposal else None
+    clients = db.scalars(select(ClientAccount).where(ClientAccount.status == "ACTIVE").order_by(ClientAccount.display_name)).all()
+    contacts_query = select(ClientContact).where(ClientContact.status == "ACTIVE").order_by(ClientContact.name)
+    if client_id:
+        contacts_query = contacts_query.where(ClientContact.client_account_id == client_id)
+    contacts = db.scalars(contacts_query).all()
+    parties = db.scalars(select(Party).where(Party.status == "CURRENT").order_by(Party.name_en, Party.name_ar)).all()
+    evidence: list[dict[str, Any]] = []
+    if proposal:
+        links = db.scalars(select(ProposalSourceLink).where(ProposalSourceLink.proposal_id == proposal.id, ProposalSourceLink.active == true()).order_by(ProposalSourceLink.created_at)).all()
+        for link in links:
+            version = db.get(DocumentVersion, link.document_version_id)
+            if version:
+                evidence.append({"value": version.id, "label": f"{version.source_filename} · v{version.version_number}", "source_role": link.source_role, "content_hash": version.sha256})
+    return {
+        "clients": [{"value": item.id, "label": f"{item.display_name} · {item.client_reference}"} for item in clients],
+        "contacts": [{"value": item.id, "label": f"{item.name} · {item.role_title or 'Client contact'}", "email": item.email, "phone": item.phone} for item in contacts],
+        "parties": [{"value": item.id, "label": item.name_en or item.name_ar or "Unnamed party", "party_type": item.party_type} for item in parties],
+        "evidence": evidence,
+    }
 
 
 @router.get("/{proposal_id}/configuration")
