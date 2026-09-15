@@ -2,7 +2,7 @@
   "blocking_findings": [
     "Independent reviewer sign-off is not present for persona task completion, full state/error/conflict coverage, or visual system consistency."
   ],
-  "executable_head": "701cf1e3dc3b1aa6b8874e419da582cadc671ac4",
+  "executable_head": "3558eee9f7be87edf307f440fb1426c92f203f26",
   "review_scope": [
     "surface",
     "authz",

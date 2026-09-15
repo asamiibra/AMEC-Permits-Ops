@@ -1,9 +1,10 @@
 {
   "discovery_is_not_terminal_evidence": true,
   "document": "AMEC semantic backend capability to UI workflow adjudication",
-  "executable_head": "701cf1e3dc3b1aa6b8874e419da582cadc671ac4",
-  "executable_tree": "98a6688f6d9fb7c3677f679d4c542a472f98bba7",
+  "executable_head": "3558eee9f7be87edf307f440fb1426c92f203f26",
+  "executable_tree": "ff6a07a970dc520ed91878c366c845ce77131f17",
   "note": "Canonical workflow descriptions remain product context only; terminal classification requires an exact operation review record and never creates endpoint-per-screen UI.",
+  "prior_heuristic_semantic_adjudication": "SUPERSEDED_AS_TERMINAL_EVIDENCE",
   "status": "FAIL",
   "terminal_blocking_gap_count": 939,
   "terminal_classes": [
