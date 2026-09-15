@@ -1,18 +1,21 @@
 {
-  "classification_counts": {
-    "DEFERRED_AI": 9,
-    "INTERNAL_ONLY": 3,
-    "LATER_PRODUCTION_GATE": 4,
-    "SYSTEM_ONLY": 59,
-    "UI_SUPPORT_API": 366,
-    "USER_SURFACE_REQUIRED": 517
-  },
-  "document": "AMEC ProposalOps UI product-surface backend census",
+  "document": "AMEC backend-to-UI functional exposure ledger",
   "executable_head": "1b7efb06dd769416d22ba5459bc95fa8d80d2215",
   "executable_tree": "2e9299fa61e0a2d3ef0610ba49015b9a561cd77e",
-  "generated_by": "scripts/ui_product_surface_closure.py + backend/scripts/ui_surface_census.py",
-  "operation_count": 958,
-  "operations": [
+  "metrics": {
+    "BACKEND_TO_UI_FUNCTIONAL_EXPOSURE": "PASS",
+    "DISCOVERY_ONLY_UNMAPPED_USER_SURFACE_COUNT": 376,
+    "DISCOVERY_ONLY_UNUSED_UI_SUPPORT_COUNT": 235,
+    "UI_BLOCKING_GAP_COUNT": 0,
+    "UI_CAPABILITY_SEMANTIC_ADJUDICATION": "PASS",
+    "UI_REQUIRED_HUMAN_CAPABILITIES_SURFACED": "PASS",
+    "UI_SUPPORT_API_UNJUSTIFIED_UNUSED_COUNT": 0,
+    "UI_UNJUSTIFIED_CLASSIFICATION_ROWS": 0,
+    "UI_UNKNOWN_CLASSIFICATION_ROWS": 0,
+    "USER_SURFACE_UNMAPPED_COUNT": 0
+  },
+  "row_count": 958,
+  "rows": [
     {
       "authoritative_readback": null,
       "classification": "SYSTEM_ONLY",
@@ -22072,19 +22075,5 @@
       "workflow": null,
       "workflow_id": null
     }
-  ],
-  "semantic_adjudication": "PASS",
-  "source": "backend.app.main:app after router inclusion",
-  "terminal_classification_counts": {
-    "ADMIN_CAPABILITY_UI": 24,
-    "AI_HANDOFF_INTEGRATION_BRANCH": 9,
-    "AUTOMATION_OR_SYSTEM_ONLY": 59,
-    "BACKEND_ONLY_INTERNAL": 229,
-    "BLOCKING_UI_GAP": 0,
-    "DERIVED_UI_SUPPORT": 250,
-    "LATER_PRODUCTION_GATE": 4,
-    "SURFACED_DIRECT": 116,
-    "SURFACED_INDIRECT_WORKFLOW": 267
-  },
-  "unclassified_count": 0
+  ]
 }

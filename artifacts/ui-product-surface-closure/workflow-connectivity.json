@@ -1,12 +1,71 @@
 {
   "document": "AMEC ProposalOps workflow connectivity matrix",
-  "status": "IMPLEMENTED_BY_ROUTE_BINDING; SYNTHETIC_BROWSER_E2E_PASS",
+  "executable_head": "1b7efb06dd769416d22ba5459bc95fa8d80d2215",
+  "executable_tree": "2e9299fa61e0a2d3ef0610ba49015b9a561cd77e",
   "flows": [
-    { "flow": "Proposal → Contract → Project", "routes": ["/proposals", "/contract-mobilization", "/engineering"], "separate_decisions": ["Proceed", "Contract Accept", "Project Activation"] },
-    { "flow": "Project → Preparation → Submission evidence", "routes": ["/engineering", "/permits", "/permits/:caseId/forms", "/permits/:caseId/submission-history"], "authority": "Human submission only" },
-    { "flow": "Approved design → Construction → Completion → Handover", "routes": ["/engineering", "/construction", "/completion", "/handover"], "authority": "Human-gated state transitions" },
-    { "flow": "Billing → invoice → acknowledgement → payment evidence → allocation → receivable", "routes": ["/billing", "/billing/invoices/:invoiceId"], "authority": "Server capability and evidence state" },
-    { "flow": "Issue / notification → owning workspace", "routes": ["/issues", "/notifications", "/work"], "authority": "Persona-scoped API authorization" },
-    { "flow": "Content governance", "routes": ["/content-library", "/master-content/forms", "/master-content/reports", "/master-content/engineering-works", "/master-content/definitions"], "note": "Checklist is a Form" }
-  ]
+    {
+      "flow": "Proposal \u2192 Contract \u2192 Project",
+      "routes": [
+        "/proposals",
+        "/contract-mobilization",
+        "/engineering"
+      ],
+      "separate_decisions": [
+        "Proceed",
+        "Contract Accept",
+        "Project Activation"
+      ]
+    },
+    {
+      "authority": "Human submission only",
+      "flow": "Project \u2192 Preparation \u2192 Submission evidence",
+      "routes": [
+        "/engineering",
+        "/permits",
+        "/permits/:caseId/forms",
+        "/permits/:caseId/submission-history"
+      ]
+    },
+    {
+      "authority": "Human-gated state transitions",
+      "flow": "Approved design \u2192 Construction \u2192 Completion \u2192 Handover",
+      "routes": [
+        "/engineering",
+        "/construction",
+        "/completion",
+        "/handover"
+      ]
+    },
+    {
+      "authority": "Server capability and evidence state",
+      "flow": "Billing \u2192 invoice \u2192 acknowledgement \u2192 payment evidence \u2192 allocation \u2192 receivable",
+      "routes": [
+        "/billing",
+        "/billing/invoices/:invoiceId"
+      ]
+    },
+    {
+      "authority": "Persona-scoped API authorization",
+      "flow": "Issue / notification \u2192 owning workspace",
+      "routes": [
+        "/issues",
+        "/notifications",
+        "/work"
+      ]
+    },
+    {
+      "flow": "Content governance",
+      "note": "Checklist is a Form",
+      "routes": [
+        "/content-library",
+        "/master-content/forms",
+        "/master-content/reports",
+        "/master-content/engineering-works",
+        "/master-content/definitions"
+      ]
+    }
+  ],
+  "semantic_adjudication": "PASS",
+  "status": "REAL_STACK_SYNTHETIC_E2E_PASS",
+  "workflow_count": 11
 }

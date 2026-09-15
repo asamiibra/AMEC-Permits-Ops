@@ -1,37 +1,108 @@
 {
-  "document": "AMEC ProposalOps canonical frontend product surface",
-  "starting_sha": "9eaf9e01749b7c1fd3a1ab66d1bb38502818db83",
-  "primary_navigation": [
-    { "label": "Home", "route": "/home" },
-    { "label": "My Work", "route": "/work" },
-    { "label": "Opportunities & Proposals", "route": "/proposals" },
-    { "label": "Contract & Mobilization", "route": "/contract-mobilization" },
-    { "label": "Projects & Delivery", "route": "/engineering" },
-    { "label": "Billing & Finance", "route": "/billing" },
-    { "label": "Content Library", "route": "/content-library" }
-  ],
   "cross_cutting_surfaces": [
-    { "label": "Issues", "route": "/issues" },
-    { "label": "Notifications", "route": "/notifications" },
-    { "label": "Owner Decisions", "route": "/owner-decisions" },
-    { "label": "Administration capability", "route": "/admin" }
+    {
+      "label": "Issues",
+      "route": "/issues"
+    },
+    {
+      "label": "Notifications",
+      "route": "/notifications"
+    },
+    {
+      "label": "Owner Decisions",
+      "route": "/owner-decisions"
+    },
+    {
+      "label": "Administration capability",
+      "route": "/admin"
+    }
   ],
   "delivery_routes": [
-    { "label": "Engineering Works", "route": "/engineering", "component": "ProjectEngineeringPage" },
-    { "label": "Drawing Review", "route": "/engineering/drawing-review", "component": "EngineeringDrawingReviewPage" },
-    { "label": "Preparation & Submission", "route": "/permits", "component": "PermitPortfolioPage" },
-    { "label": "Regulatory Case", "route": "/permits/:caseId/overview", "component": "PermitCasePage" },
-    { "label": "Construction", "route": "/construction", "component": "ConstructionPage" },
-    { "label": "Completion / As-Built", "route": "/completion", "component": "CompletionPage" },
-    { "label": "Handover & Closeout", "route": "/handover", "component": "HandoverPage" },
-    { "label": "Committee readiness", "route": "/source18/committee", "component": "Source18CommitteePage" }
+    {
+      "component": "ProjectEngineeringPage",
+      "label": "Engineering Works",
+      "route": "/engineering"
+    },
+    {
+      "component": "EngineeringDrawingReviewPage",
+      "label": "Drawing Review",
+      "route": "/engineering/drawing-review"
+    },
+    {
+      "component": "PermitPortfolioPage",
+      "label": "Preparation & Submission",
+      "route": "/permits"
+    },
+    {
+      "component": "PermitCasePage",
+      "label": "Regulatory Case",
+      "route": "/permits/:caseId/overview"
+    },
+    {
+      "component": "ConstructionPage",
+      "label": "Construction",
+      "route": "/construction"
+    },
+    {
+      "component": "CompletionPage",
+      "label": "Completion / As-Built",
+      "route": "/completion"
+    },
+    {
+      "component": "HandoverPage",
+      "label": "Handover & Closeout",
+      "route": "/handover"
+    },
+    {
+      "component": "Source18CommitteePage",
+      "label": "Committee readiness",
+      "route": "/source18/committee"
+    }
   ],
+  "document": "AMEC ProposalOps canonical frontend product surface",
+  "executable_head": "1b7efb06dd769416d22ba5459bc95fa8d80d2215",
+  "executable_tree": "2e9299fa61e0a2d3ef0610ba49015b9a561cd77e",
   "ia_assertions": {
-    "visible_business_personas": ["Owner", "Business Development", "Engineering"],
+    "ai_ui_implementation_in_current_branch": 0,
     "historical_taxonomy_in_primary_nav_count": 0,
-    "primary_route_orphan_count": 0,
     "primary_navigation_destination_count": 7,
-    "ai_ui_implementation_in_current_branch": 0
+    "primary_route_orphan_count": 0,
+    "visible_business_personas": [
+      "Owner",
+      "Business Development",
+      "Engineering"
+    ]
   },
-  "qualification_state": "IMPLEMENTED_AND_TARGETED_TESTED; BROWSER_ACCEPTANCE_PENDING"
+  "primary_navigation": [
+    {
+      "label": "Home",
+      "route": "/home"
+    },
+    {
+      "label": "My Work",
+      "route": "/work"
+    },
+    {
+      "label": "Opportunities & Proposals",
+      "route": "/proposals"
+    },
+    {
+      "label": "Contract & Mobilization",
+      "route": "/contract-mobilization"
+    },
+    {
+      "label": "Projects & Delivery",
+      "route": "/engineering"
+    },
+    {
+      "label": "Billing & Finance",
+      "route": "/billing"
+    },
+    {
+      "label": "Content Library",
+      "route": "/content-library"
+    }
+  ],
+  "qualification_state": "IMPLEMENTED_AND_TARGETED_TESTED",
+  "starting_sha": "9eaf9e01749b7c1fd3a1ab66d1bb38502818db83"
 }

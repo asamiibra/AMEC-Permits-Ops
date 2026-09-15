@@ -1,11 +1,11 @@
 # AMEC ProposalOps UI Product-Surface Closure
 
-This closure run is bound to `9eaf9e01749b7c1fd3a1ab66d1bb38502818db83` and tree `52757fd5359b0e0bf71444b74fcccd2d9c980e35`.
+This evidence run is bound to executable head `1b7efb06dd769416d22ba5459bc95fa8d80d2215` and tree `2e9299fa61e0a2d3ef0610ba49015b9a561cd77e`.
 
-The frontend now uses a work-oriented shell with the three visible business personas: Owner, Business Development, and Engineering. Existing Engineering, regulatory, construction, completion, handover, issues, notifications, and Owner Decision components are reachable through canonical routes and contextual navigation. Historical Week/Phase/Source-numbered surfaces remain outside primary navigation. Deferred AI actions are not rendered in this branch.
+The executable first-pass census reports 958 operations with zero discovery-classification gaps. Semantic adjudication assigns every operation a terminal class with a reason; the discovery-only scan still records `376` apparent unmapped user rows and `235` apparent unused support rows, which are not treated as missing screens.
 
-The executable backend census reports 958 operations and zero unclassified operations. See [`backend-operation-census.json`](../../artifacts/ui-product-surface-closure/backend-operation-census.json) and the generator at [`ui_surface_census.py`](../../backend/scripts/ui_surface_census.py).
+The semantic ledger groups operations behind canonical task paths and records the persona, navigation context, authoritative read-back, available human action, and history/evidence boundary. It deliberately does not create endpoint-per-screen UI.
 
-The complete frontend suite passes serially: 27 files / 139 tests. The production frontend build passes. Synthetic Playwright acceptance passes 2/2: the canonical shell and nine delivery/cross-cutting deep links remain reachable, with no serious or critical accessibility violations. Evidence is in [`browser`](../../artifacts/ui-product-surface-closure/browser/).
+The frontend unit suite remains 27 files / 139 tests passing and the production build passes. The real-stack, responsive, accessibility, authz, persona-task, state/error/conflict, owner-UAT, and exact-head CI lanes are recorded separately and are not inferred from route existence.
 
-This is not a terminal closure claim yet. The implementation is locally proven and pushed to PR #46 at `6e3c75ba30339972e0f14db287493c42ddc36e22`; `storage-contract` passed on that head, but the repository-required `release-critical-gates` workflow did not register a run for it. No Azure, Vercel, DNS, Entra, production database, storage, or AI deployment mutation was performed. Vercel remains noncanonical and informational.
+AI/intelligence remains formally deferred to the integration branch. No merge, deployment, DNS, production-data, protected human action, or AI production mutation was performed.

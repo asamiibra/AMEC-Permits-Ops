@@ -1,0 +1,48 @@
+{
+  "AI_CANONICAL_WRITE_AUTHORITY": "ZERO",
+  "AI_DEFERRED_OPERATION_COUNT": 9,
+  "AI_INTEGRATION_HANDOFF": "PASS",
+  "AI_ORPHAN_VISIBLE_CONTROL_COUNT": 0,
+  "AI_PRODUCTION_READY": "NOT_REACHED",
+  "AI_PROTECTED_HUMAN_ACTION_AUTHORITY": false,
+  "AI_SCOPE_CURRENT_BRANCH": "FORMALLY_DEFERRED_TO_INTEGRATION_BRANCH",
+  "deferred_operations": [
+    {
+      "method": "POST",
+      "path": "/api/governed-prefill/preview"
+    },
+    {
+      "method": "POST",
+      "path": "/api/governed-prefill/apply"
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/runtime-status"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/context/manifest"
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/interactive/technical-methodology"
+    },
+    {
+      "method": "GET",
+      "path": "/api/billing/intelligence/skills"
+    },
+    {
+      "method": "POST",
+      "path": "/api/billing/intelligence/{skill_name}"
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/{project_id}/engineering/drawing-review/{review_id}/ai-comments"
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/{project_id}/engineering/drawing-review/{review_id}/ai-comments/{artifact_id}/download"
+    }
+  ],
+  "executable_head": "1b7efb06dd769416d22ba5459bc95fa8d80d2215"
+}
