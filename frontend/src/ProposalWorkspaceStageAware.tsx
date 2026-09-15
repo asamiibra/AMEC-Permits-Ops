@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "./api";
 import { Icon } from "./Icon";
+import { ProposalIntelligenceResult } from "./intelligence/ProposalIntelligenceResult";
 
 type Role = "SYSTEM_ADMIN" | "OWNER_SPONSOR" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER";
 type SourceType = "TENDER_DOCUMENT" | "TENDER_EMAIL" | "TENDER_PHOTO" | "CLIENT_DATA";
@@ -204,7 +205,8 @@ function ProposalIntelligencePanel({ role, proposal, setError, setMessage }: any
   const run = async () => {
     setBusy(true); setError("");
     try {
-      const response = await api<any>(`/api/bd/proposals/${proposal.id}/intelligence`, { method: "POST", headers: { ...headers(role), "Content-Type": "application/json" }, body: JSON.stringify({ operation, idempotency_key: `proposal-intelligence-${proposal.id}-${operation}` }) });
+      const invocationId = crypto.randomUUID();
+      const response = await api<any>(`/api/bd/proposals/${proposal.id}/intelligence`, { method: "POST", headers: { ...headers(role), "Content-Type": "application/json" }, body: JSON.stringify({ operation, idempotency_key: `proposal-intelligence:${proposal.id}:${operation}:${invocationId}` }) });
       setResult(response); setMessage("Proposal Intelligence result is ready for human review; no protected Proposal action was taken."); await loadReviews();
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Proposal Intelligence could not be run."); }
     finally { setBusy(false); }
@@ -215,12 +217,15 @@ function ProposalIntelligencePanel({ role, proposal, setError, setMessage }: any
       setMessage(`Proposal Intelligence review ${decision.toLowerCase()} recorded. Protected Proposal actions remain separate.`); await loadReviews();
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Proposal Intelligence review was rejected."); }
   };
-  const output = result?.output || (reviews.length ? reviews[reviews.length - 1]?.output : null);
+  const reviewOutput = reviews.length ? reviews[reviews.length - 1]?.output : null;
+  const output = result?.output || reviewOutput;
+  const outputOperation = result?.skill_id?.replace("proposal.", "") || reviews[reviews.length - 1]?.skill_id?.replace("proposal.", "") || operation;
+  const citations = result?.citations || reviews[reviews.length - 1]?.citations || [];
   return <section id="proposal-intelligence" className="panel bd-v2-section proposal-intelligence-panel" aria-label="Proposal Intelligence">
     <div className="panel-head"><div><span className="eyebrow">PROPOSAL · INTELLIGENCE</span><h3>Proposal Intelligence</h3></div><span className={`stage-badge ${result?.current_actionable === false ? "warning" : ""}`}>{result ? (result.current_actionable === false ? "Stale · rerun required" : "Human review required") : "Ready when an accepted revision exists"}</span></div>
     <p className="muted">Structured, source-grounded assistance stays inside this Proposal. It can explain evidence and gaps, but it cannot verify facts, Accept the Proposal, release commercially, or create a Contract handoff.</p>
     <div className="bd-inline-add"><label>Operation<select aria-label="Proposal Intelligence operation" value={operation} onChange={(event) => setOperation(event.target.value)}><option value="intake-analysis">Intake analysis</option><option value="scope-technical-analysis">Scope / technical analysis</option><option value="lpo-variance-analysis">LPO variance analysis</option><option value="readiness-explanation">Readiness explanation</option></select></label><button className="button-secondary" onClick={() => void run()} disabled={busy || !proposal.current_revision}>{busy ? "Running…" : "Run Proposal Intelligence"}</button>{!proposal.current_revision && <small className="muted">Available after a human accepted Proposal revision.</small>}</div>
-    {output && <div className="proposal-intelligence-result" aria-live="polite"><b>{output.summary || output.explanation}</b>{output.missing_information?.length > 0 && <div><strong>Missing information</strong><span>{output.missing_information.join(" · ")}</span></div>}{output.contradictions?.length > 0 && <div><strong>Contradictions</strong><span>{output.contradictions.join(" · ")}</span></div>}{output.assumptions?.length > 0 && <div><strong>Assumptions</strong><span>{output.assumptions.join(" · ")}</span></div>}{output.differences?.length > 0 && <div><strong>Typed differences</strong><span>{output.differences.map((item: any) => `${item.field || "field"}: ${item.proposal_value || "—"} → ${item.lpo_value || "—"}`).join(" · ")}</span></div>}<small>Citations: {(output.citation_keys || []).join(", ") || "none"} · human review required · canonical state unchanged</small></div>}
+    {output && <ProposalIntelligenceResult operation={outputOperation} output={output} citations={citations} />}
     {loaded && reviews.length > 0 && <div className="bd-list-panel"><strong>Proposal-owned review work</strong>{reviews.map((item: any) => <div className="bd-inline-add" key={item.binding_id}><span>{item.skill_id || "Proposal result"} · {item.work_product_state || "UNKNOWN"} · {item.actionable ? "Actionable" : "Rerun required"}</span>{item.actionable && <><button className="text-button" onClick={() => void review(item, "ACCEPT")}>Accept review</button><button className="text-button" onClick={() => void review(item, "CORRECT")}>Correct</button><button className="text-button" onClick={() => void review(item, "REJECT")}>Reject</button><button className="text-button" onClick={() => void review(item, "DEFER")}>Defer</button><button className="text-button" onClick={() => void review(item, "ESCALATE")}>Escalate</button></>}</div>)}</div>}
   </section>;
 }
