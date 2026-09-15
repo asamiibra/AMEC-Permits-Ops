@@ -30,6 +30,7 @@ def test_active_graph_and_legacy_archive_are_exact():
         "source18_regulatory_current_state_v1.py",
         "step5_content_library_azure_sql_v2.py",
         "proposal_production_hardening_v1.py",
+        "proposal_hardening_schema_repair_v2.py",
         "intelligence_v1_shared_contracts.py",
         "p07_intelligence_foundation_closure.py",
         "p08_proposal_intelligence.py",

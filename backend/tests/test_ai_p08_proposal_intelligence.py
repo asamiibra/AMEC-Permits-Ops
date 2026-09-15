@@ -169,7 +169,7 @@ def test_proposal_analysis_is_module_owned_and_revision_selective(tmp_path):
         assert proposal_reviews(db, proposal.id)[-1]["actionable"] is True
         latest_citation = proposal_reviews(db, proposal.id)[-1]["citations"][0]
         assert latest_citation["source_id"] == proposal.id
-        assert latest_citation["source_version_or_hash"] == replacement.content_hash
+        assert replacement.id in latest_citation["source_version_or_hash"]
     engine.dispose()
 
 

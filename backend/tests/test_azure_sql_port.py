@@ -176,6 +176,7 @@ def test_active_migration_is_one_azure_sql_root_and_fails_closed_on_downgrade():
         "source18_regulatory_current_state_v1.py",
         "step5_content_library_azure_sql_v2.py",
         "proposal_production_hardening_v1.py",
+        "proposal_hardening_schema_repair_v2.py",
         "intelligence_v1_shared_contracts.py",
         "p07_intelligence_foundation_closure.py",
         "p08_proposal_intelligence.py",
