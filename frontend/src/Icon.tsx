@@ -19,6 +19,9 @@ import {
   Landmark,
   Library,
   ListTodo,
+  FileText,
+  Image,
+  Mail,
   Menu,
   Minus,
   Plus,
@@ -71,7 +74,10 @@ export type IconName =
   | "sparkles"
   | "users"
   | "current"
-  | "menu";
+  | "menu"
+  | "mail"
+  | "document"
+  | "image";
 
 const iconComponents: Record<IconName, LucideIcon> = {
   dashboard: House,
@@ -108,6 +114,9 @@ const iconComponents: Record<IconName, LucideIcon> = {
   users: UsersRound,
   current: Circle,
   menu: Menu,
+  mail: Mail,
+  document: FileText,
+  image: Image,
 };
 
 export function Icon({

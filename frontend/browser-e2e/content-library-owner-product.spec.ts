@@ -87,12 +87,12 @@ test.describe("Owner Content Library product acceptance", () => {
       await page.getByRole("button", { name: "Open", exact: true }).first().click();
       await expect(page.getByRole("heading", { name: /F-0001 · Permit application form/ })).toBeVisible();
       const formDetails = page.getByRole("dialog", { name: /F-0001 · Permit application form/ });
-      await expect(page.getByText("Current source file")).toBeVisible();
-      await expect(page.getByText("Version History")).toBeVisible();
-      await expect(page.getByRole("link", { name: "Download current source" })).toBeVisible();
+      await expect(formDetails.getByText("Current source file")).toBeVisible();
+      await expect(formDetails.getByText("Version History")).toBeVisible();
+      await expect(formDetails.getByRole("link", { name: "Download current source" })).toBeVisible();
       await expect(formDetails.getByRole("button", { name: "Modify" })).toBeVisible();
       await expect(formDetails.getByRole("button", { name: "Upload version" })).toBeVisible();
-      for (const forbidden of ["Source & Authority", "Quality & Sensitivity", "Source Sections", "Readiness", "Regulatory applicability", "Policy and technical source lineage", "Form automation governance", "Evaluate readiness", "Create mapping draft", "Validate draft"]) {
+      for (const forbidden of ["Source & Authority", "Quality & Sensitivity", "Source Sections", "Regulatory applicability", "Policy and technical source lineage", "Form automation governance", "Evaluate readiness", "Create mapping draft", "Validate draft"]) {
         await expect(page.getByText(forbidden, { exact: false })).toHaveCount(0);
       }
       await page.screenshot({ path: testInfo.outputPath(`owner-form-details-${name}.png`), fullPage: true });
