@@ -1,5 +1,8 @@
 import { defineConfig } from "@playwright/test";
 
+const port = process.env.PLAYWRIGHT_PORT || "5173";
+const baseURL = process.env.PLAYWRIGHT_BASE_URL || `http://127.0.0.1:${port}`;
+
 export default defineConfig({
   testDir: "./browser-e2e",
   // Retired historical contracts are catalogued in the final-universal-closure
@@ -11,6 +14,6 @@ export default defineConfig({
     "**/pre-g10-control-paths.spec.ts",
     "**/workflow-first.spec.ts",
   ],
-  use: { headless: true, baseURL: process.env.PLAYWRIGHT_BASE_URL || "http://127.0.0.1:5173" },
-  ...(process.env.PLAYWRIGHT_BASE_URL ? {} : { webServer: { command: "npm run dev -- --host 127.0.0.1", url: "http://127.0.0.1:5173", reuseExistingServer: true } }),
+  use: { headless: true, baseURL },
+  ...(process.env.PLAYWRIGHT_BASE_URL ? {} : { webServer: { command: `npm run dev -- --host 127.0.0.1 --port ${port}`, url: baseURL, reuseExistingServer: false } }),
 });

@@ -9,6 +9,7 @@ and atomic work-product finalization.  It never owns a module review decision.
 from __future__ import annotations
 
 import json
+import threading
 from dataclasses import dataclass
 from typing import Any, Callable
 
@@ -218,8 +219,33 @@ class SkillRuntime:
         self.registry = registry
         self.gateway_factory = gateway_factory
         self.dependencies = dependencies or RuntimeDependencies()
+        self._inflight_lock = threading.Lock()
+        self._inflight_keys: set[str] = set()
 
     def execute(
+        self,
+        db: Session,
+        principal: AuthenticatedPrincipal,
+        request: SkillExecutionRequest,
+        *,
+        settings: Settings | None = None,
+        provider: Any | None = None,
+    ) -> dict[str, Any]:
+        # A same-process caller racing the same idempotency key must observe
+        # the in-progress boundary, even if SQLite scheduling lets it arrive
+        # after the first worker has committed its result. Cross-process
+        # callers remain protected by the durable execution ledger below.
+        with self._inflight_lock:
+            if request.idempotency_key in self._inflight_keys:
+                raise AIError("AI_REQUEST_IN_PROGRESS", status_code=409)
+            self._inflight_keys.add(request.idempotency_key)
+        try:
+            return self._execute(db, principal, request, settings=settings, provider=provider)
+        finally:
+            with self._inflight_lock:
+                self._inflight_keys.discard(request.idempotency_key)
+
+    def _execute(
         self,
         db: Session,
         principal: AuthenticatedPrincipal,

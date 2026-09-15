@@ -26,6 +26,7 @@ from backend.app.models import (
     MasterContentGovernanceProfile,
     MasterContentItem,
     MasterContentModuleBinding,
+    MasterContentSourceProvenance,
     NotificationEvent,
     Phase4DocumentEvidenceEnvelope,
     Phase4ProjectionPlan,
@@ -96,7 +97,8 @@ def corpus(db):
     master_item = MasterContentItem(id="master-item-a", ref="SYN-FORM-001", content_type="FORM", title="Synthetic Proposal Template", category_id=category.id, used_in=["BD"], status="ACTIVE", needs_review=False, document_id=master_document.id, current_document_version_id=master_version.id, created_by="fixture")
     profile = MasterContentGovernanceProfile(master_content_item_id=master_item.id, content_ownership_class="AMEC_OWNED", artifact_kind="FORM", sensitivity_class="NONE", currentness_status="VERIFIED_CURRENT", restricted_reference_sample=False)
     binding = MasterContentModuleBinding(master_content_id=master_item.id, module="BD", usage_type="PROPOSAL_TEMPLATE", active=True, created_by="fixture")
-    db.add_all([master_document, master_version, category, master_item, profile, binding])
+    provenance = MasterContentSourceProvenance(document_version_id=master_version.id, obtained_from="synthetic context compiler fixture", obtained_by="fixture", source_reference="synthetic://master/context-compiler")
+    db.add_all([master_document, master_version, category, master_item, profile, binding, provenance])
     db.flush()
 
     definition = DefinitionEntry(id="definition-a", ref="SYN-DEF-001", term="Synthetic permit", category="PERMIT", used_in=["ENGINEERING"], status="ACTIVE", current_revision_id="definition-revision-a", created_by="fixture")

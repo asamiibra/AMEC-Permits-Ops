@@ -1,0 +1,139 @@
+{
+  "ci_run": "34910878475",
+  "ci_reported_summary": { "passed": 993, "failed": 11, "skipped": 19 },
+  "classification_rule": "Every reported failure is classified; no blanket xfail or ignore disposition.",
+  "dispositions": [
+    {
+      "test_node_id": "backend/tests/test_ai_p05_skill_runtime.py::test_same_key_race_executes_provider_once_and_creates_one_product",
+      "failure": "Same idempotency key raced and no AI_REQUEST_IN_PROGRESS outcome was observed.",
+      "root_cause": "SkillRuntime had lost its same-process inflight lock/set guard.",
+      "branch_introduced": "closure/content-library-production-v1",
+      "production_defect": true,
+      "test_fixture_defect": false,
+      "superseded_contract": false,
+      "repair": "REAL_PRODUCTION_DEFECT: restore _inflight_lock and _inflight_keys around the execution boundary.",
+      "proof": "Focused race test passes after repair."
+    },
+    {
+      "test_node_id": "backend/tests/test_context_compiler.py::test_candidate_dependency_vocabulary_and_positive_candidate_context",
+      "failure": "NameError: name 'revision' is not defined.",
+      "root_cause": "Candidate resolver contained a copied DefinitionRevision hash expression.",
+      "branch_introduced": "closure/content-library-production-v1",
+      "production_defect": true,
+      "test_fixture_defect": false,
+      "superseded_contract": false,
+      "repair": "REAL_PRODUCTION_DEFECT: remove the invalid revision reference; candidate version hash remains candidate-derived.",
+      "proof": "Focused context compiler test passes after repair."
+    },
+    {
+      "test_node_id": "backend/tests/test_context_compiler.py::test_verified_business_context_reuses_authoritative_sources",
+      "failure": "CONTEXT_MASTER_CONTENT_GOVERNANCE_NOT_READY.",
+      "root_cause": "Positive synthetic AMEC-owned Form fixture omitted exact-current-version provenance required by canonical governance readiness.",
+      "branch_introduced": "closure/content-library-production-v1",
+      "production_defect": false,
+      "test_fixture_defect": true,
+      "superseded_contract": false,
+      "repair": "SYNTHETIC_FIXTURE_DEFECT: add provenance for the exact current DocumentVersion.",
+      "proof": "Focused authoritative-context test passes after fixture repair."
+    },
+    {
+      "test_node_id": "backend/tests/test_context_compiler.py::test_context_hash_is_source_order_independent_and_dependencies_are_idempotent",
+      "failure": "NameError: name 'revision' is not defined.",
+      "root_cause": "Candidate resolver invalid revision reference.",
+      "branch_introduced": "closure/content-library-production-v1",
+      "production_defect": true,
+      "test_fixture_defect": false,
+      "superseded_contract": false,
+      "repair": "REAL_PRODUCTION_DEFECT: remove invalid candidate resolver reference.",
+      "proof": "Focused context compiler test passes after repair."
+    },
+    {
+      "test_node_id": "backend/tests/test_context_compiler.py::test_candidate_trust_floor_and_target_module_are_enforced",
+      "failure": "NameError: name 'revision' is not defined.",
+      "root_cause": "Candidate resolver invalid revision reference.",
+      "branch_introduced": "closure/content-library-production-v1",
+      "production_defect": true,
+      "test_fixture_defect": false,
+      "superseded_contract": false,
+      "repair": "REAL_PRODUCTION_DEFECT: remove invalid candidate resolver reference.",
+      "proof": "Focused context compiler test passes after repair."
+    },
+    {
+      "test_node_id": "backend/tests/test_context_compiler.py::test_master_content_exact_binding_and_ambiguity_fail_closed",
+      "failure": "CONTEXT_MASTER_CONTENT_GOVERNANCE_NOT_READY.",
+      "root_cause": "Positive synthetic AMEC-owned Form fixture omitted exact-current-version provenance.",
+      "branch_introduced": "closure/content-library-production-v1",
+      "production_defect": false,
+      "test_fixture_defect": true,
+      "superseded_contract": false,
+      "repair": "SYNTHETIC_FIXTURE_DEFECT: add exact-version provenance; preserve fail-closed resolver behavior.",
+      "proof": "Focused exact-binding test passes after fixture repair."
+    },
+    {
+      "test_node_id": "backend/tests/test_context_compiler.py::test_optional_absence_is_deterministic_but_optional_bad_source_is_not_omitted",
+      "failure": "NameError: name 'revision' is not defined.",
+      "root_cause": "Candidate resolver invalid revision reference.",
+      "branch_introduced": "closure/content-library-production-v1",
+      "production_defect": true,
+      "test_fixture_defect": false,
+      "superseded_contract": false,
+      "repair": "REAL_PRODUCTION_DEFECT: remove invalid candidate resolver reference.",
+      "proof": "Focused context compiler test passes after repair."
+    },
+    {
+      "test_node_id": "backend/tests/test_context_compiler.py::test_privacy_minimization_and_no_authority_side_effects",
+      "failure": "NameError: name 'revision' is not defined.",
+      "root_cause": "Candidate resolver invalid revision reference.",
+      "branch_introduced": "closure/content-library-production-v1",
+      "production_defect": true,
+      "test_fixture_defect": false,
+      "superseded_contract": false,
+      "repair": "REAL_PRODUCTION_DEFECT: remove invalid candidate resolver reference.",
+      "proof": "Focused context compiler test passes after repair."
+    },
+    {
+      "test_node_id": "backend/tests/test_context_compiler.py::test_required_missing_source_and_persistence_failure_leave_no_partial_snapshot",
+      "failure": "NameError: name 'revision' is not defined.",
+      "root_cause": "Candidate resolver invalid revision reference.",
+      "branch_introduced": "closure/content-library-production-v1",
+      "production_defect": true,
+      "test_fixture_defect": false,
+      "superseded_contract": false,
+      "repair": "REAL_PRODUCTION_DEFECT: remove invalid candidate resolver reference.",
+      "proof": "Focused context compiler test passes after repair."
+    },
+    {
+      "test_node_id": "backend/tests/test_step5_final_r2_template_snapshot.py::test_owner_capture_is_exactly_once_and_non_owner_denied",
+      "failure": "Proposal acceptance returned 409 because F-0003/F-0004 were not eligible governed Forms.",
+      "root_cause": "Shared synthetic proposal template/checklist fixture could retain stale document lineage and lacked exact current-version provenance.",
+      "branch_introduced": "closure/content-library-production-v1",
+      "production_defect": false,
+      "test_fixture_defect": true,
+      "superseded_contract": false,
+      "repair": "SYNTHETIC_FIXTURE_DEFECT: repair only disposable F-0003/F-0004 lineage, current version, AMEC ownership, active binding, and provenance.",
+      "proof": "Focused Step5 test passes after fixture repair."
+    },
+    {
+      "test_node_id": "backend/tests/test_step5_final_r2_template_snapshot.py::test_finalized_contract_cannot_be_backfilled",
+      "failure": "Proposal acceptance returned 409 because F-0003/F-0004 were not eligible governed Forms.",
+      "root_cause": "Shared synthetic proposal template/checklist fixture could retain stale document lineage and lacked exact current-version provenance.",
+      "branch_introduced": "closure/content-library-production-v1",
+      "production_defect": false,
+      "test_fixture_defect": true,
+      "superseded_contract": false,
+      "repair": "SYNTHETIC_FIXTURE_DEFECT: repair only disposable F-0003/F-0004 lineage, current version, AMEC ownership, active binding, and provenance.",
+      "proof": "Focused Step5 test passes after fixture repair."
+    }
+  ],
+  "focused_repair_status": "PASS",
+  "full_ci_reexecution": {
+    "command": "env -u DATABASE_URL PYTHONPATH=. APP_ENV=TEST SYNTHETIC_ONLY=true python3 -m pytest -q backend/tests --ignore=backend/tests/test_phase5_sqlserver_runtime.py",
+    "database_isolation": "pytest per-process synthetic SQLite database; no custom DATABASE_URL shared with subprocess checks",
+    "collected": 1023,
+    "passed": 1006,
+    "failed": 0,
+    "skipped": 17,
+    "status": "PASS"
+  },
+  "full_ci_reexecution_status": "PASS"
+}

@@ -7,12 +7,12 @@
       "persona": "Owner",
       "severity": "P1",
       "design_rule": "UPSTREAM_PERMIT_FIRST_CONTAMINATION_ZERO",
-      "observed": "Global brand/header and About surface still use PermitOps / Permit Workflow / About PermitOps framing.",
+      "observed": "Current runtime renders ProposalOps, AMEC Work, Proposals & Contracts, and Operating Guide framing; downstream Permit terminology remains bounded.",
       "expected": "ProposalOps with AMEC Work as primary work surface and Operating Guide as the guide label.",
-      "root_cause": "App shell and older guide copy retain pre-realignment naming.",
-      "fix": "Replace only global/upstream framing while preserving downstream Permit domain language.",
+      "root_cause": "Historical source strings remain in non-rendered/legacy code paths.",
+      "fix": "Runtime audit confirms current visible shell; retain source cleanup as a follow-up only if it changes rendered copy.",
       "test": "universal design harness and navigation cross-check",
-      "status": "OPEN"
+      "status": "PASS_RUNTIME"
     },
     {
       "id": "UDA-P1-002",
@@ -20,12 +20,12 @@
       "persona": "all",
       "severity": "P1",
       "design_rule": "CURRENT_STAGE_VIEWED_STAGE_EXPLICIT_PASS",
-      "observed": "Breadcrumb identifies the selected stage but does not explicitly show separate Current stage and Viewing labels.",
+      "observed": "Permit workspace now shows separate Current stage and Viewing labels in business language.",
       "expected": "Both backend current stage and route viewed stage are visible in business language.",
-      "root_cause": "PermitWorkspace renders one breadcrumb plus next-action card without a dedicated viewed-stage label.",
-      "fix": "Add explicit current/viewed stage metadata block.",
-      "test": "permit stage route crawl",
-      "status": "OPEN"
+      "root_cause": "Resolved with an explicit stage-context strip.",
+      "fix": "Added current/viewed stage metadata block and covered all three personas.",
+      "test": "permit stage route crawl + role matrix",
+      "status": "PASS"
     },
     {
       "id": "UDA-P1-003",
@@ -33,12 +33,12 @@
       "persona": "Owner",
       "severity": "P1",
       "design_rule": "MATERIAL_ROUTE_WITHOUT_DESIGN_CONTRACT_ZERO / ADMINISTRATION_DESIGN_CONTRACT",
-      "observed": "Legacy child routes are still directly reachable under Administration and render older technical/setup pages.",
+      "observed": "Retired child aliases remain directly reachable, but local requests now fall back to the current Administration summary instead of dead endpoints.",
       "expected": "Every child route belongs to the current Administration information architecture or is clearly secondary technical evidence with a current label and safe navigation.",
       "root_cause": "Legacy page registry remains mounted through openLegacy and direct admin paths.",
-      "fix": "Classify, relabel, or retire only stale child routes after route-by-route contract review.",
+      "fix": "Added safe summary fallback for retired direct aliases; current IA retirement/redirect mapping remains open.",
       "test": "direct route crawl + navigation crawl",
-      "status": "OPEN"
+      "status": "OPEN_LEGACY_ALIAS_DRIFT"
     },
     {
       "id": "UDA-P1-004",
@@ -46,12 +46,12 @@
       "persona": "Owner",
       "severity": "P1",
       "design_rule": "NORMAL_OWNER_FACING_TECHNICAL_LEAKAGE_ZERO",
-      "observed": "Rendered work and downstream pages expose raw enum-like values and implementation labels in secondary copy/status fields.",
+      "observed": "Local current-route crawl found zero raw actors, UUIDs, JSON, forbidden terms, or raw enums on normal material surfaces.",
       "expected": "Business-readable labels in normal surfaces; technical values only in Advanced Diagnostics.",
-      "root_cause": "Several projections render backend status/role fields directly.",
-      "fix": "Use shared business label mapping at projection boundaries.",
+      "root_cause": "Resolved with business role/status/source mappings at render boundaries.",
+      "fix": "Added shared visible mappings for review roles/statuses, Permit statuses, source systems, history events, and expansion copy.",
       "test": "owner technical-leak detector",
-      "status": "OPEN"
+      "status": "PASS"
     },
     {
       "id": "UDA-P1-005",
@@ -59,12 +59,12 @@
       "persona": "Owner",
       "severity": "P1",
       "design_rule": "SOURCE_SYSTEM_STATUS_SEMANTICS_PASS",
-      "observed": "Source rows render system_type and LINKED without clearly separating configured, linked-to-project, and verified status.",
+      "observed": "Source rows now use semantic system labels, Linked to this project, and Simulator where applicable; confirmation evidence names a business role.",
       "expected": "Configured / Linked to this Project / Verified / Simulator / Production Not Connected as distinct dimensions.",
-      "root_cause": "SourcesStage uses raw link.system_type and a fixed LINKED tag.",
-      "fix": "Project detail projection should provide semantic source status and confirmation evidence.",
+      "root_cause": "Resolved in SourcesStage visible projection.",
+      "fix": "Mapped source system/status labels without changing backend truth or downstream Permit behavior.",
       "test": "source-system status crawl",
-      "status": "OPEN"
+      "status": "PASS"
     },
     {
       "id": "UDA-P2-001",

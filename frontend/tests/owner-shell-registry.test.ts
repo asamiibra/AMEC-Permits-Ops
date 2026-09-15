@@ -36,6 +36,12 @@ describe("Owner shell feature registry", () => {
   it("enforces the positive public route allowlist", () => {
     expect(classifyPublicRoute("/home")).toMatchObject({ page: "home", allowed: true });
     expect(classifyPublicRoute("/opportunities/example")).toMatchObject({ page: "opportunities", allowed: true });
+    expect(classifyPublicRoute("/proposals-contracts")).toMatchObject({ page: "opportunities", allowed: true });
+    expect(classifyPublicRoute("/contracts")).toMatchObject({ page: "opportunities", allowed: true });
+    expect(classifyPublicRoute("/contracts/example")).toMatchObject({ page: "opportunities", allowed: true });
+    expect(classifyPublicRoute("/projects/p-0142")).toMatchObject({ page: "permit-workspace", allowed: true });
+    expect(classifyPublicRoute("/projects/p-0142/verify-data")).toMatchObject({ page: "permit-workspace", allowed: true });
+    expect(classifyPublicRoute("/proposals-contracts/example/verify-data")).toMatchObject({ page: "permit-workspace", allowed: true });
     expect(classifyPublicRoute("/contract-mobilization/contracts/example")).toMatchObject({ page: "contract-mobilization", allowed: true });
     expect(classifyPublicRoute("/billing/invoices/example")).toMatchObject({ page: "billing", allowed: true });
     expect(classifyPublicRoute("/master-content/forms")).toMatchObject({ page: "content-library", allowed: true });

@@ -62,7 +62,7 @@ export function validateProposalsMainPayload(payload: unknown): Record<string, a
 }
 
 export function ProposalsContractsPage({ projects, persona, openRecord }: { projects: Project[]; persona: Persona; openRecord: (projectId: string) => void }) {
-  const initialView = new URLSearchParams(window.location.search).get("view") === "contracts" ? "contracts" : "proposals";
+  const initialView = window.location.pathname === "/contracts" || new URLSearchParams(window.location.search).get("view") === "contracts" ? "contracts" : "proposals";
   const [routePath, setRoutePath] = useState(() => window.location.pathname);
   useEffect(() => { const syncRoute = () => setRoutePath(window.location.pathname); window.addEventListener("popstate", syncRoute); return () => window.removeEventListener("popstate", syncRoute); }, []);
   const [view, setView] = useState<Register>(initialView);

@@ -44,6 +44,8 @@ export interface ProposalRegisterResponse {
   lane_counts: Record<string, number>;
   lane_options?: Array<{ code: string; label: string }>;
   count: number;
+  predicate_version?: string;
+  filters?: { q?: string; stage?: string | null; lane?: string | null; client?: string | null; activity?: string | null; location?: string | null };
   action_capabilities?: Record<string, { available?: boolean; capability?: string; reason?: string | null }>;
 }
 

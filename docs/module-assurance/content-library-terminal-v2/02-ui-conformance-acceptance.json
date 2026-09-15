@@ -1,0 +1,17 @@
+{
+  "command": "PLAYWRIGHT_PORT=5194 npx playwright test browser-e2e/ui-conformance.spec.ts --grep 'crawls every material route'",
+  "server_checkout": "/private/tmp/amec-content-library-prodqual-review2",
+  "route_count": 66,
+  "result_count": 312,
+  "playwright_tests_passed": 2,
+  "playwright_tests_failed": 0,
+  "decision": "PROPOSALOPS_UI_CONFORMANCE_READY",
+  "required_gates": {
+    "CURRENT_VS_VIEWED_STAGE_UI_PASS": true,
+    "UI_KPI_LIST_PARITY_PASS": true,
+    "CONTRACT_DETAIL_UI_CONFORMANCE_PASS": true
+  },
+  "other_gates": "ALL_TRUE",
+  "production_deployment": "NOT_RUN",
+  "integration_branch_mutation": false
+}

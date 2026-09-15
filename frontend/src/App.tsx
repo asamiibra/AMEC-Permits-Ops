@@ -6,6 +6,8 @@ import { BillingInvoicePage } from "./BillingInvoice";
 import { HomePage } from "./Home";
 import { ProposalRoutes } from "./features/proposals/ProposalRoutes";
 import type { ProposalRole } from "./features/proposals/types";
+import { ProposalsContractsPage } from "./ProposalsContracts";
+import { PermitCompatibilityPage } from "./PermitCompatibilityPage";
 import { AmecLogo } from "./AmecLogo";
 import { browserAuthMode, getSignedInAccountIdentity, signOut } from "./auth";
 import { readDemoRole } from "./rebrand";
@@ -48,6 +50,12 @@ function roleLabel(role: string | null | undefined): string {
     .toLowerCase()
     .replaceAll("_", " ")
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function compatibilityPersona(role: string): "SYSTEM_ADMIN" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER" {
+  if (role === "COMMERCIAL_APPROVER" || role === "PROCESS_CHAMPION") return "COMMERCIAL_APPROVER";
+  if (role === "RESPONSIBLE_ENGINEER") return "RESPONSIBLE_ENGINEER";
+  return "SYSTEM_ADMIN";
 }
 
 function pageFromPath(): PublicPage {
@@ -329,10 +337,13 @@ export default function App() {
             SYNTHETIC PROTOTYPE · NO PORTAL WRITES · HUMAN SUBMISSION REQUIRED
           </div>
           {page === "home" && <HomePage />}
-          {page === "opportunities" && <ProposalRoutes role={moduleRole as ProposalRole} />}
+          {page === "opportunities" && (window.location.pathname.startsWith("/proposals-contracts") || window.location.pathname.startsWith("/contracts"))
+            ? <ProposalsContractsPage projects={[]} persona={compatibilityPersona(role)} openRecord={(projectId) => { window.history.pushState({}, "", `/proposals-contracts/${projectId}`); window.dispatchEvent(new PopStateEvent("popstate")); }} />
+            : page === "opportunities" ? <ProposalRoutes role={moduleRole as ProposalRole} /> : null}
           {page === "contract-mobilization" && <ContractMobilizationPage />}
           {page === "billing" && <BillingInvoicePage />}
           {page === "content-library" && <CurrentDashboard role={role} />}
+          {page === "permit-workspace" && <PermitCompatibilityPage role={role} />}
         </div>
       </main>
     </div>

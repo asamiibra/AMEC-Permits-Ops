@@ -3,7 +3,8 @@ export type PublicPage =
   | "opportunities"
   | "contract-mobilization"
   | "billing"
-  | "content-library";
+  | "content-library"
+  | "permit-workspace";
 
 export type PublicRoute = {
   page: PublicPage;
@@ -27,6 +28,12 @@ export function classifyPublicRoute(pathname: string): PublicRoute {
   }
   if (path === "/work") {
     return { page: "home", canonicalPath: "/home", allowed: false };
+  }
+  if (/^\/(projects|permits|proposals-contracts)\/[^/]+(?:\/(project-and-sources|verify-data|prepare-package|municipality-preparation|final-review|authority-review|comments-and-corrections|history))?$/.test(path)) {
+    return { page: "permit-workspace", canonicalPath: path, allowed: true };
+  }
+  if (startsWithRoute(path, "/proposals-contracts") || startsWithRoute(path, "/contracts")) {
+    return { page: "opportunities", canonicalPath: path, allowed: true };
   }
   if (
     startsWithRoute(path, "/opportunities") ||

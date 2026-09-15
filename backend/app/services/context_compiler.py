@@ -563,7 +563,6 @@ class GovernedContextCompiler:
             raise IntelligenceContractError("CONTEXT_CANDIDATE_MODULE_MISMATCH")
         if candidate.contains_sensitive_data:
             self._require_capability(capabilities, "PHASE4_VIEW_RESTRICTED_EVIDENCE")
-        revision_hash = stable_hash({"revision_id": revision.id, "revision_number": revision.revision_number, "term": revision.term, "description": revision.description, "aliases": revision.aliases})
         projection = self._safe_projection({
             "candidate_assertion_id": candidate.id,
             "assertion_code": candidate.assertion_code,

@@ -33,6 +33,69 @@ function proposalRegister(persona: string) {
   };
 }
 
+const canonicalProposalRow = {
+  id: proposal.id,
+  proposal_reference: proposal.proposal_id,
+  proposal: proposal.proposal_description,
+  project_ref: project.project_number,
+  client: "Al Noor Client",
+  activity: proposal.proposal_description,
+  stage: "Engineering Preparation",
+  stage_code: "PROPOSAL_PREPARATION",
+  amount: proposal.amount,
+  last_activity: proposal.last_activity,
+  location: project.municipality,
+  current_owner: "Engineering",
+  next_action: { label: "Complete technical Proposal preparation", reason: "Review the current Proposal context.", eligible: true },
+  owner_lane: { primary: "ALL", memberships: ["ALL"], predicate_version: "bd-proposal-owner-lanes-v1" },
+  contract_eligible: true,
+  validation: { blockers: [] },
+};
+
+function canonicalProposalRegister() {
+  return {
+    items: [canonicalProposalRow],
+    rows: [canonicalProposalRow],
+    count: 1,
+    lane_counts: { ALL: 1, NEED_ACTION: 0, AUTHORITY_REVIEW: 0, READY_CLOSE: 0 },
+    lane_options: [
+      { code: "ALL", label: "All", predicate: "accessible Proposal rows after current search/stage/project isolation" },
+      { code: "NEED_ACTION", label: "Need Action", predicate: "current validation/readiness/intake blockers or client response follow-up" },
+      { code: "AUTHORITY_REVIEW", label: "Authority Review", predicate: "commercial review lifecycle, no blockers, human Proposal Accept authority required" },
+      { code: "READY_CLOSE", label: "Ready / Close", predicate: "client response, accepted, contract handoff, or closed lifecycle with no active blockers" },
+    ],
+    predicate_version: "bd-proposal-register-v2",
+    filters: { q: "", stage: null, lane: "ALL", client: null, activity: null, location: null },
+    stage_options: ["RECEIVED", "IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "READY_FOR_QUOTATION", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS", "CLIENT_RESPONSE_PENDING", "ACCEPTED", "CONTRACT_HANDOVER", "CLOSED"],
+    amount_source: "proposal_fields.price",
+    last_activity_source: "Opportunity.updated_at material Proposal activity timestamp",
+    search_fields: ["client_name", "proposal.title", "project_description", "client_scope_of_work", "scope_of_work", "site_context.location_text", "proposal_reference", "project_reference", "stage"],
+    synthetic_only: true,
+    action_capabilities: { NEW_PROPOSAL: { available: true, capability: "BD_PROPOSAL_WRITE" } },
+  };
+}
+
+const canonicalProposalDetail = {
+  id: proposal.id,
+  proposal_reference: proposal.proposal_id,
+  project_reference: project.project_number,
+  project_id: project.id,
+  client_account_id: "client-1",
+  client_name: "Al Noor Client",
+  title: proposal.proposal_description,
+  stage: "PROPOSAL_PREPARATION",
+  stage_label: "Engineering Preparation",
+  lifecycle: [{ number: 1, label: "Intake & Sources", active: false }, { number: 2, label: "Engineering Preparation", active: true }, { number: 3, label: "Commercial Review", active: false }, { number: 4, label: "Client Response", active: false }, { number: 5, label: "Contract Handoff", active: false }],
+  current_owner: "Engineering",
+  next_actor: "Engineering",
+  next_action: { label: "Complete technical Proposal preparation", eligible: true },
+  amount: proposal.amount,
+  last_activity: proposal.last_activity,
+  updated_at: proposal.last_activity,
+  fields: { project_description: proposal.proposal_description, scope_of_work: "Synthetic engineering scope", client_scope_of_work: "Synthetic client scope", price: proposal.amount, duration: "12 months" },
+  provenance: {}, sources: [], notes: [], site_photos: [], forms_v2: {}, validation: { blockers: [] }, readiness_v2: {}, intake_readiness: { blockers: [] }, configuration: {}, proposal_breakdown: {}, hardening: {}, authority: {}, owner_lane: canonicalProposalRow.owner_lane, outputs: {}, current_revision: null, draft_revision: null, revision_history: [], stage_history: [], commercial_controls: {}, action_capabilities: {}, stage_gate: {}, contract_eligible: true, ai_assist: {}, intelligence: {}, synthetic_only: true,
+};
+
 async function fulfillApi(route: any) {
   const url = new URL(route.request().url());
   const pathName = url.pathname;
@@ -43,6 +106,8 @@ async function fulfillApi(route: any) {
   else if (pathName === "/api/reconciliation/governance") body = { environment_badge: "SYNTHETIC PROTOTYPE" };
   else if (pathName === "/api/work") body = { summary: { needs_action: 1, waiting_review: 0, blocked: 1, overdue: 0 }, items: [{ id: "work-1", title: "Review Proposal", business_context: "Technical Proposal Preparation requires review.", domain: "proposal", reference: proposal.proposal_id, assigned_team: "Engineering", stage: "Engineering Proposal Preparation", cta_label: "Open Proposal", deep_link: `/proposals/${proposal.id}/preparation`, blocking: true }], unfiltered_visible_count: 1, context_visible_count: 1, recent_changes: [] };
   else if (pathName === "/api/proposals-main") body = proposalRegister(persona);
+  else if (pathName === "/api/bd/proposals") body = canonicalProposalRegister();
+  else if (pathName === `/api/bd/proposals/${proposal.id}`) body = canonicalProposalDetail;
   else if (pathName === `/api/proposals-main/proposals/${proposal.id}`) body = { proposal, readiness: { client_context: true }, fields: { description: proposal.proposal_description, price: proposal.amount, period: "12 months", sow: "Design and engineering services", exclusions: "Not recorded", technical_exclusions: "Not recorded", process_of_work: "Engineering review" }, sources: [{ id: "source-1", artifact_class: "TENDER_DOCUMENT", semantic_class: "TENDER_DOCUMENT", filename: "Tender brief.pdf", version: 1, verification_status: "READ_BACK_VERIFIED", current: true, sor_binding: "Project source", content_hash: "fixture-content-hash" }], contracts: [contract], issues: [], tasks: [{ id: "handoff-1", title: "Engineering preparation", owner_role: "Engineering", status: "READY" }] };
   else if (pathName === `/api/proposals-main/contracts/${contract.id}`) body = { contract, project: { id: project.id, reference: project.project_number, name: project.project_name }, proposal: { id: proposal.id, reference: proposal.proposal_id, title: proposal.proposal_description, status: proposal.proposal_status }, revisions: [{ id: "revision-1", revision_number: 1, status: "CURRENT" }], permits: [], sources: [{ id: "source-2", artifact_class: "CONTRACT_FORM", verification_status: "READ_BACK_VERIFIED", path: "Contract source" }], issues: [], history: [{ id: "audit-1" }], next_action: { label: "Initiate Permit", eligible: true } };
   else if (/^\/api\/issues\/[^/]+$/.test(pathName)) body = { issue: { id: "issue-1", title: "Proposal source needs review", summary: "A retained source requires human review.", what_is_wrong: "The source review condition is still open.", why_it_matters: "The next workflow step depends on verified evidence.", what_needs_to_happen: "Review the source and record the decision.", domain: "PROPOSAL_TECHNICAL", display_domain: "Proposal Technical", severity: "MINOR", blocking: false, status: "OPEN", owner_team: "Engineering", owner_persona: "RESPONSIBLE_ENGINEER", affected_record: { label: proposal.proposal_id } }, affected_entity: { type: "Proposal", reference: proposal.proposal_id, name: proposal.proposal_description }, evidence: [], persona_context: { can_resolve: true, owner_team: "Engineering" }, activity: [], history: {} };
@@ -77,7 +142,9 @@ async function fulfillApi(route: any) {
 }
 
 function canonicalRoute(entry: any) {
-  const route = entry.aliases?.find((alias: string) => alias.startsWith("/proposals-contracts")) || entry.route;
+  const route = entry.route.startsWith("/permits/")
+    ? entry.route.replace(/^\/permits\//, "/projects/")
+    : entry.route;
   return route
     .replaceAll(":proposalId", proposal.id)
     .replaceAll(":contractId", contract.id)
@@ -101,7 +168,20 @@ async function snapshot(page: any) {
     }
     const blankSections = [...main.querySelectorAll("section")].filter((section) => { const heading = section.querySelector("h1,h2,h3"); return heading && (section.innerText || "").trim().length <= (heading.textContent || "").trim().length + 8; }).map((section) => section.querySelector("h1,h2,h3")?.textContent?.trim());
     const technical = (text.match(/\b[A-Z][A-Z0-9]+(?:_[A-Z0-9]+)+\b/g) || []).filter((item) => !allowed.includes(item) && !item.startsWith("SYNTHETIC"));
-    return { text, headings, title: document.title, current_stage_visible: /Current stage/i.test(text), viewed_stage_visible: /Viewing/i.test(text), raw_uuid: /\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/i.test(text), raw_json: /(?:\{\s*["']?[A-Za-z_]+["']?\s*:)/.test(text), raw_actor: /\b(?:SYSTEM_ADMIN|OWNER_SPONSOR|COMMERCIAL_APPROVER|RESPONSIBLE_ENGINEER|PERMIT_PREPARER|DEMO_AS_OPERATOR|PERSONA_FIXTURE)\b/.test(text), raw_enum: technical, blank_sections: blankSections, collisions, horizontal_overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1, technical_allowlist: allowed };
+    const kpiRoot = main.querySelector<HTMLElement>("[data-kpi-source]");
+    const registerRoot = main.querySelector<HTMLElement>("[data-register-count]");
+    const proposal_kpi = kpiRoot && registerRoot ? {
+      source: kpiRoot.dataset.kpiSource,
+      predicate_version: kpiRoot.dataset.predicateVersion,
+      active_filter: kpiRoot.dataset.activeLane,
+      active_count: Number(kpiRoot.dataset.activeCount),
+      entity: kpiRoot.dataset.entity,
+      pagination: kpiRoot.dataset.pagination,
+      register_count: Number(registerRoot.dataset.registerCount),
+      visible_rows: Number(registerRoot.dataset.registerRowCount),
+      selected_tab_count: Number(main.querySelector<HTMLElement>(`[data-kpi-code="${kpiRoot.dataset.activeLane}"]`)?.dataset.kpiCount || -1),
+    } : null;
+    return { text, headings, title: document.title, current_stage_visible: /Current stage/i.test(text), viewed_stage_visible: /Viewing/i.test(text), proposal_kpi, raw_uuid: /\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b/i.test(text), raw_json: /(?:\{\s*["']?[A-Za-z_]+["']?\s*:)/.test(text), raw_actor: /\b(?:SYSTEM_ADMIN|OWNER_SPONSOR|COMMERCIAL_APPROVER|RESPONSIBLE_ENGINEER|PERMIT_PREPARER|DEMO_AS_OPERATOR|PERSONA_FIXTURE)\b/.test(text), raw_enum: technical, blank_sections: blankSections, collisions, horizontal_overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1, technical_allowlist: allowed };
   }, { technicalAllowlist: [...technicalAllowlist] });
 }
 
@@ -172,7 +252,10 @@ test.describe("ProposalOps universal UI conformance gate", () => {
       UI_ROLE_ACTION_PARITY_PASS: results.filter((item) => item.route.includes("proposals-contracts")).length > 0,
       PAGE_INTERNAL_CONTRADICTION_ZERO: results.every((item) => !/\bcontradiction\b|\bconflict(?:ing)?\s+(?:same|field|value)\b/i.test(item.text)),
       CROSS_PAGE_UI_TRUTH_PASS: results.some((item) => item.route.includes("proposals-contracts")) && results.some((item) => item.route === "/work"),
-      UI_KPI_LIST_PARITY_PASS: results.some((item) => item.route.includes("proposals-contracts") && /Open Proposals|Open Contracts/.test(item.text)),
+      UI_KPI_LIST_PARITY_PASS: results.filter((item) => item.route === "/proposals" || item.route === "/opportunities").every((item) => {
+        const kpi = item.proposal_kpi;
+        return Boolean(kpi) && kpi.source === "/api/bd/proposals" && kpi.predicate_version === "bd-proposal-register-v2" && kpi.active_filter === "ALL" && kpi.entity === "proposal" && kpi.pagination === "none" && kpi.active_count === kpi.selected_tab_count && kpi.active_count === kpi.register_count && kpi.register_count === kpi.visible_rows;
+      }),
       CONTRACT_DETAIL_UI_CONFORMANCE_PASS: results.some((item) => item.route.startsWith("/contracts/") && /CONTRACT DETAIL/i.test(item.text)),
       UI_FAKE_EMPTY_OR_HEALTH_ZERO: results.every((item) => !/fake success|healthy|system healthy/i.test(item.text)),
       // "Source family" is an owner-facing Proposal domain term; reject only implementation leakage.

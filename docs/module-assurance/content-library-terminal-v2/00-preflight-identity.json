@@ -1,0 +1,18 @@
+{
+  "branch": "closure/content-library-production-v1",
+  "content_library_head": "ead5e79909bed27b8764355de23724e627ba7888",
+  "content_library_tree": "b78b5e826a83144bcce783aa42d3f416263ff9c4",
+  "protected_main_head": "55bbe4a0f5bafa07a2bb30a9ad1f382a2815cebf",
+  "protected_main_tree": "db5c0e4e7c02c15c369d264919c1425c4b3ca844",
+  "pr_number": 47,
+  "pr_head": "ead5e79909bed27b8764355de23724e627ba7888",
+  "integration_branch": "next/module-integration",
+  "integration_head": "b47f33369d5a9f8daca42564c2eab6212948c8ed",
+  "integration_tree": "5e366d3bc4b286363e9257f1fec66c0f22bfeec1",
+  "content_library_vs_main": { "ahead": 26, "behind": 0 },
+  "content_library_vs_integration": { "ahead": 125, "behind": 14 },
+  "fetch_mode": "TARGETED_AFTER_ALL_FETCH_NONTERMINATING",
+  "shared_workspace_modified": false,
+  "integration_branch_modified": false,
+  "production_mutation_performed": false
+}
