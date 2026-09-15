@@ -2483,6 +2483,10 @@ function ProposalIntelligencePanel({
   const run = async () => {
     setBusy(true);
     try {
+      const freshIdempotencyKey =
+        typeof globalThis.crypto?.randomUUID === "function"
+          ? globalThis.crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
       const response = await api<any>(
         `/api/bd/proposals/${proposal.id}/intelligence`,
         {
@@ -2490,7 +2494,7 @@ function ProposalIntelligencePanel({
           headers: { ...roleHeaders(role), "Content-Type": "application/json" },
           body: JSON.stringify({
             operation,
-            idempotency_key: `proposal-intelligence-${proposal.id}-${operation}`,
+            idempotency_key: `proposal-intelligence-${proposal.id}-${operation}-${freshIdempotencyKey}`,
           }),
         },
       );
