@@ -1,10 +1,10 @@
 # AMEC ProposalOps UI Product-Surface Closure
 
-This evidence run is bound to executable head `1b7efb06dd769416d22ba5459bc95fa8d80d2215` and tree `2e9299fa61e0a2d3ef0610ba49015b9a561cd77e`.
+This evidence run is bound to executable head `701cf1e3dc3b1aa6b8874e419da582cadc671ac4` and tree `98a6688f6d9fb7c3677f679d4c542a472f98bba7`.
 
-The executable first-pass census reports 958 operations with zero discovery-classification gaps. Semantic adjudication assigns every operation a terminal class with a reason; the discovery-only scan still records `376` apparent unmapped user rows and `235` apparent unused support rows, which are not treated as missing screens.
+The executable census reports 958 operations. The corrected adjudicator is fail-closed: 939 operations remain `BLOCKING_UI_GAP` because they lack exact row-level control, request trace, authoritative readback, state coverage, rationale, and named browser evidence. The discovery-only scan still records `376` apparent unmapped user rows and `235` apparent unused support rows; those counts are provenance, not terminal closure metrics.
 
-The semantic ledger groups operations behind canonical task paths and records the persona, navigation context, authoritative read-back, available human action, and history/evidence boundary. It deliberately does not create endpoint-per-screen UI.
+The semantic ledger no longer uses URL prefixes, HTTP verbs, or frontend string references as terminal evidence. It deliberately does not create endpoint-per-screen UI.
 
 The frontend unit suite remains 27 files / 139 tests passing and the production build passes. The real-stack, responsive, accessibility, authz, persona-task, state/error/conflict, owner-UAT, and exact-head CI lanes are recorded separately and are not inferred from route existence.
 

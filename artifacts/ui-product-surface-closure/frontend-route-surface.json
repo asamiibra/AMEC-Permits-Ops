@@ -60,8 +60,8 @@
     }
   ],
   "document": "AMEC ProposalOps canonical frontend product surface",
-  "executable_head": "1b7efb06dd769416d22ba5459bc95fa8d80d2215",
-  "executable_tree": "2e9299fa61e0a2d3ef0610ba49015b9a561cd77e",
+  "executable_head": "701cf1e3dc3b1aa6b8874e419da582cadc671ac4",
+  "executable_tree": "98a6688f6d9fb7c3677f679d4c542a472f98bba7",
   "ia_assertions": {
     "ai_ui_implementation_in_current_branch": 0,
     "historical_taxonomy_in_primary_nav_count": 0,

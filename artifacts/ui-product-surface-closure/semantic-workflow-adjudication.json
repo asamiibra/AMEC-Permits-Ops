@@ -1,11 +1,11 @@
 {
   "discovery_is_not_terminal_evidence": true,
   "document": "AMEC semantic backend capability to UI workflow adjudication",
-  "executable_head": "1b7efb06dd769416d22ba5459bc95fa8d80d2215",
-  "executable_tree": "2e9299fa61e0a2d3ef0610ba49015b9a561cd77e",
-  "note": "This adjudication intentionally groups backend operations behind canonical task paths; it does not create endpoint-per-screen UI.",
-  "status": "PASS",
-  "terminal_blocking_gap_count": 0,
+  "executable_head": "701cf1e3dc3b1aa6b8874e419da582cadc671ac4",
+  "executable_tree": "98a6688f6d9fb7c3677f679d4c542a472f98bba7",
+  "note": "Canonical workflow descriptions remain product context only; terminal classification requires an exact operation review record and never creates endpoint-per-screen UI.",
+  "status": "FAIL",
+  "terminal_blocking_gap_count": 939,
   "terminal_classes": [
     "SURFACED_DIRECT",
     "SURFACED_INDIRECT_WORKFLOW",
@@ -17,7 +17,7 @@
     "AI_HANDOFF_INTEGRATION_BRANCH",
     "BLOCKING_UI_GAP"
   ],
-  "terminal_unjustified_count": 0,
+  "terminal_unjustified_count": 939,
   "terminal_unknown_count": 0,
   "workflows": {
     "administration": {
@@ -25,7 +25,7 @@
       "evidence": "frontend/browser-real-stack/admin-owner-ready.spec.ts and administration-final-audit.spec.ts",
       "readback": "Administration sections read server projections and expose bounded configuration actions; server authorization remains authoritative.",
       "route": "/admin",
-      "status": "SOURCE_AND_TARGETED_REAL_STACK_EVIDENCE",
+      "status": "NOT_PROVEN",
       "workflow": "Administration \u2192 access/configuration/integration/audit capability",
       "workflow_id": "administration"
     },
@@ -34,7 +34,7 @@
       "evidence": "frontend/browser-real-stack/billing-finance-closure.spec.ts and post-billing-v2-reconciliation.spec.ts",
       "readback": "Finance registers and detail workspaces refresh server capabilities, projections, receipts, allocations, receivables, and financial history after commands.",
       "route": "/billing",
-      "status": "SOURCE_AND_TARGETED_REAL_STACK_EVIDENCE",
+      "status": "NOT_PROVEN",
       "workflow": "Billing/Finance \u2192 invoice register/detail \u2192 acknowledgement \u2192 payment evidence \u2192 verification/allocation/reversal/history",
       "workflow_id": "billing_finance"
     },
@@ -43,7 +43,7 @@
       "evidence": "frontend/browser-real-stack/completion-asbuilt.spec.ts and handover real-stack coverage",
       "readback": "Completion and Handover workspaces preserve separate readiness, baseline, outcome, service-close, financial-settlement, and history state.",
       "route": "/completion",
-      "status": "SOURCE_AND_TARGETED_REAL_STACK_EVIDENCE",
+      "status": "NOT_PROVEN",
       "workflow": "Completion/as-built \u2192 variance/evidence \u2192 handover/closeout/settlement",
       "workflow_id": "completion_handover"
     },
@@ -52,7 +52,7 @@
       "evidence": "frontend/browser-real-stack/construction-post-approval.spec.ts",
       "readback": "Construction detail reloads readiness, work events, obligations, inspections, issues, notifications, and lineage projections.",
       "route": "/construction",
-      "status": "SOURCE_AND_TARGETED_REAL_STACK_EVIDENCE",
+      "status": "NOT_PROVEN",
       "workflow": "Construction/post-approval \u2192 start gate \u2192 controlled work events \u2192 evidence",
       "workflow_id": "construction_delivery"
     },
@@ -61,7 +61,7 @@
       "evidence": "frontend/browser-real-stack/master-content-owner-dashboard.spec.ts and admin-forms-real-stack.spec.ts",
       "readback": "Library list/detail/history and governance projections refresh after content changes; no AI authority is introduced.",
       "route": "/content-library",
-      "status": "SOURCE_AND_TARGETED_REAL_STACK_EVIDENCE",
+      "status": "NOT_PROVEN",
       "workflow": "Content Library \u2192 Forms / Reports / Engineering Works / Definitions; Checklist remains a Form",
       "workflow_id": "content_library"
     },
@@ -70,7 +70,7 @@
       "evidence": "frontend/browser-real-stack/master-content-owner-dashboard.spec.ts and visual-qa.spec.ts",
       "readback": "Engineering workspace refreshes project/review/work-package projections and keeps exact revision, finding, and approval evidence visible.",
       "route": "/engineering",
-      "status": "SOURCE_AND_TARGETED_REAL_STACK_EVIDENCE",
+      "status": "NOT_PROVEN",
       "workflow": "Projects & Delivery \u2192 engineering lifecycle \u2192 review/approval/baseline",
       "workflow_id": "engineering_delivery"
     },
@@ -79,7 +79,7 @@
       "evidence": "frontend/browser-real-stack/persona-issues-notifications.spec.ts and issue-detail-final.spec.ts",
       "readback": "Persona-scoped issue/notification projections refresh acknowledgement and preserve the owning deep link/evidence context.",
       "route": "/issues",
-      "status": "SOURCE_AND_TARGETED_REAL_STACK_EVIDENCE",
+      "status": "NOT_PROVEN",
       "workflow": "Issues/Notifications \u2192 owning work item \u2192 acknowledgement/history",
       "workflow_id": "issues_notifications"
     },
@@ -88,7 +88,7 @@
       "evidence": "frontend/browser-real-stack/owner-decision-closure.spec.ts",
       "readback": "Owner Decision Register reloads the canonical decision, confirmation status, protected technical facts, and history.",
       "route": "/owner-decisions",
-      "status": "SOURCE_AND_TARGETED_REAL_STACK_EVIDENCE",
+      "status": "NOT_PROVEN",
       "workflow": "Owner Decisions \u2192 recommendation/context \u2192 explicit confirmation \u2192 audit/history",
       "workflow_id": "owner_decisions"
     },
@@ -97,7 +97,7 @@
       "evidence": "frontend/browser-real-stack/owner-rehearsal.spec.ts and ui-product-surface-closure-real-stack.spec.ts",
       "readback": "Authority Case workspace reads requirements, documents, drawings, forms, findings, cycles, outcomes, and history from the canonical case projection.",
       "route": "/permits",
-      "status": "SOURCE_AND_TARGETED_REAL_STACK_EVIDENCE",
+      "status": "NOT_PROVEN",
       "workflow": "Permit preparation \u2192 evidence \u2192 precheck \u2192 human submission \u2192 authority history",
       "workflow_id": "permit_delivery"
     },
@@ -106,7 +106,7 @@
       "evidence": "frontend/browser-real-stack/proposals-contracts-final.spec.ts and contract-center-final-owner-hardening.spec.ts",
       "readback": "Proposal/Contract workspace refreshes the canonical record after every command and exposes readiness/history projections.",
       "route": "/proposals",
-      "status": "SOURCE_AND_TARGETED_REAL_STACK_EVIDENCE",
+      "status": "NOT_PROVEN",
       "workflow": "Opportunity / Proposal \u2192 Proceed \u2192 Contract \u2192 Accept \u2192 Project Activation",
       "workflow_id": "proposal_lifecycle"
     },
@@ -115,7 +115,7 @@
       "evidence": "frontend/browser-real-stack/homepage-owner-ready.spec.ts and persona-issues-notifications.spec.ts",
       "readback": "AMEC Work reloads the role-scoped work projection; the owning workspace is authoritative for mutation.",
       "route": "/work",
-      "status": "SOURCE_AND_TARGETED_REAL_STACK_EVIDENCE",
+      "status": "NOT_PROVEN",
       "workflow": "My Work/task queues \u2192 owning business work item",
       "workflow_id": "work_queue"
     }
