@@ -3,10 +3,13 @@ from __future__ import annotations
 import json
 from uuid import uuid4
 
+import pytest
+from sqlalchemy import select
+
 from backend.app.ai.skill_registry import SKILL_REGISTRY
 from backend.app.ai.structured_output import _strict_schema, ContentLibraryCandidateOutput
 from backend.app.db import SessionLocal
-from backend.app.models import DocumentVersion
+from backend.app.models import AIWorkProduct, DocumentVersion, IntelligenceInvalidation
 
 
 OWNER = {"X-Dev-Role": "SYSTEM_ADMIN"}
@@ -77,6 +80,29 @@ def _form(client):
             "needs_review": "false",
         },
         files={"file": ("content-library.txt", b"synthetic governed source", "text/plain")},
+        headers={**OWNER, "Idempotency-Key": str(uuid4())},
+    )
+    assert response.status_code == 200, response.text
+    return response.json()
+
+
+def _master(client, content_type):
+    category = client.get("/api/master-content/categories", headers=OWNER)
+    assert category.status_code == 200, category.text
+    category_id = next(row["id"] for row in category.json() if content_type in row["allowed_content_types"])
+    modules = ["ENGINEERING"] if content_type == "ENGINEERING_WORK" else ["ADMIN"]
+    response = client.post(
+        "/api/master-content",
+        data={
+            "content_type": content_type,
+            "ref": f"AI-{content_type[:3]}-{uuid4().hex[:8]}",
+            "title": f"{content_type} intelligence fixture",
+            "description": "Synthetic governed fixture",
+            "category_id": category_id,
+            "used_in": json.dumps(modules),
+            "needs_review": "false",
+        },
+        files={"file": (f"{content_type.lower()}.txt", b"synthetic governed source", "text/plain")},
         headers={**OWNER, "Idempotency-Key": str(uuid4())},
     )
     assert response.status_code == 200, response.text
@@ -223,3 +249,95 @@ def test_content_library_intelligence_is_available_for_definitions(client):
     persisted = client.get(f"/api/definitions/{definition['id']}", headers=OWNER)
     assert persisted.status_code == 200, persisted.text
     assert persisted.json()["description"] == definition["description"]
+
+
+@pytest.mark.parametrize("content_type", ["FORM", "REPORT", "ENGINEERING_WORK"])
+def test_content_library_ai_products_invalidate_when_master_version_changes(client, content_type):
+    item = _master(client, content_type)
+    with SessionLocal() as db:
+        version = db.get(DocumentVersion, item["current_version_id"])
+        version.source_system = "SYNTHETIC"
+        version.source_path_or_reference = f"synthetic://content-library/{content_type.lower()}/invalidation"
+        version.metadata_json = {**(version.metadata_json or {}), "synthetic_only": True, "master_status": "CURRENT"}
+        db.commit()
+
+    first = client.post(
+        f"/api/master-content/{item['id']}/intelligence/master-content.source-grounded-assist",
+        headers={**OWNER, "Idempotency-Key": f"content-library-invalidation-{content_type}-first"},
+    )
+    assert first.status_code == 200, first.text
+    first_product_id = first.json()["work_product_id"]
+    first_version_id = item["current_version_id"]
+
+    promoted = client.post(
+        f"/api/master-content/{item['id']}/versions",
+        data={"expected_current_version": "1", "change_reason": "Synthetic currentness invalidation"},
+        files={"file": (f"{content_type.lower()}-v2.txt", b"synthetic governed source version two", "text/plain")},
+        headers={**OWNER, "Idempotency-Key": f"content-library-invalidation-{content_type}-promote"},
+    )
+    assert promoted.status_code == 200, promoted.text
+    assert promoted.json()["current_version_id"] != first_version_id
+
+    with SessionLocal() as db:
+        version = db.get(DocumentVersion, promoted.json()["current_version_id"])
+        version.source_system = "SYNTHETIC"
+        version.source_path_or_reference = f"synthetic://content-library/{content_type.lower()}/invalidation-v2"
+        version.metadata_json = {**(version.metadata_json or {}), "synthetic_only": True, "master_status": "CURRENT"}
+        db.commit()
+
+    with SessionLocal() as db:
+        product = db.get(AIWorkProduct, first_product_id)
+        assert product is not None
+        assert product.state == "STALE"
+        assert product.invalidation_count == 1
+        assert db.scalar(select(IntelligenceInvalidation).where(IntelligenceInvalidation.work_product_id == first_product_id)) is not None
+
+    rerun = client.post(
+        f"/api/master-content/{item['id']}/intelligence/master-content.source-grounded-assist",
+        headers={**OWNER, "Idempotency-Key": f"content-library-invalidation-{content_type}-second"},
+    )
+    assert rerun.status_code == 200, rerun.text
+    assert rerun.json()["work_product_id"] != first_product_id
+    assert rerun.json()["status"] == "SUCCEEDED"
+
+
+def test_content_library_definition_ai_products_invalidate_when_revision_changes(client):
+    definition = _definition(client)
+    first = client.post(
+        f"/api/definitions/{definition['id']}/intelligence/master-content.description-draft",
+        headers={**OWNER, "Idempotency-Key": "content-library-definition-invalidation-first"},
+    )
+    assert first.status_code == 200, first.text
+    first_product_id = first.json()["work_product_id"]
+    first_revision_id = definition["revision_id"]
+
+    revised = client.post(
+        f"/api/definitions/{definition['id']}/revisions",
+        json={
+            "term": definition["term"],
+            "description": "Synthetic governed definition revision two",
+            "expected_revision": 1,
+            "change_reason": "Synthetic currentness invalidation",
+        },
+        headers=OWNER,
+    )
+    assert revised.status_code == 200, revised.text
+    assert revised.json()["revision_id"] != first_revision_id
+
+    with SessionLocal() as db:
+        product = db.get(AIWorkProduct, first_product_id)
+        assert product is not None
+        assert product.state == "STALE"
+        assert product.invalidation_count == 1
+        invalidation = db.scalar(select(IntelligenceInvalidation).where(IntelligenceInvalidation.work_product_id == first_product_id))
+        assert invalidation is not None
+        assert invalidation.dependency_type == "DEFINITION_REVISION"
+        assert invalidation.dependency_id == first_revision_id
+
+    rerun = client.post(
+        f"/api/definitions/{definition['id']}/intelligence/master-content.description-draft",
+        headers={**OWNER, "Idempotency-Key": "content-library-definition-invalidation-second"},
+    )
+    assert rerun.status_code == 200, rerun.text
+    assert rerun.json()["work_product_id"] != first_product_id
+    assert rerun.json()["status"] == "SUCCEEDED"
