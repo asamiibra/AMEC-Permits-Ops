@@ -127,6 +127,25 @@ def validate(acceptance_path: Path, evidence_dir: Path, expected_candidate_sha: 
     return {"version": 6, "stage": stage, "result": "PASS" if not errors else "FAIL", "expected_candidate_sha": expected_candidate_sha, "expected_validation_sha": expected_validation_sha, "expected_run_id": expected_run_id, "required_field_count": len(REQUIRED_FIELDS), "check_count": len(seen), "error_count": len(errors), "unknown_evidence_id_count": sum(item.get("error") == "unknown_evidence_id" for item in errors), "unresolved_evidence_reference_count": sum(item.get("error") in {"missing_required_producer","unstable_or_local_evidence_reference","missing_evidence"} for item in errors), "duplicate_assertion_count": sum(item.get("error") == "duplicate_assertion" for item in errors), "identity_mismatch_count": identity_mismatch_count, "not_executed_count": not_executed_count, "self_reference_only_count": self_reference_only_count, "missing_required_producer_count": missing_required_producer_count, "runtime_required_source_only_pass_count": runtime_required_source_only_pass_count, "false_accept_count": false_accept_count, "assertion_semantic_recompute_count": semantic_recompute_count, "assertion_semantic_recompute_fail_count": semantic_recompute_fail_count, "assertion_semantic_proof_fail_count": semantic_recompute_fail_count, "assertion_semantic_proof_mismatch_count": semantic_proof_mismatch_count, "assertion_proof_type_mismatch_count": expected_type_mismatch_count, "producer_result_contract_failure_count": producer_contract_failure_count, "producer_result_contract_unique_failure_count": len(contract_failure_producers), "producer_result_contract_failed_producer_ids": sorted(contract_failure_producers), "producer_result_contract_failure_reference_count": contract_failure_reference_count, "producer_result_contract_errors_by_producer": {producer: sorted(items) for producer, items in sorted(contract_failure_errors.items())}, "assertion_rows_impacted_by_contract_failure_count": len(assertion_rows_impacted_by_contract_failure), "generic_result_only_semantic_proof_count": generic_result_only_count, "specific_field_semantic_proof_count": specific_field_count, "tautological_expected_observed_count": tautology_count, "category_policy_audit": policy_audit, "producer_states": producer_states, "errors": errors}
 
 
+def validate_mutation(acceptance_path: Path, evidence_dir: Path, expected_candidate_sha: str, expected_validation_sha: str, expected_run_id: str, category: str, assertion: str) -> dict[str, Any]:
+    """Validate one changed assertion after a complete baseline validation.
+
+    Source preflight uses this focused path for its mutation certificate: the
+    baseline call validates the complete 300-row artifact set, and each mutation
+    then needs only the affected semantic proof recomputed.  This keeps the
+    mutation loop linear without changing the production validator's full-path
+    behavior.
+    """
+    try:
+        acceptance = json.loads(acceptance_path.read_text(encoding="utf-8"))
+        check = next(item for item in acceptance.get("checks", []) if item.get("category") == category and item.get("assertion") == assertion)
+        recomputed = semantic_proofs(check, evidence_dir, expected_candidate_sha, expected_validation_sha, expected_run_id, REQUIREMENT_GROUPS)
+        failed = any(row.get("result") != "PASS" for row in recomputed)
+        return {"version": 1, "result": "FAIL" if failed else "PASS", "category": category, "assertion": assertion, "semantic_proof_count": len(recomputed), "semantic_failure_count": sum(row.get("result") != "PASS" for row in recomputed)}
+    except (OSError, json.JSONDecodeError, StopIteration, KeyError, TypeError):
+        return {"version": 1, "result": "FAIL", "category": category, "assertion": assertion, "semantic_proof_count": 0, "semantic_failure_count": 1}
+
+
 def run(evidence_dir: Path, acceptance_path: Path, output: Path, expected_candidate_sha: str, expected_validation_sha: str, expected_run_id: str, stage: str = "FINAL") -> dict[str, Any]:
     result = validate(acceptance_path, evidence_dir, expected_candidate_sha, expected_validation_sha, expected_run_id, stage)
     output.parent.mkdir(parents=True, exist_ok=True); output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8"); print(json.dumps(result, indent=2, sort_keys=True)); return result

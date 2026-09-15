@@ -13,15 +13,15 @@ try:
     from common import PHASE5_ARTIFACTS, ROOT, write_json
     from registry import CATEGORY_EVIDENCE_POLICY, EVIDENCE_PRODUCERS, PRODUCER_RESULT_CONTRACTS, PREDICATE_REGISTRY, PIPELINE_STAGES, assertion_policy, assertion_policy_audit, category_policy_audit, canonical_names, pipeline_audit, producer_paths, validate_producer_payload_contract
     from acceptance import REQUIREMENT_GROUPS, run as acceptance_run
-    from evidence_validate import validate as evidence_validate
-    from independent_semantic_validate import validate as independent_validate
+    from evidence_validate import validate as evidence_validate, validate_mutation as evidence_validate_mutation
+    from independent_semantic_validate import validate as independent_validate, validate_mutation as independent_validate_mutation
     from finalize import SUMMARY_FIELD_SOURCE_MAP
 except ModuleNotFoundError:
     from .common import PHASE5_ARTIFACTS, ROOT, write_json
     from .registry import CATEGORY_EVIDENCE_POLICY, EVIDENCE_PRODUCERS, PRODUCER_RESULT_CONTRACTS, PREDICATE_REGISTRY, PIPELINE_STAGES, assertion_policy, assertion_policy_audit, category_policy_audit, canonical_names, pipeline_audit, producer_paths, validate_producer_payload_contract
     from .acceptance import REQUIREMENT_GROUPS, run as acceptance_run
-    from .evidence_validate import validate as evidence_validate
-    from .independent_semantic_validate import validate as independent_validate
+    from .evidence_validate import validate as evidence_validate, validate_mutation as evidence_validate_mutation
+    from .independent_semantic_validate import validate as independent_validate, validate_mutation as independent_validate_mutation
     from .finalize import SUMMARY_FIELD_SOURCE_MAP
 
 
@@ -313,14 +313,18 @@ def _run_artifact_semantic_mutation_matrix(assertion: dict[tuple[str, str], dict
         if generated.get("result") != "PASS":
             return {"case_count": 300, "primary_reject_count": 0, "primary_false_accept_count": 300, "independent_reject_count": 0, "independent_false_accept_count": 300, "disagreement_count": 0, "result": "FAIL", "cases": []}
         baseline_bytes = {path: path.read_bytes() for path in evidence.glob("*")}
+        baseline_primary = evidence_validate(acceptance_path, evidence, candidate, validation, run_id, "FINAL")
+        baseline_independent = independent_validate(Path(ROOT / "contracts/amec/phase5/AMEC_PHASE5_ASSERTION_EVIDENCE_SPEC_v2.json"), acceptance_path, evidence, candidate, validation, run_id)
+        if baseline_primary.get("result") != "PASS" or baseline_independent.get("result") != "PASS":
+            return {"case_count": 300, "primary_reject_count": 0, "primary_false_accept_count": 300, "independent_reject_count": 0, "independent_false_accept_count": 300, "disagreement_count": 0, "result": "FAIL", "cases": []}
         for case_id, ((category, assertion_name), item) in enumerate(sorted(assertion.items()), 1):
             proof = item["proof_specs"][0]
             artifact = evidence / f"{proof['producer_id']}.{'meta.json' if proof['artifact_kind'] == 'meta' else 'result.json'}"
             payload = json.loads(artifact.read_text(encoding="utf-8"))
             _set_json_path(payload, proof["json_path"], _mutated_value(proof))
             artifact.write_text(json.dumps(payload, sort_keys=True) + "\n", encoding="utf-8")
-            primary = evidence_validate(acceptance_path, evidence, candidate, validation, run_id, "FINAL")
-            independent = independent_validate(Path(ROOT / "contracts/amec/phase5/AMEC_PHASE5_ASSERTION_EVIDENCE_SPEC_v2.json"), acceptance_path, evidence, candidate, validation, run_id)
+            primary = evidence_validate_mutation(acceptance_path, evidence, candidate, validation, run_id, category, assertion_name)
+            independent = independent_validate_mutation(Path(ROOT / "contracts/amec/phase5/AMEC_PHASE5_ASSERTION_EVIDENCE_SPEC_v2.json"), acceptance_path, evidence, candidate, validation, run_id, category, assertion_name)
             primary_rejected = primary.get("result") != "PASS"
             independent_rejected = independent.get("result") != "PASS"
             rows.append({"case_id": f"P5-MUT-{case_id:03d}", "category": category, "assertion": assertion_name, "producer_id": proof["producer_id"], "artifact_kind": proof["artifact_kind"], "json_path": proof["json_path"], "primary_rejected": primary_rejected, "independent_rejected": independent_rejected, "mutation_detected": primary_rejected, "mutation_applied_to_artifact_bytes": True, "top_level_result_mutated": False})

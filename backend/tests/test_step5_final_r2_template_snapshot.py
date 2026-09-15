@@ -77,9 +77,63 @@ def _normalize_step5_contract_template():
         db.commit()
 
 
+def _retire_step5_legacy_proposal_probes(client):
+    """Restore canonical proposal identities before creating this fixture.
+
+    Earlier modules intentionally exercise archived, superseded, and invalid
+    content rows.  Step 5 must enter through the same canonical BD resolver as
+    production, so repair only this synthetic fixture boundary before calling
+    the shared proposal helper.
+    """
+    with SessionLocal() as db:
+        items = db.query(MasterContentItem).filter(MasterContentItem.ref.in_(["F-0003", "F-0004", "SYN-QUAL-PROPOSAL-TEMPLATE-V1", "SYN-QUAL-PROPOSAL-CHECKLIST-V1"])).all()
+        for item in items:
+            item.ref = f"ARCHIVED-{item.ref}-{item.id[:8]}"
+            item.status = "ARCHIVED"
+            for binding in db.scalars(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == item.id)).all():
+                binding.active = False
+        db.commit()
+    for ref, title, usage in (("BD-PROP-001", "Canonical Proposal Template", "PROPOSAL_TEMPLATE"), ("BD-CHK-001", "Canonical Proposal Checklist", "PROPOSAL_CHECKLIST")):
+        rows = client.get("/api/master-content", params={"q": ref, "include_archived": "true"}, headers=headers("SYSTEM_ADMIN"))
+        assert rows.status_code == 200, rows.text
+        item = None
+        active_ids = {row["id"] for row in rows.json() if row["ref"] == ref and row.get("status") == "ACTIVE"}
+        with SessionLocal() as db:
+            active_items = db.scalars(select(MasterContentItem).where(MasterContentItem.id.in_(active_ids))).all() if active_ids else []
+            valid_items = []
+            for current in active_items:
+                version = db.get(DocumentVersion, current.current_document_version_id) if current.current_document_version_id else None
+                document = db.get(Document, current.document_id) if current.document_id else None
+                valid = bool(current.status == "ACTIVE" and version and document and document.current_version_id == version.id and version.source_path_or_reference and version.source_path_or_reference != "PENDING" and version.approval_state == DocumentApprovalState.REVIEWED and (version.metadata_json or {}).get("master_status") == "CURRENT")
+                if valid:
+                    valid_items.append(current)
+            keep = valid_items[0] if valid_items else None
+            for current in active_items:
+                if current is keep:
+                    continue
+                current.status = "ARCHIVED"
+                current.ref = f"ARCHIVED-{ref}-{current.id[:8]}"
+                for binding in db.scalars(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == current.id)).all():
+                    binding.active = False
+            db.commit()
+            if keep:
+                item = next(row for row in rows.json() if row["id"] == keep.id)
+        if item is None:
+            created = client.post("/api/master-content", data={"content_type": "FORM", "ref": ref, "title": title, "description": title, "used_in": '["BD"]'}, files={"file": (f"{ref}.txt", b"canonical proposal fixture", "text/plain")}, headers=headers("SYSTEM_ADMIN"))
+            assert created.status_code == 200, created.text
+            item = created.json()
+        governed = client.patch(f"/api/master-content/{item['id']}/governance", json={"content_ownership_class": "AMEC_OWNED", "artifact_kind": "AMEC_FORM", "language_profile": "EN"}, headers=headers("SYSTEM_ADMIN"))
+        assert governed.status_code == 200, governed.text
+        bound = client.put(f"/api/master-content/{item['id']}/module-bindings", json=[{"module": "BD", "usage_type": usage}], headers=headers("SYSTEM_ADMIN"))
+        assert bound.status_code == 200, bound.text
+        resolved = client.get(f"/api/master-content/resolvers/BD/{usage}", headers=headers("SYSTEM_ADMIN"))
+        assert resolved.status_code == 200 and resolved.json().get("status") == "RESOLVED", resolved.text
+
+
 def test_owner_capture_is_exactly_once_and_non_owner_denied(client):
     ensure_contract_template(client)
     _normalize_step5_contract_template()
+    _retire_step5_legacy_proposal_probes(client)
     proposal_id, _ = make_accepted_proposal(client, "Step5 Final R2 Snapshot Fixture")
     created = client.post("/api/admin/contracts/from-proposal/" + proposal_id, headers=headers("OWNER_SPONSOR"), json={})
     assert created.status_code == 200, created.text
@@ -117,6 +171,7 @@ def test_owner_capture_is_exactly_once_and_non_owner_denied(client):
 def test_finalized_contract_cannot_be_backfilled(client):
     ensure_contract_template(client)
     _normalize_step5_contract_template()
+    _retire_step5_legacy_proposal_probes(client)
     proposal_id, _ = make_accepted_proposal(client, "Step5 Final R2 Finalized Fixture")
     created = client.post("/api/admin/contracts/from-proposal/" + proposal_id, headers=headers("OWNER_SPONSOR"), json={})
     assert created.status_code == 200, created.text

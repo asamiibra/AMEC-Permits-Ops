@@ -8,12 +8,13 @@ from uuid import uuid4
 from backend.app.db import SessionLocal
 from backend.app.models import (
     AssistantHandoff, AuditEvent, ClientAccount, Contract, ContractAdminEvidence, ContractAdminInput,
-    ContractRevision, ContractTemplateSnapshot, LineageEdge, NotificationEvent,
+    ContractRevision, ContractTemplateSnapshot, Document, LineageEdge, NotificationEvent,
     ContractClientInputRequirement, ContractDeliverableCommitment, ContractPaymentTerm,
     Opportunity, Project, ProjectActivation, ProposalAcceptedRevision,
     ProposalIntakeArtifact, ProposalOutputArtifact, ProposalSourceEvidence, ProposalSourceLink,
     Quotation, QuotationRevision, WorkflowTask,
     DocumentVersion,
+    MasterContentItem, MasterContentModuleBinding,
     BillingPlan, BillingPlanRevision, BillingMilestone, BillingMilestoneEligibility,
     Invoice, InvoiceRevision, InvoiceMilestone, InvoiceApproval, InvoiceRequirementDecision,
     InvoiceLineItem, InvoiceReference, InvoiceApprovalRecord, InvoiceAcceptRecord,
@@ -224,6 +225,20 @@ def clean_owner_fixture():
 def ensure_contract_template(client):
     rows = client.get("/api/master-content", params={"q": "CT-TEST-001"}, headers=headers("SYSTEM_ADMIN"))
     item = next((row for row in rows.json() if row["ref"] == "CT-TEST-001"), None)
+    if item:
+        # Recreate an orphaned test source instead of masking an invalid
+        # item->document->current-version chain as a binding failure.
+        with SessionLocal() as db:
+            current = db.get(MasterContentItem, item["id"])
+            version = db.get(DocumentVersion, current.current_document_version_id) if current and current.current_document_version_id else None
+            document = db.get(Document, current.document_id) if current and current.document_id else None
+            valid = bool(current and current.status == "ACTIVE" and version and document and document.current_version_id == version.id)
+            if not valid and current:
+                current.status = "ARCHIVED"
+                current.ref = f"ARCHIVED-CT-TEST-001-{current.id[:8]}"
+                db.query(MasterContentModuleBinding).filter(MasterContentModuleBinding.master_content_id == current.id).update({"active": False}, synchronize_session=False)
+                db.commit()
+                item = None
     if not item:
         response = client.post("/api/master-content", data={"content_type": "FORM", "ref": "CT-TEST-001", "title": "Resolver Contract Template", "description": "Canonical synthetic Contract Template", "used_in": '["ADMIN"]'}, files={"file": ("CT-TEST-001.txt", b"canonical contract template", "text/plain")}, headers=headers("SYSTEM_ADMIN"))
         assert response.status_code == 200, response.text
@@ -236,8 +251,24 @@ def ensure_contract_template(client):
 
 def make_accepted_proposal(client, name="Skyline Factory Industrial"):
     for ref, title, usage in (("F-0003", "Test Proposal Template", "PROPOSAL_TEMPLATE"), ("F-0004", "Test Proposal Checklist", "PROPOSAL_CHECKLIST")):
-        rows = client.get("/api/master-content", params={"q": ref}, headers=headers("SYSTEM_ADMIN"))
-        item = next((row for row in rows.json() if row["ref"] == ref), None)
+        resolution = client.get(f"/api/master-content/resolvers/BD/{usage}", headers=headers("SYSTEM_ADMIN"))
+        resolved = resolution.json() if resolution.status_code == 200 else {}
+        item = resolved.get("item") if resolved.get("status") == "RESOLVED" and resolved.get("item", {}).get("ref") in {"BD-PROP-001", "BD-CHK-001"} else None
+        if not item:
+            rows = client.get("/api/master-content", params={"q": ref}, headers=headers("SYSTEM_ADMIN"))
+            item = next((row for row in rows.json() if row["ref"] == ref), None)
+        if item:
+            with SessionLocal() as db:
+                current = db.get(MasterContentItem, item["id"])
+                version = db.get(DocumentVersion, current.current_document_version_id) if current and current.current_document_version_id else None
+                document = db.get(Document, current.document_id) if current and current.document_id else None
+                valid = bool(current and current.status == "ACTIVE" and version and document and document.current_version_id == version.id and version.source_path_or_reference and version.source_path_or_reference != "PENDING")
+                if not valid and current:
+                    current.status = "ARCHIVED"
+                    current.ref = f"ARCHIVED-{ref}-{current.id[:8]}"
+                    db.query(MasterContentModuleBinding).filter(MasterContentModuleBinding.master_content_id == current.id).update({"active": False}, synchronize_session=False)
+                    db.commit()
+                    item = None
         if not item:
             created = client.post("/api/master-content", data={"content_type": "FORM", "ref": ref, "title": title, "description": title, "used_in": '["BD"]'}, files={"file": (f"{ref}.txt", b"proposal content", "text/plain")}, headers=headers("SYSTEM_ADMIN"))
             assert created.status_code == 200, created.text
