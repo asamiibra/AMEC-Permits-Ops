@@ -777,13 +777,16 @@ async def _register_source_content(*, proposal: Opportunity, request: Request, s
 
 
 @router.post("/intake")
-async def create_proposal_intake(request: Request, proposal_description: str = Form(...), project_reference: str | None = Form(default=None), client_name: str | None = Form(default=None), client_account_id: str | None = Form(default=None), project_id: str | None = Form(default=None), initial_source_type: str | None = Form(default=None), source_title: str | None = Form(default=None), source_date: str | None = Form(default=None), source_notes: str | None = Form(default=None), source_revision: str | None = Form(default=None), idempotency_key: str | None = Form(default=None), file: UploadFile | None = File(default=None), db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+async def create_proposal_intake(request: Request, proposal_description: str = Form(...), project_reference: str | None = Form(default=None), client_name: str | None = Form(default=None), client_account_id: str | None = Form(default=None), project_id: str | None = Form(default=None), initial_source_type: str | None = Form(default=None), source_title: str | None = Form(default=None), source_date: str | None = Form(default=None), source_notes: str | None = Form(default=None), source_revision: str | None = Form(default=None), contact_name: str | None = Form(default=None), contact_email: str | None = Form(default=None), idempotency_key: str | None = Form(default=None), file: UploadFile | None = File(default=None), db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     """Create a Proposal and its optional initial source in one DB transaction."""
     require_capability(role, "BD_PROPOSAL_WRITE")
     source_type = initial_source_type.upper() if initial_source_type else None
     if source_type and source_type not in SOURCE_TYPES:
         raise HTTPException(422, {"code": "SOURCE_TYPE_REQUIRED", "allowed": list(SOURCE_TYPES)})
-    if source_type and not file:
+    # Client Information is a source context made from human-entered client
+    # context and contact metadata; unlike a tender source it has no required
+    # external file. The other source contexts must retain their file gate.
+    if source_type and not file and source_type != "CLIENT_DATA":
         raise HTTPException(422, {"code": "INITIAL_SOURCE_FILE_REQUIRED", "source_type": source_type})
     existing = db.scalar(select(Opportunity).where(Opportunity.idempotency_key == idempotency_key)) if idempotency_key else None
     if existing:
@@ -796,6 +799,34 @@ async def create_proposal_intake(request: Request, proposal_description: str = F
             if not content:
                 raise HTTPException(422, {"code": "INITIAL_SOURCE_FILE_EMPTY", "source_type": source_type})
             result = await _register_source_content(proposal=proposal, request=request, source_type=source_type, source_filename=file.filename or source_title or "source.bin", content_type=file.content_type or "application/octet-stream", content=content, source_revision=source_revision, actor=_actor(role), idempotency_key=idempotency_key, source_metadata={"initial_source": True, "title": source_title, "source_date": source_date, "notes": source_notes}, db=db, role=role)
+        elif source_type == "CLIENT_DATA":
+            contact = (contact_name or "").strip()
+            email = (contact_email or "").strip()
+            if not contact and not email:
+                raise HTTPException(422, {"code": "CLIENT_INFORMATION_CONTACT_REQUIRED"})
+            set_contact(db, proposal, {"display_name": contact or None, "email": email or None, "purpose": "PROPOSAL_CONTACT", "status": "HUMAN_ENTERED", "notes": source_notes or None}, _actor(role))
+            metadata_lines = [
+                f"Client: {(client_name or '').strip()}",
+                f"Contact: {contact or 'Not recorded'}",
+                f"Email: {email or 'Not recorded'}",
+                f"Source title: {(source_title or 'Client Information').strip()}",
+                f"Source date: {(source_date or 'Not recorded').strip()}",
+                f"Notes: {(source_notes or 'Not recorded').strip()}",
+            ]
+            result = await _register_source_content(
+                proposal=proposal,
+                request=request,
+                source_type=source_type,
+                source_filename=source_title.strip() if source_title and source_title.strip() else "client-information.txt",
+                content_type="text/plain",
+                content=("HUMAN-ENTERED CLIENT INFORMATION\n" + "\n".join(metadata_lines)).encode("utf-8"),
+                source_revision=None,
+                actor=_actor(role),
+                idempotency_key=idempotency_key,
+                source_metadata={"initial_source": True, "context": "CLIENT_INFORMATION", "title": source_title, "source_date": source_date, "notes": source_notes},
+                db=db,
+                role=role,
+            )
         db.commit()
     except Exception:
         db.rollback()

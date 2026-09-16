@@ -47,7 +47,9 @@ describe("P04 canonical Proposal experience", () => {
     mockedRegister.mockReset().mockResolvedValue(register);
     mockedDetail.mockReset().mockResolvedValue(detail);
     mockedCommand.mockReset().mockResolvedValue(detail);
-    mockedApi.mockReset().mockResolvedValue({ id: "proposal-1" });
+    mockedApi.mockReset().mockImplementation(async (path: string) => path === "/api/bd/proposals/clients"
+      ? { items: [{ id: "client-1", name: "Harbor Client" }] }
+      : { id: "proposal-1" });
     window.history.pushState({}, "", "/proposals");
   });
 
@@ -95,6 +97,62 @@ describe("P04 canonical Proposal experience", () => {
     const createCall = mockedApi.mock.calls.find(([path]) => path === "/api/bd/proposals");
     expect(createCall).toBeTruthy();
     expect(JSON.parse(String((createCall?.[1] as RequestInit).body))).toMatchObject({ client_account_id: "client-1" });
+  });
+
+  it("blocks creation while the canonical Client list is loading", async () => {
+    let resolveClients!: (value: unknown) => void;
+    mockedApi.mockImplementation((path: string) => path === "/api/bd/proposals/clients"
+      ? new Promise((resolve) => { resolveClients = resolve; })
+      : Promise.resolve({ id: "proposal-1" }));
+    render(<ProposalRoutes role="COMMERCIAL_APPROVER" />);
+    fireEvent.click(await screen.findByRole("button", { name: /New Proposal/ }));
+    fireEvent.click(await screen.findByRole("button", { name: /Start without a source/ }));
+    expect(screen.getByRole("status")).toHaveTextContent("Loading active Clients");
+    expect(screen.getByRole("button", { name: "Create Proposal draft" })).toBeDisabled();
+    resolveClients({ items: [{ id: "client-1", name: "Harbor Client" }] });
+  });
+
+  it("keeps Client list errors distinct and retryable", async () => {
+    let attempts = 0;
+    mockedApi.mockImplementation((path: string) => {
+      if (path !== "/api/bd/proposals/clients") return Promise.resolve({ id: "proposal-1" });
+      attempts += 1;
+      return attempts === 1 ? Promise.reject(new Error("network down")) : Promise.resolve({ items: [{ id: "client-1", name: "Harbor Client" }] });
+    });
+    render(<ProposalRoutes role="COMMERCIAL_APPROVER" />);
+    fireEvent.click(await screen.findByRole("button", { name: /New Proposal/ }));
+    fireEvent.click(await screen.findByRole("button", { name: /Start without a source/ }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("Client list could not be loaded");
+    fireEvent.click(screen.getByRole("button", { name: "Retry client list" }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Create Proposal draft" })).not.toBeDisabled());
+    expect(attempts).toBe(2);
+  });
+
+  it("blocks an empty canonical Client list without posting", async () => {
+    mockedApi.mockImplementation(async (path: string) => path === "/api/bd/proposals/clients" ? { items: [] } : { id: "proposal-1" });
+    render(<ProposalRoutes role="COMMERCIAL_APPROVER" />);
+    fireEvent.click(await screen.findByRole("button", { name: /New Proposal/ }));
+    fireEvent.click(await screen.findByRole("button", { name: /Start without a source/ }));
+    expect(await screen.findByRole("status")).toHaveTextContent("No active Clients are available");
+    expect(screen.getByRole("button", { name: "Create Proposal draft" })).toBeDisabled();
+    expect(mockedApi.mock.calls.some(([path]) => path === "/api/bd/proposals")).toBe(false);
+  });
+
+  it("preserves Client Information source semantics and canonical identity", async () => {
+    render(<ProposalRoutes role="COMMERCIAL_APPROVER" />);
+    fireEvent.click(await screen.findByRole("button", { name: /New Proposal/ }));
+    fireEvent.click(await screen.findByRole("button", { name: /Client Information/ }));
+    fireEvent.change(screen.getByLabelText("Proposal title"), { target: { value: "Client-context enquiry" } });
+    fireEvent.change(screen.getByLabelText("Client"), { target: { value: "Harbor Client" } });
+    fireEvent.change(screen.getByLabelText("Proposal contact"), { target: { value: "Nadia Owner" } });
+    fireEvent.click(screen.getByRole("button", { name: "Create Proposal draft" }));
+    await waitFor(() => expect(window.location.pathname).toBe("/proposals/proposal-1"));
+    const intakeCall = mockedApi.mock.calls.find(([path]) => path === "/api/bd/proposals/intake");
+    expect(intakeCall).toBeTruthy();
+    const body = intakeCall?.[1]?.body as FormData;
+    expect(body.get("initial_source_type")).toBe("CLIENT_DATA");
+    expect(body.get("client_account_id")).toBe("client-1");
+    expect(body.get("contact_name")).toBe("Nadia Owner");
   });
 
   it("renders lifecycle workspace state and confirms protected acceptance", async () => {

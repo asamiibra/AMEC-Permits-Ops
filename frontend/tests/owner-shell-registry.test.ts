@@ -12,10 +12,17 @@ describe("Owner shell feature registry", () => {
     expect(Object.values(featureAvailability).filter(Boolean)).toHaveLength(4);
     expect(getPrimaryNavigation("SYSTEM_ADMIN").map((item) => item.label)).toEqual([
       "Home",
-      "Opportunity / Proposal / Client Tender",
-      "Contract / Mobilization",
-      "Billing / Invoice / Receivables / Collection",
       "Content Library",
+      "Proposals",
+      "Contracts",
+      "Billing",
+    ]);
+    expect(getPrimaryNavigation("SYSTEM_ADMIN").map((item) => item.icon)).toEqual([
+      "dashboard",
+      "library",
+      "briefcase",
+      "contract",
+      "finance",
     ]);
     expect(ownerShellAcceptance.OWNER_PRIMARY_DESTINATION_COUNT).toBe(5);
   });

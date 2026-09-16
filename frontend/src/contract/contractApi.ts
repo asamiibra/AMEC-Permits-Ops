@@ -1,9 +1,10 @@
 import { api } from "../api";
 import type { ContractData, ContractIntelligence, ContractListItem } from "./contractTypes";
 
-export const listContracts = (query = "", filter = "ALL") =>
+export const listContracts = (query = "", filter = "ALL", signal?: AbortSignal) =>
   api<{ items: ContractListItem[]; count: number; filters?: Array<{ key: string; label: string }>; synthetic_only?: boolean }>(
     `/api/admin/contracts?q=${encodeURIComponent(query)}&filter=${encodeURIComponent(filter)}`,
+    { signal },
   );
 
 export const getContract = (contractId: string) => api<ContractData>(`/api/admin/contracts/${contractId}`);

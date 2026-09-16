@@ -24,6 +24,22 @@ export class ApiError extends Error {
   }
 }
 
+const API_REQUEST_TIMEOUT_MS = 15_000;
+
+/** Convert transport/provider failures into safe, human-facing UI copy. */
+export function userFacingError(cause: unknown, fallback: string): string {
+  if (cause instanceof ApiError) {
+    if (cause.status === 401 || cause.status === 403) {
+      return "Your current session is not authorized for this action.";
+    }
+    if (cause.status >= 500) {
+      return "This action is temporarily unavailable. No canonical state was changed. Try again later.";
+    }
+    return "The request could not be completed. Review the current item and try again.";
+  }
+  return cause instanceof Error && cause.message ? cause.message : fallback;
+}
+
 export async function api<T>(
   path: string,
   init?: RequestInit,
@@ -131,14 +147,30 @@ export async function api<T>(
     }
   }
 
-  const response = await fetch(
-    endpoint,
-    {
-      ...init,
-      headers:
-        fetchHeaders,
-    },
-  );
+  const requestController = new AbortController();
+  const callerSignal = init?.signal;
+  const abortFromCaller = () => requestController.abort(callerSignal?.reason);
+  callerSignal?.addEventListener("abort", abortFromCaller, { once: true });
+  const timeoutId = setTimeout(() => requestController.abort(), API_REQUEST_TIMEOUT_MS);
+  let response: Response;
+  try {
+    response = await fetch(
+      endpoint,
+      {
+        ...init,
+        signal: requestController.signal,
+        headers: fetchHeaders,
+      },
+    );
+  } catch (cause) {
+    if (requestController.signal.aborted && !callerSignal?.aborted) {
+      throw new ApiError(`API request timed out after ${API_REQUEST_TIMEOUT_MS / 1000}s for ${path}`, 0, path);
+    }
+    throw cause;
+  } finally {
+    clearTimeout(timeoutId);
+    callerSignal?.removeEventListener("abort", abortFromCaller);
+  }
 
   const contentType =
     response.headers.get(
