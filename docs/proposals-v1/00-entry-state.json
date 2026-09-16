@@ -1,0 +1,15 @@
+{
+  "CURRENT_MAIN_SHA": "2bf9737a087de6c01e7f06b9be9bb73db9bf34e8",
+  "CURRENT_MAIN_TREE": "22f12d9bbbf42af4e27c3e4d076f048bae9b4a24",
+  "OBSERVED_MAIN_SHA": "2bf9737a087de6c01e7f06b9be9bb73db9bf34e8",
+  "OBSERVED_MAIN_TREE": "22f12d9bbbf42af4e27c3e4d076f048bae9b4a24",
+  "BRANCH": "feature/proposals-v1-synology-454",
+  "REMOTE": "https://github.com/asamiibra/AMEC-Permits-Ops.git",
+  "CHECKOUT": "/Users/ahmedsami/Developer/AMEC-Permits-Ops-proposals-v1",
+  "ENTRY_WORKTREE_STATUS": "clean",
+  "ALEMBIC_HEAD_COUNT": 1,
+  "ALEMBIC_HEAD": "proposal_billing_contract_convergence_v1",
+  "BASE_VALIDATION": "PASS: exact SHA and tree match; fresh clone from main",
+  "OLD_WORKSPACE": "Configured Desktop path absent; moved iCloud checkout has dataless source files and stalled status reads. Fresh clone avoids modifying that checkout.",
+  "NO_HISTORICAL_BRANCH_RESET": true
+}

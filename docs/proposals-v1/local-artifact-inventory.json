@@ -1,0 +1,177 @@
+[
+  {
+    "relative_to_private_evidence": "artifact.md",
+    "size": 1162,
+    "sha256": "6cb4e2d56eed2df6212282dad29b1107fb0589525e1f532a007c27e62e73b21f"
+  },
+  {
+    "relative_to_private_evidence": "baseline/AMEC-P-D-2026-Q-498 - Rev 01.pdf",
+    "size": 1389480,
+    "sha256": "6c920b7172e8163d6628e4eb0d4bed218ed769ecdefff5f9f3f98246826a3cf1"
+  },
+  {
+    "relative_to_private_evidence": "baseline/page-1.png",
+    "size": 286392,
+    "sha256": "5f88e571418a8e5e0f96e2c82cea069e8ffe03f1c987820b94cefe9185229225"
+  },
+  {
+    "relative_to_private_evidence": "baseline/page-10.png",
+    "size": 96930,
+    "sha256": "76795a2a6e615470eade5a5fb51733ee91cb6994ea911cac449612659f58d8f4"
+  },
+  {
+    "relative_to_private_evidence": "baseline/page-11.png",
+    "size": 333000,
+    "sha256": "d7f3e1117c85d0d1146d1dc8162aa17e83030641dc9a7b251e79a66bffa0d3c9"
+  },
+  {
+    "relative_to_private_evidence": "baseline/page-12.png",
+    "size": 317488,
+    "sha256": "e4007cb4310bcd3e030ae23efce9962910f93b84f9da7a7dea0ff766d7e67995"
+  },
+  {
+    "relative_to_private_evidence": "baseline/page-2.png",
+    "size": 342861,
+    "sha256": "1687c202669f8afc3653aca76ade49613a055f20a01de1afc8086a953ca51e35"
+  },
+  {
+    "relative_to_private_evidence": "baseline/page-3.png",
+    "size": 823900,
+    "sha256": "f14f0b5e4f44bfb33ac45ab581508d0aad2f3705477d136ce183035d651704ec"
+  },
+  {
+    "relative_to_private_evidence": "baseline/page-4.png",
+    "size": 702371,
+    "sha256": "b84856736ebb43f0674704681fbfad1fa72a379591c55768d4e09e7d8849be4d"
+  },
+  {
+    "relative_to_private_evidence": "baseline/page-5.png",
+    "size": 751083,
+    "sha256": "5a5e0664a0053a5f39cc3c561dd0f2895da9371983a50db06323f15597643726"
+  },
+  {
+    "relative_to_private_evidence": "baseline/page-6.png",
+    "size": 327599,
+    "sha256": "828757b556289d02e17145d0124f38e77afaa613f655ab546e3f69d1774fb364"
+  },
+  {
+    "relative_to_private_evidence": "baseline/page-7.png",
+    "size": 480266,
+    "sha256": "323a91cb10218b363359bbc5b1abdfcb1088f94fdf73fa5483b4d8b84fb3bad6"
+  },
+  {
+    "relative_to_private_evidence": "baseline/page-8.png",
+    "size": 1064851,
+    "sha256": "050716a634210d73f05b3906eddcc58bb2a8b03cded9a683cdb0fdcc187a2650"
+  },
+  {
+    "relative_to_private_evidence": "baseline/page-9.png",
+    "size": 286870,
+    "sha256": "d62fafb76a11c3bf9a833ff37d286d13c17f5ce68be0744bd3ffd74f31db8c6e"
+  },
+  {
+    "relative_to_private_evidence": "browser-evaluation-script.cjs",
+    "size": 1777,
+    "sha256": "7493b6d55886e0ab41e0917fc25bcfbd676ddb56bf8eebe1e256bafdc5eea4f9"
+  },
+  {
+    "relative_to_private_evidence": "browser-last-page.png",
+    "size": 130890,
+    "sha256": "e0ce60e971bc2c4a65aaaf9180fb4378dd6b8919ebbeb3746fcaa6564f42a30e"
+  },
+  {
+    "relative_to_private_evidence": "browser-page-1.png",
+    "size": 92637,
+    "sha256": "7b7863148062616066093cc5f1c5ca9c341756410e381b3f725e7a2dcc400aff"
+  },
+  {
+    "relative_to_private_evidence": "browser-renderer-metrics.json",
+    "size": 167,
+    "sha256": "1a5e046cf026c1fe8ed7e6c4fdd477c06162f3f1c2067d1c99cbfcb36f90e145"
+  },
+  {
+    "relative_to_private_evidence": "controlled-duration.docx",
+    "size": 3695573,
+    "sha256": "6e52ecd561c90cd191264274e7f1bc944d29d30a72f3d8d7030bb7b1232d1293"
+  },
+  {
+    "relative_to_private_evidence": "controlled-mutation.json",
+    "size": 518,
+    "sha256": "ed27b95090032740895a71ac7eb993ba9c50d2d5b54e47fbe1147af02b4815bd"
+  },
+  {
+    "relative_to_private_evidence": "controlled-render/controlled-duration.pdf",
+    "size": 1389479,
+    "sha256": "114b70c8203a831a1272987891b8c36a0322572f564da4abe770881d00a4c3f7"
+  },
+  {
+    "relative_to_private_evidence": "controlled-render/page-1.png",
+    "size": 286392,
+    "sha256": "5f88e571418a8e5e0f96e2c82cea069e8ffe03f1c987820b94cefe9185229225"
+  },
+  {
+    "relative_to_private_evidence": "controlled-render/page-10.png",
+    "size": 96930,
+    "sha256": "76795a2a6e615470eade5a5fb51733ee91cb6994ea911cac449612659f58d8f4"
+  },
+  {
+    "relative_to_private_evidence": "controlled-render/page-11.png",
+    "size": 333000,
+    "sha256": "d7f3e1117c85d0d1146d1dc8162aa17e83030641dc9a7b251e79a66bffa0d3c9"
+  },
+  {
+    "relative_to_private_evidence": "controlled-render/page-12.png",
+    "size": 317391,
+    "sha256": "d025cc9641f04a2679496948c927f5f690256cc59f3401bf49b3b2cee0185b4c"
+  },
+  {
+    "relative_to_private_evidence": "controlled-render/page-2.png",
+    "size": 342861,
+    "sha256": "1687c202669f8afc3653aca76ade49613a055f20a01de1afc8086a953ca51e35"
+  },
+  {
+    "relative_to_private_evidence": "controlled-render/page-3.png",
+    "size": 823900,
+    "sha256": "f14f0b5e4f44bfb33ac45ab581508d0aad2f3705477d136ce183035d651704ec"
+  },
+  {
+    "relative_to_private_evidence": "controlled-render/page-4.png",
+    "size": 702371,
+    "sha256": "b84856736ebb43f0674704681fbfad1fa72a379591c55768d4e09e7d8849be4d"
+  },
+  {
+    "relative_to_private_evidence": "controlled-render/page-5.png",
+    "size": 751083,
+    "sha256": "5a5e0664a0053a5f39cc3c561dd0f2895da9371983a50db06323f15597643726"
+  },
+  {
+    "relative_to_private_evidence": "controlled-render/page-6.png",
+    "size": 327599,
+    "sha256": "828757b556289d02e17145d0124f38e77afaa613f655ab546e3f69d1774fb364"
+  },
+  {
+    "relative_to_private_evidence": "controlled-render/page-7.png",
+    "size": 480266,
+    "sha256": "323a91cb10218b363359bbc5b1abdfcb1088f94fdf73fa5483b4d8b84fb3bad6"
+  },
+  {
+    "relative_to_private_evidence": "controlled-render/page-8.png",
+    "size": 1064851,
+    "sha256": "050716a634210d73f05b3906eddcc58bb2a8b03cded9a683cdb0fdcc187a2650"
+  },
+  {
+    "relative_to_private_evidence": "controlled-render/page-9.png",
+    "size": 286870,
+    "sha256": "d62fafb76a11c3bf9a833ff37d286d13c17f5ce68be0744bd3ffd74f31db8c6e"
+  },
+  {
+    "relative_to_private_evidence": "inventory.json",
+    "size": 319,
+    "sha256": "677f60f91ee678b1235bfb2ad3e2d1a22a5ec4e0f7307faf894537a0f7aa4d76"
+  },
+  {
+    "relative_to_private_evidence": "visual-diff.json",
+    "size": 1026,
+    "sha256": "875ea09f41ca5e051b5e5eb658e0bead4cc83374426e6706e36a31a88bb68d21"
+  }
+]
