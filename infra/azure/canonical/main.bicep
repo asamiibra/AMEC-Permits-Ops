@@ -452,6 +452,7 @@ resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2024-03-01'
     zoneRedundant: true
     vnetConfiguration: {
       infrastructureSubnetId: resourceId(resourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', vnetName, 'aca-infrastructure')
+      internal: true
     }
     appLogsConfiguration: {
       destination: 'log-analytics'
