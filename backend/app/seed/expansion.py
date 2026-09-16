@@ -48,7 +48,13 @@ def seed_expansion(db, office, users, projects, apps):
     db.add(shared_approval)
     db.flush()
 
-    client = ClientAccount(client_reference="SYN-CLIENT-001", legal_name="Synthetic Client Holdings", display_name="Synthetic Client Holdings", client_type="COMPANY", commercial_registration_number="SYN-CR-0001", data_classification="SYNTHETIC", status="ACTIVE")
+    # The fixture is synthetic by seed provenance, not by the canonical
+    # account identity. Production-shaped Proposal creation must accept an
+    # existing active Client while still rejecting caller-supplied synthetic
+    # governance markers. Keep the fixture label visible to the Owner, but
+    # use stable non-marker identifiers for the account fields enforced by the
+    # production boundary.
+    client = ClientAccount(client_reference="PO-ACCEPT-001", legal_name="Synthetic Client Holdings", display_name="Synthetic Client Holdings", client_type="COMPANY", commercial_registration_number="PO-TEST-CR-0001", data_classification="INTERNAL_TEST", status="ACTIVE")
     db.add(client)
     db.flush()
     contact = ClientContact(client_account_id=client.id, name="Synthetic Client Contact", email="contact@client.synthetic", role_title="Synthetic Project Contact", language_preference="EN", status="ACTIVE")
