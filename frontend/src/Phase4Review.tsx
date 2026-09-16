@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api } from "./api";
 import { Icon } from "./Icon";
+import { ApiError } from "./api";
 
 export const PHASE4_DECISIONS = [
   "ACCEPT",
@@ -189,8 +190,9 @@ export function Phase4ReviewPage({ role }: Props) {
       })
       .catch((cause) => {
         const message = cause instanceof Error ? cause.message : "The review decision could not be recorded.";
-        if (message.includes("409")) attemptRef.current = null;
-        setMutationError(message.includes("409") ? "STALE REVIEW — refresh required before submitting another decision." : message.includes("401") || message.includes("403") ? "Authorization denied — the server did not accept this review action." : message);
+        const status = cause instanceof ApiError ? cause.status : 0;
+        if (status === 409 || message.includes("409")) attemptRef.current = null;
+        setMutationError(status === 409 || message.includes("409") ? "STALE REVIEW — refresh required before submitting another decision." : status === 401 || status === 403 || message.includes("401") || message.includes("403") ? "Authorization denied — the server did not accept this review action." : message);
       })
       .finally(() => setPending(""));
   };

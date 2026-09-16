@@ -105,3 +105,29 @@ def test_g6_qualification_topology_is_isolated_and_credentialless():
     assert "DATABASE_URL', value: credentiallessDatabaseUrl" in source
     assert "publicNetworkAccess: 'Enabled'" in _resource_block(source, "acr", "vnet")
     assert re.search(r"mssql\+pyodbc://[^\s'\"]*:[^\s'\"]*@", source) is None
+
+
+def test_canonical_front_door_uses_private_aca_origin_without_api_cache():
+    source = CANONICAL.read_text(encoding="utf-8")
+    environment = _resource_block(source, "containerAppsEnvironment", "apiApp")
+    origin_group = _resource_block(source, "edgeOriginGroup", "edgeOrigin")
+    origin = _resource_block(source, "edgeOrigin", "edgeCustomDomain")
+    route = _resource_block(source, "edgeRoute", "edgeWafPolicy")
+    security = _resource_block(source, "edgeSecurityPolicy", "apiDiagnostics")
+
+    assert "publicNetworkAccess: 'Disabled'" in environment
+    assert "internal: true" in environment
+    assert "probePath: '/health/ready'" in origin_group
+    assert "cacheConfiguration" not in route
+    assert "sharedPrivateLinkResource" in origin
+    assert "privateLink: { id: containerAppsEnvironment.id }" in origin
+    assert "groupId: 'managedEnvironments'" in origin
+    assert "empty(edgeCustomDomainName) ? 'Enabled' : 'Disabled'" in route
+    assert "empty(edgeCustomDomainName) ? [{ id: edgeEndpoint.id }] : [{ id: edgeCustomDomain.id }]" in security
+    assert "param clamavImage string" in source
+    assert "name: 'clamav'" in source
+    assert "CONTRACT_UPLOAD_SCANNER', value: 'clamav'" in source
+    assert "CONTRACT_UPLOAD_CLAMAV_HOST', value: '127.0.0.1'" in source
+    assert "CONTRACT_UPLOAD_CLAMAV_PORT', value: '3310'" in source
+    assert "param workerContractReconciliationEnabled bool = true" in source
+    assert "WORKER_CONTRACT_RECONCILIATION_ENABLED', value: string(workerContractReconciliationEnabled)" in source

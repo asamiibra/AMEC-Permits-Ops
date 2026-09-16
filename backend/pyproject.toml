@@ -4,6 +4,7 @@ version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
   "fastapi>=0.115,<1",
+  "httpx>=0.27,<1",
   "python-multipart>=0.0.9,<1",
   "uvicorn[standard]>=0.30,<1",
   "sqlalchemy>=2.0,<3",
@@ -16,6 +17,7 @@ dependencies = [
   "smbprotocol==1.15.0",
   "azure-identity>=1.19,<2",
   "azure-storage-blob>=12.24,<13",
+  "clamd==1.0.2",
 ]
 
 [tool.vercel]

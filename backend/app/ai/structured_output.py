@@ -157,25 +157,38 @@ class BillingDeliveryAckOutput(BillingSkillOutput):
     due_date_canonical_calculation_count: Literal[0] = 0
 
 
+class ContractIntelligenceFinding(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    title: str = Field(min_length=1, max_length=240)
+    detail: str = Field(min_length=1, max_length=3000)
+    disposition: Literal["OBSERVATION", "REVIEW_REQUIRED", "MISMATCH", "RECOMMENDATION"]
+    citation_keys: list[str] = Field(default_factory=list, max_length=16)
+
+
 class ContractSkillOutput(BaseModel):
-    """Strict advisory envelope shared by the Contract skill catalogue."""
+    """Strict, citation-backed Contract advisory output."""
 
     model_config = ConfigDict(extra="forbid", strict=True)
     summary: str = Field(min_length=1, max_length=4000)
-    findings: list[str] = Field(default_factory=list, max_length=30)
-    citations: list[str] = Field(min_length=1, max_length=20)
-    open_questions: list[str] = Field(default_factory=list, max_length=30)
-    currentness_notes: list[str] = Field(default_factory=list, max_length=20)
-    candidate_actions: list[str] = Field(default_factory=list, max_length=20)
-    human_review_required: Literal[True] = True
-    canonical_state_mutated: Literal[False] = False
-    protected_action_count: Literal[0] = 0
+    findings: list[ContractIntelligenceFinding] = Field(min_length=1, max_length=30)
+    human_review_actions: list[str] = Field(default_factory=list, max_length=30)
+    limitations: list[str] = Field(default_factory=list, max_length=20)
+    citation_keys: list[str] = Field(min_length=1, max_length=30)
+    advisory_only: Literal[True] = True
 
-    @field_validator("citations")
+    @field_validator("citation_keys")
     @classmethod
     def validate_contract_citations(cls, value: list[str]) -> list[str]:
         if any(not _CITATION_KEY.fullmatch(item) for item in value):
             raise ValueError("malformed citation key")
+        return value
+
+    @field_validator("findings")
+    @classmethod
+    def validate_finding_citations(cls, value: list[ContractIntelligenceFinding]) -> list[ContractIntelligenceFinding]:
+        for finding in value:
+            if any(not _CITATION_KEY.fullmatch(item) for item in finding.citation_keys):
+                raise ValueError("malformed citation key")
         return value
 
 
@@ -347,7 +360,15 @@ def _strict_schema(model: type[BaseModel]) -> dict[str, Any]:
     def close(node: Any) -> Any:
         if isinstance(node, dict):
             if node.get("type") == "object":
+                # Azure OpenAI strict structured outputs require every object
+                # property to be present in `required`, including fields that
+                # have a Pydantic default.  An unconstrained dict is also
+                # represented as an object without properties; close it as an
+                # intentionally empty object so it cannot become an escape
+                # hatch for provider output.
+                properties = node.setdefault("properties", {})
                 node["additionalProperties"] = False
+                node["required"] = list(properties)
             for value in node.values():
                 close(value)
         elif isinstance(node, list):
@@ -490,9 +511,9 @@ BILLING_DELIVERY_ACK_OUTPUT = _billing_output(BillingDeliveryAckOutput, "billing
 
 
 CONTRACT_INTELLIGENCE_OUTPUT = StructuredOutputDefinition(
-    schema_name="contract_intelligence_candidate", schema_version="1", output_class="ANALYSIS",
+    schema_name="contract_intelligence_advisory", schema_version="1", output_class="ANALYSIS",
     provider_schema=_strict_schema(ContractSkillOutput), validator=ContractSkillOutput.model_validate,
-    citation_keys=lambda value: tuple(value.citations), requires_grounding=True,
+    citation_keys=lambda value: tuple(value.citation_keys), requires_grounding=True,
 )
 
 

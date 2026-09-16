@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "./api";
-import { CanonicalFormsLibrary } from "./MasterContentForms";
+import { CanonicalFormsLibrary, ContentLibraryAiAssist } from "./MasterContentForms";
 import {
-  AIAssistCompact,
   CONTENT_LABELS,
   Drawer,
   MODULE_LABELS,
@@ -43,6 +42,8 @@ type MasterItem = {
   version?: number;
   version_status: string;
   current_source_filename?: string;
+  current_document_version_id?: string | null;
+  current_version_id?: string | null;
   updated?: string;
   versions?: Version[];
 };
@@ -67,6 +68,7 @@ type Definition = {
   used_in?: string[];
   status?: string;
   revision?: number;
+  revision_id?: string | null;
   updated?: string;
   revisions?: DefinitionRevision[];
 };
@@ -213,7 +215,7 @@ export function CurrentDashboard({ role }: { role: string }) {
     }
   };
   return (
-    <div className="dashboard-page current-dashboard-v2" data-dashboard-root="v2-evolution" data-testid="current-dashboard">
+    <div className="dashboard-page current-dashboard-v2" data-dashboard-root="content-library" data-testid="current-dashboard">
       <header className="dashboard-page-header">
         <div>
           <span className="eyebrow">AMEC · MASTER / REFERENCE CONTENT</span>
@@ -389,6 +391,7 @@ export function CurrentDashboard({ role }: { role: string }) {
           type={editor.type}
           item={editor.item}
           categories={categories}
+          sourceOptions={items}
           busy={busy}
           onClose={() => setEditor(null)}
           onSave={saveMaster}
@@ -398,6 +401,7 @@ export function CurrentDashboard({ role }: { role: string }) {
         <DefinitionEditor
           item={definitionEditor || undefined}
           categories={categories}
+          sourceOptions={definitions}
           busy={busy}
           onClose={() => setDefinitionEditor(undefined)}
           onSave={saveDefinition}
@@ -406,7 +410,7 @@ export function CurrentDashboard({ role }: { role: string }) {
       {history && (
         <HistoryDrawer history={history} onClose={() => setHistory(null)} />
       )}
-      {details && <ContentDetails item={details} onClose={() => setDetails(null)} />}
+      {details && <ContentDetails item={details} role={role} categories={categories} onClose={() => setDetails(null)} />}
     </div>
   );
 }
@@ -427,20 +431,20 @@ function DashboardGovernanceOverview() {
     forms.filter((form) => form.owner_status === status).length;
 
   return (
-    <section className="dashboard-v2-overview" aria-label="Dashboard governance overview" data-testid="dashboard-governance-overview">
+    <section className="dashboard-v2-overview" aria-label="Content Library status" data-testid="dashboard-governance-overview">
       <div className="dashboard-v2-overview-heading">
         <div>
-          <span className="eyebrow">GOVERNANCE OVERVIEW</span>
-          <h3>Canonical control plane</h3>
-          <p>One governed view of currentness, review state, source authority, and immutable version history.</p>
+          <span className="eyebrow">LIBRARY STATUS</span>
+          <h3>Library health</h3>
+          <p>See which shared references are current, need review, or remain available as history.</p>
         </div>
-        <span className="dashboard-v2-overview-state">{error ? "Summary unavailable" : loading ? "Reading canonical Forms…" : String(forms.length) + " canonical Forms"}</span>
+        <span className="dashboard-v2-overview-state">{error ? "Status unavailable" : loading ? "Reading Forms…" : String(forms.length) + " Forms"}</span>
       </div>
       <div className="dashboard-v2-overview-grid">
-        <article className="dashboard-v2-summary-card" data-testid="dashboard-current-summary"><span>Current</span><strong>{loading ? "—" : count("Current")}</strong><small>Eligible business status</small></article>
-        <article className="dashboard-v2-summary-card dashboard-v2-summary-review" data-testid="dashboard-review-summary"><span>Needs Review</span><strong>{loading ? "—" : count("Needs Review")}</strong><small>Visible, not resolver eligible</small></article>
-        <article className="dashboard-v2-summary-card" data-testid="dashboard-inactive-summary"><span>Inactive</span><strong>{loading ? "—" : count("Inactive")}</strong><small>Historical versions retained</small></article>
-        <article className="dashboard-v2-source-card" data-testid="dashboard-source-authority-panel"><span className="eyebrow">SOURCE / VERSION</span><strong>Canonical records remain linked</strong><small>MasterContentItem → Document → DocumentVersion</small></article>
+        <article className="dashboard-v2-summary-card" data-testid="dashboard-current-summary"><span>Current</span><strong>{loading ? "—" : count("Current")}</strong><small>Ready for normal use</small></article>
+        <article className="dashboard-v2-summary-card dashboard-v2-summary-review" data-testid="dashboard-review-summary"><span>Needs Review</span><strong>{loading ? "—" : count("Needs Review")}</strong><small>Visible while review is pending</small></article>
+        <article className="dashboard-v2-summary-card" data-testid="dashboard-inactive-summary"><span>Inactive</span><strong>{loading ? "—" : count("Inactive")}</strong><small>Kept for reference</small></article>
+        <article className="dashboard-v2-source-card" data-testid="dashboard-source-authority-panel"><span className="eyebrow">VERSION HISTORY</span><strong>References stay traceable</strong><small>Files and retained versions remain linked.</small></article>
       </div>
     </section>
   );
@@ -679,6 +683,7 @@ function MasterEditor({
   type,
   item,
   categories,
+  sourceOptions,
   busy,
   onClose,
   onSave,
@@ -686,6 +691,7 @@ function MasterEditor({
   type: MasterType;
   item?: MasterItem;
   categories: Category[];
+  sourceOptions: MasterItem[];
   busy: boolean;
   onClose: () => void;
   onSave: (request: SaveRequest) => Promise<void>;
@@ -702,6 +708,13 @@ function MasterEditor({
   );
   const [sourceType, setSourceType] = useState(item?.source_type_code || "");
   const [discipline, setDiscipline] = useState(String(item?.engineering_metadata?.discipline || "GENERAL"));
+  const governedSources = sourceOptions.filter((source) => Boolean(source.current_document_version_id || source.current_version_id));
+  const [aiSourceId, setAiSourceId] = useState(item?.id || governedSources[0]?.id || "");
+  const applyAiDraft = (fields: Record<string, unknown>) => {
+    if (typeof fields.title === "string") setTitle(fields.title);
+    if (typeof fields.description === "string") setDescription(fields.description);
+    if (typeof fields.category_id === "string" && categories.some((row) => row.id === fields.category_id && row.allowed_content_types.includes(type))) setCategory(fields.category_id);
+  };
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
     if (!item) {
@@ -881,15 +894,20 @@ function MasterEditor({
               </select>
             </label>
             <label>
-              Additional metadata (authority, edition, effective date, clause/section, applicability notes)
+              Reference notes (authority, edition, effective date, clause/section, applicability)
               <textarea
-                aria-label="Engineering metadata"
+                aria-label="Engineering reference notes"
                 value={metadata}
                 onChange={(event) => setMetadata(event.target.value)}
               />
             </label>
           </section>
         )}
+        <section className="editor-group">
+          <h3>AI-assisted draft</h3>
+          {!item && <label>Governed source for AI assistance<small>AI reads the selected current DocumentVersion. It never writes canonical content or bypasses the normal Save action.</small><select aria-label="Governed source for AI assistance" value={aiSourceId} onChange={(event) => setAiSourceId(event.target.value)}><option value="">Choose a current governed source</option>{governedSources.map((source) => <option key={source.id} value={source.id}>{source.ref} · {source.title}</option>)}</select></label>}
+          <ContentLibraryAiAssist itemId={item?.id || aiSourceId || undefined} sourceId={item ? item.current_document_version_id || item.current_version_id || item.id : aiSourceId || undefined} categories={categories} entityLabel={label} onApplyDraft={applyAiDraft} />
+        </section>
         {item && (
           <section className="editor-group">
             <h3>Change Reason</h3>
@@ -903,7 +921,6 @@ function MasterEditor({
             </label>
           </section>
         )}
-        <AIAssistCompact />
       </form>
     </Drawer>
   );
@@ -912,12 +929,14 @@ function MasterEditor({
 function DefinitionEditor({
   item,
   categories,
+  sourceOptions,
   busy,
   onClose,
   onSave,
 }: {
   item?: Definition;
   categories: Category[];
+  sourceOptions: Definition[];
   busy: boolean;
   onClose: () => void;
   onSave: (data: Record<string, unknown>) => Promise<void>;
@@ -927,6 +946,13 @@ function DefinitionEditor({
   const [description, setDescription] = useState(item?.description || "");
   const [usedIn, setUsedIn] = useState(item?.used_in || []);
   const [reason, setReason] = useState("");
+  const governedSources = sourceOptions.filter((source) => Boolean(source.revision_id || source.revision));
+  const [aiSourceId, setAiSourceId] = useState(item?.id || governedSources[0]?.id || "");
+  const applyAiDraft = (fields: Record<string, unknown>) => {
+    if (typeof fields.term === "string") setTerm(fields.term);
+    if (typeof fields.description === "string") setDescription(fields.description);
+    if (typeof fields.category === "string") setCategory(fields.category);
+  };
   const definitionCategories = categories.filter((row) =>
     row.allowed_content_types.includes("DEFINITION"),
   );
@@ -1013,6 +1039,11 @@ function DefinitionEditor({
           </label>
         </section>
         <UsedInPicker type="DEFINITION" value={usedIn} onChange={setUsedIn} />
+        <section className="editor-group">
+          <h3>AI-assisted draft</h3>
+          {!item && <label>Governed definition source for AI assistance<small>AI reads the selected current definition revision and only offers reviewable draft values.</small><select aria-label="Governed definition source for AI assistance" value={aiSourceId} onChange={(event) => setAiSourceId(event.target.value)}><option value="">Choose a current definition</option>{governedSources.map((source) => <option key={source.id} value={source.id}>{source.ref || "Definition"} · {source.term}</option>)}</select></label>}
+          <ContentLibraryAiAssist itemId={item?.id || aiSourceId || undefined} sourceId={item?.id || aiSourceId || undefined} categories={categories} entityLabel="Definition" basePath={`/api/definitions/${item?.id || aiSourceId || ""}/intelligence`} onApplyDraft={applyAiDraft} />
+        </section>
         {item && (
           <section className="editor-group">
             <h3>Change Reason</h3>
@@ -1026,7 +1057,6 @@ function DefinitionEditor({
             </label>
           </section>
         )}
-        <AIAssistCompact />
       </form>
     </Drawer>
   );
@@ -1174,7 +1204,7 @@ function formatDateTime(value: string) {
     minute: "2-digit",
   });
 }
-function ContentDetails({ item, onClose }: { item: MasterItem | Definition; onClose: () => void }) {
+function ContentDetails({ item, role, categories, onClose }: { item: MasterItem | Definition; role: string; categories: Category[]; onClose: () => void }) {
   const isDefinition = "term" in item;
   return <Drawer title={`${item.ref || "Definition"} · ${isDefinition ? item.term : item.title}`} eyebrow={isDefinition ? "DEFINITION DETAILS" : `${item.content_type.replaceAll("_", " ")} DETAILS`} onClose={onClose} footer={<button type="button" className="button-secondary" onClick={onClose}>Close</button>}>
     <div className="content-detail-grid">
@@ -1186,6 +1216,9 @@ function ContentDetails({ item, onClose }: { item: MasterItem | Definition; onCl
     </div>
     <p className="detail-description">{item.description || "No description"}</p>
     {!isDefinition && <div className="detail-purpose-list"><h3>Purpose bindings</h3>{(item.purpose_bindings || []).map(binding => <span key={`${binding.module}-${binding.usage_type}`}>{MODULE_LABELS[binding.module] || binding.module} · {binding.usage_type}</span>)}{!item.purpose_bindings?.length && <small>No explicit purpose binding.</small>}</div>}
+    {ownerRoles.has(role) && (isDefinition
+      ? <ContentLibraryAiAssist itemId={item.id} sourceId={item.id} categories={categories} entityLabel="Definition" basePath={`/api/definitions/${item.id}/intelligence`} />
+      : <ContentLibraryAiAssist itemId={item.id} sourceId={item.current_document_version_id || item.current_version_id || item.id} categories={categories} entityLabel={item.content_type === "ENGINEERING_WORK" ? "Engineering Work" : "Report"} />)}
     {!isDefinition && <a className="button-secondary" href={`/api/master-content/${item.id}/download`} download>Download current source</a>}
   </Drawer>;
 }

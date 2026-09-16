@@ -27,6 +27,15 @@ def test_register_public_response_contract_serializes_every_visible_row(client):
         assert {"id", "proposal", "client", "activity", "stage", "stage_code", "next_action", "owner_lane", "contract_eligible", "validation"} <= row.keys()
 
 
+def test_proposal_intake_clients_returns_active_canonical_choices(client):
+    response = client.get("/api/bd/proposals/clients", headers=_headers())
+    assert response.status_code == 200, response.text
+    payload = response.json()
+    assert payload["count"] == len(payload["items"])
+    assert all({"id", "name", "reference", "status"} <= item.keys() for item in payload["items"])
+    assert all(item["status"] == "ACTIVE" for item in payload["items"])
+
+
 @pytest.mark.parametrize(
     ("source_type", "filename", "mime_type", "file_body"),
     (
@@ -69,6 +78,29 @@ def test_proposal_creation_without_initial_source_remains_available(client):
     assert response.status_code == 200, response.text
     payload = response.json()
     assert payload["sources"] == []
+
+
+def test_client_information_without_file_persists_contact_and_client_source(client):
+    response = client.post(
+        "/api/bd/proposals/intake",
+        headers=_headers(),
+        data={
+            "proposal_description": "Client context without file",
+            "client_name": "UI Regression Client",
+            "initial_source_type": "CLIENT_DATA",
+            "contact_name": "Nadia Owner",
+            "contact_email": "nadia@example.test",
+            "source_title": "Client briefing",
+            "source_notes": "Human-entered client context",
+        },
+    )
+    assert response.status_code == 200, response.text
+    payload = response.json()
+    assert payload["source"]["source_type"] == "CLIENT_DATA"
+    assert payload["proposal"]["forms_v2"]["proposal_contact"]["display_name"] == "Nadia Owner"
+    assert payload["proposal"]["forms_v2"]["proposal_contact"]["email"] == "nadia@example.test"
+    assert payload["proposal"]["sources"][0]["provenance"]["context"] == "CLIENT_INFORMATION"
+    assert payload["proposal"]["sources"][0]["verification_state"] == "READ_BACK_VERIFIED"
 
 
 def test_initial_source_requires_a_file_and_does_not_claim_success(client):
