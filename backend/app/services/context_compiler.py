@@ -517,7 +517,11 @@ class GovernedContextCompiler:
             raise IntelligenceContractError("CONTEXT_CROSS_PROJECT_SOURCE")
         if scope_type in {"CONTRACT", "CONTRACT_REVISION"} and project_id not in {None, request_project_id}:
             raise IntelligenceContractError("CONTEXT_CROSS_PROJECT_SOURCE")
-        if project_id is not None and scope_type not in {"PROJECT", "PROPOSAL"}:
+        # Contract intelligence is Contract-scoped but remains bound to the
+        # Contract's project for cross-project isolation.  Treating every
+        # non-Project/Proposal scope as projectless incorrectly rejected
+        # legitimate Contract context before the shared runtime could run.
+        if project_id is not None and scope_type not in {"PROJECT", "PROPOSAL", "CONTRACT", "CONTRACT_REVISION"}:
             raise IntelligenceContractError("CONTEXT_NON_PROJECT_SOURCE_SCOPE")
 
     def _require_capability(self, capabilities: set[str], capability: str) -> None:
