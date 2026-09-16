@@ -908,7 +908,6 @@ resource frontendEdgeRoute 'Microsoft.Cdn/profiles/afdEndpoints/routes@2024-02-0
   parent: edgeEndpoint
   dependsOn: [frontendEdgeOrigin]
   properties: {
-    cacheConfiguration: { compressionSettings: { isCompressionEnabled: true, contentTypesToCompress: ['text/html', 'text/css', 'application/javascript', 'application/json'] }, queryStringCachingBehavior: 'UseQueryString' }
     customDomains: empty(edgeCustomDomainName) ? [] : [{ id: edgeCustomDomain.id }]
     enabledState: 'Enabled'
     forwardingProtocol: 'HttpsOnly'
