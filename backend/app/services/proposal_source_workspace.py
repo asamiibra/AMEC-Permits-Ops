@@ -11,6 +11,8 @@ from sqlalchemy.orm import Session
 
 from ..models import Document, DocumentType, DocumentVersion, DocumentApprovalState
 from ..storage.proposal_source_tree import MountedProposalSource, SourceEntry, SourceProject
+from ..storage import DocumentStorageService, StorageTarget, create_binary_store
+from ..config.settings import get_settings
 
 LOGICAL_ROOT = "Tenders/1- Proposal/2026"
 PILOT = "454 - Al Watan Center"
@@ -80,9 +82,29 @@ def capture(db: Session, number: int, *, actor: str = "source-workspace") -> dic
                 continue
             document = current.document if current else Document(document_type=DocumentType.OTHER, logical_name=item.name, language="UNKNOWN", source_system="SYNOLOGY_PROPOSAL_SOURCE")
             if not current:
-                db.add(document); db.flush()
-            version = DocumentVersion(document_id=document.id, version_number=(current.version_number + 1 if current else 1), source_filename=item.name, source_path_or_reference=f"source://{LOGICAL_ROOT}/{item.relative_path}", sha256=read.sha256, mime_type=mimetypes.guess_type(item.name)[0] or "application/octet-stream", file_size=read.size, language="UNKNOWN", approval_state=DocumentApprovalState.WORKING, source_system="SYNOLOGY_PROPOSAL_SOURCE", synthetic_content=read.content, metadata_json={"proposal_source_key": key, "source_project_number": number, "source_root": LOGICAL_ROOT, "source_relative_path": item.relative_path, "source_modified_at": read.before_modified_at, "capture_actor": actor, "source_presence_state": "PRESENT"})
-            db.add(version); db.flush(); document.current_version_id = version.id; captured += 1
+                db.add(document)
+                db.flush()
+            metadata = {"proposal_source_key": key, "source_project_number": number, "source_root": LOGICAL_ROOT, "source_relative_path": item.relative_path, "source_modified_at": read.before_modified_at, "capture_actor": actor, "source_presence_state": "PRESENT"}
+            # All new captures use the same verified storage protocol as the
+            # rest of the SOR.  The mock provider is permitted only in the
+            # synthetic TEST/DEV profile, while SMB/Azure persist outside it.
+            storage_tables_ready = db.bind is not None and db.bind.dialect.has_table(db.connection(), "storage_operations")
+            if storage_tables_ready:
+                store = create_binary_store()
+                target = StorageTarget(store.provider_id, getattr(getattr(store, "config", None), "container", None) or getattr(getattr(store, "config", None), "share", "synthetic"), f"proposal-sources/{number}")
+                stored = DocumentStorageService(store).store_version(db, document=document, content=read.content, filename=item.name, mime_type=mimetypes.guess_type(item.name)[0] or "application/octet-stream", target=target, actor=actor, correlation_id=f"proposal-source:{number}:{read.sha256}", idempotency_key=f"proposal-source:{number}:{item.relative_path}:{read.sha256}", source_system="SYNOLOGY_PROPOSAL_SOURCE", metadata=metadata, version_number=(current.version_number + 1 if current else 1))
+                stored.version.metadata_json = {**(stored.version.metadata_json or {}), **metadata}
+            elif get_settings().app_env.upper() in {"TEST", "DEV", "DEVELOPMENT"} and get_settings().synthetic_only:
+                # Legacy fixture databases predating the storage journal can
+                # still exercise source discovery; production never takes
+                # this branch because canonical storage is mandatory there.
+                version = DocumentVersion(document_id=document.id, version_number=(current.version_number + 1 if current else 1), source_filename=item.name, source_path_or_reference=f"synthetic-db://proposal-source/{number}/{item.relative_path}", sha256=read.sha256, mime_type=mimetypes.guess_type(item.name)[0] or "application/octet-stream", file_size=read.size, language="UNKNOWN", approval_state=DocumentApprovalState.WORKING, source_system="SYNOLOGY_PROPOSAL_SOURCE", synthetic_content=read.content, metadata_json={**metadata, "synthetic_only": True})
+                db.add(version)
+                db.flush()
+                document.current_version_id = version.id
+            else:
+                raise RuntimeError("CANONICAL_STORAGE_JOURNAL_REQUIRED")
+            captured += 1
         db.commit()
         return {"project_number": number, "file_count": len(files), "captured_count": captured, "unchanged_count": unchanged, "state": "DRAFT_SYNCED" if project.discovery_class == "DRAFT_SOURCE_PROJECT" else "ACTIVE_PILOT_READY", "synology_write_count": 0}
 

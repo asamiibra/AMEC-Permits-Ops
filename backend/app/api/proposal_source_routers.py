@@ -5,17 +5,21 @@ import hashlib
 import io
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..api.dependencies import require_roles
 from ..db import get_db
-from ..models import Role
+from ..models import DocumentVersion, ProposalSourceEvidence, ProposalSourceLink, Role
 from ..services.proposal_source_workspace import captured_version, capture, configured_source_root, projects, tree
+from ..storage import DocumentStorageService, create_binary_store
+from .bd_proposal_routers import ProposalCreate, _create_proposal_record
 
 router = APIRouter(prefix="/api/proposals/sources", tags=["proposal-source-workspace"])
 source_role = require_roles(Role.OWNER_SPONSOR, Role.PROCESS_CHAMPION, Role.RESPONSIBLE_ENGINEER, Role.SYSTEM_ADMIN)
+create_role = require_roles(Role.OWNER_SPONSOR, Role.PROCESS_CHAMPION, Role.SYSTEM_ADMIN)
 
 
 def _entry(number: int, file_id: str) -> dict[str, Any]:
@@ -49,12 +53,26 @@ def source_file(number: int, file_id: str, _: Role = Depends(source_role), db: S
 def _content(number: int, file_id: str, db: Session) -> tuple[dict[str, Any], bytes]:
     item = _entry(number, file_id)
     version = captured_version(db, number, item["path"])
-    if not version or version.synthetic_content is None:
+    if not version:
         result = capture(db, number, actor="source-view")
         version = captured_version(db, number, item["path"])
-        if not version or version.synthetic_content is None:
+        if not version:
             raise HTTPException(404, "SOURCE_FILE_NOT_CAPTURED")
-    return item, version.synthetic_content
+    try:
+        if version.source_path_or_reference.startswith("storage://"):
+            with DocumentStorageService(create_binary_store()).read_verified(version) as stream:
+                content = stream.read()
+        elif version.synthetic_content is not None:
+            content = version.synthetic_content
+        else:
+            raise HTTPException(404, "SOURCE_FILE_NOT_CAPTURED")
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(503, "SOURCE_STORAGE_READ_FAILED") from exc
+    if hashlib.sha256(content).hexdigest() != version.sha256:
+        raise HTTPException(503, "SOURCE_CONTENT_INTEGRITY_DRIFT")
+    return item, content
 
 
 @router.get("/2026/projects/{number}/files/{file_id}/content")
@@ -78,3 +96,28 @@ def sync_sources(_: Role = Depends(source_role), db: Session = Depends(get_db)):
     except (FileNotFoundError, OSError) as exc:
         raise HTTPException(503, "SOURCE_ROOT_UNAVAILABLE") from exc
     return {"logical_root": "Tenders/1- Proposal/2026", "runs": runs, "synology_write_count": 0, "auto_proposal_created_for_520_plus": 0, "projects_455_519_auto_onboarded": 0}
+
+
+@router.post("/2026/projects/{number}/create-proposal")
+def create_proposal_from_source_workspace(number: int, request: Request, db: Session = Depends(get_db), role: Role = Depends(create_role)):
+    """Create one canonical Proposal from the explicitly selected pilot."""
+    if number != 454:
+        raise HTTPException(409, "PROJECT_NOT_READY_FOR_PROPOSAL")
+    run = capture(db, number, actor="source-create-proposal")
+    item = _create_proposal_record(ProposalCreate(proposal_description="Al Watan Center Proposal", project_reference=str(number), client_name="Al Watan Center", idempotency_key=f"proposal-source-project:{number}"), request, db, role)
+    versions = db.scalars(select(DocumentVersion).where(DocumentVersion.metadata_json["source_project_number"].as_integer() == number).order_by(DocumentVersion.created_at)).all()
+    hashes: list[str] = []
+    for version in versions:
+        hashes.append(version.sha256)
+        evidence = db.scalar(select(ProposalSourceEvidence).where(ProposalSourceEvidence.proposal_id == item.id, ProposalSourceEvidence.source_type == "SYNOLOGY_FILE", ProposalSourceEvidence.content_hash == version.sha256))
+        if not evidence:
+            evidence = ProposalSourceEvidence(proposal_id=item.id, source_type="SYNOLOGY_FILE", source_filename=version.source_filename, source_reference=version.source_path_or_reference, content_hash=version.sha256, content_type=version.mime_type, provenance={"kind": "synology_source_workspace", "relative_path": (version.metadata_json or {}).get("source_relative_path"), "document_version_id": version.id, "verification": "READ_BACK_VERIFIED"}, status="CURRENT", verification_state="READ_BACK_VERIFIED", created_by="source-create-proposal")
+            db.add(evidence)
+            db.flush()
+        linked = db.scalar(select(ProposalSourceLink).where(ProposalSourceLink.proposal_id == item.id, ProposalSourceLink.document_version_id == version.id, ProposalSourceLink.source_role == "SOURCE_WORKSPACE"))
+        if not linked:
+            db.add(ProposalSourceLink(proposal_id=item.id, source_evidence_id=evidence.id, document_id=version.document_id, document_version_id=version.id, source_role="SOURCE_WORKSPACE", added_by="source-create-proposal"))
+    source_set_hash = hashlib.sha256("".join(sorted(hashes)).encode()).hexdigest()
+    item.proposal_fields_json = {**(item.proposal_fields_json or {}), "source_workspace": {"logical_root": LOGICAL_ROOT, "project_number": number, "source_set_hash": source_set_hash, "captured_count": run["captured_count"]}}
+    db.commit()
+    return {"result": "CREATED", "proposal_id": item.id, "proposal_reference": item.opportunity_reference, "source_set_hash": source_set_hash, "source_count": len(versions), "capture": run}
