@@ -422,6 +422,16 @@ def validate_proposal(db: Session, proposal: Opportunity) -> dict[str, Any]:
     hardening = hardening_projection(db, proposal)
     blockers.extend(hardening["accept_blockers"])
     definition_terms = fields.get("definition_terms") or []
+    from .proposal_template_fidelity import evaluate_proposal_semantic_consistency, proposal_source_1_18_traceability, proposal_template_contract
+    fidelity_scope = {
+        "title": proposal.title,
+        "fields": fields,
+        "amec_input": fields.get("amec_input", {}),
+        "source_1_18": fields.get("source_1_18", {}),
+    }
+    semantic_consistency = evaluate_proposal_semantic_consistency(fidelity_scope)
+    if semantic_consistency["MATERIAL_SCOPE_CONFLICT_DETECTED"]:
+        blockers.append({"code": "MATERIAL_SCOPE_CONFLICT_REQUIRES_ENGINEERING_REVIEW", "label": "Material Proposal scope conflict requires Engineering resolution"})
     return {
         "ready": not blockers,
         "blockers": blockers,
@@ -431,6 +441,9 @@ def validate_proposal(db: Session, proposal: Opportunity) -> dict[str, Any]:
         "template": template,
         "checklist": checklist,
         "definitions": definitions_for_proposal(db, definition_terms),
+        "template_fidelity": proposal_template_contract(fidelity_scope),
+        "source_1_18_traceability": proposal_source_1_18_traceability(fidelity_scope),
+        "semantic_consistency": semantic_consistency,
         "ai_assist": {"enabled": False, "response": None, "typed_error": "AI_ASSIST_DISABLED"},
         "authority": "OWNER_DECISION_REQUIRED",
         "hardening": hardening,
@@ -711,6 +724,26 @@ def production_output_bytes(db: Session, revision: ProposalAcceptedRevision, art
         raise ValueError("SYNTHETIC_GOVERNED_SOURCE_FORBIDDEN")
     content = read_master_content_bytes(db, version)
     mime = (version.mime_type or "").lower()
+    if mime in {
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/msword",
+    }:
+        if mime != "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+            raise ValueError("PROPOSAL_TEMPLATE_DOCX_REQUIRED_FOR_FIDELITY_RENDER")
+        from .proposal_template_fidelity import render_deterministic_proposal_docx
+
+        rendered, fidelity_lineage = render_deterministic_proposal_docx(content, revision.snapshot)
+        return rendered, {
+            **fidelity_lineage,
+            "accepted_revision_id": revision.id,
+            "template_version_id": revision.template_version_id,
+            "template_hash": revision.template_hash,
+            "checklist_version_id": revision.checklist_version_id,
+            "checklist_hash": revision.checklist_hash,
+            "governed_source_document_version_id": version.id,
+            "governed_source_hash": version.sha256,
+            "owner_test_only": fixture_classification == "SYNTHETIC_OWNER_TEST",
+        }
     if not (mime.startswith("text/") or mime in {"application/json", "application/xhtml+xml"}):
         raise ValueError("PRODUCTION_RENDERER_UNSUPPORTED_TEMPLATE_FORMAT")
     payload = {

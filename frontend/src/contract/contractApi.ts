@@ -6,9 +6,10 @@ export const getStartPrerequisites = (id: string) => api<StartPrerequisites>(`/a
 export const recordTimingRequirement = (id: string, payload: TimingRequirementInput) => api<{ decision: string; evidence_id: string }>(`/api/admin/contracts/${id}/timing-requirements`, { method: "POST", body: JSON.stringify(payload) });
 export const recordTimingFact = (id: string, fact: TimingFactType, payload: TimingFactInput) => api<{ decision: string; evidence_id: string }>(`/api/admin/contracts/${id}/timing-facts/${fact}`, { method: "POST", body: JSON.stringify(payload) });
 
-export const listContracts = (query = "", filter = "ALL") =>
+export const listContracts = (query = "", filter = "ALL", signal?: AbortSignal) =>
   api<{ items: ContractListItem[]; count: number; filters?: Array<{ key: string; label: string }>; synthetic_only?: boolean }>(
     `/api/admin/contracts?q=${encodeURIComponent(query)}&filter=${encodeURIComponent(filter)}`,
+    { signal },
   );
 
 export const getContract = (contractId: string) => api<ContractData>(`/api/admin/contracts/${contractId}`);

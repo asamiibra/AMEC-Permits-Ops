@@ -3,8 +3,8 @@ import type { ProposalDetail, ProposalRegisterResponse, ProposalRole } from "./t
 
 export const proposalHeaders = (role: ProposalRole): HeadersInit => ({ "X-Dev-Role": role });
 
-export async function loadProposalRegister(role: ProposalRole, query: URLSearchParams): Promise<ProposalRegisterResponse> {
-  return api<ProposalRegisterResponse>(`/api/bd/proposals?${query.toString()}`, { headers: proposalHeaders(role) });
+export async function loadProposalRegister(role: ProposalRole, query: URLSearchParams, signal?: AbortSignal): Promise<ProposalRegisterResponse> {
+  return api<ProposalRegisterResponse>(`/api/bd/proposals?${query.toString()}`, { headers: proposalHeaders(role), signal });
 }
 export async function loadProposal(role: ProposalRole, id: string): Promise<ProposalDetail> {
   return api<ProposalDetail>(`/api/bd/proposals/${id}`, { headers: proposalHeaders(role) });

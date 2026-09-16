@@ -252,6 +252,29 @@ def proposal_master_content(db: Session = Depends(get_db), role: Role = Depends(
     return {"proposal_template": master_content_purpose(db, "PROPOSAL_TEMPLATE"), "proposal_checklist": master_content_purpose(db, "PROPOSAL_CHECKLIST"), "definitions": {"lookup": "/api/definitions/lookup/{term}", "truth": "DASHBOARD_DEFINITIONS"}}
 
 
+@router.get("/clients")
+def proposal_clients(db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+    """Return active canonical Clients available to Proposal intake."""
+    require_capability(role, "BD_PROPOSAL_READ")
+    items = db.scalars(
+        select(ClientAccount)
+        .where(ClientAccount.status == "ACTIVE")
+        .order_by(ClientAccount.display_name, ClientAccount.client_reference)
+    ).all()
+    return {
+        "items": [
+            {
+                "id": item.id,
+                "name": item.display_name,
+                "reference": item.client_reference,
+                "status": item.status,
+            }
+            for item in items
+        ],
+        "count": len(items),
+    }
+
+
 @router.get("/{proposal_id}/configuration")
 def proposal_configuration_view(proposal_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     """Read-only Dashboard configuration consumed by this Proposal."""
@@ -754,13 +777,16 @@ async def _register_source_content(*, proposal: Opportunity, request: Request, s
 
 
 @router.post("/intake")
-async def create_proposal_intake(request: Request, proposal_description: str = Form(...), project_reference: str | None = Form(default=None), client_name: str | None = Form(default=None), client_account_id: str | None = Form(default=None), project_id: str | None = Form(default=None), initial_source_type: str | None = Form(default=None), source_title: str | None = Form(default=None), source_date: str | None = Form(default=None), source_notes: str | None = Form(default=None), source_revision: str | None = Form(default=None), idempotency_key: str | None = Form(default=None), file: UploadFile | None = File(default=None), db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
+async def create_proposal_intake(request: Request, proposal_description: str = Form(...), project_reference: str | None = Form(default=None), client_name: str | None = Form(default=None), client_account_id: str | None = Form(default=None), project_id: str | None = Form(default=None), initial_source_type: str | None = Form(default=None), source_title: str | None = Form(default=None), source_date: str | None = Form(default=None), source_notes: str | None = Form(default=None), source_revision: str | None = Form(default=None), contact_name: str | None = Form(default=None), contact_email: str | None = Form(default=None), idempotency_key: str | None = Form(default=None), file: UploadFile | None = File(default=None), db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     """Create a Proposal and its optional initial source in one DB transaction."""
     require_capability(role, "BD_PROPOSAL_WRITE")
     source_type = initial_source_type.upper() if initial_source_type else None
     if source_type and source_type not in SOURCE_TYPES:
         raise HTTPException(422, {"code": "SOURCE_TYPE_REQUIRED", "allowed": list(SOURCE_TYPES)})
-    if source_type and not file:
+    # Client Information is a source context made from human-entered client
+    # context and contact metadata; unlike a tender source it has no required
+    # external file. The other source contexts must retain their file gate.
+    if source_type and not file and source_type != "CLIENT_DATA":
         raise HTTPException(422, {"code": "INITIAL_SOURCE_FILE_REQUIRED", "source_type": source_type})
     existing = db.scalar(select(Opportunity).where(Opportunity.idempotency_key == idempotency_key)) if idempotency_key else None
     if existing:
@@ -773,6 +799,34 @@ async def create_proposal_intake(request: Request, proposal_description: str = F
             if not content:
                 raise HTTPException(422, {"code": "INITIAL_SOURCE_FILE_EMPTY", "source_type": source_type})
             result = await _register_source_content(proposal=proposal, request=request, source_type=source_type, source_filename=file.filename or source_title or "source.bin", content_type=file.content_type or "application/octet-stream", content=content, source_revision=source_revision, actor=_actor(role), idempotency_key=idempotency_key, source_metadata={"initial_source": True, "title": source_title, "source_date": source_date, "notes": source_notes}, db=db, role=role)
+        elif source_type == "CLIENT_DATA":
+            contact = (contact_name or "").strip()
+            email = (contact_email or "").strip()
+            if not contact and not email:
+                raise HTTPException(422, {"code": "CLIENT_INFORMATION_CONTACT_REQUIRED"})
+            set_contact(db, proposal, {"display_name": contact or None, "email": email or None, "purpose": "PROPOSAL_CONTACT", "status": "HUMAN_ENTERED", "notes": source_notes or None}, _actor(role))
+            metadata_lines = [
+                f"Client: {(client_name or '').strip()}",
+                f"Contact: {contact or 'Not recorded'}",
+                f"Email: {email or 'Not recorded'}",
+                f"Source title: {(source_title or 'Client Information').strip()}",
+                f"Source date: {(source_date or 'Not recorded').strip()}",
+                f"Notes: {(source_notes or 'Not recorded').strip()}",
+            ]
+            result = await _register_source_content(
+                proposal=proposal,
+                request=request,
+                source_type=source_type,
+                source_filename=source_title.strip() if source_title and source_title.strip() else "client-information.txt",
+                content_type="text/plain",
+                content=("HUMAN-ENTERED CLIENT INFORMATION\n" + "\n".join(metadata_lines)).encode("utf-8"),
+                source_revision=None,
+                actor=_actor(role),
+                idempotency_key=idempotency_key,
+                source_metadata={"initial_source": True, "context": "CLIENT_INFORMATION", "title": source_title, "source_date": source_date, "notes": source_notes},
+                db=db,
+                role=role,
+            )
         db.commit()
     except Exception:
         db.rollback()
@@ -902,17 +956,21 @@ def accept(proposal_id: str, request: Request, db: Session = Depends(get_db), ro
             continue
         try:
             content, render_lineage = production_output_bytes(db, revision, artifact_type)
+            output_content_type = render_lineage.get("content_type", "application/pdf")
+            output_format = str(render_lineage.get("format", "PDF")).lower()
+            output_extension = "docx" if output_format == "docx" else "pdf"
+            filename = f"{item.opportunity_reference}-r{revision_number}-{artifact_type.lower()}.{output_extension}"
             store = create_binary_store()
             target = StorageTarget(store.provider_id, getattr(getattr(store, "config", None), "container", None) or getattr(getattr(store, "config", None), "share", ""), f"proposal-outputs/{item.id}/{revision.id}/{artifact_type.lower()}")
             document = Document(project_id=item.project_id, document_type=DocumentType.OTHER, logical_name=f"{item.opportunity_reference}:{artifact_type}:r{revision_number}", language="EN", source_system="PROPOSAL_OUTPUT")
             db.add(document)
             db.flush()
-            stored = DocumentStorageService(store).store_version(db, document=document, content=content, filename=filename, mime_type="application/pdf", target=target, actor=_actor(role, actor), correlation_id=request.state.correlation_id, idempotency_key=f"proposal-output:{revision.id}:{artifact_type}", source_system="PROPOSAL_OUTPUT", metadata={"proposal_id": item.id, "accepted_revision_id": revision.id, "renderer": render_lineage["renderer"]})
+            stored = DocumentStorageService(store).store_version(db, document=document, content=content, filename=filename, mime_type=output_content_type, target=target, actor=_actor(role, actor), correlation_id=request.state.correlation_id, idempotency_key=f"proposal-output:{revision.id}:{artifact_type}", source_system="PROPOSAL_OUTPUT", metadata={"proposal_id": item.id, "accepted_revision_id": revision.id, "renderer": render_lineage["renderer"]})
             with DocumentStorageService(store).read_verified(stored.version) as readback:
                 readback_bytes = readback.read()
             if hashlib.sha256(readback_bytes).hexdigest() != hashlib.sha256(content).hexdigest() or len(readback_bytes) != len(content):
                 raise ValueError("PRODUCTION_ARTIFACT_READBACK_MISMATCH")
-            db.add(ProposalOutputArtifact(revision_id=revision.id, proposal_id=item.id, artifact_type=artifact_type, filename=filename, content_type="application/pdf", content_hash=hashlib.sha256(content).hexdigest(), storage_reference=stored.version.source_path_or_reference, document_version_id=stored.version.id, lineage={**render_lineage, "proposal_content_hash": content_hash, "source_ids": snapshot["source_ids"], "read_back_verified": True, "storage_operation_id": stored.operation.id}, file_size=len(content), synthetic_only=False))
+            db.add(ProposalOutputArtifact(revision_id=revision.id, proposal_id=item.id, artifact_type=artifact_type, filename=filename, content_type=output_content_type, content_hash=hashlib.sha256(content).hexdigest(), storage_reference=stored.version.source_path_or_reference, document_version_id=stored.version.id, lineage={**render_lineage, "proposal_content_hash": content_hash, "source_ids": snapshot["source_ids"], "read_back_verified": True, "storage_operation_id": stored.operation.id}, file_size=len(content), synthetic_only=False))
         except StorageError as exc:
             raise domain_error(503, "PRODUCTION_ARTIFACT_STORAGE_FAILED", storage_code=exc.code.value) from exc
         except ValueError as exc:

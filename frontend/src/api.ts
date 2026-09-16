@@ -59,6 +59,7 @@ export class ApiError extends Error {
   }
 }
 
+const API_REQUEST_TIMEOUT_MS = 15_000;
 function humanErrorCode(code: string): string {
   const messages: Record<string, string> = {
     CONTRACT_FINALIZED_REVISION_IMMUTABLE: "This revision is finalized. Create a prospective revision to change its terms.",
@@ -203,14 +204,30 @@ export async function api<T>(
     }
   }
 
-  const response = await fetch(
-    endpoint,
-    {
-      ...init,
-      headers:
-        fetchHeaders,
-    },
-  );
+  const requestController = new AbortController();
+  const callerSignal = init?.signal;
+  const abortFromCaller = () => requestController.abort(callerSignal?.reason);
+  callerSignal?.addEventListener("abort", abortFromCaller, { once: true });
+  const timeoutId = setTimeout(() => requestController.abort(), API_REQUEST_TIMEOUT_MS);
+  let response: Response;
+  try {
+    response = await fetch(
+      endpoint,
+      {
+        ...init,
+        signal: requestController.signal,
+        headers: fetchHeaders,
+      },
+    );
+  } catch (cause) {
+    if (requestController.signal.aborted && !callerSignal?.aborted) {
+      throw new ApiError(`API request timed out after ${API_REQUEST_TIMEOUT_MS / 1000}s for ${path}`, 0, path);
+    }
+    throw cause;
+  } finally {
+    clearTimeout(timeoutId);
+    callerSignal?.removeEventListener("abort", abortFromCaller);
+  }
 
   const contentType =
     response.headers.get(
