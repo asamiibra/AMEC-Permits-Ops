@@ -27,6 +27,17 @@ def test_register_public_response_contract_serializes_every_visible_row(client):
         assert {"id", "proposal", "client", "activity", "stage", "stage_code", "next_action", "owner_lane", "contract_eligible", "validation"} <= row.keys()
 
 
+def test_register_does_not_materialize_detail_projection(client, monkeypatch):
+    import backend.app.api.bd_proposal_routers as routers
+
+    def fail_if_detail_projection_is_called(*args, **kwargs):
+        raise AssertionError("the register must not invoke the full Proposal detail projection")
+
+    monkeypatch.setattr(routers, "proposal_projection", fail_if_detail_projection_is_called)
+    response = client.get("/api/bd/proposals", headers=_headers())
+    assert response.status_code == 200, response.text
+
+
 def test_proposal_intake_clients_returns_active_canonical_choices(client):
     response = client.get("/api/bd/proposals/clients", headers=_headers())
     assert response.status_code == 200, response.text
