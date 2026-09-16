@@ -21,6 +21,7 @@ param edgeCustomDomainName = ''
 param apiImage = readEnvironmentVariable('PROPOSALOPS_PREPROD_API_IMAGE', 'REQUIRED_AT_DEPLOYMENT')
 param workerImage = readEnvironmentVariable('PROPOSALOPS_PREPROD_WORKER_IMAGE', 'REQUIRED_AT_DEPLOYMENT')
 param migrationImage = readEnvironmentVariable('PROPOSALOPS_PREPROD_MIGRATION_IMAGE', 'REQUIRED_AT_DEPLOYMENT')
+param clamavImage = readEnvironmentVariable('PROPOSALOPS_PREPROD_CLAMAV_IMAGE', 'REQUIRED_AT_DEPLOYMENT')
 param frontendImage = readEnvironmentVariable('PROPOSALOPS_PREPROD_FRONTEND_IMAGE', 'REQUIRED_AT_DEPLOYMENT')
 param aiFeatureEnabled = false
 param aiExternalInferenceEnabled = false

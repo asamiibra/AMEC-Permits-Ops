@@ -1,58 +1,1118 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import { navigateTo, useLocationPath } from "../navigation";
+import { ContractTiming } from "./ContractTiming";
 import { contractAction } from "./contractApi";
 import type { ContractData } from "./contractTypes";
 import { ContractIntelligence } from "./ContractIntelligence";
 import { CanonicalFormsLibrary } from "../MasterContentForms";
 import { readDemoRole } from "../rebrand";
-import { Icon } from "../Icon";
-import { ContractCommitments, ContractContactRouting, ContractExecutionHandoff, ContractExtensionDecisionPanel, ContractExtensionPanel, ContractMissingDocumentFollowup, ContractRevisionEditor, ContractServiceScope, ContractSourceIntake } from "./ContractGovernedPanels";
+import {
+  ContractCommitments,
+  ContractContactRouting,
+  ContractExecutionHandoff,
+  ContractExtensionDecisionPanel,
+  ContractExtensionPanel,
+  ContractMissingDocumentFollowup,
+  ContractRevisionEditor,
+  ContractServiceScope,
+  ContractSourceIntake,
+} from "./ContractGovernedPanels";
 
-const text = (value: unknown, fallback = "Not recorded") => value === null || value === undefined || value === "" ? fallback : String(value);
-const human = (value: unknown, fallback = "Not recorded") => text(value, fallback).replaceAll("_", " ");
-const date = (value: unknown) => value ? new Date(String(value)).toLocaleDateString() : "Not recorded";
-const statusClass = (value: unknown) => String(value || "neutral").toLowerCase().replaceAll(" ", "-");
+const text = (value: unknown, fallback = "Not recorded") =>
+  value === null || value === undefined || value === ""
+    ? fallback
+    : String(value);
+const human = (value: unknown, fallback = "Not recorded") =>
+  text(value, fallback).replaceAll("_", " ");
+const date = (value: unknown) =>
+  value ? new Date(String(value)).toLocaleDateString() : "Not recorded";
+const statusClass = (value: unknown) =>
+  String(value || "neutral")
+    .toLowerCase()
+    .replaceAll(" ", "-");
 
-function Status({ value, tone = "canonical" }: { value: unknown; tone?: string }) { return <span className={`contract-status-chip status-${tone}`}>{human(value)}</span>; }
-function Field({ label, value, source }: { label: string; value: unknown; source?: string }) { return <div className="contract-field"><span>{label}</span><strong>{text(value)}</strong>{source && <small>{source}</small>}</div>; }
-function SectionHeading({ eyebrow, title, description, action }: { eyebrow: string; title: string; description?: string; action?: ReactNode }) { return <div className="contract-panel-heading"><div><span className="eyebrow">{eyebrow}</span><h2>{title}</h2>{description && <p>{description}</p>}</div>{action}</div>; }
+function Status({
+  value,
+  tone = "canonical",
+}: {
+  value: unknown;
+  tone?: string;
+}) {
+  return (
+    <span className={`contract-status-chip status-${tone}`}>
+      {human(value)}
+    </span>
+  );
+}
+function Field({
+  label,
+  value,
+  source,
+}: {
+  label: string;
+  value: unknown;
+  source?: string;
+}) {
+  return (
+    <div className="contract-field">
+      <span>{label}</span>
+      <strong>{text(value)}</strong>
+      {source && <small>{source}</small>}
+    </div>
+  );
+}
+function SectionHeading({
+  eyebrow,
+  title,
+  description,
+  action,
+}: {
+  eyebrow: string;
+  title: string;
+  description?: string;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="contract-panel-heading">
+      <div>
+        <span className="eyebrow">{eyebrow}</span>
+        <h2>{title}</h2>
+        {description && <p>{description}</p>}
+      </div>
+      {action}
+    </div>
+  );
+}
 
-function CommandHeader({ data }: { data: ContractData }) {
+function CommandHeader({ data, onSelect }: { data: ContractData; onSelect: (section: string) => void }) {
   const contract = data.contract || {};
   const accepted = Boolean(data.current_revision?.accepted);
   const blockers = data.readiness?.blockers || [];
-  const next = data.operations?.primary_next_action || { code: "CONTRACT_REVIEW", label: "Open Contract Review", target_section: "review", action_type: "NAVIGATE", enabled: true };
-  const focusTarget = () => { document.getElementById(`contract-${next.target_section || "review"}`)?.scrollIntoView({ behavior: "smooth", block: "start" }); document.getElementById(`contract-${next.target_section || "review"}`)?.focus?.(); };
-  return <header className="contract-command-header"><div className="contract-command-title"><span className="eyebrow">CONTRACT WORKSPACE · CANONICAL READ MODEL</span><h1>{text(contract.name, "Contract")}</h1><p>{text(contract.reference)} · {text(data.client?.name, "Client pending")} · {text(data.origin?.proposal_reference, "Opportunity pending")}</p><div className="contract-command-links"><span>Revision {text(data.current_revision?.revision_number, "—")}</span><span>{text(data.project?.code, "Project not activated")}</span><span>Updated {date(contract.last_activity || data.updated_at)}</span></div></div><div className="contract-command-state"><div className="contract-status-pair"><div><span>Contract stage</span><Status value={contract.stage} /></div><div><span>Authority</span><Status value={contract.authority_state} tone={accepted ? "confirmed" : "human-action"} /></div><div><span>Execution evidence</span><Status value={data.executed_evidence?.length ? "RECORDED" : "NOT_RECORDED"} tone={data.executed_evidence?.length ? "confirmed" : "neutral"} /></div><div><span>Activation</span><Status value={data.activation ? "ACTIVATED" : "SEPARATE_ACTION"} tone={data.activation ? "confirmed" : "human-action"} /></div></div><button className="button-primary contract-primary-action" onClick={focusTarget}>{next.label || "Open next Contract workflow"}</button>{blockers.length > 0 && <span className="contract-next-note">{blockers.length} blocker(s) · Next: {human(blockers[0]?.label, "Resolve Contract readiness")}</span>}</div></header>;
+  const next = data.operations?.primary_next_action || {
+    code: "CONTRACT_REVIEW",
+    label: "Open Contract Review",
+    target_section: "review",
+    action_type: "NAVIGATE",
+    enabled: true,
+  };
+  const focusTarget = () => {
+    onSelect(next.target_section || "review");
+  };
+  return (
+    <header className="contract-command-header">
+      <div className="contract-command-title">
+        <span className="eyebrow">
+          CONTRACT WORKSPACE
+        </span>
+        <h2>{text(contract.name, "Contract")}</h2>
+        <p>
+          {text(contract.reference)} ·{" "}
+          {text(data.client?.name, "Client pending")} ·{" "}
+          {text(data.origin?.proposal_reference, "Opportunity pending")}
+        </p>
+        <div className="contract-command-links">
+          <span>
+            Revision {text(data.current_revision?.revision_number, "—")}
+          </span>
+          <span>{text(data.project?.code, "Project not activated")}</span>
+          <span>Updated {date(contract.last_activity || data.updated_at)}</span>
+        </div>
+      </div>
+      <div className="contract-command-state">
+        <div className="contract-status-pair">
+          <div>
+            <span>Contract stage</span>
+            <Status value={contract.stage} />
+          </div>
+          <div>
+            <span>Authority</span>
+            <Status
+              value={contract.authority_state}
+              tone={accepted ? "confirmed" : "human-action"}
+            />
+          </div>
+          <div>
+            <span>Execution evidence</span>
+            <Status
+              value={
+                data.executed_evidence?.length ? "RECORDED" : "NOT_RECORDED"
+              }
+              tone={data.executed_evidence?.length ? "confirmed" : "neutral"}
+            />
+          </div>
+          <div>
+            <span>Activation</span>
+            <Status
+              value={data.activation ? "ACTIVATED" : "SEPARATE_ACTION"}
+              tone={data.activation ? "confirmed" : "human-action"}
+            />
+          </div>
+        </div>
+        <button
+          className="button-primary contract-primary-action"
+          onClick={focusTarget}
+        >
+          {next.label || "Open next Contract workflow"}
+        </button>
+        {blockers.length > 0 && (
+          <span className="contract-next-note">
+            {blockers.length} blocker(s) · Next:{" "}
+            {human(blockers[0]?.label, "Resolve Contract readiness")}
+          </span>
+        )}
+      </div>
+    </header>
+  );
 }
 
-function WorkspaceNavigation({ active, onSelect }: { active: string; onSelect: (value: string) => void }) { const items = [["overview", "Overview"], ["intelligence", "Intelligence"], ["sources", "Contract & Sources"], ["commercial", "Commercial"], ["review", "Review & Acceptance"], ["mobilization", "Mobilization"], ["operations", "Operations & Billing"], ["history", "History"]]; return <nav className="contract-workspace-nav contract-section-nav" role="tablist" aria-label="Contract workspace sections"><a className="sr-only" aria-hidden="true" tabIndex={-1} href="#overview">Overview</a>{items.map(([id, label]) => <button key={id} role="tab" aria-selected={active === id} className={active === id ? "active" : ""} onClick={() => { onSelect(id); document.getElementById(`contract-${id}`)?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>{label}</button>)}</nav>; }
+function WorkspaceNavigation({
+  active,
+  onSelect,
+}: {
+  active: string;
+  onSelect: (value: string) => void;
+}) {
+  const items = [
+    ["overview", "Overview"],
+    ["sources", "Contract & Sources"],
+    ["commercial", "Commercial"],
+    ["review", "Review & Acceptance"],
+    ["mobilization", "Mobilization & Start"],
+    ["operations", "Operations & Billing"],
+    ["documents", "Documents & Evidence"],
+    ["history", "History"],
+    ["intelligence", "Intelligence"],
+  ];
+  return (
+    <nav
+      className="contract-workspace-nav contract-section-nav"
+      aria-label="Contract workspace sections"
+    >
+      {items.map(([id, label]) => (
+        <button
+          key={id}
+          type="button"
+          aria-current={active === id ? "page" : undefined}
+          className={active === id ? "active" : ""}
+          onClick={() => {
+            onSelect(id);
+            document
+              .getElementById(`contract-${id}`)
+              ?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }}
+        >
+          {label}
+        </button>
+      ))}
+    </nav>
+  );
+}
 
-function Overview({ data }: { data: ContractData }) { const readiness = data.readiness || {}; const ops = data.operations || {}; const milestones = ops.lifecycle_milestones || []; return <section id="contract-overview" tabIndex={-1} className="contract-panel"><SectionHeading eyebrow="DECISION SNAPSHOT" title="Overview" description="Each lifecycle milestone is independently projected from canonical evidence; later facts do not imply earlier facts." /><div className="contract-overview-grid"><div className="contract-overview-callout"><span>Primary next action</span><strong>{human(ops.primary_next_action?.label || ops.next_action || "No action recorded")}</strong><small>{readiness.blockers?.length ? `${readiness.blockers.length} blocker(s) need attention` : "No readiness blocker recorded"}</small></div><Field label="Accepted Proposal" value={data.origin ? `${data.origin.proposal_reference} · Revision ${data.origin.revision_number}` : "Proposal origin requires reconciliation"} source="AcceptedProposalRevision" /><Field label="Commercial value" value={data.contract?.amount ? `${data.contract.amount} ${data.contract.currency || ""}` : "Amount not confirmed"} source="Contract revision" /><Field label="Operations handoff" value={human(ops.contract?.status || ops.status, "Not recorded")} source="Operations read model" /></div><div className="contract-lifecycle" aria-label="Canonical lifecycle projection">{milestones.map((item: any) => <div key={item.code} className={item.complete ? "complete" : "pending"}><span>{item.complete ? "✓" : "·"}</span><strong>{human(item.label || item.code)}</strong><small>{item.complete ? human(item.evidence || "Canonical evidence recorded") : human(item.blocked_reason || "Not recorded")}</small></div>)}</div></section>; }
+function Overview({ data }: { data: ContractData }) {
+  const readiness = data.readiness || {};
+  const ops = data.operations || {};
+  const milestones = ops.lifecycle_milestones || [];
+  return (
+    <section id="contract-overview" tabIndex={-1} className="contract-panel">
+      <SectionHeading
+        eyebrow="DECISION SNAPSHOT"
+        title="Overview"
+        description="Each lifecycle milestone is independently projected from canonical evidence; later facts do not imply earlier facts."
+      />
+      <div className="contract-overview-grid">
+        <div className="contract-overview-callout">
+          <span>Primary next action</span>
+          <strong>
+            {human(
+              ops.primary_next_action?.label ||
+                ops.next_action ||
+                "No action recorded",
+            )}
+          </strong>
+          <small>
+            {readiness.blockers?.length
+              ? `${readiness.blockers.length} blocker(s) need attention`
+              : "No readiness blocker recorded"}
+          </small>
+        </div>
+        <Field
+          label="Accepted Proposal"
+          value={
+            data.origin
+              ? `${data.origin.proposal_reference} · Revision ${data.origin.revision_number}`
+              : "Proposal origin requires reconciliation"
+          }
+          source="AcceptedProposalRevision"
+        />
+        <Field
+          label="Commercial value"
+          value={
+            data.contract?.amount
+              ? `${data.contract.amount} ${data.contract.currency || ""}`
+              : "Amount not confirmed"
+          }
+          source="Contract revision"
+        />
+        <Field
+          label="Operations handoff"
+          value={human(ops.contract?.status || ops.status, "Not recorded")}
+          source="Operations read model"
+        />
+      </div>
+      <div
+        className="contract-lifecycle"
+        role="group"
+        aria-label="Canonical lifecycle projection"
+      >
+        {milestones.map((item: any) => (
+          <div
+            key={item.code}
+            className={item.complete ? "complete" : "pending"}
+          >
+            <span>{item.complete ? "✓" : "·"}</span>
+            <strong>{human(item.label || item.code)}</strong>
+            <small>
+              {item.complete
+                ? human(item.evidence || "Canonical evidence recorded")
+                : human(item.blocked_reason || "Not recorded")}
+            </small>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
 
-function Sources({ data }: { data: ContractData }) { const sources = data.source_panel || []; const documents = [data.client_document, data.po, data.lpo].filter(Boolean) as any[]; const hasOrigin = Boolean(data.origin); return <section id="contract-sources" className="contract-panel"><SectionHeading eyebrow="EVIDENCE WORKSPACE" title="Contract & Sources" description="Currentness and verification come from explicit backend projection fields; classifier output is only a routing hint." /><div id="proposal-origin" className="contract-origin-compat"><h3>{hasOrigin ? "Accepted Proposal" : "Legacy Contract"}</h3>{hasOrigin ? <p>{data.origin?.proposal_reference} · {data.origin?.title || "Accepted Proposal"} · Revision {data.origin?.revision_number}</p> : <p>Proposal origin requires reconciliation</p>}</div><div className="contract-source-grid">{sources.map((source) => <article className="contract-source-card" key={source.key}><div className="contract-source-top"><span className="contract-source-role">{source.label}</span><Status value={source.currentness_state || "CURRENTNESS_UNAVAILABLE"} tone={source.currentness_state === "CURRENT" ? "confirmed" : "warning"} /></div><strong>{source.detail || "Not recorded"}</strong><small>{source.source || "Canonical source"} · {source.verification_state || "Verification state unavailable"}</small>{source.classifier_candidate && <small>Classifier candidate: {source.classifier_candidate} · confidence {source.classifier_confidence ?? "unavailable"}</small>}{source.open && <a href={source.open} target={source.open.startsWith("/") ? undefined : "_blank"} rel="noreferrer">Open source <Icon name="arrow-up-right" size={13} /></a>}</article>)}</div>{documents.length > 0 && <div className="contract-document-strip">{documents.map((item, index) => <div key={index}><b>{item.label || item.document?.filename || "Document"}</b><span>v{item.document?.version_number || "—"} · {item.document?.sha256 || "hash not exposed"}</span><Status value={item.document?.approval_state || item.status} /></div>)}</div>}{!hasOrigin && <div className="contract-reconciliation-warning"><strong>Proposal origin requires reconciliation</strong><span>This Contract has no accepted Proposal revision. Acceptance is blocked by the safe default policy.</span></div>}<div className="contract-evidence-note"><strong>Lineage rule</strong><span>AI may read an authorized current DocumentVersion and cite it. Superseded or cross-Contract evidence is not eligible for canonical action.</span></div></section>; }
+function Sources({ data }: { data: ContractData }) {
+  const sources = data.source_panel || [];
+  const documents = [data.client_document, data.po, data.lpo].filter(
+    Boolean,
+  ) as any[];
+  const hasOrigin = Boolean(data.origin);
+  return (
+    <section id="contract-sources" className="contract-panel">
+      <SectionHeading
+        eyebrow="EVIDENCE WORKSPACE"
+        title="Contract & Sources"
+        description="Currentness and verification come from explicit backend projection fields; classifier output is only a routing hint."
+      />
+      <div id="proposal-origin" className="contract-origin-compat">
+        <h3>{hasOrigin ? "Accepted Proposal" : "Legacy Contract"}</h3>
+        {hasOrigin ? (
+          <p>
+            {data.origin?.proposal_reference} ·{" "}
+            {data.origin?.title || "Accepted Proposal"} · Revision{" "}
+            {data.origin?.revision_number}
+          </p>
+        ) : (
+          <p>Proposal origin requires reconciliation</p>
+        )}
+      </div>
+      <div className="contract-source-grid">
+        {sources.map((source) => (
+          <article className="contract-source-card" key={source.key}>
+            <div className="contract-source-top">
+              <span className="contract-source-role">{source.label}</span>
+              <Status
+                value={source.currentness_state || "CURRENTNESS_UNAVAILABLE"}
+                tone={
+                  source.currentness_state === "CURRENT"
+                    ? "confirmed"
+                    : "warning"
+                }
+              />
+            </div>
+            <strong>{source.detail || "Not recorded"}</strong>
+            <small>
+              {source.source || "Canonical source"} ·{" "}
+              {source.verification_state || "Verification state unavailable"}
+            </small>
+            {source.classifier_candidate && (
+              <small>
+                Classifier candidate: {source.classifier_candidate} · confidence{" "}
+                {source.classifier_confidence ?? "unavailable"}
+              </small>
+            )}
+            {source.open && (
+              <a
+                href={source.open}
+                target={source.open.startsWith("/") ? undefined : "_blank"}
+                rel="noreferrer"
+              >
+                Open source ↗
+              </a>
+            )}
+          </article>
+        ))}
+      </div>
+      {documents.length > 0 && (
+        <div className="contract-document-strip">
+          {documents.map((item, index) => (
+            <div key={index}>
+              <b>{item.label || item.document?.filename || "Document"}</b>
+              <span>
+                v{item.document?.version_number || "—"} ·{" "}
+                {item.document?.sha256 || "hash not exposed"}
+              </span>
+              <Status value={item.document?.approval_state || item.status} />
+            </div>
+          ))}
+        </div>
+      )}
+      {!hasOrigin && (
+        <div className="contract-reconciliation-warning">
+          <strong>Proposal origin requires reconciliation</strong>
+          <span>
+            This Contract has no accepted Proposal revision. Acceptance is
+            blocked by the safe default policy.
+          </span>
+        </div>
+      )}
+      <div className="contract-evidence-note">
+        <strong>Lineage rule</strong>
+        <span>
+          AI may read an authorized current DocumentVersion and cite it.
+          Superseded or cross-Contract evidence is not eligible for canonical
+          action.
+        </span>
+      </div>
+    </section>
+  );
+}
 
-function ContractEvidenceDetails({ data }: { data: ContractData }) { const handoffs = data.handoff_evidence || {}; const revisions = data.revisions || []; const evidence = data.executed_evidence || []; const record = (items: any[]) => items.length ? `${items.length} recorded · ${items[0]?.recorded_by || "human record"}` : "Not recorded"; return <section className="contract-panel contract-evidence-details"><SectionHeading eyebrow="EXECUTION & HANDOFF EVIDENCE" title="Evidence milestones" description="Upload, delivery, and Operations acknowledgement are distinct human-recorded facts tied to the exact Contract revision." /><div className="contract-review-grid"><Field label="Accepted revision" value={data.current_revision?.revision_number ? `Revision ${data.current_revision.revision_number}` : "Not recorded"} source={data.current_revision?.content_hash ? `Hash ${data.current_revision.content_hash}` : "Revision identity pending"} /><Field label="Executed Contract" value={record(evidence)} source="EXECUTED_CONTRACT evidence" /><Field label="Client delivery" value={record(handoffs.CLIENT_COPY_DISTRIBUTION || [])} source="CLIENT_COPY_DISTRIBUTION evidence" /><Field label="Operations handoff" value={record(handoffs.OPERATIONS_HANDOFF || [])} source="OPERATIONS_HANDOFF evidence" /></div><div className="contract-revision-list"><h3>Contract revisions <small>{revisions.length} recorded</small></h3>{revisions.length ? revisions.map((item) => <article key={item.id}><strong>Revision {item.revision_number}</strong><span>{human(item.status)} · {item.accepted ? "accepted" : "not accepted"} · {item.authority_reviewed ? "authority reviewed" : "authority review pending"}</span><small>{item.content_hash || "content hash not recorded"} · {date(item.created_at)}</small></article>) : <div className="contract-empty compact">No Contract revisions recorded.</div>}</div><div className="contract-human-boundary"><strong>Authority boundary</strong><span>AI can compare eligible versions and prepare candidates; only authenticated human actions record execution, client delivery, or Operations handoff.</span></div></section>; }
+function ContractEvidenceDetails({ data }: { data: ContractData }) {
+  const handoffs = data.handoff_evidence || {};
+  const revisions = data.revisions || [];
+  const evidence = data.executed_evidence || [];
+  const record = (items: any[]) =>
+    items.length
+      ? `${items.length} recorded · ${items[0]?.recorded_by || "human record"}`
+      : "Not recorded";
+  return (
+    <section className="contract-panel contract-evidence-details">
+      <SectionHeading
+        eyebrow="EXECUTION & HANDOFF EVIDENCE"
+        title="Evidence milestones"
+        description="Upload, delivery, and Operations acknowledgement are distinct human-recorded facts tied to the exact Contract revision."
+      />
+      <div className="contract-review-grid">
+        <Field
+          label="Accepted revision"
+          value={
+            data.current_revision?.revision_number
+              ? `Revision ${data.current_revision.revision_number}`
+              : "Not recorded"
+          }
+          source={
+            data.current_revision?.content_hash
+              ? `Hash ${data.current_revision.content_hash}`
+              : "Revision identity pending"
+          }
+        />
+        <Field
+          label="Executed Contract"
+          value={record(evidence)}
+          source="EXECUTED_CONTRACT evidence"
+        />
+        <Field
+          label="Client delivery"
+          value={record(handoffs.CLIENT_COPY_DISTRIBUTION || [])}
+          source="CLIENT_COPY_DISTRIBUTION evidence"
+        />
+        <Field
+          label="Operations handoff"
+          value={record(handoffs.OPERATIONS_HANDOFF || [])}
+          source="OPERATIONS_HANDOFF evidence"
+        />
+      </div>
+      <div className="contract-revision-list">
+        <h3>
+          Contract revisions <small>{revisions.length} recorded</small>
+        </h3>
+        {revisions.length ? (
+          revisions.map((item) => (
+            <article key={item.id}>
+              <strong>Revision {item.revision_number}</strong>
+              <span>
+                {human(item.status)} ·{" "}
+                {item.accepted ? "accepted" : "not accepted"} ·{" "}
+                {item.authority_reviewed
+                  ? "authority reviewed"
+                  : "authority review pending"}
+              </span>
+              <small>
+                {item.content_hash || "content hash not recorded"} ·{" "}
+                {date(item.created_at)}
+              </small>
+            </article>
+          ))
+        ) : (
+          <div className="contract-empty compact">
+            No Contract revisions recorded.
+          </div>
+        )}
+      </div>
+      <div className="contract-human-boundary">
+        <strong>Authority boundary</strong>
+        <span>
+          AI can compare eligible versions and prepare candidates; only
+          authenticated human actions record execution, client delivery, or
+          Operations handoff.
+        </span>
+      </div>
+    </section>
+  );
+}
 
-function FormsAndAuthorizations({ data }: { data: ContractData }) { const packageProjection = data.forms_package || {}; return <section className="contract-panel contract-forms-panel"><SectionHeading eyebrow="GOVERNED CONTENT LIBRARY" title="Forms &amp; authorizations" description="The canonical Content Library owns governed Form identity, versions, applicability, and signer policy." /><p>Applicable Contract-time Forms remain policy-driven. No universal bundle or AI signature is inferred.</p><div className="contract-form-package-status"><strong>Contract package: {human(packageProjection.applicability_state, "OWNER_INPUT_REQUIRED")}</strong><span>{packageProjection.note || "Owner applicability decision required."} · Authority: {packageProjection.automation_authority || "ZERO"}</span></div>{(packageProjection.items || []).map((item: any) => <div className="contract-list-item" key={item.form_id}><div><strong>{item.ref} · {item.title}</strong><span>{human(item.applicability)} · {human(item.prefill_state)} · {human(item.review_state)} · {human(item.signature_state)}</span><small>{item.current_document_version_id ? `DocumentVersion ${item.current_document_version_id} · v${item.current_version} · ${item.current_sha256}` : "Current source version not available"}</small></div><span className="contract-status-chip status-canonical">{human(item.status)}</span></div>)}<CanonicalFormsLibrary role={readDemoRole()} surface="DASHBOARD" compact filters={{ module: "CONTRACT" }} /></section>; }
+function FormsAndAuthorizations({ data }: { data: ContractData }) {
+  const packageProjection = data.forms_package || {};
+  return (
+    <section className="contract-panel contract-forms-panel">
+      <SectionHeading
+        eyebrow="GOVERNED CONTENT LIBRARY"
+        title="Forms &amp; authorizations"
+        description="The canonical Content Library owns governed Form identity, versions, applicability, and signer policy."
+      />
+      <p>
+        Applicable Contract-time Forms remain policy-driven. No universal bundle
+        or AI signature is inferred.
+      </p>
+      <div className="contract-form-package-status">
+        <strong>
+          Contract package:{" "}
+          {human(packageProjection.applicability_state, "OWNER_INPUT_REQUIRED")}
+        </strong>
+        <span>
+          {packageProjection.note || "Owner applicability decision required."} ·
+          Authority: {packageProjection.automation_authority || "ZERO"}
+        </span>
+      </div>
+      {(packageProjection.items || []).map((item: any) => (
+        <div className="contract-list-item" key={item.form_id}>
+          <div>
+            <strong>
+              {item.ref} · {item.title}
+            </strong>
+            <span>
+              {human(item.applicability)} · {human(item.prefill_state)} ·{" "}
+              {human(item.review_state)} · {human(item.signature_state)}
+            </span>
+            <small>
+              {item.current_document_version_id
+                ? `DocumentVersion ${item.current_document_version_id} · v${item.current_version} · ${item.current_sha256}`
+                : "Current source version not available"}
+            </small>
+          </div>
+          <span className="contract-status-chip status-canonical">
+            {human(item.status)}
+          </span>
+        </div>
+      ))}
+      <CanonicalFormsLibrary
+        role={readDemoRole()}
+        surface="DASHBOARD"
+        compact
+        filters={{ module: "CONTRACT" }}
+      />
+    </section>
+  );
+}
 
-function Commercial({ data }: { data: ContractData }) { const terms = data.payment_terms || []; const deliverables = data.deliverables || data.deliverable_commitments || []; const inputs = data.client_inputs || data.documents_needed || []; const control = data.readiness?.source10_controls?.proposal_lpo_reconciliation || {}; const order = control.order_to_proposal || {}; const proposalValue = text(data.origin?.snapshot?.fields?.price || data.origin?.snapshot?.fields?.amount, "Not recorded"); const contractValue = data.contract?.amount ? `${data.contract.amount} ${data.contract.currency || ""}` : "Not confirmed"; const sourceValue = (item: any) => item?.document?.commercial_terms ? JSON.stringify(item.document.commercial_terms) : "No structured assertion"; return <section id="contract-commercial" className="contract-panel"><SectionHeading eyebrow="COMMERCIAL BASELINE" title="Commercial" description="Deterministic reconciliation is shown separately from any advisory semantic analysis. AI cannot waive a mismatch or verify a term." /><div id="commercial" className="contract-compat-anchor"><strong>Project Description</strong><span>{text(data.contract?.project_description, "Not provided")}</span></div><div className="contract-commercial-compare"><div><span>Accepted Proposal</span><strong>{proposalValue}</strong></div><div><span>PO / LPO exact assertion</span><strong>{data.po?.document || data.lpo?.document ? (data.po?.document ? `PO · ${sourceValue(data.po)}` : `LPO · ${sourceValue(data.lpo)}`) : "Not recorded"}</strong></div><div><span>Current Contract</span><strong>{contractValue}</strong></div><div className="contract-reconciliation-result"><span>Deterministic result</span><strong>{human(control.status, "NOT_PROVEN")}</strong><small>{human(order.status, "NOT_APPLICABLE")}{order.reason ? ` · ${order.reason}` : ""}</small></div></div><div className="contract-card-columns"><div><h3>Payment terms <small>{terms.length} recorded</small></h3>{terms.length ? terms.map((term: any) => <div className="contract-list-item" key={term.id}><div><strong>{term.label || `Term ${term.sequence}`}</strong><span>{term.term_text || "Term text not recorded"}</span></div><Status value={term.status} /></div>) : <div className="contract-empty compact">No payment terms recorded.</div>}</div><div><h3>Deliverables <small>{deliverables.length} recorded</small></h3>{deliverables.length ? deliverables.map((item: any) => <div className="contract-list-item" key={item.id}><div><strong>{item.name || item.commitment_ref}</strong><span>{item.description || item.due_trigger_description || "Description not recorded"}</span></div><Status value={item.status} /></div>) : <div className="contract-empty compact">No deliverables recorded.</div>}</div><div><h3>Client inputs <small>{inputs.length} recorded</small></h3>{inputs.length ? inputs.map((item: any) => <div className="contract-list-item" key={item.id}><div><strong>{item.title || item.input_code}</strong><span>{item.required ? "Required" : "Optional"} · {item.description || "Description not recorded"}</span></div><Status value={item.status} /></div>) : <div className="contract-empty compact">No client inputs recorded.</div>}</div></div><div className="contract-human-boundary"><strong>Advisory boundary</strong><span>Future shared Intelligence may prepare semantic candidates; current deterministic status and human adjudication remain authoritative.</span></div></section>; }
+function Commercial({ data }: { data: ContractData }) {
+  const terms = data.payment_terms || [];
+  const deliverables = data.deliverables || data.deliverable_commitments || [];
+  const inputs = data.client_inputs || data.documents_needed || [];
+  const control =
+    data.readiness?.source10_controls?.proposal_lpo_reconciliation || {};
+  const order = control.order_to_proposal || {};
+  const proposalValue = text(
+    data.origin?.snapshot?.fields?.price ||
+      data.origin?.snapshot?.fields?.amount,
+    "Not recorded",
+  );
+  const contractValue = data.contract?.amount
+    ? `${data.contract.amount} ${data.contract.currency || ""}`
+    : "Not confirmed";
+  const sourceValue = (item: any) => {
+    const terms = item?.document?.commercial_terms;
+    if (!terms || typeof terms !== "object") return "No structured assertion";
+    return Object.entries(terms as Record<string, unknown>)
+      .map(([key, value]) => `${human(key)}: ${text(value, "—")}`)
+      .join(" · ");
+  };
+  return (
+    <section id="contract-commercial" className="contract-panel">
+      <SectionHeading
+        eyebrow="COMMERCIAL BASELINE"
+        title="Commercial"
+        description="Deterministic reconciliation is shown separately from any advisory semantic analysis. AI cannot waive a mismatch or verify a term."
+      />
+      <div id="commercial" className="contract-compat-anchor">
+        <strong>Project Description</strong>
+        <span>{text(data.contract?.project_description, "Not provided")}</span>
+      </div>
+      <div className="contract-commercial-compare">
+        <div>
+          <span>Accepted Proposal</span>
+          <strong>{proposalValue}</strong>
+        </div>
+        <div>
+          <span>PO / LPO exact assertion</span>
+          <strong>
+            {data.po?.document || data.lpo?.document
+              ? data.po?.document
+                ? `PO · ${sourceValue(data.po)}`
+                : `LPO · ${sourceValue(data.lpo)}`
+              : "Not recorded"}
+          </strong>
+        </div>
+        <div>
+          <span>Current Contract</span>
+          <strong>{contractValue}</strong>
+        </div>
+        <div className="contract-reconciliation-result">
+          <span>Deterministic result</span>
+          <strong>{human(control.status, "NOT_PROVEN")}</strong>
+          <small>
+            {human(order.status, "NOT_APPLICABLE")}
+            {order.reason ? ` · ${order.reason}` : ""}
+          </small>
+        </div>
+      </div>
+      <div className="contract-card-columns">
+        <div>
+          <h3>
+            Payment terms <small>{terms.length} recorded</small>
+          </h3>
+          {terms.length ? (
+            terms.map((term: any) => (
+              <div className="contract-list-item" key={term.id}>
+                <div>
+                  <strong>{term.label || `Term ${term.sequence}`}</strong>
+                  <span>{term.term_text || "Term text not recorded"}</span>
+                </div>
+                <Status value={term.status} />
+              </div>
+            ))
+          ) : (
+            <div className="contract-empty compact">
+              No payment terms recorded.
+            </div>
+          )}
+        </div>
+        <div>
+          <h3>
+            Deliverables <small>{deliverables.length} recorded</small>
+          </h3>
+          {deliverables.length ? (
+            deliverables.map((item: any) => (
+              <div className="contract-list-item" key={item.id}>
+                <div>
+                  <strong>{item.name || item.commitment_ref}</strong>
+                  <span>
+                    {item.description ||
+                      item.due_trigger_description ||
+                      "Description not recorded"}
+                  </span>
+                </div>
+                <Status value={item.status} />
+              </div>
+            ))
+          ) : (
+            <div className="contract-empty compact">
+              No deliverables recorded.
+            </div>
+          )}
+        </div>
+        <div>
+          <h3>
+            Client inputs <small>{inputs.length} recorded</small>
+          </h3>
+          {inputs.length ? (
+            inputs.map((item: any) => (
+              <div className="contract-list-item" key={item.id}>
+                <div>
+                  <strong>{item.title || item.input_code}</strong>
+                  <span>
+                    {item.required ? "Required" : "Optional"} ·{" "}
+                    {item.description || "Description not recorded"}
+                  </span>
+                </div>
+                <Status value={item.status} />
+              </div>
+            ))
+          ) : (
+            <div className="contract-empty compact">
+              No client inputs recorded.
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="contract-human-boundary">
+        <strong>Advisory boundary</strong>
+        <span>
+          Future shared Intelligence may prepare semantic candidates; current
+          deterministic status and human adjudication remain authoritative.
+        </span>
+      </div>
+    </section>
+  );
+}
 
-function Review({ data, onAction }: { data: ContractData; onAction: (action: string, body: Record<string, unknown>) => Promise<void> }) {
+function Review({
+  data,
+  onAction,
+}: {
+  data: ContractData;
+  onAction: (action: string, body: Record<string, unknown>) => Promise<void>;
+}) {
   const checker = data.current_revision?.maker_checker || {};
-  const [checkerReason, setCheckerReason] = useState(""); const [authorityReason, setAuthorityReason] = useState(""); const [acceptReason, setAcceptReason] = useState("");
-  return <section id="contract-review" tabIndex={-1} className="contract-panel"><SectionHeading eyebrow="HUMAN AUTHORITY" title="Review & Acceptance" description="Maker, checker, authority review, Contract acceptance, and execution evidence are separate facts." /><div className="contract-review-grid"><Field label="Contract maker" value={checker.preparer} source="Maker record" /><Field label="Checker" value={checker.checker} source="Independent checker" /><Field label="Authority review" value={data.current_revision?.authority_reviewed ? "Recorded" : "Pending"} source="Owner authority" /><Field label="Contract acceptance" value={data.current_revision?.accepted ? "Accepted" : "Pending"} source="Human acceptance" /><Field label="Execution evidence" value={(data.executed_evidence?.length || 0) > 0 ? "Recorded" : "Not recorded"} source="Human evidence action" /></div><div className="contract-review-actions"><label>Checker reason<input value={checkerReason} onChange={event => setCheckerReason(event.target.value)} placeholder="Why is this revision checked?" /></label><button className="button-secondary" disabled={Boolean(checker.checker) || !checkerReason.trim()} onClick={() => onAction("checker", { reason: checkerReason })}>Record Checker Review</button><label>Authority decision reason<input value={authorityReason} onChange={event => setAuthorityReason(event.target.value)} placeholder="Why approve or return this revision?" /></label><div className="contract-action-row"><button className="button-secondary" disabled={Boolean(data.current_revision?.authority_reviewed) || !authorityReason.trim()} onClick={() => onAction("authority", { decision: "APPROVE", reason: authorityReason })}>Approve Contract Review</button><button className="button-secondary" disabled={!authorityReason.trim() || Boolean(data.current_revision?.accepted)} onClick={() => onAction("authority", { decision: "RETURN", reason: authorityReason })}>Return for Correction</button></div><label>Acceptance reason<input value={acceptReason} onChange={event => setAcceptReason(event.target.value)} placeholder="Why accept this exact revision?" /></label><button className="button-primary" disabled={!data.current_revision?.authority_reviewed || Boolean(data.current_revision?.accepted) || !acceptReason.trim()} onClick={() => onAction("accept", { reason: acceptReason, idempotency_key: `owner-accept:${data.id}:${data.current_revision?.id || "pending"}` })}>Accept Contract</button></div><div className="contract-human-boundary"><strong>Execution boundary</strong><span>Accept Contract does not record a signed Contract, deliver it to the client, create an Invoice, or activate a Project.</span></div></section>;
+  const [checkerReason, setCheckerReason] = useState("");
+  const [authorityReason, setAuthorityReason] = useState("");
+  const [acceptReason, setAcceptReason] = useState("");
+  return (
+    <section id="contract-review" tabIndex={-1} className="contract-panel">
+      <SectionHeading
+        eyebrow="HUMAN AUTHORITY"
+        title="Review & Acceptance"
+        description="Maker, checker, authority review, Contract acceptance, and execution evidence are separate facts."
+      />
+      <div className="contract-review-grid">
+        <Field
+          label="Contract maker"
+          value={checker.preparer}
+          source="Maker record"
+        />
+        <Field
+          label="Checker"
+          value={checker.checker}
+          source="Independent checker"
+        />
+        <Field
+          label="Authority review"
+          value={
+            data.current_revision?.authority_reviewed ? "Recorded" : "Pending"
+          }
+          source="Owner authority"
+        />
+        <Field
+          label="Contract acceptance"
+          value={data.current_revision?.accepted ? "Accepted" : "Pending"}
+          source="Human acceptance"
+        />
+        <Field
+          label="Execution evidence"
+          value={
+            (data.executed_evidence?.length || 0) > 0
+              ? "Recorded"
+              : "Not recorded"
+          }
+          source="Human evidence action"
+        />
+      </div>
+      <div className="contract-review-actions">
+        <label>
+          Checker reason
+          <input
+            value={checkerReason}
+            onChange={(event) => setCheckerReason(event.target.value)}
+            placeholder="Why is this revision checked?"
+          />
+        </label>
+        <button
+          className="button-secondary"
+          disabled={Boolean(checker.checker) || !checkerReason.trim()}
+          onClick={() => onAction("checker", { reason: checkerReason })}
+        >
+          Record Checker Review
+        </button>
+        <label>
+          Authority decision reason
+          <input
+            value={authorityReason}
+            onChange={(event) => setAuthorityReason(event.target.value)}
+            placeholder="Why approve or return this revision?"
+          />
+        </label>
+        <div className="contract-action-row">
+          <button
+            className="button-secondary"
+            disabled={
+              Boolean(data.current_revision?.authority_reviewed) ||
+              !authorityReason.trim()
+            }
+            onClick={() =>
+              onAction("authority", {
+                decision: "APPROVE",
+                reason: authorityReason,
+              })
+            }
+          >
+            Approve Contract Review
+          </button>
+          <button
+            className="button-secondary"
+            disabled={
+              !authorityReason.trim() ||
+              Boolean(data.current_revision?.accepted)
+            }
+            onClick={() =>
+              onAction("authority", {
+                decision: "RETURN",
+                reason: authorityReason,
+              })
+            }
+          >
+            Return for Correction
+          </button>
+        </div>
+        <label>
+          Acceptance reason
+          <input
+            value={acceptReason}
+            onChange={(event) => setAcceptReason(event.target.value)}
+            placeholder="Why accept this exact revision?"
+          />
+        </label>
+        <button
+          className="button-primary"
+          disabled={
+            !data.current_revision?.authority_reviewed ||
+            Boolean(data.current_revision?.accepted) ||
+            !acceptReason.trim()
+          }
+          onClick={() =>
+            onAction("accept", {
+              reason: acceptReason,
+              idempotency_key: `owner-accept:${data.id}:${data.current_revision?.id || "pending"}`,
+            })
+          }
+        >
+          Accept Contract
+        </button>
+      </div>
+      <div className="contract-human-boundary">
+        <strong>Execution boundary</strong>
+        <span>
+          Accept Contract does not record a signed Contract, deliver it to the
+          client, create an Invoice, or activate a Project.
+        </span>
+      </div>
+    </section>
+  );
 }
 
-function Mobilization({ data, onNavigate, onAction }: { data: ContractData; onNavigate: (route: string) => void; onAction: (action: string, body: Record<string, unknown>) => Promise<void> }) { const states = data.operations?.readiness_states?.states || {}; const activation = data.activation; const [projectCode, setProjectCode] = useState(""); const [startDate, setStartDate] = useState(""); const canActivate = Boolean(data.current_revision?.accepted && data.readiness?.activation_ready && !activation); return <section id="contract-mobilization" className="contract-panel"><SectionHeading eyebrow="MOBILIZATION" title="Mobilization" description="Readiness states remain independent. Only exact Contract/service policy creates a blocker." /><div className="contract-readiness-grid">{Object.entries(states).map(([key, value]: [string, any]) => <article key={key}><span>{human(key)}</span><Status value={value.result} tone={value.result === "READY" || value.result === "NOT_APPLICABLE" ? "confirmed" : "warning"} /><small>{(value.missing_evidence || []).join(" · ") || "No missing evidence reported"}</small></article>)}</div><div className="contract-advance-chain"><span>Payment term</span><b>→</b><span>Invoice eligible</span><b>→</b><span>Human issue / verification</span><b>→</b><span>Advance satisfied where applicable</span></div><p className="contract-policy-note">{data.readiness?.source10_controls?.advance_payment_gate?.status === "NOT_REQUIRED_BY_GOVERNING_REQUIREMENT" ? "Not required by this Contract" : "Advance requirement follows the exact verified Contract payment policy."}</p><div id="activation" className="contract-compat-anchor" /><div className="contract-activation-card"><div><span className="eyebrow">PROTECTED HUMAN ACTION</span><h3>Project Activation</h3><p>{activation ? `Project ${activation.project_code} activated on ${date(activation.start_date)}.` : "Contract acceptance and Project Activation are separate events."}</p>{!activation && <strong className="contract-activation-lock">Locked until Contract acceptance</strong>}{activation && <a href={`/projects/${activation.project_id}`}>Open canonical Project <Icon name="arrow-up-right" size={13} /></a>}</div><div className="contract-activation-form"><label>Project Code<input aria-label="Project Code" disabled={!canActivate} value={activation?.project_code || projectCode} onChange={(event) => setProjectCode(event.target.value)} /></label><label>Start Date<input aria-label="Project Start Date" type="date" disabled={!canActivate} value={activation?.start_date || startDate} onChange={(event) => setStartDate(event.target.value)} /></label><button className="button-primary" disabled={!canActivate || !projectCode || !startDate} onClick={() => onAction("activate-project", { project_code: projectCode, start_date: startDate, idempotency_key: `owner-activation:${data.id}:${projectCode}:${startDate}` })}>Activate Project</button></div></div><button className="text-button" onClick={() => onNavigate("/handover")}>Open downstream Handover context <Icon name="arrow-up-right" size={13} /></button></section>; }
+function Mobilization({
+  data,
+  onNavigate,
+  onAction,
+}: {
+  data: ContractData;
+  onNavigate: (route: string) => void;
+  onAction: (action: string, body: Record<string, unknown>) => Promise<void>;
+}) {
+  const states = data.operations?.readiness_states?.states || {};
+  const activation = data.activation;
+  const [projectCode, setProjectCode] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const canActivate = Boolean(
+    data.current_revision?.accepted &&
+      data.readiness?.activation_ready &&
+      !activation,
+  );
+  return (
+    <section id="contract-mobilization" className="contract-panel">
+      <SectionHeading
+        eyebrow="MOBILIZATION"
+        title="Mobilization"
+        description="Readiness states remain independent. Only exact Contract/service policy creates a blocker."
+      />
+      <div className="contract-readiness-grid">
+        {Object.entries(states).map(([key, value]: [string, any]) => (
+          <article key={key}>
+            <span>{human(key)}</span>
+            <Status
+              value={value.result}
+              tone={
+                value.result === "READY" || value.result === "NOT_APPLICABLE"
+                  ? "confirmed"
+                  : "warning"
+              }
+            />
+            <small>
+              {(value.missing_evidence || []).join(" · ") ||
+                "No missing evidence reported"}
+            </small>
+          </article>
+        ))}
+      </div>
+      <div className="contract-advance-chain">
+        <span>Payment term</span>
+        <b>→</b>
+        <span>Invoice eligible</span>
+        <b>→</b>
+        <span>Human issue / verification</span>
+        <b>→</b>
+        <span>Advance satisfied where applicable</span>
+      </div>
+      <p className="contract-policy-note">
+        {data.readiness?.source10_controls?.advance_payment_gate?.status ===
+        "NOT_REQUIRED_BY_GOVERNING_REQUIREMENT"
+          ? "Not required by this Contract"
+          : "Advance requirement follows the exact verified Contract payment policy."}
+      </p>
+      <div id="activation" className="contract-compat-anchor" />
+      <div className="contract-activation-card">
+        <div>
+          <span className="eyebrow">PROTECTED HUMAN ACTION</span>
+          <h3>Project Activation</h3>
+          <p>
+            {activation
+              ? `Project ${activation.project_code} activated on ${date(activation.start_date)}.`
+              : "Contract acceptance and Project Activation are separate events."}
+          </p>
+          {!activation && (
+            <strong className="contract-activation-lock">
+              {canActivate ? "Ready for an explicit activation decision" : data.current_revision?.accepted ? "Resolve the activation blockers before continuing" : "Locked until Contract acceptance"}
+            </strong>
+          )}
+          {activation && (
+            <a href={`/projects/${activation.project_id}`}>
+              Open canonical Project ↗
+            </a>
+          )}
+        </div>
+        <div className="contract-activation-form">
+          <label>
+            Project Code
+            <input
+              aria-label="Project Code"
+              disabled={!canActivate}
+              value={activation?.project_code || projectCode}
+              onChange={(event) => setProjectCode(event.target.value)}
+            />
+          </label>
+          <label>
+            Start Date
+            <input
+              aria-label="Project Start Date"
+              type="date"
+              disabled={!canActivate}
+              value={activation?.start_date || startDate}
+              onChange={(event) => setStartDate(event.target.value)}
+            />
+          </label>
+          <button
+            className="button-primary"
+            disabled={!canActivate || !projectCode || !startDate}
+            onClick={() =>
+              onAction("activate-project", {
+                project_code: projectCode,
+                start_date: startDate,
+                idempotency_key: `owner-activation:${data.id}:${projectCode}:${startDate}`,
+              })
+            }
+          >
+            Activate Project
+          </button>
+        </div>
+      </div>
+      <button className="text-button" onClick={() => onNavigate("/handover")}>
+        Open downstream Handover context ↗
+      </button>
+    </section>
+  );
+}
 
-function Operations({ data, onNavigate }: { data: ContractData; onNavigate: (route: string) => void }) { const ops = data.operations || {}; const controls = ops.controls || {}; const schedule = ops.schedule_semantics?.items || []; return <section id="contract-operations" className="contract-panel"><SectionHeading eyebrow="OPERATIONS & FINANCE BOUNDARY" title="Operations & Billing" description="A read-only operational projection; Finance remains the owner of Invoice and payment mutations." /><div id="billing" className="contract-compat-anchor" /><div className="contract-operations-grid"><Field label="Contract clock" value={ops.contract_clock?.days_remaining == null ? "End date not configured" : `${ops.contract_clock.days_remaining} day(s) remaining`} source="Contract timing" /><Field label="Next responsible action" value={ops.next_action} source="Operations projection" /><Field label="Risk signal" value={ops.risk_state} source="Open findings and readiness" /><Field label="Invoice readiness" value={data.billing_readiness?.status || controls.invoice_due_state} source="Finance read-only context" /><Field label="Collection" value={controls.collection_state} source="Finance read-only context" /><Field label="Contact routing" value={controls.contact_state} source="Purpose-specific contacts" /></div><div className="contract-list-item"><div><strong>Typed Contract schedule</strong><span>{schedule.length ? `${schedule.length} milestone(s) · explicit start/end/due facts` : "No ContractMilestone records projected"}</span></div><span className="contract-status-chip status-canonical">{human(ops.schedule_semantics?.date_semantics, "NO_ORDINAL_INFERENCE")}</span></div>{schedule.map((item: any) => <div className="contract-list-item" key={item.id}><div><strong>{item.reference} · {item.title}</strong><span>{item.start_at || "start not set"} → {item.end_at || "end not set"} · due {item.due_at || "not set"}</span><small>{item.payment_condition || "Payment condition not recorded"} · {item.amount || "Amount not recorded"}</small></div><span className="contract-status-chip status-canonical">{human(item.status)}</span></div>)}<div className="contract-contact-strip"><strong>Purpose-specific contacts</strong>{data.client_contacts?.length ? data.client_contacts.map((contact) => <span key={contact.id}>{contact.name} · {contact.role_title || "Client contact"} · {contact.email || contact.phone || "details pending"}</span>) : <span>Operational contact resolution is required; no generic fallback is used.</span>}</div><button className="button-secondary" onClick={() => onNavigate("/billing")}>Open Finance / Billing owning workflow <Icon name="arrow-up-right" size={13} /></button></section>; }
+function Operations({
+  data,
+  onNavigate,
+}: {
+  data: ContractData;
+  onNavigate: (route: string) => void;
+}) {
+  const ops = data.operations || {};
+  const controls = ops.controls || {};
+  const schedule = ops.schedule_semantics?.items || [];
+  return (
+    <section id="contract-operations" className="contract-panel">
+      <SectionHeading
+        eyebrow="OPERATIONS & FINANCE BOUNDARY"
+        title="Operations & Billing"
+        description="A read-only operational projection; Finance remains the owner of Invoice and payment mutations."
+      />
+      <div id="billing" className="contract-compat-anchor" />
+      <div className="contract-operations-grid">
+        <Field
+          label="Contract clock"
+          value={
+            ops.contract_clock?.days_remaining == null
+              ? "End date not configured"
+              : `${ops.contract_clock.days_remaining} day(s) remaining`
+          }
+          source="Contract timing"
+        />
+        <Field
+          label="Next responsible action"
+          value={ops.next_action}
+          source="Operations projection"
+        />
+        <Field
+          label="Risk signal"
+          value={ops.risk_state}
+          source="Open findings and readiness"
+        />
+        <Field
+          label="Invoice readiness"
+          value={data.billing_readiness?.status || controls.invoice_due_state}
+          source="Finance read-only context"
+        />
+        <Field
+          label="Collection"
+          value={controls.collection_state}
+          source="Finance read-only context"
+        />
+        <Field
+          label="Contact routing"
+          value={controls.contact_state}
+          source="Purpose-specific contacts"
+        />
+      </div>
+      <div className="contract-list-item">
+        <div>
+          <strong>Typed Contract schedule</strong>
+          <span>
+            {schedule.length
+              ? `${schedule.length} milestone(s) · explicit start/end/due facts`
+              : "No ContractMilestone records projected"}
+          </span>
+        </div>
+        <span className="contract-status-chip status-canonical">
+          {human(
+            ops.schedule_semantics?.date_semantics,
+            "NO_ORDINAL_INFERENCE",
+          )}
+        </span>
+      </div>
+      {schedule.map((item: any) => (
+        <div className="contract-list-item" key={item.id}>
+          <div>
+            <strong>
+              {item.reference} · {item.title}
+            </strong>
+            <span>
+              {item.start_at || "start not set"} →{" "}
+              {item.end_at || "end not set"} · due {item.due_at || "not set"}
+            </span>
+            <small>
+              {item.payment_condition || "Payment condition not recorded"} ·{" "}
+              {item.amount || "Amount not recorded"}
+            </small>
+          </div>
+          <span className="contract-status-chip status-canonical">
+            {human(item.status)}
+          </span>
+        </div>
+      ))}
+      <div className="contract-contact-strip">
+        <strong>Purpose-specific contacts</strong>
+        {data.client_contacts?.length ? (
+          data.client_contacts.map((contact) => (
+            <span key={contact.id}>
+              {contact.name} · {contact.role_title || "Client contact"} ·{" "}
+              {contact.email || contact.phone || "details pending"}
+            </span>
+          ))
+        ) : (
+          <span>
+            Operational contact resolution is required; no generic fallback is
+            used.
+          </span>
+        )}
+      </div>
+      <button
+        className="button-secondary"
+        onClick={() => onNavigate("/billing")}
+      >
+        Open Finance / Billing owning workflow ↗
+      </button>
+    </section>
+  );
+}
 
-function History({ data }: { data: ContractData }) { return <section id="contract-history" className="contract-panel"><SectionHeading eyebrow="APPEND-ONLY HISTORY" title="History" description="Human-readable events; technical audit payloads remain behind the governed audit surface." /><div className="contract-history-list">{(data.history || []).length ? data.history?.map((event) => <article key={event.id}><div><strong>{human(event.event_type)}</strong><span>{human(event.actor, "System record")}</span></div><time>{date(event.occurred_at)}</time></article>) : <div className="contract-empty compact">No Contract history events recorded.</div>}</div></section>; }
+function History({ data }: { data: ContractData }) {
+  return (
+    <section id="contract-history" className="contract-panel">
+      <SectionHeading
+        eyebrow="APPEND-ONLY HISTORY"
+        title="History"
+        description="Human-readable events; technical audit payloads remain behind the governed audit surface."
+      />
+      <div className="contract-history-list">
+        {(data.history || []).length ? (
+          data.history?.map((event) => (
+            <article key={event.id}>
+              <div>
+                <strong>{human(event.event_type)}</strong>
+                <span>{human(event.actor, "System record")}</span>
+              </div>
+              <time>{date(event.occurred_at)}</time>
+            </article>
+          ))
+        ) : (
+          <div className="contract-empty compact">
+            No Contract history events recorded.
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
 
-export function ContractWorkspace({ data, onBack, onNavigate, onRefresh }: { data: ContractData; onBack: () => void; onNavigate: (route: string) => void; onRefresh: () => void }) {
-  const [active, setActive] = useState("overview");
+export function ContractWorkspace({ data, onBack, onNavigate, onRefresh }: {
+  data: ContractData; onBack: () => void; onNavigate: (route: string) => void;
+  onRefresh: () => Promise<void> | void;
+}) {
+  const location = useLocationPath();
+  const section = location.split("#")[1] || "overview";
+  const active = ["overview", "sources", "commercial", "review", "mobilization", "operations", "documents", "history", "intelligence"].includes(section) ? section : "overview";
   const [message, setMessage] = useState("");
-  const runAction = async (action: string, body: Record<string, unknown>) => { setMessage(""); try { await contractAction(data.id, action, body); setMessage(action === "accept" ? "Contract accepted. Project Activation and execution evidence remain separate." : `${human(action)} recorded by the canonical Contract service.`); onRefresh(); } catch (cause) { setMessage(cause instanceof Error ? cause.message : `${human(action)} could not be recorded.`); } };
-  const sections = useMemo(() => <><Overview data={data} /><section id="contract-intelligence" className="contract-panel contract-intelligence-anchor"><SectionHeading eyebrow="ASSISTIVE REVIEW" title="Intelligence" description="The rail lists governed Contract skills and their future eligibility; no execution control is exposed." /><p>Review the catalogue for required context, source-currentness expectations, and the human-review boundary. Execution is not enabled through the shared Intelligence runtime.</p></section><Sources data={data} /><ContractSourceIntake data={data} onRefresh={onRefresh} /><ContractRevisionEditor data={data} onRefresh={onRefresh} /><ContractCommitments data={data} onRefresh={onRefresh} /><Commercial data={data} /><ContractEvidenceDetails data={data} /><ContractExecutionHandoff data={data} onRefresh={onRefresh} /><FormsAndAuthorizations data={data} /><Review data={data} onAction={runAction} /><Mobilization data={data} onNavigate={onNavigate} onAction={runAction} /><ContractServiceScope data={data} onNavigate={onNavigate} /><ContractExtensionPanel data={data} onRefresh={onRefresh} /><ContractExtensionDecisionPanel data={data} onRefresh={onRefresh} /><ContractContactRouting data={data} onRefresh={onRefresh} /><ContractMissingDocumentFollowup data={data} onRefresh={onRefresh} /><Operations data={data} onNavigate={onNavigate} /><History data={data} /></>, [data, onNavigate, onRefresh]);
-  return <div className="contract-workspace"><div className="contract-back-row"><button className="text-button" onClick={onBack}><Icon name="arrow-left" size={13} /> Contracts</button><span>Canonical Contract workspace · no duplicate detail path</span></div><CommandHeader data={data} /><WorkspaceNavigation active={active} onSelect={setActive} />{message && <div className="contract-message" role="status">{message}</div>}<div className="contract-workspace-layout"><main className="contract-workspace-main">{sections}</main><ContractIntelligence contractId={data.id} /></div></div>;
+  const [failed, setFailed] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const selectSection = (value: string) => navigateTo(window.location.pathname + window.location.search + "#" + value);
+  const runAction = async (action: string, body: Record<string, unknown>) => {
+    if (busy) return;
+    const label = human(action).replaceAll("-", " ");
+    if (!window.confirm(`${label}: ${data.contract?.reference || data.contract?.name || "Contract"}, revision ${data.current_revision?.revision_number || "unknown"}. Review the evidence and blockers before confirming. This records your human decision.`)) return;
+    setBusy(true); setMessage(""); setFailed(false);
+    let recorded = false;
+    try {
+      await contractAction(data.id, action, body);
+      recorded = true;
+      await onRefresh();
+      setMessage(action === "accept" ? "Contract accepted. Project Activation and execution evidence remain separate." : `${label} recorded and Contract refreshed.`);
+    } catch (cause) {
+      setFailed(true);
+      setMessage(`${recorded ? "The action was recorded, but refresh failed. Refresh before continuing. " : ""}${cause instanceof Error ? cause.message : "The action could not be completed."}`);
+    } finally { setBusy(false); }
+  };
+  return <div className="contract-workspace">
+    <div className="contract-back-row"><button className="text-button" onClick={onBack}>← Contracts</button><span>Contract &amp; Mobilization</span></div>
+    <CommandHeader data={data} onSelect={selectSection} />
+    <WorkspaceNavigation active={active} onSelect={selectSection} />
+    {message && <div className="contract-message" role={failed ? "alert" : "status"}>{message}</div>}
+    <fieldset className="contract-workspace-boundary" disabled={busy} aria-busy={busy}>
+      <div className="contract-workspace-main" id={`contract-panel-${active}`} role="region" aria-label={active.replaceAll("-", " ")}>
+        {active === "overview" && <><Overview data={data} /><section className="contract-panel"><h2>What needs attention</h2>{data.readiness?.blockers?.length ? <ul>{data.readiness.blockers.map((blocker, index) => <li key={blocker.code || index}>{human(blocker.label || blocker.code)}</li>)}</ul> : <p>No Contract readiness blockers returned.</p>}</section></>}
+        {active === "sources" && <><Sources data={data} /><ContractRevisionEditor data={data} onRefresh={onRefresh} /></>}
+        {active === "commercial" && <><Commercial data={data} /><ContractCommitments data={data} onRefresh={onRefresh} /></>}
+        {active === "review" && <><Review data={data} onAction={runAction} /><ContractEvidenceDetails data={data} /></>}
+        {active === "mobilization" && <><Mobilization data={data} onNavigate={onNavigate} onAction={runAction} /><ContractTiming data={data} onRefresh={onRefresh} /><ContractServiceScope data={data} onNavigate={onNavigate} /></>}
+        {active === "operations" && <><Operations data={data} onNavigate={onNavigate} /><ContractExtensionPanel data={data} onRefresh={onRefresh} /><ContractExtensionDecisionPanel data={data} onRefresh={onRefresh} /><ContractContactRouting data={data} onRefresh={onRefresh} /><ContractMissingDocumentFollowup data={data} onRefresh={onRefresh} /></>}
+        {active === "documents" && <><ContractSourceIntake data={data} onRefresh={onRefresh} /><ContractExecutionHandoff data={data} onRefresh={onRefresh} /><FormsAndAuthorizations data={data} /></>}
+        {active === "history" && <History data={data} />}
+        {active === "intelligence" && <ContractIntelligence contractId={data.id} />}
+      </div>
+    </fieldset>
+  </div>;
 }

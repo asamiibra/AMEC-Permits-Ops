@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Bootstrap the isolated Azure SQL principals for canonical synthetic preprod.
+"""Bootstrap the isolated Azure SQL principals for canonical Azure environments.
 
-This is an operator-side, preprod-only action. It uses the approved Entra
-administrator's Azure CLI token and never accepts an application password.
+This is an operator-side action. It uses the approved Entra administrator's
+Azure CLI token and never accepts an application password. PROD additionally
+requires an explicit operator guard to prevent accidental invocation.
 The runtime identities receive DML roles; only the migration identity also
 receives DDL authority. The database remains private-only after this action.
 """
@@ -13,10 +14,6 @@ import argparse
 import json
 import re
 import struct
-
-import pyodbc
-from azure.identity import AzureCliCredential
-
 
 SQL_COPT_SS_ACCESS_TOKEN = 1256
 SQL_SCOPE = "https://database.windows.net/.default"
@@ -30,6 +27,9 @@ def _identifier(value: str, label: str) -> str:
 
 
 def _connection(server: str, database: str):
+    import pyodbc
+    from azure.identity import AzureCliCredential
+
     token = AzureCliCredential().get_token(SQL_SCOPE).token
     token_bytes = token.encode("utf-16-le")
     packed_token = struct.pack("<I", len(token_bytes)) + token_bytes
@@ -74,9 +74,15 @@ def bootstrap(
     api_name: str,
     worker_name: str,
     migration_name: str,
+    production_authorized: bool = False,
 ) -> list[dict[str, str]]:
-    if environment.upper() != "AZURE-PREPROD":
-        raise ValueError("canonical SQL bootstrap is restricted to AZURE-PREPROD")
+    environment = environment.upper()
+    if environment not in {"AZURE-PREPROD", "PROD"}:
+        raise ValueError("canonical SQL bootstrap requires AZURE-PREPROD or PROD")
+    if environment == "PROD" and not production_authorized:
+        raise ValueError(
+            "PROD SQL bootstrap requires --production-authorized"
+        )
     server = _identifier(server, "server")
     database = _identifier(database, "database")
     api_name = _identifier(api_name, "api identity name")
@@ -105,10 +111,20 @@ def bootstrap(
             worker_name,
             migration_name,
         )
-        return [
+        readback = [
             {"principal_name": row.principal_name, "role_name": row.role_name}
             for row in cursor.fetchall()
         ]
+        actual_roles: dict[str, set[str]] = {name: set() for name, _ in principals}
+        for row in readback:
+            actual_roles[row["principal_name"]].add(row["role_name"])
+        for name, roles in principals:
+            if actual_roles[name] != set(roles):
+                raise RuntimeError(
+                    f"role readback mismatch for {name}: "
+                    f"expected {sorted(roles)}, got {sorted(actual_roles[name])}"
+                )
+        return readback
 
 
 def main() -> int:
@@ -119,6 +135,11 @@ def main() -> int:
     parser.add_argument("--api-name", required=True)
     parser.add_argument("--worker-name", required=True)
     parser.add_argument("--migration-name", required=True)
+    parser.add_argument(
+        "--production-authorized",
+        action="store_true",
+        help="explicit operator guard required for --environment PROD",
+    )
     args = parser.parse_args()
     print(json.dumps(bootstrap(**vars(args)), sort_keys=True))
     return 0

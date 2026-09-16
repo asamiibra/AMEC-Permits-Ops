@@ -18,4 +18,3 @@ Candidate lifecycle is limited to `CURRENT`, `SUPERSEDED`, and `STALE` for P03 m
 The field-observation adapter preserves field definition, project scope, DocumentVersion, FieldObservation, extractor version/hash, confidence, value hash, and correlation. The classifier adapter preserves the complete Phase5 classification/evidence envelope and adds normalized classification and relationship candidates alongside it. The bridge adapter preserves all allowlist, bounds, declared-size, SHA-256, Ed25519, replay, scope, DocumentVersion, evidence, classification, observation, and audit controls.
 
 No adapter creates `VerifiedAssertion`, typed business projections, workflow tasks, notifications, review queues, model calls, embeddings, vector stores, or protected domain transitions.
-

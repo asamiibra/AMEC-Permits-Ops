@@ -109,6 +109,7 @@ def test_cm16_exact_contact_routing_history_fallback_and_work(client):
         assert initial.status_code == 200, initial.text
         assert initial.json()["operational_contact_routing"]["purposes"]["MISSING_DOCUMENT_REQUEST"]["status"] == "CONTACT_RESOLUTION_REQUIRED"
         assert initial.json()["operational_contact_routing"]["purposes"]["MISSING_DOCUMENT_REQUEST"]["generic_fallback_used"] is False
+        assert len(initial.json()["operational_contact_routing"]["purposes"]["MISSING_DOCUMENT_REQUEST"]["eligible_options"]) == 1
 
         bound = client.post(f"/api/admin/contracts/{ids['contract']}/operational-contact-routing", headers=_headers(), json={"purpose": "MISSING_DOCUMENT_REQUEST", "contact_point_id": ids["contact"], "organization_party_id": ids["party"][0], "practical_role": "Client document coordinator", "reason": "Bind exact operational contact"})
         assert bound.status_code == 200, bound.text

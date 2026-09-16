@@ -13,11 +13,15 @@ def _settings(
     app_env: str = "AZURE-PREPROD",
     synthetic_only: bool = True,
     real_data_allowed: bool = False,
+    worker_contract_reconciliation_enabled: bool = False,
 ):
     return SimpleNamespace(
         app_env=app_env,
         synthetic_only=synthetic_only,
         real_data_allowed=real_data_allowed,
+        worker_contract_reconciliation_enabled=(
+            worker_contract_reconciliation_enabled
+        ),
     )
 
 
@@ -69,9 +73,13 @@ class _DB:
         *,
         event=None,
         version=None,
+        contracts=None,
+        contract=None,
     ):
         self.event = event
         self.version = version
+        self.contracts = contracts or []
+        self.contract = contract
         self.rollbacks = 0
         self.last_scalar_statement = None
 
@@ -92,7 +100,22 @@ class _DB:
     ):
         if model is worker.DocumentVersion:
             return self.version
+        if model is worker.Contract:
+            return self.contract
 
+        return None
+
+    def scalars(self, statement):
+        class _Result:
+            def __init__(self, values):
+                self.values = values
+
+            def all(self):
+                return self.values
+
+        return _Result(self.contracts)
+
+    def commit(self):
         return None
 
     def rollback(self):
@@ -572,6 +595,62 @@ def test_failed_event_causes_partial_failure(
 
     assert result.processed == 0
     assert result.failed == 1
+
+
+def test_worker_reconciles_bounded_contract_batch(
+    monkeypatch,
+):
+    monkeypatch.setattr(
+        worker,
+        "SessionLocal",
+        lambda: _Context(_DB()),
+    )
+    monkeypatch.setattr(
+        worker,
+        "get_settings",
+        lambda: _settings(
+            worker_contract_reconciliation_enabled=True,
+        ),
+    )
+    monkeypatch.setattr(
+        worker,
+        "verify_database_migration_head",
+        lambda: "0059_entra_user_identity",
+    )
+    monkeypatch.setattr(
+        worker,
+        "recover_expired_claims",
+        lambda db: 0,
+    )
+    monkeypatch.setattr(
+        worker,
+        "claim_pending_events",
+        lambda db, **kwargs: [],
+    )
+    calls = []
+    monkeypatch.setattr(
+        worker,
+        "reconcile_contract_exceptions_once",
+        lambda **kwargs: (
+            calls.append(kwargs)
+            or (1, 0, 1, 1)
+        ),
+    )
+
+    result = worker.run_worker_once(
+        worker_id="test-worker",
+        limit=1,
+    )
+
+    assert calls == [{
+        "worker_id": "test-worker",
+        "limit": 1,
+        "lease_seconds": 60,
+    }]
+    assert result.contracts_reconciled == 1
+    assert result.contract_reconciliation_failed == 0
+    assert result.exceptions_created == 1
+    assert result.exceptions_resolved == 1
 
 
 def test_main_returns_nonzero_for_partial_failure(

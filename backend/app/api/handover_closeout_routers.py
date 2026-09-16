@@ -17,7 +17,7 @@ from sqlalchemy.orm import Session
 from ..audit.service import audit
 from ..db import get_db
 from ..models import *
-from ..services.contract_workspace import contract_administrative_close, contract_revision_is_accepted
+from ..services.contract_workspace import contract_administrative_close, contract_revision_is_accepted, design_start_readiness
 from .dependencies import current_user_role
 
 
@@ -288,6 +288,9 @@ def create_service_engagement(payload: ServiceEngagementCreate, request: Request
     activation = db.scalar(select(ProjectActivation).where(ProjectActivation.contract_id == contract.id, ProjectActivation.project_id == project.id, ProjectActivation.contract_revision_id == revision.id, ProjectActivation.status == "ACTIVE"))
     if not activation or str(project.status).upper() != "ACTIVE":
         raise HTTPException(409, {"code": "PROJECT_ACTIVATION_REQUIRED", "contract_id": contract.id, "project_id": project.id, "contract_revision_id": revision.id})
+    design_gate = design_start_readiness(db, contract, payload.service_offering_code)
+    if design_gate["result"] == "BLOCKED":
+        raise HTTPException(409, {"code": "DESIGN_START_DOSSIER_REQUIRED", "contract_id": contract.id, "contract_revision_id": revision.id, "readiness": design_gate})
     service = ServiceEngagement(created_by=role.value, **payload.model_dump())
     db.add(service)
     try:

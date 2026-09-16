@@ -51,6 +51,9 @@ param workerImage string
 @description('Exact immutable migration image reference, including digest.')
 param migrationImage string
 
+@description('Exact immutable ClamAV sidecar image reference for Contract uploads.')
+param clamavImage string
+
 @description('Exact immutable frontend image reference, including digest.')
 param frontendImage string
 
@@ -501,6 +504,9 @@ resource apiApp 'Microsoft.App/containerApps@2024-03-01' = {
           { name: 'FRONTEND_ORIGINS', value: frontendOrigin }
           { name: 'STORAGE_PROVIDER', value: storageProvider }
           { name: 'MANAGED_ARTIFACT_STORE_REQUIRED', value: string(managedArtifactStoreRequired) }
+          { name: 'CONTRACT_UPLOAD_SCANNER', value: 'clamav' }
+          { name: 'CONTRACT_UPLOAD_CLAMAV_HOST', value: 'localhost' }
+          { name: 'CONTRACT_UPLOAD_CLAMAV_PORT', value: '3310' }
           { name: 'AZURE_BLOB_ACCOUNT_URL', value: 'https://${artifactStorage.name}.blob.core.windows.net' }
           { name: 'AZURE_BLOB_CONTAINER', value: artifactContainer.name }
           { name: 'AZURE_BLOB_UAMI_CLIENT_ID', value: apiIdentity.properties.clientId }
@@ -541,6 +547,13 @@ resource apiApp 'Microsoft.App/containerApps@2024-03-01' = {
         resources: {
           cpu: 1
           memory: '2Gi'
+        }
+      }, {
+        name: 'clamav'
+        image: clamavImage
+        resources: {
+          cpu: 1
+          memory: '1Gi'
         }
       }]
       scale: { minReplicas: 2, maxReplicas: 10 }

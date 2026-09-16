@@ -12,6 +12,7 @@ import io
 from pathlib import Path
 import zipfile
 from typing import Any, Annotated
+from uuid import uuid4
 
 from fastapi import APIRouter, Depends, File, Form, Header, HTTPException, Request, Response, UploadFile
 from pydantic import BaseModel, Field
@@ -24,7 +25,9 @@ from ..db import get_db
 from ..models import ClientAccount, ContactPoint, Contract, ContractAdminEvidence, ContractAdminInput, ContractClientInputRequirement, ContractDeliverableCommitment, ContractPaymentTerm, ContractRevision, DashboardInputItem, Document, DocumentApprovalState, DocumentType, DocumentVersion, MasterContentGovernanceProfile, MasterContentItem, NotificationEvent, Opportunity, PartyRoleAssignment, ProposalAcceptedRevision, ProposalSourceLink, Project, ProjectActivation, Role, WorkflowTask
 from ..services.backend_realignment import domain_error, require_capability
 from ..services.admin_contract_read_model import owner_contract_extensions
-from ..ai.contract_skills import contract_skill_catalogue
+from ..ai.contract_skills import ContractDeterministicProvider, contract_context_specs, contract_skill_catalogue, contract_skill_definition
+from ..ai.errors import AIError
+from ..ai.skill_runtime import SkillExecutionRequest, execute_skill
 from ..services.contract_workspace import CONTRACT_GO_LIVE_SPECS, CONTRACT_STAGES, DEFAULT_CONTRACT_INPUTS, OPERATIONAL_CONTACT_PURPOSES, TIMING_FACT_TYPES, TIMING_TRANSITIONS, _timing_requirements, accepted_revision, actor_name, capture_current_contract_template, contract_operations_projection, contract_projection, contract_readiness_states, contract_revision_is_accepted, contract_revision_is_authority_reviewed, contract_revision_is_finalized, contract_start_prerequisites, create_contract_from_proposal, effective_contract_stages, evaluate_contract_exceptions, now, operational_contact_routing_projection, project_activation, readiness, resolve_operational_contact
 from ..services.proposal_workspace import stable_hash
 from ..services.owner_decisions import get_decision, runtime_decision_value
@@ -34,13 +37,6 @@ from ..storage.port import StorageTarget
 from ..storage.service import DocumentStorageService
 from ..storage.errors import StorageError
 from ..services.upload_scanner import configured_upload_scanner
-from ..services.contract_intelligence import (
-    ContractDeterministicProvider,
-    contract_intelligence_reviews,
-    execute_contract_intelligence,
-    submit_contract_intelligence_review,
-)
-from ..services.intelligence_contracts import IntelligenceContractError
 
 
 router = APIRouter(prefix="/api/admin/contracts", tags=["administration-contract-owner-session"])
@@ -50,6 +46,10 @@ class ContractCreatePayload(BaseModel):
     proposal_id: str | None = None
     accepted_revision_id: str | None = None
     contract_reference: str | None = Field(default=None, max_length=100)
+
+
+class ContractIntelligenceExecutionPayload(BaseModel):
+    idempotency_key: str = Field(min_length=1, max_length=200)
 
 
 class ContractPatchPayload(BaseModel):
@@ -206,16 +206,6 @@ class ContractHandoffEvidencePayload(BaseModel):
     evidence_reference: str = Field(min_length=1, max_length=600)
     metadata: dict[str, Any] = {}
     reason: str = Field(min_length=3, max_length=1000)
-
-
-class ContractIntelligenceRunPayload(BaseModel):
-    idempotency_key: str = Field(min_length=1, max_length=200)
-
-
-class ContractIntelligenceReviewPayload(BaseModel):
-    decision: str = Field(min_length=1, max_length=30)
-    idempotency_key: str = Field(min_length=1, max_length=200)
-    reason: str = Field(min_length=3, max_length=2000)
 
 
 class ContractExtensionRequestPayload(BaseModel):
@@ -482,7 +472,11 @@ def get_billing_context(contract_id: str, revision_id: str | None = None, db: Se
 
 @router.get("/{contract_id}/intelligence")
 def get_contract_intelligence(contract_id: str, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
-    """Return the Contract-owned catalogue backed by the shared runtime policy."""
+    """Return governed skill eligibility without reading document content.
+
+    Skill execution is deliberately separate and remains disabled while the
+    central AI runtime policy forbids external inference or real-content use.
+    """
     require_capability(role, "CONTRACT_READ")
     contract = _contract_or_404(db, contract_id)
     detail = contract_projection(db, contract)
@@ -507,67 +501,45 @@ def get_contract_intelligence(contract_id: str, db: Session = Depends(get_db), r
     return contract_skill_catalogue(contract_id=contract_id, role=role.value, context=context)
 
 
-@router.post("/{contract_id}/intelligence/{skill_name}")
-def run_contract_intelligence(
+@router.post("/{contract_id}/intelligence/{skill_id}/execute")
+def execute_contract_intelligence(
     contract_id: str,
-    skill_name: str,
-    payload: ContractIntelligenceRunPayload,
+    skill_id: str,
+    payload: ContractIntelligenceExecutionPayload,
+    request: Request,
     principal: Annotated[AuthenticatedPrincipal, Depends(trusted_current_principal)],
     db: Session = Depends(get_db),
     correlation_id: str | None = Header(default=None, alias="X-Correlation-ID"),
 ):
-    skill_id = skill_name if skill_name.startswith("contract.") else f"contract.{skill_name}"
+    """Execute one registered Contract skill through the shared Intelligence runtime."""
+    contract = _contract_or_404(db, contract_id)
+    try:
+        definition = contract_skill_definition(skill_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail={"code": "CONTRACT_SKILL_NOT_REGISTERED"}) from exc
     settings = get_settings()
-    synthetic_local = settings.synthetic_only and settings.app_env.upper() in {"TEST", "DEV"}
-    provider = ContractDeterministicProvider() if synthetic_local else None
+    runtime_request = SkillExecutionRequest(
+        idempotency_key=payload.idempotency_key,
+        correlation_id=correlation_id or str(uuid4()),
+        skill_id=definition.manifest.skill_id,
+        skill_version=definition.manifest.version,
+        skill_manifest_hash=definition.manifest.manifest_hash,
+        purpose="CONTRACT_INTELLIGENCE",
+        execution_mode="INTERACTIVE",
+        scope_type="CONTRACT",
+        scope_id=contract.id,
+        project_id=contract.project_id,
+        target_entity_type="CONTRACT",
+        target_entity_id=contract.id,
+        context_schema_version="contract-intelligence-context-1",
+        policy_version="CONTRACT_INTELLIGENCE-1.0",
+        sources=contract_context_specs(db, contract),
+    )
+    provider = ContractDeterministicProvider() if settings.synthetic_only and settings.app_env.upper() in {"TEST", "DEV"} else None
     try:
-        return execute_contract_intelligence(
-            db,
-            contract_id=contract_id,
-            skill_id=skill_id,
-            principal=principal,
-            idempotency_key=payload.idempotency_key,
-            correlation_id=correlation_id or str(uuid4()),
-            settings=settings,
-            provider=provider,
-        )
-    except IntelligenceContractError as exc:
-        raise HTTPException(status_code=409, detail={"code": exc.code}) from exc
-
-
-@router.get("/{contract_id}/intelligence/reviews")
-def get_contract_intelligence_reviews(
-    contract_id: str,
-    principal: Annotated[AuthenticatedPrincipal, Depends(trusted_current_principal)],
-    db: Session = Depends(get_db),
-):
-    require_capability(principal.role, "CONTRACT_READ")
-    _contract_or_404(db, contract_id)
-    return {"items": contract_intelligence_reviews(db, contract_id)}
-
-
-@router.post("/{contract_id}/intelligence/reviews/{work_product_id}")
-def review_contract_intelligence(
-    contract_id: str,
-    work_product_id: str,
-    payload: ContractIntelligenceReviewPayload,
-    principal: Annotated[AuthenticatedPrincipal, Depends(trusted_current_principal)],
-    db: Session = Depends(get_db),
-    correlation_id: str | None = Header(default=None, alias="X-Correlation-ID"),
-):
-    try:
-        return submit_contract_intelligence_review(
-            db,
-            contract_id=contract_id,
-            work_product_id=work_product_id,
-            decision=payload.decision,
-            idempotency_key=payload.idempotency_key,
-            principal=principal,
-            correlation_id=correlation_id or str(uuid4()),
-            reason=payload.reason,
-        )
-    except IntelligenceContractError as exc:
-        raise HTTPException(status_code=409, detail={"code": exc.code}) from exc
+        return execute_skill(db, principal, runtime_request, settings=settings, provider=provider)
+    except AIError as exc:
+        raise HTTPException(status_code=exc.status_code, detail={"code": exc.code}) from exc
 
 
 @router.patch("/{contract_id}")

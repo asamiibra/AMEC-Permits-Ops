@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ApiError, api } from "./api";
-import { ContractMobilizationPage } from "./AdministrationOwner";
+import { ContractMobilizationFeature } from "./contract/ContractMobilizationFeature";
 import { CurrentDashboard } from "./Dashboard";
 import { BillingInvoicePage } from "./BillingInvoice";
 import { BillingShell } from "./billing/BillingShell";
@@ -336,7 +336,7 @@ export default function App() {
           </div>
           {page === "home" && <HomePage />}
           {page === "opportunities" && <ProposalRoutes role={moduleRole as ProposalRole} />}
-          {page === "contract-mobilization" && <ContractMobilizationPage />}
+          {page === "contract-mobilization" && <ContractMobilizationFeature />}
           {page === "billing" && <BillingShell />}
           {page === "content-library" && <CurrentDashboard role={role} />}
         </div>

@@ -13,4 +13,3 @@ P03 preserves legacy Phase4 review behavior and does not expand its central-revi
 | `AuditEvent`, immutable hashes, record versions, and idempotency keys | Shared audit/Phase4 primitives | Shared immutable decision/evidence primitives | Reuse unchanged | `KEEP_AS_SHARED_PRIMITIVE` |
 
 Required principle: P03 does not break legacy review; P03 does not expand central review; P07 reconciles review ownership.
-

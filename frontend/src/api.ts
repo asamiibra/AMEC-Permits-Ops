@@ -3,25 +3,83 @@ import {
   getApiAccessToken,
 } from "./auth";
 
-// Development uses the Vite same-origin proxy so a browser opened on any local
-// port cannot fail the API preflight just because the backend allow-list names
-// a different frontend origin. Non-DEV builds use the explicitly configured API.
-const API = (
-  import.meta.env.DEV
-    ? ""
-    : import.meta.env.VITE_API_URL || ""
-).replace(/\/+$/, "");
+// Development uses the Vite same-origin proxy. Every staged or production
+// build must name the canonical API explicitly so it cannot silently route to
+// a frontend host or an obsolete backend proxy.
+export function validateApiOrigin(value: string | undefined): string {
+  const raw = (value || "").trim();
+  if (!raw) {
+    throw new Error("VITE_API_URL is required outside development");
+  }
+
+  let parsed: URL;
+  try {
+    parsed = new URL(raw);
+  } catch {
+    throw new Error("VITE_API_URL must be an absolute HTTPS origin");
+  }
+
+  const hostname = parsed.hostname.toLowerCase();
+  if (
+    parsed.protocol !== "https:"
+    || parsed.username
+    || parsed.password
+    || parsed.search
+    || parsed.hash
+    || !["", "/"].includes(parsed.pathname)
+    || ["localhost", "127.0.0.1", "::1"].includes(hostname)
+    || hostname.includes("*")
+  ) {
+    throw new Error(
+      "VITE_API_URL must be an absolute HTTPS origin without credentials, query, fragment, path, wildcard, or localhost",
+    );
+  }
+
+  return parsed.origin;
+}
+
+const API = import.meta.env.DEV
+  ? ""
+  : validateApiOrigin(import.meta.env.VITE_API_URL);
 
 export class ApiError extends Error {
   readonly status: number;
   readonly path: string;
+  readonly code?: string;
+  readonly blockingReason?: string;
+  readonly correlationId?: string;
+  readonly technicalDetail?: unknown;
 
-  constructor(message: string, status: number, path: string) {
+  constructor(message: string, status: number, path: string, detail: { code?: string; blockingReason?: string; correlationId?: string; technicalDetail?: unknown } = {}) {
     super(message);
     this.name = "ApiError";
     this.status = status;
     this.path = path;
+    Object.assign(this, detail);
   }
+}
+
+function humanErrorCode(code: string): string {
+  const messages: Record<string, string> = {
+    CONTRACT_FINALIZED_REVISION_IMMUTABLE: "This revision is finalized. Create a prospective revision to change its terms.",
+    TIMING_FACT_REVISION_MISMATCH: "The controlling Contract revision changed. Refresh before recording this date.",
+    TIMING_FACT_AUTHORITY_MISMATCH: "The timing clause or policy changed. Refresh and review the governing requirement.",
+    TIMING_SOURCE_LINEAGE_INVALID: "This document does not belong to the required Contract context. Select current supporting evidence.",
+    TIMING_REQUIREMENT_ALREADY_RECORDED: "This timing requirement is already recorded on the revision.",
+    CONTRACT_ACCEPTANCE_REQUIRED: "Accept the governing Contract revision before recording this event.",
+  };
+  return messages[code] || code.toLowerCase().replaceAll("_", " ").replace(/^./, c => c.toUpperCase());
+}
+
+export function responseError(payload: unknown, status: number, path: string, correlationId?: string): ApiError {
+  const envelope = payload && typeof payload === "object" ? payload as Record<string, unknown> : {};
+  const detail = envelope.detail ?? envelope;
+  const record = detail && typeof detail === "object" && !Array.isArray(detail) ? detail as Record<string, unknown> : {};
+  const code = typeof record.code === "string" ? record.code : typeof envelope.code === "string" ? envelope.code : undefined;
+  const blockingReason = typeof record.reason === "string" ? humanErrorCode(record.reason) : undefined;
+  const fallback = status === 403 ? "You do not have permission to perform this action." : status === 401 ? "Sign in again to continue." : status === 404 ? "This record could not be found." : status === 422 ? "Check the required fields and try again." : status >= 500 ? "The service could not complete the request. Please try again." : "The request could not be completed.";
+  const message = typeof record.message === "string" ? record.message : code ? humanErrorCode(code) : typeof detail === "string" && status < 500 ? humanErrorCode(detail) : fallback;
+  return new ApiError(message, status, path, { code, blockingReason, correlationId: correlationId || (typeof envelope.correlation_id === "string" ? envelope.correlation_id : undefined), technicalDetail: detail });
 }
 
 /** Convert transport/provider failures into safe, human-facing UI copy. */
@@ -48,7 +106,7 @@ export async function api<T>(
     && init?.body instanceof FormData;
 
   // Production bundles must never submit synthetic governance evidence. The
-  // backend remains the authority, but this client guard prevents accidental
+  // backend remains authoritative, but this client guard prevents accidental
   // fixture payloads from being emitted by any production UI surface.
   if (import.meta.env.PROD && !isFormData && typeof init?.body === "string") {
     const body = init.body.toUpperCase();
@@ -199,25 +257,7 @@ export async function api<T>(
       );
     }
 
-    const detail =
-      payload
-      && typeof payload === "object"
-      && "detail" in payload
-        ? String(
-            payload.detail,
-          )
-        : "Request failed";
-
-    throw new ApiError(
-      `${detail} [${response.status} ${path}]`
-      + (
-        contentType
-          ? ` (${contentType})`
-          : ""
-      ),
-      response.status,
-      path,
-    );
+    throw responseError(payload, response.status, path, response.headers.get("x-correlation-id") || undefined);
   }
 
   if (
