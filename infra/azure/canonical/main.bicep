@@ -904,7 +904,7 @@ resource edgeRoute 'Microsoft.Cdn/profiles/afdEndpoints/routes@2024-02-01' = {
     enabledState: 'Enabled'
     forwardingProtocol: 'HttpsOnly'
     httpsRedirect: 'Enabled'
-    linkToDefaultDomain: 'Enabled'
+    linkToDefaultDomain: empty(edgeCustomDomainName) ? 'Enabled' : 'Disabled'
     originGroup: { id: edgeOriginGroup.id }
     patternsToMatch: ['/api/*']
     ruleSets: []
