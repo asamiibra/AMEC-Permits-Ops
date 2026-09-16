@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { api } from "./api";
 import { IssueFocusBanner, type Persona as IssuePersona } from "./PersonaIssuesNotifications";
 import { Icon } from "./Icon";
+import { ProposalDocumentEditor } from "./ProposalDocumentEditor";
 
 type Project = { id: string; project_number: string; project_name: string };
 type Persona = "SYSTEM_ADMIN" | "COMMERCIAL_APPROVER" | "RESPONSIBLE_ENGINEER";
@@ -82,6 +83,7 @@ export function ProposalsContractsPage({ projects, persona, openRecord }: { proj
   const navigateRoute = (route: string) => { window.history.pushState({}, "", route); window.dispatchEvent(new PopStateEvent("popstate")); };
   const backToRegister = () => navigateRoute("/proposals-contracts?view=proposals");
   const routeProposalId = routePath.match(/^\/proposals\/([^/]+)$/)?.[1] || null;
+  const routeEditorId = routePath.match(/^\/proposals\/([^/]+)\/editor$/)?.[1] || null;
   const routePreparationId = routePath.match(/^\/proposals\/([^/]+)\/preparation$/)?.[1] || null;
   const routeContractId = routePath.match(/^\/contracts\/([^/]+)$/)?.[1] || null;
   const routeNew = routePath === "/proposals/new";
@@ -100,6 +102,7 @@ export function ProposalsContractsPage({ projects, persona, openRecord }: { proj
 
   if (routeNew) return <NewProposalInline persona={persona} onBack={backToRegister} navigateRoute={navigateRoute} />;
   if (routePreparationId) return <div className="workflow-page proposals-main route-detail-page"><IssueFocusBanner persona={issuePersona(persona)} /><ProposalPreparationInline proposalId={routePreparationId} persona={persona} onClose={backToRegister} /></div>;
+  if (routeEditorId) return <div className="workflow-page proposals-main route-detail-page"><IssueFocusBanner persona={issuePersona(persona)} /><ProposalDocumentEditor role={persona} onBack={backToRegister} /></div>;
   if (routeProposalId) return <div className="workflow-page proposals-main route-detail-page"><IssueFocusBanner persona={issuePersona(persona)} /><ProposalDetailInline proposalId={routeProposalId} persona={persona} projects={projects} onBack={backToRegister} navigateRoute={navigateRoute} /></div>;
   if (routeContractId) return <CanonicalContractRedirect contractId={routeContractId} navigateRoute={navigateRoute} />;
 

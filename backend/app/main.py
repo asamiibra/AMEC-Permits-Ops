@@ -45,6 +45,7 @@ from .api.proposals_main_routers import (
 from .api.proposals_main_routers import (
     router as proposals_main_router,
 )
+from .api.proposal_editor_routers import router as proposal_editor_router
 from .api.reconciliation_routers import (
     router as reconciliation_router,
 )
@@ -271,6 +272,7 @@ def _trusted_request_actor(
 app.include_router(governed_prefill_router, dependencies=API_AUTH_DEPENDENCIES)
 app.include_router(ai_router, dependencies=API_AUTH_DEPENDENCIES)
 app.include_router(billing_intelligence_router, dependencies=API_AUTH_DEPENDENCIES)
+app.include_router(proposal_editor_router, dependencies=API_AUTH_DEPENDENCIES)
 app.include_router(bridge_intake_router)
 app.include_router(auth_context_router)
 
