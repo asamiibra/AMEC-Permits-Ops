@@ -825,7 +825,7 @@ resource edgeOriginGroup 'Microsoft.Cdn/profiles/originGroups@2024-02-01' = {
   properties: {
     healthProbeSettings: {
       probeIntervalInSeconds: 30
-      probePath: '/health/live'
+      probePath: '/health/ready'
       probeProtocol: 'Https'
       probeRequestType: 'GET'
     }
@@ -891,7 +891,6 @@ resource edgeRoute 'Microsoft.Cdn/profiles/afdEndpoints/routes@2024-02-01' = {
   parent: edgeEndpoint
   dependsOn: [edgeOrigin]
   properties: {
-    cacheConfiguration: { compressionSettings: { isCompressionEnabled: true, contentTypesToCompress: ['application/json', 'text/plain'] }, queryStringCachingBehavior: 'IgnoreQueryString' }
     customDomains: empty(edgeCustomDomainName) ? [] : [{ id: edgeCustomDomain.id }]
     enabledState: 'Enabled'
     forwardingProtocol: 'HttpsOnly'
