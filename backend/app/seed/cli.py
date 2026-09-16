@@ -341,7 +341,7 @@ def ensure_proposals_contracts_demo_state():
         active = db.scalar(select(Opportunity).where(Opportunity.opportunity_reference == "SYN-OPP-0002"))
         if not active:
             office = db.scalar(select(ConsultancyOffice).where(ConsultancyOffice.office_code == "QEC-DOHA"))
-            client = db.scalar(select(ClientAccount).where(ClientAccount.client_reference == "SYN-CLIENT-001"))
+            client = db.scalar(select(ClientAccount).where(ClientAccount.client_reference == "PO-ACCEPT-001"))
             project = db.scalar(select(Project).where(Project.project_number == "GHCE-2026-0187"))
             owner = db.scalar(select(User).where(User.email == "owner@amec.synthetic"))
             if office and client and project:
