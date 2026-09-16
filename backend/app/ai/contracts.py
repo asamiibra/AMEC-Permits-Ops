@@ -45,6 +45,7 @@ class AITargetEntityType(str, Enum):
     AUTHORITY_CASE = "AUTHORITY_CASE"
     PROPOSAL = "PROPOSAL"
     MASTER_CONTENT_ITEM = "MASTER_CONTENT_ITEM"
+    DEFINITION_ENTRY = "DEFINITION_ENTRY"
 
 
 class AIArchitectureContract(BaseModel):
