@@ -59,7 +59,10 @@ export class ApiError extends Error {
   }
 }
 
-const API_REQUEST_TIMEOUT_MS = 15_000;
+// Durable production operations can include managed-identity and verified
+// Azure Blob read-back latency. Keep one shared, cancellable upper bound while
+// allowing those operations to complete instead of reporting a false failure.
+const API_REQUEST_TIMEOUT_MS = 45_000;
 function humanErrorCode(code: string): string {
   const messages: Record<string, string> = {
     CONTRACT_FINALIZED_REVISION_IMMUTABLE: "This revision is finalized. Create a prospective revision to change its terms.",
