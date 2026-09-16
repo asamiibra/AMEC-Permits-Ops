@@ -953,7 +953,7 @@ resource edgeSecurityPolicy 'Microsoft.Cdn/profiles/securityPolicies@2024-02-01'
     parameters: {
       type: 'WebApplicationFirewall'
       associations: [{
-        domains: [{ id: edgeEndpoint.id }]
+        domains: empty(edgeCustomDomainName) ? [{ id: edgeEndpoint.id }] : [{ id: edgeCustomDomain.id }]
         patternsToMatch: ['/*']
       }]
       wafPolicy: { id: edgeWafPolicy.id }
