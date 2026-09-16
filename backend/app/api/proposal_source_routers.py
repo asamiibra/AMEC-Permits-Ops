@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 from ..api.dependencies import require_roles
 from ..db import get_db
 from ..models import DocumentVersion, ProposalSourceEvidence, ProposalSourceLink, Role
-from ..services.proposal_source_workspace import captured_version, capture, configured_source_root, projects, tree
+from ..services.proposal_source_workspace import LOGICAL_ROOT, captured_version, capture, configured_source_root, projects, tree
 from ..storage import DocumentStorageService, create_binary_store
 from .bd_proposal_routers import ProposalCreate, _create_proposal_record
 
@@ -105,7 +105,7 @@ def create_proposal_from_source_workspace(number: int, request: Request, db: Ses
         raise HTTPException(409, "PROJECT_NOT_READY_FOR_PROPOSAL")
     run = capture(db, number, actor="source-create-proposal")
     item = _create_proposal_record(ProposalCreate(proposal_description="Al Watan Center Proposal", project_reference=str(number), client_name="Al Watan Center", idempotency_key=f"proposal-source-project:{number}"), request, db, role)
-    versions = db.scalars(select(DocumentVersion).where(DocumentVersion.metadata_json["source_project_number"].as_integer() == number).order_by(DocumentVersion.created_at)).all()
+    versions = db.scalars(select(DocumentVersion).where(DocumentVersion.metadata_json["source_project_number"].as_integer() == number).order_by(DocumentVersion.ingested_at)).all()
     hashes: list[str] = []
     for version in versions:
         hashes.append(version.sha256)

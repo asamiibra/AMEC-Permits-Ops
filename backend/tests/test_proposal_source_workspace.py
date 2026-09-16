@@ -1,6 +1,18 @@
 from backend.app.services.proposal_source_workspace import projects, tree
 
 
+def test_explicit_454_create_proposal_persists_source_set(client):
+    response = client.post(
+        "/api/proposals/sources/2026/projects/454/create-proposal",
+        headers={"X-Dev-Role": "SYSTEM_ADMIN"},
+    )
+    assert response.status_code == 200, response.text
+    payload = response.json()
+    assert payload["result"] == "CREATED"
+    assert payload["source_count"] == 13
+    assert payload["capture"]["synology_write_count"] == 0
+
+
 def test_fixture_discovers_pilot_and_520_draft_only():
     rows = projects()
     assert {row["number"] for row in rows} >= {454, 520}
