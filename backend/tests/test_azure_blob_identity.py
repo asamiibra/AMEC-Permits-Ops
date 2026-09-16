@@ -1,4 +1,4 @@
-from app.storage.azure_blob import AzureBlobBinaryStore, AzureBlobConfig
+from backend.app.storage.azure_blob import AzureBlobBinaryStore, AzureBlobConfig
 
 
 def test_azure_blob_store_exposes_provider_identity():
