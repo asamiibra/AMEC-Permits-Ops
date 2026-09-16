@@ -43,6 +43,7 @@ from backend.app.services.context_compiler import (
     ContextCompileRequest,
     ContextSourceSpec,
     ContextCompiler,
+    GovernedContextCompiler,
     compile_context,
 )
 from backend.app.services.intelligence_contracts import (
@@ -257,6 +258,22 @@ def test_manifest_scope_context_and_authority_controls(db, corpus):
         compile_context(db, request(manifest(contexts=("POLICY_VERSION",)), source("candidate", "CANDIDATE_ASSERTION", {"id": "candidate-a"})))
     with pytest.raises(ValueError, match="INTELLIGENCE_CANONICAL_WRITE_AUTHORITY_FORBIDDEN"):
         manifest(contexts=("POLICY_VERSION",), canonical_or_protected_authority="CANONICAL")
+
+
+def test_contract_scope_allows_its_bound_project_context_but_rejects_cross_project(db, corpus):
+    compiler = GovernedContextCompiler(db)
+    contract_request = request(
+        manifest(contexts=("POLICY_VERSION",), scopes=("CONTRACT",)),
+        source("policy", "POLICY_VERSION", {}),
+        scope_type="CONTRACT",
+        scope_id="contract-a",
+        project="project-a",
+    )
+    compiler._request = contract_request
+
+    compiler._check_project("project-a", contract_request)
+    with pytest.raises(IntelligenceContractError, match="CONTEXT_CROSS_PROJECT_SOURCE"):
+        compiler._check_project("project-b", contract_request)
 
 
 @pytest.mark.parametrize("kind", ["candidate", "document", "verified", "domain"])
