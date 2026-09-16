@@ -59,7 +59,10 @@ export class ApiError extends Error {
   }
 }
 
-const API_REQUEST_TIMEOUT_MS = 15_000;
+// Azure SQL-backed workspace reads can legitimately take a little longer on
+// a cold private-network connection. Keep the UI from presenting a false
+// unavailable state while preserving a bounded request lifetime.
+const API_REQUEST_TIMEOUT_MS = 30_000;
 function humanErrorCode(code: string): string {
   const messages: Record<string, string> = {
     CONTRACT_FINALIZED_REVISION_IMMUTABLE: "This revision is finalized. Create a prospective revision to change its terms.",
