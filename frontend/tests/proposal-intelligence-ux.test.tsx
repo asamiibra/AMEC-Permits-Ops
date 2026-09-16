@@ -77,7 +77,7 @@ describe("P04 canonical Proposal experience", () => {
     fireEvent.click(await screen.findByRole("button", { name: /Start without a source/ }));
     expect(screen.getByRole("heading", { name: "New Proposal from Start without a source", level: 3 })).toBeVisible();
     fireEvent.change(screen.getByLabelText("Proposal title"), { target: { value: "New harbor enquiry" } });
-    fireEvent.change(screen.getByLabelText("Client"), { target: { value: "Harbor Client" } });
+    fireEvent.change(screen.getByLabelText("Client"), { target: { value: "client-1" } });
     fireEvent.click(screen.getByRole("button", { name: "Create Proposal draft" }));
     await waitFor(() => expect(window.location.pathname).toBe("/proposals/proposal-1"));
     expect(screen.queryByRole("button", { name: /Analyze|Generate|Ask AI/ })).toBeNull();
@@ -91,7 +91,7 @@ describe("P04 canonical Proposal experience", () => {
     fireEvent.click(await screen.findByRole("button", { name: /New Proposal/ }));
     fireEvent.click(await screen.findByRole("button", { name: /Start without a source/ }));
     fireEvent.change(screen.getByLabelText("Proposal title"), { target: { value: "Canonical intake" } });
-    fireEvent.change(screen.getByLabelText("Client"), { target: { value: "Canonical Client" } });
+    fireEvent.change(screen.getByLabelText("Client"), { target: { value: "client-1" } });
     fireEvent.click(screen.getByRole("button", { name: "Create Proposal draft" }));
     await waitFor(() => expect(window.location.pathname).toBe("/proposals/proposal-1"));
     const createCall = mockedApi.mock.calls.find(([path]) => path === "/api/bd/proposals");
@@ -143,7 +143,7 @@ describe("P04 canonical Proposal experience", () => {
     fireEvent.click(await screen.findByRole("button", { name: /New Proposal/ }));
     fireEvent.click(await screen.findByRole("button", { name: /Client Information/ }));
     fireEvent.change(screen.getByLabelText("Proposal title"), { target: { value: "Client-context enquiry" } });
-    fireEvent.change(screen.getByLabelText("Client"), { target: { value: "Harbor Client" } });
+    fireEvent.change(screen.getByLabelText("Client"), { target: { value: "client-1" } });
     fireEvent.change(screen.getByLabelText("Proposal contact"), { target: { value: "Nadia Owner" } });
     fireEvent.click(screen.getByRole("button", { name: "Create Proposal draft" }));
     await waitFor(() => expect(window.location.pathname).toBe("/proposals/proposal-1"));
