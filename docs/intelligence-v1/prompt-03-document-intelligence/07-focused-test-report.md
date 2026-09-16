@@ -8,4 +8,3 @@ P02_COMPATIBILITY=Existing P02 intelligence-contract tests and classifier/bridge
 ```
 
 The focused matrix proves exact field lineage, candidate-only status, deterministic replay, source-version supersession, different-producer coexistence, transactional rollback, classifier envelope preservation and controls, bridge source/evidence/classification/observation/candidate flow, bridge replay, cross-project denial, and zero verification/projection/review side effects.
-

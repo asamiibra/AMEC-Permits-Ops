@@ -53,6 +53,7 @@ export type CanonicalForm = {
   technical_rule_lineage?: V2Lineage[];
   automation_profiles?: V2AutomationProfile[];
   current_document_version_id?: string | null;
+  current_version_id?: string | null;
 };
 
 type V2Applicability = {
@@ -293,6 +294,7 @@ export function CanonicalFormsLibrary({
         <FormEditor
           item={editor || undefined}
           categories={categories}
+          sourceOptions={forms}
           busy={busy}
           onClose={() => setEditor(undefined)}
           onSave={save}
@@ -301,7 +303,7 @@ export function CanonicalFormsLibrary({
       {history && (
         <FormHistory history={history} onClose={() => setHistory(null)} />
       )}
-      {details && <FormDetails item={details} role={role} surface={surface} onRefresh={async () => setDetails(await readCanonicalForm<CanonicalForm>(details.id))} onModify={() => { setDetails(null); setEditor(details); }} onClose={() => setDetails(null)} />}
+      {details && <FormDetails item={details} role={role} surface={surface} categories={categories} onRefresh={async () => setDetails(await readCanonicalForm<CanonicalForm>(details.id))} onModify={() => { setDetails(null); setEditor(details); }} onClose={() => setDetails(null)} />}
     </section>
   );
 }
@@ -379,7 +381,7 @@ function FormTable({
   );
 }
 
-function FormDetails({ item, role, surface, onRefresh, onModify, onClose }: { item: CanonicalForm; role: string; surface: "DASHBOARD" | "ADMINISTRATION"; onRefresh: () => Promise<void>; onModify: () => void; onClose: () => void }) {
+function FormDetails({ item, role, surface, categories, onRefresh, onModify, onClose }: { item: CanonicalForm; role: string; surface: "DASHBOARD" | "ADMINISTRATION"; categories: Category[]; onRefresh: () => Promise<void>; onModify: () => void; onClose: () => void }) {
   const governance = item.governance || {};
   const profile = governance.profile || {};
   const readiness = governance.readiness || { state: "BLOCKED", blocking_reasons: ["Governance profile is not available."], warnings: [] };
@@ -401,7 +403,7 @@ function FormDetails({ item, role, surface, onRefresh, onModify, onClose }: { it
     <section className="form-governance-section readiness-panel"><h3>Readiness</h3><strong>{readiness.state.replaceAll("_", " ")}</strong>{readiness.blocking_reasons.length > 0 && <><b>Blocking reasons</b><ul>{readiness.blocking_reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul></>}{readiness.warnings.length > 0 && <><b>Warnings</b><ul>{readiness.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul></>}</section>
     <V2GovernanceDetails item={item} role={role} onRefresh={onRefresh} />
     </>}
-    {ownerRoles.has(role) && <ContentLibraryIntelligencePanel item={item} />}
+    {ownerRoles.has(role) && <ContentLibraryIntelligencePanel item={item} categories={categories} />}
     {(surface === "DASHBOARD" || !profile.restricted_reference_sample) && <a className="button-secondary" href={`/api/master-content/${item.id}/download`} download>Download current source</a>}
     {ownerRoles.has(role) && <div className="detail-actions"><button type="button" className="button-secondary" onClick={onModify}>Modify</button><button type="button" className="button-secondary" onClick={onModify}>Upload version</button></div>}
   </Drawer>;
@@ -417,30 +419,126 @@ const CONTENT_LIBRARY_INTELLIGENCE_SKILLS = [
   ["master-content.source-grounded-assist", "Source-grounded assist"],
 ] as const;
 
-function ContentLibraryIntelligencePanel({ item }: { item: CanonicalForm }) {
+function ContentLibraryIntelligencePanel({ item, categories }: { item: CanonicalForm; categories: Category[] }) {
+  return <ContentLibraryAiAssist itemId={item.id} sourceId={item.current_document_version_id || item.current_version_id || item.id} categories={categories} entityLabel="Form" />;
+}
+
+type ContentLibraryAiAssistProps = {
+  itemId?: string;
+  sourceId?: string;
+  categories?: Category[];
+  onApplyDraft?: (fields: Record<string, unknown>) => void;
+  basePath?: string;
+  entityLabel?: string;
+};
+
+export function ContentLibraryAiAssist({ itemId, sourceId, categories = [], onApplyDraft, basePath, entityLabel = "Form" }: ContentLibraryAiAssistProps) {
   const [busy, setBusy] = useState<string | null>(null);
   const [result, setResult] = useState<Record<string, any> | null>(null);
+  const [recentProducts, setRecentProducts] = useState<Record<string, any>[]>([]);
+  const [selectedFields, setSelectedFields] = useState<Record<string, boolean>>({});
+  const [reviewStatus, setReviewStatus] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const run = async (skillId: string) => {
-    setBusy(skillId); setError("");
+  const intelligenceBase = basePath || (itemId ? `/api/master-content/${itemId}/intelligence` : "");
+  const loadRecentProducts = async () => {
+    if (!intelligenceBase) {
+      setRecentProducts([]);
+      return;
+    }
     try {
-      setResult(await api<Record<string, any>>(`/api/master-content/${item.id}/intelligence/${skillId}`, {
+      const payload = await api<{ products: Record<string, any>[] }>(`${intelligenceBase}/products`);
+      setRecentProducts(payload.products || []);
+    } catch {
+      // A transient readback failure should not hide a result already produced in this session.
+    }
+  };
+  useEffect(() => {
+    setResult(null);
+    setReviewStatus(null);
+    void loadRecentProducts();
+  }, [itemId, basePath]);
+  const run = async (skillId: string) => {
+    if (!itemId) return;
+    setBusy(skillId); setError(""); setReviewStatus(null);
+    try {
+      const next = await api<Record<string, any>>(`${intelligenceBase}/${skillId}`, {
         method: "POST",
         headers: { "Idempotency-Key": crypto.randomUUID() },
-      }));
+      });
+      setResult(next);
+      setSelectedFields(Object.fromEntries(Object.keys(next.draft_fields || {}).map((key) => [key, true])));
+      await loadRecentProducts();
     } catch (cause) {
       setError(userFacingError(cause, "Content Library intelligence is unavailable."));
     } finally { setBusy(null); }
   };
+  const review = async (decision: "ACCEPT" | "REJECT") => {
+    if (!itemId || !result?.work_product_id || !result.review_precondition_version) return;
+    setBusy("review"); setError("");
+    const acceptedFields = decision === "ACCEPT"
+      ? Object.fromEntries(Object.entries(result.draft_fields || {}).filter(([key]) => selectedFields[key]))
+      : {};
+    try {
+      await api(`${intelligenceBase}/${result.work_product_id}/review`, {
+        method: "POST",
+        headers: { "Idempotency-Key": crypto.randomUUID() },
+        body: JSON.stringify({
+          decision,
+          idempotency_key: crypto.randomUUID(),
+          precondition_version: result.review_precondition_version,
+          accepted_fields: acceptedFields,
+          reason: decision === "ACCEPT" ? "Owner accepted selected Content Library AI suggestions for draft use." : "Owner rejected Content Library AI suggestions.",
+        }),
+      });
+      setReviewStatus(decision);
+      if (decision === "ACCEPT" && onApplyDraft) onApplyDraft(acceptedFields);
+      await loadRecentProducts();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "The AI review decision could not be recorded.");
+    } finally { setBusy(null); }
+  };
+  const output = result?.output || {};
+  const citations = result?.citations || [];
+  const draftFields = result?.draft_fields || {};
+  const renderValue = (value: unknown) => typeof value === "string" ? value : JSON.stringify(value, null, 2);
+  const categoryName = (value: unknown) => categories.find((category) => category.id === value)?.label || String(value);
   return <section className="form-governance-section content-library-intelligence" aria-label="Content Library Intelligence">
     <h3>Content Library Intelligence</h3>
-    <p>Governed, source-grounded suggestions for Owner review. Running a skill never changes canonical content.</p>
+    <p>Seven registered, source-grounded skills are available here. Results are immutable advisory work products; accepting a suggestion records your decision and updates only this editable {entityLabel} draft.</p>
+    {!itemId && <div className="ai-review-note">Select a current governed source before running AI assistance.</div>}
+    {itemId && !sourceId && <div className="ai-review-note">No current governed source revision is available for this {entityLabel}.</div>}
     <div className="v2-governance-actions">
-      {CONTENT_LIBRARY_INTELLIGENCE_SKILLS.map(([skillId, label]) => <button key={skillId} type="button" className="button-secondary" disabled={Boolean(busy)} onClick={() => void run(skillId)}>{busy === skillId ? "Running…" : label}</button>)}
+      {CONTENT_LIBRARY_INTELLIGENCE_SKILLS.map(([skillId, label]) => <button key={skillId} type="button" className="button-secondary" disabled={Boolean(busy) || !itemId || !sourceId} onClick={() => void run(skillId)}>{busy === skillId ? "Running…" : label}</button>)}
     </div>
     {error && <div className="dashboard-error" role="alert">{error}</div>}
-    {result && <div className="ai-result-summary"><b>Review required</b><span>{result.work_product_id || "Work product created"} · no canonical mutation</span><p>{result.output?.summary || result.summary || "Advisory result is ready for human review."}</p></div>}
+    {recentProducts.length > 0 && <section className="ai-result-section ai-persisted-results"><h4>Persisted intelligence results</h4><p>Reload-safe work products remain available for review. Stale results are historical evidence and cannot be accepted.</p><div className="ai-persisted-results-list">{recentProducts.map((product) => <button type="button" className={`ai-persisted-result ${product.state === "STALE" ? "is-stale" : ""}`} key={product.work_product_id} onClick={() => { setResult(product); setReviewStatus(product.decision || null); setSelectedFields(Object.fromEntries(Object.keys(product.draft_fields || {}).map((key) => [key, true]))); }}><span><b>{product.skill_id}</b><small>{product.work_product_id}</small></span><span>{product.state === "STALE" ? `STALE${product.stale_reason ? ` · ${product.stale_reason}` : ""}` : "CURRENT"} · {product.citation_count} citation{product.citation_count === 1 ? "" : "s"}</span></button>)}</div></section>}
+    {result && <div className="ai-result-review">
+      <div className="ai-result-review-head"><b>{reviewStatus ? `Human review: ${reviewStatus}` : "Human review required"}</b><span>{result.work_product_id} · {result.output_class} · canonical mutation: no</span></div>
+      <p className="ai-result-summary-text">{output.summary || "Advisory result is ready for human review."}</p>
+      <div className="ai-result-meta"><span>Currentness: {result.currentness || (result.review_precondition_version ? "CURRENT at capture" : "Not reported")}</span><span>Skill: {result.skill_id}</span><span>Citations: {citations.length || output.citations?.length || 0}</span></div>
+      {result.stale_reason && <div className="ai-review-note">This result is stale: {result.stale_reason}. Run the skill again against the current governed source.</div>}
+      {Object.keys(draftFields).length > 0 && <section className="ai-result-section"><h4>Candidate draft fields</h4><p>Select exactly what should enter the editable {entityLabel} draft. Nothing is saved until you use the normal Save action.</p>{Object.entries(draftFields).map(([key, value]) => <label className="ai-draft-field" key={key}><input type="checkbox" checked={selectedFields[key] !== false} disabled={Boolean(reviewStatus)} onChange={(event) => setSelectedFields((current) => ({ ...current, [key]: event.target.checked }))} /><span><b>{key === "category_id" ? "Category" : key.replaceAll("_", " ")}</b><em>{key === "category_id" ? categoryName(value) : renderValue(value)}</em></span></label>)}</section>}
+      {output.candidate_metadata && <AiStructuredObject title="Candidate metadata" value={output.candidate_metadata} valueFormatter={categoryName} />}
+      {output.title || output.description ? <section className="ai-result-section"><h4>Description draft</h4>{output.title && <p><b>Title:</b> {output.title}</p>}{output.description && <p><b>Description:</b> {output.description}</p>}{output.keywords?.length > 0 && <p><b>Keywords:</b> {output.keywords.join(", ")}</p>}<small>Draft only: {String(output.draft_only ?? true)}</small></section> : null}
+      {output.findings?.length > 0 && <AiStructuredList title="Findings" values={output.findings} />}
+      {output.recommendations?.length > 0 && <AiStructuredList title="Recommendations" values={output.recommendations} />}
+      {output.blockers?.length > 0 && <AiStructuredList title="Blockers" values={output.blockers} />}
+      {output.impacts?.length > 0 && <AiStructuredList title="Impacts" values={output.impacts} />}
+      {output.review_flags?.length > 0 && <AiStructuredList title="Review flags" values={output.review_flags} />}
+      {output.open_questions?.length > 0 && <AiStructuredList title="Open questions" values={output.open_questions} />}
+      {(output.analysis_kind || output.confidence) && <div className="ai-result-meta"><span>{output.analysis_kind ? `Analysis: ${output.analysis_kind}` : ""}</span><span>{output.confidence ? `Confidence: ${output.confidence}` : ""}</span></div>}
+      <section className="ai-result-section"><h4>Citations &amp; evidence</h4>{citations.length ? <ol className="ai-citation-list">{citations.map((citation: any) => <li key={`${citation.ordinal}-${citation.source_id}`}><b>{citation.locator_json?.citation_key || `CIT-${String(citation.ordinal).padStart(3, "0")}`}</b><span>{citation.source_type} · {citation.source_id} · version/hash {citation.source_version_or_hash}</span></li>)}</ol> : <p>{(output.citations || []).join(", ") || "No citations returned."}</p>}</section>
+      {!reviewStatus && result.state !== "STALE" ? <div className="ai-review-actions"><button type="button" className="button-primary" disabled={Boolean(busy) || (Object.keys(draftFields).length > 0 && !Object.values(selectedFields).some(Boolean))} onClick={() => void review("ACCEPT")}>Accept selected suggestions</button><button type="button" className="button-secondary" disabled={Boolean(busy)} onClick={() => void review("REJECT")}>Reject result</button></div> : <div className="ai-review-note">{result.state === "STALE" ? "Stale results cannot be accepted." : `Decision recorded. ${reviewStatus === "ACCEPT" && onApplyDraft ? "Selected values are now in the editable draft; use Save to persist them." : "No canonical content was changed."}`}</div>}
+    </div>}
   </section>;
+}
+
+function AiStructuredList({ title, values }: { title: string; values: unknown[] }) {
+  return <section className="ai-result-section"><h4>{title}</h4><ul>{values.map((value, index) => <li key={`${title}-${index}`}>{String(value)}</li>)}</ul></section>;
+}
+
+function AiStructuredObject({ title, value, valueFormatter }: { title: string; value: Record<string, unknown>; valueFormatter?: (value: unknown) => string }) {
+  return <section className="ai-result-section"><h4>{title}</h4><dl className="ai-result-object">{Object.entries(value).map(([key, entry]) => <div key={key}><dt>{key.replaceAll("_", " ")}</dt><dd>{valueFormatter ? valueFormatter(entry) : typeof entry === "string" ? entry : JSON.stringify(entry)}</dd></div>)}</dl></section>;
 }
 
 function V2GovernanceDetails({ item, role, onRefresh }: { item: CanonicalForm; role: string; onRefresh: () => Promise<void> }) {
@@ -481,12 +579,14 @@ function V2GovernanceDetails({ item, role, onRefresh }: { item: CanonicalForm; r
 function FormEditor({
   item,
   categories,
+  sourceOptions,
   busy,
   onClose,
   onSave,
 }: {
   item?: CanonicalForm;
   categories: Category[];
+  sourceOptions: CanonicalForm[];
   busy: boolean;
   onClose: () => void;
   onSave: (request: SaveRequest) => Promise<void>;
@@ -500,6 +600,13 @@ function FormEditor({
   const [needsReview, setNeedsReview] = useState(Boolean(item?.needs_review));
   const [reviewNote, setReviewNote] = useState(item?.review_note || "");
   const [file, setFile] = useState<File | null>(null);
+  const governedSources = sourceOptions.filter((source) => Boolean(source.current_document_version_id || source.current_version_id));
+  const [aiSourceId, setAiSourceId] = useState(item?.id || governedSources[0]?.id || "");
+  const applyAiDraft = (fields: Record<string, unknown>) => {
+    if (typeof fields.title === "string") setTitle(fields.title);
+    if (typeof fields.description === "string") setDescription(fields.description);
+    if (typeof fields.category_id === "string" && categories.some((row) => row.id === fields.category_id && row.allowed_content_types.includes("FORM"))) setCategory(fields.category_id);
+  };
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
     if (!item) {
@@ -651,6 +758,11 @@ function FormEditor({
               </small>
             )}
           </label>
+        </section>
+        <section className="editor-group">
+          <h3>AI-assisted draft</h3>
+          {!item && <label>Governed source for AI assistance<small>AI reads the selected current DocumentVersion. It does not become part of this new Form until you upload and save it.</small><select aria-label="Governed source for AI assistance" value={aiSourceId} onChange={(event) => setAiSourceId(event.target.value)}><option value="">Choose a current governed source</option>{governedSources.map((source) => <option key={source.id} value={source.id}>{source.ref} · {source.title}</option>)}</select></label>}
+          <ContentLibraryAiAssist itemId={item?.id || aiSourceId || undefined} sourceId={item?.id || aiSourceId || undefined} categories={categories} onApplyDraft={applyAiDraft} />
         </section>
         {item && (
           <section className="editor-group">

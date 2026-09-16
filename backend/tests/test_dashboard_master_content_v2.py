@@ -60,8 +60,9 @@ def test_v2_module_bindings_metadata_patch_and_ai_disabled(client):
     assert denied.status_code == 403
     assert denied.json()["detail"]["code"] == "CAPABILITY_DENIED"
     ai = client.post("/api/master-content/ai-assist", json={"request_type": "CATEGORY_SUGGESTION"}, headers={"X-Dev-Role": "SYSTEM_ADMIN"})
-    assert ai.status_code == 409
-    assert ai.json()["detail"]["code"] == "AI_ASSIST_NOT_ENABLED"
+    assert ai.status_code == 410
+    assert ai.json()["detail"]["code"] == "AI_ASSIST_RETIRED"
+    assert "/api/master-content/{item_id}/intelligence/{skill_name}" in ai.json()["detail"]["replacement_path"]
 
 
 def test_v2_metadata_edit_keeps_current_document_version(client):

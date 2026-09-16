@@ -66,7 +66,7 @@ describe("Proposal and Contract register terminal states", () => {
 
     mockedListContracts.mockResolvedValue({ items: [] } as never);
     fireEvent.click(screen.getByRole("tab", { name: /All contracts/ }));
-    expect(await screen.findByText("No Contracts in this lane.")).toBeVisible();
+    expect(await screen.findByText("No Contracts match this view")).toBeVisible();
 
     let attempts = 0;
     mockedListContracts.mockImplementation(async () => {

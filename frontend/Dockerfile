@@ -19,7 +19,8 @@ RUN set -eu; \
     printf '%s\n' "$VITE_ENTRA_TENANT_ID" | grep -Eq '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$'; \
     printf '%s\n' "$VITE_ENTRA_WEB_CLIENT_ID" | grep -Eq '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$'; \
     printf '%s\n' "$VITE_ENTRA_API_CLIENT_ID" | grep -Eq '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$'; \
-    test "$VITE_ENTRA_WEB_CLIENT_ID" != "$VITE_ENTRA_API_CLIENT_ID"
+    test "$VITE_ENTRA_WEB_CLIENT_ID" != "$VITE_ENTRA_API_CLIENT_ID"; \
+    node -e 'const raw = process.env.VITE_API_URL.trim(); const value = new URL(raw); if (value.protocol !== "https:" || value.username || value.password || value.search || value.hash || !["", "/"].includes(value.pathname) || ["localhost", "127.0.0.1", "::1"].includes(value.hostname.toLowerCase()) || value.hostname.includes("*")) process.exit(1)'
 
 COPY package.json package-lock.json ./
 RUN npm ci

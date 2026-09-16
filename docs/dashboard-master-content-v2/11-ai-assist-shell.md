@@ -1,3 +1,3 @@
-# AI Assist Shell
+# Content Library AI-assisted workflow
 
-The Dashboard and Forms editors show a visible disabled AI Assist shell. The API seam accepts a typed request but returns `409 AI_ASSIST_NOT_ENABLED`; no hidden automation, external model call, or autonomous content change exists. See `ai-shell-result.json`.
+Owner-facing Form, Report, Engineering Work, and Definition create/edit and details surfaces now use the registered seven-skill Content Library Intelligence pack through the shared SkillRegistry → SkillRuntime → Context Compiler → ModelGateway path. Master-content skills read the current DocumentVersion; Definition skills read the current DefinitionRevision. Each result renders its structured fields, findings, recommendations, blockers, review flags, and citations. Accept/Reject is recorded through the shared review ledger; Accept applies only server-validated editor draft values, and normal human Save remains the only canonical write. The legacy `/api/master-content/ai-assist` seam is retired with `410 AI_ASSIST_RETIRED` and a replacement path.

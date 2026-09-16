@@ -51,6 +51,20 @@ param workerImage string
 @description('Exact immutable migration image reference, including digest.')
 param migrationImage string
 
+@description('Exact immutable ClamAV sidecar image reference for Contract uploads.')
+param clamavImage string
+
+@minValue(5)
+@maxValue(3600)
+@description('Operational polling interval for the continuous worker.')
+param workerPollIntervalSeconds int = 60
+
+@description('Run the canonical worker continuously.')
+param workerContinuous bool = true
+
+@description('Enable durable Contract exception reconciliation in the canonical worker.')
+param workerContractReconciliationEnabled bool = true
+
 @description('Exact immutable frontend image reference, including digest.')
 param frontendImage string
 
@@ -445,9 +459,11 @@ resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2024-03-01'
   location: location
   tags: tags
   properties: {
+    publicNetworkAccess: 'Disabled'
     zoneRedundant: true
     vnetConfiguration: {
       infrastructureSubnetId: resourceId(resourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', vnetName, 'aca-infrastructure')
+      internal: true
     }
     appLogsConfiguration: {
       destination: 'log-analytics'
@@ -501,6 +517,9 @@ resource apiApp 'Microsoft.App/containerApps@2024-03-01' = {
           { name: 'FRONTEND_ORIGINS', value: frontendOrigin }
           { name: 'STORAGE_PROVIDER', value: storageProvider }
           { name: 'MANAGED_ARTIFACT_STORE_REQUIRED', value: string(managedArtifactStoreRequired) }
+          { name: 'CONTRACT_UPLOAD_SCANNER', value: 'clamav' }
+          { name: 'CONTRACT_UPLOAD_CLAMAV_HOST', value: '127.0.0.1' }
+          { name: 'CONTRACT_UPLOAD_CLAMAV_PORT', value: '3310' }
           { name: 'AZURE_BLOB_ACCOUNT_URL', value: 'https://${artifactStorage.name}.blob.core.windows.net' }
           { name: 'AZURE_BLOB_CONTAINER', value: artifactContainer.name }
           { name: 'AZURE_BLOB_UAMI_CLIENT_ID', value: apiIdentity.properties.clientId }
@@ -511,6 +530,9 @@ resource apiApp 'Microsoft.App/containerApps@2024-03-01' = {
           { name: 'BRIDGE_AUDIENCE', value: bridgeAudience }
           { name: 'BRIDGE_REQUIRED_ROLE', value: bridgeRequiredRole }
           { name: 'AZURE_DIRECT_SYNOLOGY_SMB', value: string(azureDirectSynologySmb) }
+          { name: 'WORKER_CONTINUOUS', value: string(workerContinuous) }
+          { name: 'WORKER_POLL_INTERVAL_SECONDS', value: string(workerPollIntervalSeconds) }
+          { name: 'WORKER_CONTRACT_RECONCILIATION_ENABLED', value: string(workerContractReconciliationEnabled) }
           { name: 'AI_FEATURE_ENABLED', value: string(aiFeatureEnabled) }
           { name: 'AI_EXTERNAL_INFERENCE_ENABLED', value: string(aiExternalInferenceEnabled) }
           { name: 'AI_REAL_CONTENT_ALLOWED', value: string(aiRealContentAllowed) }
@@ -541,6 +563,13 @@ resource apiApp 'Microsoft.App/containerApps@2024-03-01' = {
         resources: {
           cpu: 1
           memory: '2Gi'
+        }
+      }, {
+        name: 'clamav'
+        image: clamavImage
+        resources: {
+          cpu: 1
+          memory: '1Gi'
         }
       }]
       scale: { minReplicas: 2, maxReplicas: 10 }
@@ -626,6 +655,9 @@ resource workerApp 'Microsoft.App/containerApps@2024-03-01' = {
           { name: 'BRIDGE_AUDIENCE', value: bridgeAudience }
           { name: 'BRIDGE_REQUIRED_ROLE', value: bridgeRequiredRole }
           { name: 'AZURE_DIRECT_SYNOLOGY_SMB', value: string(azureDirectSynologySmb) }
+          { name: 'WORKER_CONTINUOUS', value: string(workerContinuous) }
+          { name: 'WORKER_POLL_INTERVAL_SECONDS', value: string(workerPollIntervalSeconds) }
+          { name: 'WORKER_CONTRACT_RECONCILIATION_ENABLED', value: string(workerContractReconciliationEnabled) }
           { name: 'AI_FEATURE_ENABLED', value: string(aiFeatureEnabled) }
           { name: 'AI_EXTERNAL_INFERENCE_ENABLED', value: string(aiExternalInferenceEnabled) }
           { name: 'AI_REAL_CONTENT_ALLOWED', value: string(aiRealContentAllowed) }
@@ -810,7 +842,7 @@ resource edgeOriginGroup 'Microsoft.Cdn/profiles/originGroups@2024-02-01' = {
   properties: {
     healthProbeSettings: {
       probeIntervalInSeconds: 30
-      probePath: '/health/live'
+      probePath: '/health/ready'
       probeProtocol: 'Https'
       probeRequestType: 'GET'
     }
@@ -831,6 +863,15 @@ resource edgeOrigin 'Microsoft.Cdn/profiles/originGroups/origins@2024-02-01' = {
     originHostHeader: resolvedApiOriginHostName
     priority: 1
     weight: 1000
+    // Front Door reaches the private ACA environment through an explicit
+    // deployment-boundary private-link request.
+    sharedPrivateLinkResource: {
+      groupId: 'managedEnvironments'
+      privateLink: { id: containerAppsEnvironment.id }
+      privateLinkLocation: location
+      requestMessage: 'Approve the ProposalOps Front Door private link to ACA.'
+      status: 'Pending'
+    }
   }
 }
 
@@ -876,12 +917,11 @@ resource edgeRoute 'Microsoft.Cdn/profiles/afdEndpoints/routes@2024-02-01' = {
   parent: edgeEndpoint
   dependsOn: [edgeOrigin]
   properties: {
-    cacheConfiguration: { compressionSettings: { isCompressionEnabled: true, contentTypesToCompress: ['application/json', 'text/plain'] }, queryStringCachingBehavior: 'IgnoreQueryString' }
     customDomains: empty(edgeCustomDomainName) ? [] : [{ id: edgeCustomDomain.id }]
     enabledState: 'Enabled'
     forwardingProtocol: 'HttpsOnly'
     httpsRedirect: 'Enabled'
-    linkToDefaultDomain: 'Enabled'
+    linkToDefaultDomain: empty(edgeCustomDomainName) ? 'Enabled' : 'Disabled'
     originGroup: { id: edgeOriginGroup.id }
     patternsToMatch: ['/api/*']
     ruleSets: []
@@ -894,7 +934,6 @@ resource frontendEdgeRoute 'Microsoft.Cdn/profiles/afdEndpoints/routes@2024-02-0
   parent: edgeEndpoint
   dependsOn: [frontendEdgeOrigin]
   properties: {
-    cacheConfiguration: { compressionSettings: { isCompressionEnabled: true, contentTypesToCompress: ['text/html', 'text/css', 'application/javascript', 'application/json'] }, queryStringCachingBehavior: 'UseQueryString' }
     customDomains: empty(edgeCustomDomainName) ? [] : [{ id: edgeCustomDomain.id }]
     enabledState: 'Enabled'
     forwardingProtocol: 'HttpsOnly'
@@ -931,7 +970,7 @@ resource edgeSecurityPolicy 'Microsoft.Cdn/profiles/securityPolicies@2024-02-01'
     parameters: {
       type: 'WebApplicationFirewall'
       associations: [{
-        domains: [{ id: edgeEndpoint.id }]
+        domains: empty(edgeCustomDomainName) ? [{ id: edgeEndpoint.id }] : [{ id: edgeCustomDomain.id }]
         patternsToMatch: ['/*']
       }]
       wafPolicy: { id: edgeWafPolicy.id }

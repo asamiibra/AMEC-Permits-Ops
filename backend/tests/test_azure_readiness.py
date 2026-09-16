@@ -94,6 +94,19 @@ def test_ready_reports_unhealthy_storage(monkeypatch):
     assert response.json()["failure_class"] == "STORAGE_UNAVAILABLE"
 
 
+def test_ready_reports_unhealthy_scanner(monkeypatch):
+    _ready_dependencies(monkeypatch)
+    from backend.app.services import upload_scanner
+    monkeypatch.setattr(
+        upload_scanner,
+        "configured_upload_scanner",
+        lambda **_kwargs: SimpleNamespace(health=lambda: False),
+    )
+    response = TestClient(main.app).get("/health/ready")
+    assert response.status_code == 503
+    assert response.json()["failure_class"] == "SCANNER_UNAVAILABLE"
+
+
 def test_ready_reports_invalid_configuration(monkeypatch):
     _ready_dependencies(monkeypatch)
     monkeypatch.setattr(
