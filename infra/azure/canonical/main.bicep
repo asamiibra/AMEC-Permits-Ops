@@ -846,6 +846,15 @@ resource edgeOrigin 'Microsoft.Cdn/profiles/originGroups/origins@2024-02-01' = {
     originHostHeader: resolvedApiOriginHostName
     priority: 1
     weight: 1000
+    // Front Door reaches the private ACA environment through an explicit
+    // deployment-boundary private-link request.
+    sharedPrivateLinkResource: {
+      groupId: 'managedEnvironments'
+      privateLink: { id: containerAppsEnvironment.id }
+      privateLinkLocation: location
+      requestMessage: 'Approve the ProposalOps Front Door private link to ACA.'
+      status: 'Pending'
+    }
   }
 }
 
