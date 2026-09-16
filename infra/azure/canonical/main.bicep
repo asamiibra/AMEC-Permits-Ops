@@ -448,6 +448,7 @@ resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2024-03-01'
   location: location
   tags: tags
   properties: {
+    publicNetworkAccess: 'Disabled'
     zoneRedundant: true
     vnetConfiguration: {
       infrastructureSubnetId: resourceId(resourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', vnetName, 'aca-infrastructure')
