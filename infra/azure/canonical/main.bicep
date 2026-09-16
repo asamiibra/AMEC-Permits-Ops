@@ -54,6 +54,17 @@ param migrationImage string
 @description('Exact immutable ClamAV sidecar image reference for Contract uploads.')
 param clamavImage string
 
+@minValue(5)
+@maxValue(3600)
+@description('Operational polling interval for the continuous worker.')
+param workerPollIntervalSeconds int = 60
+
+@description('Run the canonical worker continuously.')
+param workerContinuous bool = true
+
+@description('Enable durable Contract exception reconciliation in the canonical worker.')
+param workerContractReconciliationEnabled bool = true
+
 @description('Exact immutable frontend image reference, including digest.')
 param frontendImage string
 
@@ -519,6 +530,9 @@ resource apiApp 'Microsoft.App/containerApps@2024-03-01' = {
           { name: 'BRIDGE_AUDIENCE', value: bridgeAudience }
           { name: 'BRIDGE_REQUIRED_ROLE', value: bridgeRequiredRole }
           { name: 'AZURE_DIRECT_SYNOLOGY_SMB', value: string(azureDirectSynologySmb) }
+          { name: 'WORKER_CONTINUOUS', value: string(workerContinuous) }
+          { name: 'WORKER_POLL_INTERVAL_SECONDS', value: string(workerPollIntervalSeconds) }
+          { name: 'WORKER_CONTRACT_RECONCILIATION_ENABLED', value: string(workerContractReconciliationEnabled) }
           { name: 'AI_FEATURE_ENABLED', value: string(aiFeatureEnabled) }
           { name: 'AI_EXTERNAL_INFERENCE_ENABLED', value: string(aiExternalInferenceEnabled) }
           { name: 'AI_REAL_CONTENT_ALLOWED', value: string(aiRealContentAllowed) }
@@ -641,6 +655,9 @@ resource workerApp 'Microsoft.App/containerApps@2024-03-01' = {
           { name: 'BRIDGE_AUDIENCE', value: bridgeAudience }
           { name: 'BRIDGE_REQUIRED_ROLE', value: bridgeRequiredRole }
           { name: 'AZURE_DIRECT_SYNOLOGY_SMB', value: string(azureDirectSynologySmb) }
+          { name: 'WORKER_CONTINUOUS', value: string(workerContinuous) }
+          { name: 'WORKER_POLL_INTERVAL_SECONDS', value: string(workerPollIntervalSeconds) }
+          { name: 'WORKER_CONTRACT_RECONCILIATION_ENABLED', value: string(workerContractReconciliationEnabled) }
           { name: 'AI_FEATURE_ENABLED', value: string(aiFeatureEnabled) }
           { name: 'AI_EXTERNAL_INFERENCE_ENABLED', value: string(aiExternalInferenceEnabled) }
           { name: 'AI_REAL_CONTENT_ALLOWED', value: string(aiRealContentAllowed) }

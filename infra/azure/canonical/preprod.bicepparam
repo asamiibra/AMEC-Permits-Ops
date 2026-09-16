@@ -22,6 +22,7 @@ param apiImage = readEnvironmentVariable('PROPOSALOPS_PREPROD_API_IMAGE', 'REQUI
 param workerImage = readEnvironmentVariable('PROPOSALOPS_PREPROD_WORKER_IMAGE', 'REQUIRED_AT_DEPLOYMENT')
 param migrationImage = readEnvironmentVariable('PROPOSALOPS_PREPROD_MIGRATION_IMAGE', 'REQUIRED_AT_DEPLOYMENT')
 param clamavImage = readEnvironmentVariable('PROPOSALOPS_PREPROD_CLAMAV_IMAGE', 'REQUIRED_AT_DEPLOYMENT')
+param workerContractReconciliationEnabled = true
 param frontendImage = readEnvironmentVariable('PROPOSALOPS_PREPROD_FRONTEND_IMAGE', 'REQUIRED_AT_DEPLOYMENT')
 param aiFeatureEnabled = false
 param aiExternalInferenceEnabled = false
