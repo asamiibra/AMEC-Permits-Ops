@@ -51,6 +51,11 @@ class AzureBlobBinaryStore(BinaryStorePort):
         except Exception as exc:
             raise StorageError(StorageErrorCode.CONFIGURATION_ERROR, "Azure Blob client initialization failed") from exc
 
+    @property
+    def provider_id(self) -> str:
+        """Expose the provider identity required by the storage port."""
+        return self.config.provider_id
+
     def _locator(self, relative_path: str) -> StorageLocator:
         return StorageLocator(self.config.provider_id, self.config.container, normalize_relative_path(relative_path))
 
