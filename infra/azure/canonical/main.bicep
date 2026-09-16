@@ -507,7 +507,7 @@ resource apiApp 'Microsoft.App/containerApps@2024-03-01' = {
           { name: 'STORAGE_PROVIDER', value: storageProvider }
           { name: 'MANAGED_ARTIFACT_STORE_REQUIRED', value: string(managedArtifactStoreRequired) }
           { name: 'CONTRACT_UPLOAD_SCANNER', value: 'clamav' }
-          { name: 'CONTRACT_UPLOAD_CLAMAV_HOST', value: 'localhost' }
+          { name: 'CONTRACT_UPLOAD_CLAMAV_HOST', value: '127.0.0.1' }
           { name: 'CONTRACT_UPLOAD_CLAMAV_PORT', value: '3310' }
           { name: 'AZURE_BLOB_ACCOUNT_URL', value: 'https://${artifactStorage.name}.blob.core.windows.net' }
           { name: 'AZURE_BLOB_CONTAINER', value: artifactContainer.name }
