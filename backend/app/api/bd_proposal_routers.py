@@ -24,7 +24,7 @@ from ..services.backend_realignment import domain_error, require_capability
 from ..services.master_content import definition_lookup
 from ..services.proposal_workspace import SOURCE_TYPES, SOURCE_TO_SEMANTIC, ensure_owner_settings, master_content_purpose, output_bytes, production_output_bytes, owner_lane_definitions, proposal_configuration, proposal_projection, snapshot_for_accept, stable_hash, validate_proposal, intake_readiness
 from ..services.bd_proposal_forms_v2 import add_source_link, create_preview, set_contact, set_site_context, v2_readiness
-from ..services.proposal_final_hardening import causal_revalidation_blockers, hardening_projection, impacted_sections_for_source, material_fingerprint, now as hardening_now
+from ..services.proposal_final_hardening import causal_revalidation_blockers, hardening_projection, impacted_sections_for_source, material_fingerprint, master_content_fingerprint, now as hardening_now
 from ..services.proposal_reference import allocate_proposal_reference
 from ..services.proposal_production_boundary import production_mode, require_authorized_office, require_canonical_active_client, require_exact_document_version, require_proposal_scoped_evidence, reject_synthetic_value, synthetic_test_mode
 from ..services.proposals_sor import _safe_filename, ingest_provisional_intake_artifact, read_proposal_source_bytes
@@ -128,15 +128,201 @@ def _create_proposal_record(payload: ProposalCreate, request: Request, db: Sessi
 
 
 def _list_row(db: Session, item: Opportunity) -> dict[str, Any]:
-    projection = proposal_projection(db, item)
-    client = db.get(ClientAccount, item.client_account_id) if item.client_account_id else None
-    fields = item.proposal_fields_json or {}
-    site = (projection.get("forms_v2") or {}).get("site_context") or {}
-    client_label = projection["client_name"] or ((projection.get("forms_v2") or {}).get("commercial_client") or {}).get("display_name") or (client.display_name if client else None) or item.client_account_id or "Not recorded"
-    location = site.get("location_text") or fields.get("location") or site.get("site_description") or ""
-    activity = fields.get("project_description") or fields.get("activity") or item.title
-    search_text = " ".join(str(value or "") for value in (item.title, item.opportunity_reference, projection["project_reference"], client_label, activity, fields.get("client_scope_of_work"), fields.get("scope_of_work") or fields.get("sow"), location, projection["stage_label"], item.status)).lower()
-    return {"id": item.id, "proposal_reference": item.opportunity_reference, "proposal": item.title, "project_ref": projection["project_reference"], "client": client_label, "activity": activity, "stage": projection["stage_label"], "stage_code": item.status, "amount": projection["amount"], "last_activity": projection["last_activity"], "location": location or None, "current_owner": projection["current_owner"], "next_action": projection["next_action"], "owner_lane": projection["owner_lane"], "contract_eligible": projection["contract_eligible"], "validation": projection["validation"], "fixture_classification": item.fixture_classification, "_search_text": search_text}
+    """Compatibility wrapper for callers that need one register row.
+
+    The register endpoint uses ``_register_rows`` below so it can bulk-load
+    relationship state. Keeping this wrapper avoids changing the public shape
+    for any internal callers while preventing the detail projection from
+    becoming an accidental list endpoint dependency.
+    """
+    return _register_rows(db, [item])[0]
+
+
+def _register_rows(db: Session, items: list[Opportunity]) -> list[dict[str, Any]]:
+    """Build the worklist projection with bounded bulk reads.
+
+    ``proposal_projection`` is intentionally a detail-page projection. It
+    resolves governed content, forms-v2, hardening fingerprints, commercial
+    controls, and history, which is correct for one Proposal but creates an
+    N+1 query chain for a register. This projection contains only fields and
+    predicates needed by the register and bulk-loads all proposal-scoped
+    tables once. Detail routes continue to use the full projection.
+    """
+    if not items:
+        return []
+    ids = [item.id for item in items]
+    clients = {
+        row.id: row
+        for row in db.scalars(select(ClientAccount).where(ClientAccount.id.in_({item.client_account_id for item in items if item.client_account_id}))).all()
+    }
+    sources = db.scalars(select(ProposalSourceEvidence).where(ProposalSourceEvidence.proposal_id.in_(ids)).order_by(ProposalSourceEvidence.created_at)).all()
+    accepted = db.scalars(select(ProposalAcceptedRevision).where(ProposalAcceptedRevision.proposal_id.in_(ids), ProposalAcceptedRevision.status == "ACCEPTED")).all()
+    unknowns = db.scalars(select(ProposalUnknown).where(ProposalUnknown.proposal_id.in_(ids))).all()
+    conflicts = db.scalars(select(ProposalConflict).where(ProposalConflict.proposal_id.in_(ids))).all()
+    acknowledgments = db.scalars(select(ProposalMaterialAcknowledgment).where(ProposalMaterialAcknowledgment.proposal_id.in_(ids))).all()
+    staleness = db.scalars(select(ProposalStalenessEvent).where(ProposalStalenessEvent.proposal_id.in_(ids))).all()
+    assumptions = db.scalars(select(ProposalAssumption).where(ProposalAssumption.proposal_id.in_(ids))).all()
+    scopes = db.scalars(select(ProposalServiceScopeItem).where(ProposalServiceScopeItem.proposal_id.in_(ids))).all()
+    sites = db.scalars(select(ProposalSiteContext).where(ProposalSiteContext.proposal_id.in_(ids))).all()
+    source_by_proposal: dict[str, list[ProposalSourceEvidence]] = {proposal_id: [] for proposal_id in ids}
+    for row in sources:
+        source_by_proposal.setdefault(row.proposal_id, []).append(row)
+    accepted_by_proposal: dict[str, ProposalAcceptedRevision] = {}
+    for row in accepted:
+        current = accepted_by_proposal.get(row.proposal_id)
+        if current is None or row.revision_number > current.revision_number:
+            accepted_by_proposal[row.proposal_id] = row
+    unknown_by_proposal: dict[str, list[ProposalUnknown]] = {proposal_id: [] for proposal_id in ids}
+    conflict_by_proposal: dict[str, list[ProposalConflict]] = {proposal_id: [] for proposal_id in ids}
+    ack_by_proposal: dict[str, set[tuple[str, str]]] = {proposal_id: set() for proposal_id in ids}
+    staleness_by_proposal: dict[str, list[ProposalStalenessEvent]] = {proposal_id: [] for proposal_id in ids}
+    assumptions_by_proposal: dict[str, list[ProposalAssumption]] = {proposal_id: [] for proposal_id in ids}
+    scopes_by_proposal: dict[str, list[ProposalServiceScopeItem]] = {proposal_id: [] for proposal_id in ids}
+    site_by_proposal: dict[str, ProposalSiteContext] = {}
+    for row in unknowns:
+        unknown_by_proposal.setdefault(row.proposal_id, []).append(row)
+    for row in conflicts:
+        conflict_by_proposal.setdefault(row.proposal_id, []).append(row)
+    for row in acknowledgments:
+        ack_by_proposal.setdefault(row.proposal_id, set()).add((row.target_type, row.target_id))
+    for row in staleness:
+        staleness_by_proposal.setdefault(row.proposal_id, []).append(row)
+    for row in assumptions:
+        assumptions_by_proposal.setdefault(row.proposal_id, []).append(row)
+    for row in scopes:
+        scopes_by_proposal.setdefault(row.proposal_id, []).append(row)
+    for row in sites:
+        site_by_proposal[row.proposal_id] = row
+
+    # These are shared governed inputs. Resolve each only once for the whole
+    # response instead of once per row.
+    template = master_content_purpose(db, "PROPOSAL_TEMPLATE")
+    checklist = master_content_purpose(db, "PROPOSAL_CHECKLIST")
+    current_master_fingerprint = master_content_fingerprint(db)
+    stage_labels = {
+        "RECEIVED": "Intake & Sources", "IN_REVIEW": "Intake & Sources", "PROPOSAL_PREPARATION": "Engineering Preparation",
+        "PROPOSAL_HANDOVER": "Commercial Review", "READY_FOR_QUOTATION": "Ready for Quotation", "COMMERCIAL_REVIEW": "Commercial Review", "QUOTATION_IN_PROGRESS": "Quotation in Progress",
+        "CLIENT_RESPONSE_PENDING": "Client Response", "ACCEPTED": "Contract Handoff", "CONTRACT_HANDOVER": "Contract Handoff", "CLOSED": "Closed",
+    }
+    rows: list[dict[str, Any]] = []
+    for item in items:
+        fields = item.proposal_fields_json or {}
+        item_sources = source_by_proposal.get(item.id, [])
+        current_sources = [row for row in item_sources if row.status == "CURRENT"]
+        item_unknowns = unknown_by_proposal.get(item.id, [])
+        item_conflicts = conflict_by_proposal.get(item.id, [])
+        item_acks = ack_by_proposal.get(item.id, set())
+        item_staleness = staleness_by_proposal.get(item.id, [])
+        item_assumptions = assumptions_by_proposal.get(item.id, [])
+        item_scopes = scopes_by_proposal.get(item.id, [])
+        blockers: list[dict[str, str]] = []
+        warnings: list[dict[str, str]] = []
+        required = {
+            "CLIENT_REQUIRED": bool(item.client_account_id),
+            "DESCRIPTION_REQUIRED": bool(item.title.strip()),
+            "SCOPE_OF_WORK_REQUIRED": bool(str(fields.get("scope_of_work") or fields.get("sow") or "").strip()),
+            "CLIENT_SCOPE_OF_WORK_REQUIRED": bool(str(fields.get("client_scope_of_work") or "").strip()),
+            "PRICE_REQUIRED": bool(str(fields.get("price") or "").strip()),
+            "DURATION_REQUIRED": bool(str(fields.get("duration") or fields.get("period") or "").strip()),
+            "PROPOSAL_TEMPLATE_REQUIRED": template["status"] == "RESOLVED",
+            "PROPOSAL_CHECKLIST_REQUIRED": checklist["status"] == "RESOLVED",
+        }
+        labels = {
+            "CLIENT_REQUIRED": "Client", "DESCRIPTION_REQUIRED": "Proposal Description", "SCOPE_OF_WORK_REQUIRED": "Scope of Work",
+            "CLIENT_SCOPE_OF_WORK_REQUIRED": "Client Scope of Work", "PRICE_REQUIRED": "Price", "DURATION_REQUIRED": "Duration",
+            "PROPOSAL_TEMPLATE_REQUIRED": "Dashboard Proposal Template", "PROPOSAL_CHECKLIST_REQUIRED": "Dashboard Proposal Checklist",
+        }
+        blockers.extend({"code": code, "label": labels[code]} for code, present in required.items() if not present)
+        if not item_sources:
+            blockers.append({"code": "SOURCE_EVIDENCE_REQUIRED", "label": "Source evidence"})
+        for source_type in SOURCE_TYPES:
+            if not any(row.source_type == source_type and row.status == "CURRENT" for row in item_sources):
+                warnings.append({"code": f"{source_type}_MISSING", "label": source_type.replace("_", " ").title()})
+        superseded = {row.id for row in item_sources if row.status == "CONFLICT" and any(current.supersedes_id == row.id for current in current_sources)}
+        active_conflicts = [row for row in item_sources if row.status == "CONFLICT" and row.id not in superseded]
+        if active_conflicts:
+            blockers.append({"code": "SOURCE_CONFLICTS_UNRESOLVED", "label": "Resolve conflicting source evidence"})
+        elif superseded:
+            warnings.append({"code": "SOURCE_CONFLICT_HISTORY", "label": "A prior source revision was superseded and remains in history"})
+        if not (fields.get("inclusions") or fields.get("exclusions")):
+            warnings.append({"code": "COMMERCIAL_BOUNDARIES_REVIEW", "label": "Confirm inclusions and exclusions"})
+        open_unknowns = [row for row in item_unknowns if row.status == "OPEN" and row.materiality in {"MATERIAL", "BLOCKING"} and ("PROPOSAL_UNKNOWN", row.id) not in item_acks]
+        open_material_conflicts = [row for row in item_conflicts if row.status == "OPEN" and row.materiality in {"MATERIAL", "BLOCKING"} and ("PROPOSAL_CONFLICT", row.id) not in item_acks]
+        active_staleness = [row for row in item_staleness if row.status == "ACTIVE"]
+        blockers.extend({"code": "MATERIAL_UNKNOWN_REQUIRES_ACKNOWLEDGMENT", "label": row.statement} for row in open_unknowns)
+        blockers.extend({"code": "MATERIAL_CONFLICT_REQUIRES_ACKNOWLEDGMENT", "label": f"{row.field_code}: {row.source_a} vs {row.source_b}"} for row in open_material_conflicts)
+        if active_staleness:
+            blockers.append({"code": "SOURCE_CHANGE_REQUIRES_REVIEW", "label": "Source or governed input changed; review impacted Proposal sections before Accept"})
+        accepted_revision = accepted_by_proposal.get(item.id)
+        if accepted_revision and (accepted_revision.snapshot or {}).get("master_content_fingerprint") and (accepted_revision.snapshot or {}).get("master_content_fingerprint") != current_master_fingerprint:
+            blockers.append({"code": "MASTER_CONTENT_REVALIDATION_REQUIRED", "label": "Create an explicit Proposal revision to revalidate changed master content before Accept"})
+        intake_blockers = []
+        if not item.client_account_id:
+            intake_blockers.append({"code": "CLIENT_REQUIRED", "label": "Client context required"})
+        if not current_sources:
+            intake_blockers.append({"code": "SOURCE_EVIDENCE_REQUIRED", "label": "No source evidence received"})
+        if not item.title.strip():
+            intake_blockers.append({"code": "DESCRIPTION_REQUIRED", "label": "Proposal description required"})
+        if item.reference_state not in {"PROVISIONAL", "CANONICAL"}:
+            intake_blockers.append({"code": "REFERENCE_STATE_INVALID", "label": "Proposal reference state is invalid"})
+        if any(row.verification_state != "READ_BACK_VERIFIED" for row in current_sources):
+            intake_blockers.append({"code": "SOURCE_VERIFICATION_REQUIRED", "label": "Source verification incomplete"})
+        blockers.extend(intake_blockers)
+        readiness_blockers = []
+        if not item_scopes and not str(fields.get("scope_of_work") or fields.get("sow") or "").strip():
+            readiness_blockers.append({"code": "SERVICE_SCOPE_REQUIRED", "label": "AMEC service scope"})
+        if any(row.materiality == "MATERIAL" and row.status != "ACKNOWLEDGED" for row in item_assumptions):
+            readiness_blockers.append({"code": "MATERIAL_ASSUMPTION_ACKNOWLEDGEMENT_REQUIRED", "label": "Acknowledge material commercial assumptions"})
+        if active_conflicts:
+            readiness_blockers.append({"code": "MATERIAL_CONFLICT_REQUIRES_DECISION", "label": "Resolve or explicitly accept material conflicts"})
+        blockers.extend(readiness_blockers)
+        blockers = list({row["code"]: row for row in blockers}.values())
+        validation = {
+            "ready": not blockers,
+            "blockers": blockers,
+            "warnings": warnings,
+            "source_count": len(current_sources),
+            "conflict_count": len(active_conflicts),
+            "template": template,
+            "checklist": checklist,
+            "definitions": [],
+            "ai_assist": {"enabled": False, "response": None, "typed_error": "AI_ASSIST_DISABLED"},
+            "authority": "OWNER_DECISION_REQUIRED",
+            "register_projection": True,
+        }
+        authority_review = item.status in {"PROPOSAL_HANDOVER", "READY_FOR_QUOTATION", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS"} and not blockers and not accepted_revision
+        need_action = bool(blockers) or item.status == "CLIENT_RESPONSE_PENDING"
+        ready_close = item.status in {"CLIENT_RESPONSE_PENDING", "ACCEPTED", "CONTRACT_HANDOVER", "CLOSED"} and not need_action
+        memberships = ["ALL"]
+        if need_action:
+            memberships.append("NEED_ACTION")
+        if authority_review:
+            memberships.append("AUTHORITY_REVIEW")
+        if ready_close:
+            memberships.append("READY_CLOSE")
+        primary = "NEED_ACTION" if need_action else "AUTHORITY_REVIEW" if authority_review else "READY_CLOSE" if ready_close else "ALL"
+        owner_lane = {"primary": primary, "memberships": memberships, "reason_codes": [row["code"] for row in blockers], "reason_labels": [row["label"] for row in blockers], "predicate_version": "bd-proposal-owner-lanes-v1"}
+        current_owner = "Engineering" if item.status == "PROPOSAL_PREPARATION" else "Business Development"
+        next_action = (
+            "Complete technical Proposal preparation" if item.status == "PROPOSAL_PREPARATION" else
+            "Resolve intake blockers" if item.status in {"RECEIVED", "IN_REVIEW"} and blockers else
+            "Proceed to Engineering Preparation" if item.status in {"RECEIVED", "IN_REVIEW"} else
+            "Resolve Proposal readiness blockers" if item.status in {"PROPOSAL_HANDOVER", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS"} and blockers else
+            "Review Proposal Authority" if item.status in {"PROPOSAL_HANDOVER", "READY_FOR_QUOTATION", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS"} else
+            "Follow up client response" if item.status == "CLIENT_RESPONSE_PENDING" else
+            "Proceed to Contract handoff" if item.status in {"ACCEPTED", "CONTRACT_HANDOVER"} else
+            "No further Proposal action" if item.status == "CLOSED" else "Review Proposal"
+        )
+        client = clients.get(item.client_account_id)
+        client_label = (client.display_name or client.legal_name if client else None) or item.client_account_id or "Not recorded"
+        site = site_by_proposal.get(item.id)
+        location = (site.location_text if site else None) or fields.get("location") or (site.site_description if site else None) or ""
+        activity = fields.get("project_description") or fields.get("activity") or item.title
+        project_ref = item.canonical_project_reference or item.provisional_reference
+        contract_eligible = bool(accepted_revision and handoff_predicate(db, item.id)["eligible"])
+        search_text = " ".join(str(value or "") for value in (item.title, item.opportunity_reference, project_ref, client_label, activity, fields.get("client_scope_of_work"), fields.get("scope_of_work") or fields.get("sow"), location, stage_labels.get(item.status, item.status.replace("_", " ").title()), item.status)).lower()
+        rows.append({"id": item.id, "proposal_reference": item.opportunity_reference, "proposal": item.title, "project_ref": project_ref, "client": client_label, "activity": activity, "stage": stage_labels.get(item.status, item.status.replace("_", " ").title()), "stage_code": item.status, "amount": fields.get("price"), "last_activity": item.updated_at.isoformat() if item.updated_at else None, "location": location or None, "current_owner": current_owner, "next_action": {"label": next_action, "eligible": not blockers, "blockers": len(blockers)}, "owner_lane": owner_lane, "contract_eligible": contract_eligible, "validation": validation, "fixture_classification": item.fixture_classification, "_search_text": search_text})
+    return rows
 
 
 def _register_predicate(rows: list[dict[str, Any]], *, q: str, stage: str | None, lane: str | None, client: str | None, activity: str | None, location: str | None) -> tuple[list[dict[str, Any]], dict[str, int]]:
@@ -228,7 +414,7 @@ def cleanup_test_proposals(proposal_ids: list[str], db: Session = Depends(get_db
 @router.get("", response_model=ProposalRegisterResponse)
 def list_proposals(q: str = "", stage: str | None = None, lane: str | None = None, client: str | None = None, activity: str | None = None, location: str | None = None, db: Session = Depends(get_db), role: Role = Depends(current_user_role)):
     require_capability(role, "BD_PROPOSAL_READ")
-    rows, lane_counts = _register_predicate([_list_row(db, item) for item in db.scalars(select(Opportunity).order_by(Opportunity.updated_at.desc(), Opportunity.opportunity_reference)).all()], q=q, stage=stage, lane=lane, client=client, activity=activity, location=location)
+    rows, lane_counts = _register_predicate(_register_rows(db, db.scalars(select(Opportunity).order_by(Opportunity.updated_at.desc(), Opportunity.opportunity_reference)).all()), q=q, stage=stage, lane=lane, client=client, activity=activity, location=location)
     for row in rows:
         row.pop("_search_text", None)
     return {"items": rows, "rows": rows, "count": len(rows), "lane_counts": lane_counts, "lane_options": owner_lane_definitions(), "predicate_version": "bd-proposal-register-v2", "filters": {"q": q, "stage": stage, "lane": lane, "client": client, "activity": activity, "location": location}, "stage_options": ["RECEIVED", "IN_REVIEW", "PROPOSAL_PREPARATION", "PROPOSAL_HANDOVER", "READY_FOR_QUOTATION", "COMMERCIAL_REVIEW", "QUOTATION_IN_PROGRESS", "CLIENT_RESPONSE_PENDING", "ACCEPTED", "CONTRACT_HANDOVER", "CLOSED"], "amount_source": "proposal_fields.price", "last_activity_source": "Opportunity.updated_at material Proposal activity timestamp", "search_fields": ["client_name", "proposal.title", "project_description", "client_scope_of_work", "scope_of_work", "site_context.location_text", "site_context.site_description", "proposal_reference", "project_reference", "stage"], "synthetic_only": any(row.get("fixture_classification") == "SYNTHETIC_OWNER_TEST" for row in rows)}
