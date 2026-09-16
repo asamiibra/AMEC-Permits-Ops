@@ -29,4 +29,5 @@ The supplied baseline remains SHA-256
 controlled package probe changed only `word/document.xml`; 78 of 79 package
 parts and rendered pages 1–11 were unchanged. The full application editor,
 source capture, persistence and browser acceptance remain incomplete, so this
-branch is not promoted to PASS.
+branch is not promoted to PASS. The exact command and current gate status are
+recorded in `25-option-b-test-results.json`.

@@ -1,0 +1,11 @@
+{
+  "command": "APP_ENV=TEST SYNTHETIC_ONLY=true python3 -m pytest -q backend/tests/test_proposal_editor_model.py backend/tests/test_proposal_document_package.py backend/tests/test_proposal_source_tree.py backend/tests/test_proposal_template_fidelity.py backend/tests/test_document_storage_service.py",
+  "result": "PASS",
+  "passed": 57,
+  "failed": 0,
+  "warnings": 1,
+  "warning": "pytest-asyncio uses deprecated asyncio event-loop policy API under Python 3.14",
+  "api_openapi_route_check": "PASS",
+  "frontend_build": "NOT_RUN_DEPENDENCIES_UNAVAILABLE",
+  "full_application_e2e": "NOT_RUN"
+}
