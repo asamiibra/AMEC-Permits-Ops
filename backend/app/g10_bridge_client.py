@@ -533,6 +533,7 @@ def sync_live_once(reader: QatarSynologySourceReader) -> dict[str, object]:
     )
     sent = 0
     skipped = 0
+    skipped_oversize = 0
     for project in projects:
         # Number keys are the canonical operator contract; accepting the exact
         # folder name also lets an operator map names containing spaces without
@@ -544,7 +545,18 @@ def sync_live_once(reader: QatarSynologySourceReader) -> dict[str, object]:
         for entry in reader.inventory(project.folder_name):
             if entry.is_directory:
                 continue
-            read = reader.capture(entry.relative_path)
+            try:
+                read = reader.capture(entry.relative_path)
+            except RuntimeError as exc:
+                # The bridge contract deliberately bounds one signed package.
+                # Keep the project discovery pass alive when an older draft
+                # contains a larger archive/CAD export; supported files from
+                # that project still become draft sources and the bounded
+                # omission is reported in the machine result.
+                if str(exc) == "LIVE_FILE_REQUIRES_CHUNKED_TRANSPORT":
+                    skipped_oversize += 1
+                    continue
+                raise
             snapshot = f"{LIVE_SOURCE_URI_PREFIX}{LOGICAL_ROOT}/{entry.relative_path}"
             source_version_token = f"{read.before_modified_at}:{read.sha256}"
             payload = BridgePackageIn(
@@ -598,6 +610,7 @@ def sync_live_once(reader: QatarSynologySourceReader) -> dict[str, object]:
         "projects_unmapped": unmapped,
         "packages_sent": sent,
         "projects_skipped_without_mapping": skipped,
+        "files_skipped_oversize": skipped_oversize,
         "synology_write_count": 0,
     }
 
