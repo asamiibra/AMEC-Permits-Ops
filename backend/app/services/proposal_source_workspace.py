@@ -83,8 +83,7 @@ def capture(db: Session, number: int, *, actor: str = "source-workspace") -> dic
         for item in files:
             read = source.capture(item.relative_path)
             key = f"PROPOSAL_SOURCE:{number}:{item.relative_path}"
-            versions = db.scalars(select(DocumentVersion).where(DocumentVersion.metadata_json["proposal_source_key"].as_string() == key).order_by(DocumentVersion.version_number.desc())).all()
-            current = versions[0] if versions else None
+            current = captured_version(db, number, item.relative_path)
             if current and current.sha256 == read.sha256:
                 # Backfill the explicit fixture marker for databases created
                 # before this source bridge carried synthetic provenance. The
@@ -140,7 +139,26 @@ def capture(db: Session, number: int, *, actor: str = "source-workspace") -> dic
 
 def captured_version(db: Session, number: int, relative: str) -> DocumentVersion | None:
     key = f"PROPOSAL_SOURCE:{number}:{relative}"
-    return db.scalar(select(DocumentVersion).where(DocumentVersion.metadata_json["proposal_source_key"].as_string() == key).order_by(DocumentVersion.version_number.desc()))
+    # The mounted source adapter writes the historical proposal_source_key,
+    # while the live bridge writes the canonical QATAR_SOURCE_INTAKE_BRIDGE
+    # metadata (source_project_number/source_relative_path).  Both represent
+    # the same immutable source file and must resolve to one workspace row.
+    rows = db.scalars(
+        select(DocumentVersion)
+        .where(DocumentVersion.source_system.in_(("QATAR_SOURCE_INTAKE_BRIDGE", "SYNOLOGY_PROPOSAL_SOURCE")))
+        .order_by(DocumentVersion.ingested_at.desc(), DocumentVersion.version_number.desc())
+    ).all()
+    for version in rows:
+        metadata = version.metadata_json or {}
+        if metadata.get("proposal_source_key") == key:
+            return version
+        if (
+            metadata.get("source_project_number") == number
+            and metadata.get("source_relative_path") == relative
+            and metadata.get("source_presence_state", "PRESENT") == "PRESENT"
+        ):
+            return version
+    return None
 
 
 def _version_bytes(version: DocumentVersion) -> bytes | None:
