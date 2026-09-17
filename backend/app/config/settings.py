@@ -115,6 +115,11 @@ class Settings(BaseSettings):
     ai_external_inference_enabled: bool = False
     ai_d4_commissioning_id: str = ""
     ai_real_content_allowed: bool = False
+    # Proposal V1 has a separate commissioning switch for source content.
+    # This does not relax the global D3 synthetic contract or any other AI
+    # skill; it is consumed only by the BD_PROPOSAL runtime after Entra,
+    # scope, sensitivity and audit checks have passed.
+    ai_proposal_real_content_allowed: bool = False
     ai_azure_openai_endpoint: str = ""
     ai_azure_openai_deployment: str = "d3-gpt54mini-20260317"
     ai_azure_openai_expected_model: str = "gpt-5.4-mini"
@@ -225,10 +230,12 @@ class Settings(BaseSettings):
         if not self.ai_d4_commissioning_id.strip():
             raise ValueError("AI_D4_COMMISSIONING_ID is required when external inference is enabled")
         # Production is a mixed-data environment.  Synthetic safety is an
-        # execution-scoped property proven by the compiled context, not an
-        # environment-wide switch.  Real-data inference remains disabled.
+        # execution-scoped property.  The only commissioned real-content
+        # exception is Proposal V1, which has its own explicit control and
+        # remains subject to the Proposal skill policy and source sensitivity
+        # checks.
         if self.real_data_allowed or self.ai_real_content_allowed:
-            raise ValueError("D4 external inference requires real-content=false")
+            raise ValueError("D4 external inference requires global real-content=false")
         for setting_name, value in (
             ("AI_UAMI_CLIENT_ID", self.ai_uami_client_id),
             ("AI_UAMI_PRINCIPAL_ID", self.ai_uami_principal_id),

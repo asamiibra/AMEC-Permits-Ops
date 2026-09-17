@@ -279,6 +279,28 @@ class ProposalSectionDraft(BaseModel):
     draft_only: Literal[True] = True
 
 
+class ProposalDocumentMutation(BaseModel):
+    """One anchored, source-cited replacement in the selected baseline DOCX."""
+
+    model_config = ConfigDict(extra="forbid", strict=True)
+    anchor: str = Field(min_length=1, max_length=240)
+    expected_xml_hash: str = Field(min_length=64, max_length=64)
+    replacement: str = Field(max_length=2000)
+    reason: str = Field(min_length=1, max_length=1000)
+    citation_keys: list[str] = Field(min_length=1, max_length=16)
+
+
+class ProposalDocumentChangePlan(BaseModel):
+    """AI proposal for applying source-grounded edits to an existing DOCX."""
+
+    model_config = ConfigDict(extra="forbid", strict=True)
+    summary: str = Field(min_length=1, max_length=4000)
+    baseline_document_version_id: str = Field(min_length=1, max_length=36)
+    mutations: list[ProposalDocumentMutation] = Field(default_factory=list, max_length=80)
+    citation_keys: list[str] = Field(min_length=1, max_length=30)
+    draft_only: Literal[True] = True
+
+
 class ProposalCommercialVariance(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
     field: str = Field(min_length=1, max_length=160)
@@ -476,6 +498,11 @@ PROPOSAL_REQUIREMENT_EVIDENCE_ANALYSIS_OUTPUT = StructuredOutputDefinition(
 PROPOSAL_SECTION_DRAFT_OUTPUT = StructuredOutputDefinition(
     schema_name="proposal_section_draft", schema_version="1", output_class="DRAFT",
     provider_schema=_strict_schema(ProposalSectionDraft), validator=lambda value: _validate_proposal(ProposalSectionDraft, value),
+    citation_keys=_proposal_citation_keys, requires_grounding=True,
+)
+PROPOSAL_DOCUMENT_CHANGE_PLAN_OUTPUT = StructuredOutputDefinition(
+    schema_name="proposal_document_change_plan", schema_version="1", output_class="DRAFT",
+    provider_schema=_strict_schema(ProposalDocumentChangePlan), validator=lambda value: _validate_proposal(ProposalDocumentChangePlan, value),
     citation_keys=_proposal_citation_keys, requires_grounding=True,
 )
 PROPOSAL_COMMERCIAL_CONSISTENCY_REVIEW_OUTPUT = StructuredOutputDefinition(

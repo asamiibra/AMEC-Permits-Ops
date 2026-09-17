@@ -938,10 +938,14 @@ async def _register_source_content(*, proposal: Opportunity, request: Request, s
         db.flush()
     document = db.scalar(select(Document).where(Document.logical_name == f"{proposal.opportunity_reference}:{source_type}:{digest}"))
     if not document and production_document is None:
+        local_fixture_metadata = {
+            "synthetic_only": True,
+            "sensitivity_class": "SYNTHETIC",
+        } if app_settings().synthetic_only else {}
         document = Document(project_id=proposal.project_id, document_type=DocumentType.OTHER, logical_name=f"{proposal.opportunity_reference}:{source_type}:{digest}", language="EN", source_system="PROPOSAL_INTAKE", current_version_id=None)
         db.add(document)
         db.flush()
-        version = DocumentVersion(document_id=document.id, version_number=1, source_filename=result["source_filename"], source_path_or_reference=result["sor_path"], sha256=digest, mime_type=content_type, file_size=len(content), language="EN", revision_label=source_revision, approval_state=DocumentApprovalState.WORKING, source_system="PROPOSAL_INTAKE")
+        version = DocumentVersion(document_id=document.id, version_number=1, source_filename=result["source_filename"], source_path_or_reference=result["sor_path"], sha256=digest, mime_type=content_type, file_size=len(content), language="EN", revision_label=source_revision, approval_state=DocumentApprovalState.WORKING, source_system="PROPOSAL_INTAKE", metadata_json=local_fixture_metadata)
         db.add(version)
         db.flush()
         document.current_version_id = version.id
@@ -952,7 +956,11 @@ async def _register_source_content(*, proposal: Opportunity, request: Request, s
         version = db.scalar(select(DocumentVersion).where(DocumentVersion.document_id == document.id, DocumentVersion.sha256 == digest))
         if not version:
             next_version = (db.scalar(select(DocumentVersion.version_number).where(DocumentVersion.document_id == document.id).order_by(DocumentVersion.version_number.desc())) or 0) + 1
-            version = DocumentVersion(document_id=document.id, version_number=next_version, source_filename=result["source_filename"], source_path_or_reference=result["sor_path"], sha256=digest, mime_type=content_type, file_size=len(content), language="EN", revision_label=source_revision, approval_state=DocumentApprovalState.WORKING, source_system="PROPOSAL_INTAKE")
+            local_fixture_metadata = {
+                "synthetic_only": True,
+                "sensitivity_class": "SYNTHETIC",
+            } if app_settings().synthetic_only else {}
+            version = DocumentVersion(document_id=document.id, version_number=next_version, source_filename=result["source_filename"], source_path_or_reference=result["sor_path"], sha256=digest, mime_type=content_type, file_size=len(content), language="EN", revision_label=source_revision, approval_state=DocumentApprovalState.WORKING, source_system="PROPOSAL_INTAKE", metadata_json=local_fixture_metadata)
             db.add(version)
             db.flush()
             document.current_version_id = version.id

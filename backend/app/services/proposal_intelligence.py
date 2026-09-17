@@ -11,7 +11,7 @@ from sqlalchemy import select, true
 from sqlalchemy.orm import Session, sessionmaker
 
 from backend.app.ai.provider import AIProviderRequest, AIProviderResult, AIProviderUsage
-from backend.app.ai.skill_registry import PROPOSAL_SKILLS, SkillDefinition
+from backend.app.ai.skill_registry import PROPOSAL_GENERATION_SKILLS, PROPOSAL_SKILLS, SkillDefinition
 from backend.app.ai.skill_runtime import RuntimeDependencies, SkillExecutionRequest, SkillRuntime
 from backend.app.api.dependencies import AuthenticatedPrincipal
 from backend.app.config.settings import Settings
@@ -50,11 +50,12 @@ OPERATION_TO_SKILL = {
     "commercial-consistency-review": "proposal.commercial-consistency-review",
     "lpo-variance-analysis": "proposal.lpo-variance-analysis",
     "handoff-preflight": "proposal.handoff-preflight",
+    "document-change-plan": "proposal.document-change-plan",
     "intake-analysis": "proposal.tender-intake-analysis",
     "scope-technical-analysis": "proposal.section-draft",
     "readiness-explanation": "proposal.handoff-preflight",
 }
-_SKILLS = {item.manifest.skill_id: item for item in PROPOSAL_SKILLS}
+_SKILLS = {item.manifest.skill_id: item for item in (*PROPOSAL_SKILLS, *PROPOSAL_GENERATION_SKILLS)}
 _REVIEW_PERSONA_BY_SKILL = {
     "proposal.tender-intake-analysis": "BUSINESS_DEVELOPMENT",
     "proposal.requirement-evidence-analysis": "BUSINESS_DEVELOPMENT",
@@ -62,6 +63,7 @@ _REVIEW_PERSONA_BY_SKILL = {
     "proposal.commercial-consistency-review": "BUSINESS_DEVELOPMENT",
     "proposal.lpo-variance-analysis": "BUSINESS_DEVELOPMENT",
     "proposal.handoff-preflight": "BUSINESS_DEVELOPMENT",
+    "proposal.document-change-plan": "BUSINESS_DEVELOPMENT",
 }
 
 
@@ -236,6 +238,50 @@ class ProposalDeterministicProvider:
             payload = {"summary": "Synthetic commercial consistency review; disposition remains human-owned.", "variances": [], "open_questions": [], "citation_keys": citation}
         elif name == "proposal_lpo_variance_analysis":
             payload = {"summary": "Synthetic typed LPO comparison; no adjudication performed.", "accepted_revision_id": projection.get("accepted_revision_id", "unresolved"), "lpo_evidence_id": projection.get("lpo_evidence_id"), "differences": [], "citation_keys": citation}
+        elif name == "proposal_document_change_plan":
+            baseline = next((entry for entry in context if entry.get("context_type") == "DOCUMENT_VERSION" and entry.get("projection", {}).get("editable_blocks")), None)
+            baseline_projection = baseline.get("projection", {}) if baseline else {}
+            baseline_id = str(baseline_projection.get("document_version_id", "unresolved"))
+            blocks = baseline_projection.get("editable_blocks", [])
+            mutations = []
+            replacements = {
+                "AMEC-P-D-2026-Q-498 Rev 01": "AMEC-P-D-2026-Q-454 Rev 01",
+                "Project: The Ethiopian Orthodox Church": "Project: Al Watan Center",
+                "Client Name: The Ethiopian Orthodox Church": "Client Name: Al Watan Center",
+                "Scope: Reviewing and addressing the authorities' comments required to secure the DC2 approval for the Fire Fighting discipline": "Scope: Needs Owner Review",
+                "Commercial value: QAR 40,000 (discounted QAR 36,000)": "Commercial value: Needs Owner Review",
+                "Duration: 3 months": "Duration: Needs Owner Review",
+            }
+            for block in blocks:
+                value = str(block.get("value", ""))
+                replacement = next((new for old, new in replacements.items() if old in value), None)
+                # The baseline can be a real Owner DOCX with wording that
+                # differs from the synthetic fixture. Project-specific
+                # commercial/schedule/scope rows are never copied when the
+                # selected source set does not establish them.
+                if replacement is None:
+                    if value.startswith("Scope:"):
+                        replacement = "Scope: Needs Owner Review"
+                    elif value.startswith("Commercial value:"):
+                        replacement = "Commercial value: Needs Owner Review"
+                    elif value.startswith("Duration:"):
+                        replacement = "Duration: Needs Owner Review"
+                if replacement is None:
+                    continue
+                mutations.append({
+                    "anchor": block["anchor"],
+                    "expected_xml_hash": block["expected_xml_hash"],
+                    "replacement": replacement,
+                    "reason": "Replace baseline placeholder with the selected Proposal source identity.",
+                    "citation_keys": citation,
+                })
+            payload = {
+                "summary": "Generated source-grounded Proposal revision plan for the selected baseline document.",
+                "baseline_document_version_id": baseline_id,
+                "mutations": mutations,
+                "citation_keys": citation,
+                "draft_only": True,
+            }
         else:
             payload = {"summary": "Synthetic governed Contract handoff preflight explanation.", "deterministic_state": "UNKNOWN", "deterministic_blockers": [], "candidate_issues": [], "next_permissible_human_actions": ["Review the preflight inside the Proposal workspace."], "citation_keys": citation}
         return AIProviderResult(f"synthetic-proposal-{name}", payload, AIProviderUsage(1, 1, 2))

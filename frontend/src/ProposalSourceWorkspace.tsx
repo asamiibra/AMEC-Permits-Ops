@@ -61,9 +61,24 @@ export function ProposalSourceWorkspace({ role = "OWNER_SPONSOR", onBack, onOpen
       const excluded_source_paths = entries.filter((entry) => !entry.is_directory && excludedSources.has(entry.id)).map((entry) => entry.path);
       const source_categories = Object.fromEntries(entries.filter((entry) => !entry.is_directory).map((entry) => [entry.path, categoryOverrides[entry.id] || classify(entry)]));
       const data = await api<{ proposal_id?: string; proposal_reference?: string; editor_ready?: boolean; editor_revision_id?: string; source_count?: number }>("/api/proposals/sources/2026/projects/" + selected + "/create-proposal", { method: "POST", headers: roleHeaders(role), body: JSON.stringify({ excluded_source_paths, source_categories }) });
-      if (data.proposal_id) for (const pending of pendingSources) { const body = new FormData(); body.append("source_type", CATEGORY_DEFS.find((item) => item.key === pending.category)?.sourceType || "TENDER_DOCUMENT"); body.append("logical_category", pending.category); body.append("file", pending.file); await api("/api/bd/proposals/" + data.proposal_id + "/sources", { method: "POST", headers: roleHeaders(role), body }); }
+      let editorReady = data.editor_ready;
+      let editorRevisionId = data.editor_revision_id;
+      if (data.proposal_id) {
+        for (const pending of pendingSources) {
+          const body = new FormData(); body.append("source_type", CATEGORY_DEFS.find((item) => item.key === pending.category)?.sourceType || "TENDER_DOCUMENT"); body.append("logical_category", pending.category); body.append("file", pending.file);
+          await api("/api/bd/proposals/" + data.proposal_id + "/sources", { method: "POST", headers: roleHeaders(role), body });
+        }
+        // Owner-added sources are linked after the JSON promotion request. A
+        // single explicit regeneration makes those files part of the exact AI
+        // context before the editor opens.
+        if (pendingSources.length) {
+          const regenerated = await api<{ editor_ready?: boolean; editor_revision_id?: string }>("/api/proposals/sources/proposals/" + data.proposal_id + "/regenerate", { method: "POST", headers: roleHeaders(role) });
+          editorReady = regenerated.editor_ready;
+          editorRevisionId = regenerated.editor_revision_id;
+        }
+      }
       setPendingSources([]); setCreatedProposal(data.proposal_reference || data.proposal_id || "created"); setMessage("Proposal created from " + (data.source_count || 0) + " included Synology source files" + (pendingSources.length ? " and " + pendingSources.length + " Owner source(s)." : "."));
-      if (data.editor_ready && data.proposal_id && data.editor_revision_id && onOpenEditor) onOpenEditor(data.proposal_id, data.editor_revision_id);
+      if (editorReady && data.proposal_id && editorRevisionId && onOpenEditor) onOpenEditor(data.proposal_id, editorRevisionId);
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Proposal creation failed."); }
   };
   const addPendingSource = () => { const file = fileInput.current?.files?.[0]; if (!file) return; setPendingSources((current) => [...current, { file, category: sourceCategory }]); if (fileInput.current) fileInput.current.value = ""; setMessage(file.name + " staged as an Owner source. It will be linked when you create the Proposal."); };

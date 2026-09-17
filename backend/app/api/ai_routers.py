@@ -47,6 +47,7 @@ def runtime_status(
         "synthetic_only": settings.synthetic_only,
         "real_data_allowed": settings.real_data_allowed,
         "ai_real_content_allowed": settings.ai_real_content_allowed,
+        "ai_proposal_real_content_allowed": settings.ai_proposal_real_content_allowed,
         "authenticated_actor": principal.auth_mode,
     }
 

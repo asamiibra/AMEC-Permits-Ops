@@ -17,6 +17,21 @@ def test_explicit_454_create_proposal_persists_source_set(client):
     assert payload["editor_ready"] is True
     assert payload["editor_revision_id"]
     assert payload["editor_baseline_hash"]
+    assert payload["ai_generation"]["status"] == "SUCCEEDED"
+    assert payload["ai_generation"]["mutation_count"] >= 1
+    generated = client.get(
+        f"/api/proposals-v1/editor/proposals/{payload['proposal_id']}/revisions/{payload['editor_revision_id']}/document",
+        headers={"X-Dev-Role": "SYSTEM_ADMIN"},
+    )
+    assert generated.status_code == 200
+    from backend.app.services.proposal_document_package import document_map
+    generated_text = "\n".join(block.text for block in document_map(generated.content))
+    assert "Q-498" not in generated_text
+    assert "Al Watan Center" in generated_text
+    assert "QAR 40,000" not in generated_text
+    assert "discounted QAR 36,000" not in generated_text
+    assert "Duration: 3 months" not in generated_text
+    assert "Needs Owner Review" in generated_text
 
 
 def test_source_create_applies_owner_exclusions_without_mutating_synology(client):
@@ -118,6 +133,42 @@ def test_source_create_seeds_canonical_editor_and_owner_save_roundtrip(client):
     assert reopened.status_code == 200, reopened.text
     reopened_model = reopened.json()["editor_model"]
     assert any("Q-454" in node["text"] and "Al Watan Center" in node["text"] for node in reopened_model["nodes"])
+
+
+def test_owner_added_source_is_read_back_and_regenerates_ai_revision(client):
+    headers = {"X-Dev-Role": "SYSTEM_ADMIN"}
+    created = client.post(
+        "/api/proposals/sources/2026/projects/454/create-proposal",
+        headers=headers,
+    )
+    assert created.status_code == 200, created.text
+    proposal_id = created.json()["proposal_id"]
+    owner_source = b"OWNER REVIEW: confirm the tender programme and client contact before issue.\n"
+    added = client.post(
+        f"/api/bd/proposals/{proposal_id}/sources",
+        headers=headers,
+        files={"file": ("owner-review.txt", owner_source, "text/plain")},
+        data={"source_type": "TENDER_DOCUMENT", "logical_category": "TENDER_DOCUMENTS"},
+    )
+    assert added.status_code == 200, added.text
+    source = added.json()["source"]
+    assert source["verification_state"] == "READ_BACK_VERIFIED"
+    source_readback = client.get(
+        f"/api/bd/proposals/{proposal_id}/sources/{source['id']}/content",
+        headers=headers,
+    )
+    assert source_readback.status_code == 200, source_readback.text
+    assert source_readback.content == owner_source
+    regenerated = client.post(
+        f"/api/proposals/sources/proposals/{proposal_id}/regenerate",
+        headers=headers,
+    )
+    assert regenerated.status_code == 200, regenerated.text
+    payload = regenerated.json()
+    assert payload["result"] == "REGENERATED"
+    assert payload["source_count"] == created.json()["source_count"] + 1
+    assert payload["ai_generation"]["status"] == "SUCCEEDED"
+    assert payload["ai_generation"]["mutation_count"] >= 1
 
 
 def test_source_routes_require_authenticated_owner(client):
