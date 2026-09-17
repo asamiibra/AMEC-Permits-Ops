@@ -130,6 +130,10 @@ def test_candidate_is_candidate_only_and_idempotent(db):
     assert first.id == second.id
     assert first.status == "CURRENT"
     assert first.promoted_verified_assertion_id is None
+    first.status = "SUPERSEDED"
+    replay = create_candidate_assertion(db, _candidate_payload())
+    assert replay.id == first.id
+    assert replay.status == "SUPERSEDED"
     with pytest.raises(IntelligenceContractError, match="INTELLIGENCE_IDEMPOTENCY_KEY_REUSE_MISMATCH"):
         create_candidate_assertion(db, {**_candidate_payload(), "value_json": {"value": "11"}})
     with pytest.raises(IntelligenceContractError, match="INTELLIGENCE_PROMOTION_REQUIRES_EXPLICIT_REFERENCE"):
