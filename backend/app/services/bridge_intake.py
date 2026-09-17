@@ -295,7 +295,11 @@ def ingest_bridge_package(db: Session, payload: BridgePackageIn, identity: Bridg
             )
             version = stored.version
         except Exception as exc:
-            raise _error(503, "BRIDGE_CANONICAL_STORAGE_FAILED") from exc
+            # Preserve the fail-closed public error while making the runtime
+            # diagnosis actionable without exposing connection strings,
+            # source bytes, or other secret-bearing exception text.
+            storage_code = getattr(getattr(exc, "code", None), "value", None) or type(exc).__name__
+            raise _error(503, "BRIDGE_CANONICAL_STORAGE_FAILED", storage_error_class=storage_code) from exc
 
     event = Phase4SourceChangeEvent(
         event_id=event_id,
