@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import io
 import json
+from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
@@ -131,6 +132,67 @@ def _captured_bytes(version: DocumentVersion) -> bytes:
     if version.synthetic_content is not None:
         return version.synthetic_content
     raise HTTPException(503, "PROPOSAL_BASELINE_DOCUMENT_UNAVAILABLE")
+
+
+def _ensure_baseline_template(db: Session, proposal: Any) -> DocumentVersion:
+    """Provide the governed AMEC baseline when a live source has no DOCX.
+
+    Synology source folders are not required to contain a prior proposal. The
+    Owner still needs a complete editable document, so the immutable AMEC
+    template is stored once in managed artifact storage and becomes an explicit
+    BASELINE_TEMPLATE source link alongside the live evidence.
+    """
+    existing = db.scalar(
+        select(DocumentVersion)
+        .join(Document, Document.id == DocumentVersion.document_id)
+        .where(
+            Document.project_id == proposal.project_id,
+            Document.source_system == "PROPOSAL_TEMPLATE_BASELINE",
+            DocumentVersion.superseded_by.is_(None),
+        )
+        .order_by(DocumentVersion.ingested_at.desc())
+    )
+    if existing is not None:
+        return existing
+    template_path = Path(__file__).resolve().parents[1] / "fixtures" / "AMEC-P-D-2026-Q-454.docx"
+    try:
+        content = template_path.read_bytes()
+    except OSError as exc:
+        raise HTTPException(503, "PROPOSAL_BASELINE_TEMPLATE_UNAVAILABLE") from exc
+    try:
+        import_editor_model(content)
+    except (DocumentPackageError, ValueError, TypeError) as exc:
+        raise HTTPException(503, "PROPOSAL_BASELINE_TEMPLATE_INVALID") from exc
+    store = create_binary_store()
+    document = Document(
+        project_id=proposal.project_id, document_type=DocumentType.OTHER,
+        logical_name="AMEC Proposal V1 baseline template", language="EN",
+        source_system="PROPOSAL_TEMPLATE_BASELINE",
+    )
+    db.add(document)
+    db.flush()
+    target = StorageTarget(
+        store.provider_id,
+        getattr(getattr(store, "config", None), "container", None)
+        or getattr(getattr(store, "config", None), "share", "synthetic"),
+        f"proposal-templates/{proposal.project_id}",
+    )
+    stored = DocumentStorageService(store).store_version(
+        db, document=document, content=content,
+        filename="AMEC-P-D-2026-Q-454.docx",
+        mime_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        target=target, actor="proposal-template",
+        correlation_id=f"proposal-template:{proposal.project_id}",
+        idempotency_key=f"proposal-template:{proposal.project_id}",
+        source_system="PROPOSAL_TEMPLATE_BASELINE",
+        metadata={
+            "template_baseline": True,
+            "sensitivity_class": "INTERNAL",
+            "source_presence_state": "PRESENT",
+            "template_name": "AMEC Proposal V1 baseline",
+        },
+    )
+    return stored.version
 
 
 def _generate_proposal_revision(
@@ -286,7 +348,10 @@ def create_proposal_from_source_workspace(
     # compiler can prove that the entity and its captured evidence belong to
     # the same non-business fixture boundary. Production/live captures stay
     # NON_SYNTHETIC and remain fail-closed until governed data is configured.
-    if get_settings().synthetic_only:
+    if (
+        get_settings().synthetic_only
+        and get_settings().app_env.upper() in {"TEST", "DEV", "DEVELOPMENT"}
+    ):
         item.fixture_classification = "SYNTHETIC_OWNER_TEST"
     versions = db.scalars(select(DocumentVersion).where(DocumentVersion.metadata_json["source_project_number"].as_integer() == number).order_by(DocumentVersion.ingested_at)).all()
     excluded_paths = {path.strip() for path in (payload.excluded_source_paths if payload else []) if path and path.strip()}
@@ -298,6 +363,14 @@ def create_proposal_from_source_workspace(
         version for version in versions
         if (version.metadata_json or {}).get("source_relative_path") not in excluded_paths
     ]
+    settings = get_settings()
+    # Synthetic TEST/DEV fixtures retain their historical explicit blocker;
+    # the managed template fallback is for the live governed bridge only.
+    if (
+        not any((version.source_filename or "").lower().endswith(".docx") for version in selected_versions)
+        and not (settings.synthetic_only and settings.app_env.upper() in {"TEST", "DEV", "DEVELOPMENT"})
+    ):
+        selected_versions.append(_ensure_baseline_template(db, item))
     # Promotion is idempotent. If an Owner repeats it after excluding a file,
     # deactivate the existing Proposal link while leaving the immutable
     # captured source and Synology untouched.
@@ -309,16 +382,20 @@ def create_proposal_from_source_workspace(
     hashes: list[str] = []
     for version in selected_versions:
         hashes.append(version.sha256)
-        evidence = db.scalar(select(ProposalSourceEvidence).where(ProposalSourceEvidence.proposal_id == item.id, ProposalSourceEvidence.source_type == "SYNOLOGY_FILE", ProposalSourceEvidence.content_hash == version.sha256))
+        metadata = version.metadata_json or {}
+        relative_path = metadata.get("source_relative_path")
+        is_template = bool(metadata.get("template_baseline"))
+        source_type = "PROPOSAL_TEMPLATE" if is_template else "SYNOLOGY_FILE"
+        source_role = "BASELINE_TEMPLATE" if is_template else "SOURCE_WORKSPACE"
+        evidence = db.scalar(select(ProposalSourceEvidence).where(ProposalSourceEvidence.proposal_id == item.id, ProposalSourceEvidence.source_type == source_type, ProposalSourceEvidence.content_hash == version.sha256))
         if not evidence:
-            relative_path = (version.metadata_json or {}).get("source_relative_path")
-            logical_category = requested_categories.get(relative_path, "OTHER_UNCLASSIFIED")
-            evidence = ProposalSourceEvidence(proposal_id=item.id, source_type="SYNOLOGY_FILE", source_filename=version.source_filename, source_reference=version.source_path_or_reference, content_hash=version.sha256, content_type=version.mime_type, provenance={"kind": "synology_source_workspace", "relative_path": relative_path, "logical_category": logical_category, "document_version_id": version.id, "verification": "READ_BACK_VERIFIED"}, status="CURRENT", verification_state="READ_BACK_VERIFIED", created_by="source-create-proposal")
+            logical_category = "BASELINE_TEMPLATE" if is_template else requested_categories.get(relative_path, "OTHER_UNCLASSIFIED")
+            evidence = ProposalSourceEvidence(proposal_id=item.id, source_type=source_type, source_filename=version.source_filename, source_reference=version.source_path_or_reference, content_hash=version.sha256, content_type=version.mime_type, provenance={"kind": "proposal_baseline_template" if is_template else "synology_source_workspace", "relative_path": relative_path, "logical_category": logical_category, "document_version_id": version.id, "verification": "READ_BACK_VERIFIED"}, status="CURRENT", verification_state="READ_BACK_VERIFIED", created_by="source-create-proposal")
             db.add(evidence)
             db.flush()
-        linked = db.scalar(select(ProposalSourceLink).where(ProposalSourceLink.proposal_id == item.id, ProposalSourceLink.document_version_id == version.id, ProposalSourceLink.source_role == "SOURCE_WORKSPACE"))
+        linked = db.scalar(select(ProposalSourceLink).where(ProposalSourceLink.proposal_id == item.id, ProposalSourceLink.document_version_id == version.id, ProposalSourceLink.source_role == source_role))
         if not linked:
-            db.add(ProposalSourceLink(proposal_id=item.id, source_evidence_id=evidence.id, document_id=version.document_id, document_version_id=version.id, source_role="SOURCE_WORKSPACE", added_by="source-create-proposal"))
+            db.add(ProposalSourceLink(proposal_id=item.id, source_evidence_id=evidence.id, document_id=version.document_id, document_version_id=version.id, source_role=source_role, added_by="source-create-proposal"))
         elif not linked.active:
             linked.active = True
             linked.source_evidence_id = evidence.id
