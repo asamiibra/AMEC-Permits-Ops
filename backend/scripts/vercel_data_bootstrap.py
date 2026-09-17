@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 
 from alembic import command
 from alembic.config import Config
-from sqlalchemy import func, inspect, select
+from sqlalchemy import func, inspect, select, text
 
 
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
@@ -82,7 +82,21 @@ def ensure_current_schema() -> str:
         # tables, then stamp the active head without touching existing data.
         if set(versions) & {"0058_source_intake_ledger", "0059_entra_user_identity"}:
             Base.metadata.create_all(bind=engine, checkfirst=True)
-            command.stamp(config, "head")
+            # Alembic cannot run ``stamp`` while the current database row
+            # names a revision that is intentionally absent from the active
+            # graph. Resolve the repository head independently and replace
+            # only the version marker in one transaction.
+            from alembic.script import ScriptDirectory
+
+            heads = tuple(sorted(ScriptDirectory.from_config(config).get_heads()))
+            if len(heads) != 1:
+                raise RuntimeError(f"Expected one active migration head, found {heads or 'NONE'}")
+            with engine.begin() as connection:
+                connection.execute(text("delete from alembic_version"))
+                connection.execute(
+                    text("insert into alembic_version (version_num) values (:version)"),
+                    {"version": heads[0]},
+                )
             return "stamp_head_legacy_r13"
         # Alembic is the sole schema authority for a versioned database.  Do
         # not pre-create ORM tables here: doing so can race the migration that
