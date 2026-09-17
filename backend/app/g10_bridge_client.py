@@ -591,12 +591,22 @@ def sync_live_once(reader: QatarSynologySourceReader) -> dict[str, object]:
             payload = payload.model_copy(
                 update={"signature_b64": base64.b64encode(private_key.sign(canonical_signature_payload(payload))).decode()}
             )
-            response = httpx.post(
-                os.environ["G10_API_URL"].rstrip("/") + "/api/source-intake/bridge/packages",
-                headers={"Authorization": f"Bearer {token}"},
-                json=payload.model_dump(),
-                timeout=30,
-            )
+            response = None
+            # Scheduled ACA executions can overlap a long source walk.  A
+            # short retry makes a transient storage/DB 503 converge on the
+            # same signed idempotency key instead of abandoning the entire
+            # pass; permanent 4xx responses still fail closed below.
+            for post_attempt in range(3):
+                response = httpx.post(
+                    os.environ["G10_API_URL"].rstrip("/") + "/api/source-intake/bridge/packages",
+                    headers={"Authorization": f"Bearer {token}"},
+                    json=payload.model_dump(),
+                    timeout=30,
+                )
+                if response.status_code not in {502, 503, 504} or post_attempt == 2:
+                    break
+                time.sleep(2 ** post_attempt)
+            assert response is not None
             if response.status_code >= 400:
                 # Keep bridge logs useful without ever logging package bytes,
                 # credentials, bearer tokens, or Synology paths.
