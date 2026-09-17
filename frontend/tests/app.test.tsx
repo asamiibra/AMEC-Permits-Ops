@@ -14,7 +14,7 @@ describe("ProposalOps shell", () => {
     expect(screen.getByRole("heading", { name: "Keep work moving from source to cash." })).toBeTruthy();
     expect(screen.getAllByTestId("home-module-card")).toHaveLength(3);
     expect(screen.getByRole("button", { name: "Home" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Proposals" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Proposals V1" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Contracts" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Billing" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Content Library" })).toBeTruthy();
