@@ -6,6 +6,8 @@
 .nav-item.active { background: #1f506d; color: #fff; box-shadow: inset 3px 0 #8bddd2; }
 .nav-icon { display: inline-grid; width: 22px; height: 22px; place-items: center; color: #86cfc5; flex: 0 0 22px; }
 .nav-item.active .nav-icon { color: #b5f0e8; }
+.nav-label { display: flex; flex-direction: column; gap: 1px; }
+.nav-label small { color: #8bddd2; font-size: 9px; letter-spacing: .08em; font-weight: 800; }
 .lock { display: inline-grid; place-items: center; }
 .mobile-nav-trigger, .mobile-nav-close { display: inline-flex; align-items: center; justify-content: center; }
 .mobile-nav-trigger::before { content: none; }

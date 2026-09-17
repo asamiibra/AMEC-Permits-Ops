@@ -19,6 +19,21 @@ def test_explicit_454_create_proposal_persists_source_set(client):
     assert payload["editor_baseline_hash"]
 
 
+def test_source_create_applies_owner_exclusions_without_mutating_synology(client):
+    entries = tree(454)["entries"]
+    excluded = next(entry for entry in entries if not entry["is_directory"])
+    response = client.post(
+        "/api/proposals/sources/2026/projects/454/create-proposal",
+        headers={"X-Dev-Role": "SYSTEM_ADMIN"},
+        json={"excluded_source_paths": [excluded["path"]]},
+    )
+    assert response.status_code == 200, response.text
+    payload = response.json()
+    assert payload["source_count"] == 12
+    assert payload["excluded_source_count"] == 1
+    assert payload["capture"]["synology_write_count"] == 0
+
+
 def test_source_create_seeds_canonical_editor_and_owner_save_roundtrip(client):
     created = client.post(
         "/api/proposals/sources/2026/projects/454/create-proposal",

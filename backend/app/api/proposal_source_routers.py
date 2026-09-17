@@ -5,8 +5,9 @@ import hashlib
 import io
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Body, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
+from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -21,6 +22,12 @@ from .bd_proposal_routers import ProposalCreate, _create_proposal_record
 router = APIRouter(prefix="/api/proposals/sources", tags=["proposal-source-workspace"])
 source_role = require_roles(Role.OWNER_SPONSOR, Role.PROCESS_CHAMPION, Role.RESPONSIBLE_ENGINEER, Role.SYSTEM_ADMIN)
 create_role = require_roles(Role.OWNER_SPONSOR, Role.PROCESS_CHAMPION, Role.SYSTEM_ADMIN)
+
+
+class SourceProposalCreatePayload(BaseModel):
+    """Owner choices applied when promoting a synced source project."""
+
+    excluded_source_paths: list[str] = Field(default_factory=list)
 
 
 def _entry(number: int, file_id: str, db: Session) -> dict[str, Any]:
@@ -101,7 +108,13 @@ def sync_sources(_: Role = Depends(source_role), db: Session = Depends(get_db)):
 
 
 @router.post("/2026/projects/{number}/create-proposal")
-def create_proposal_from_source_workspace(number: int, request: Request, db: Session = Depends(get_db), role: Role = Depends(create_role)):
+def create_proposal_from_source_workspace(
+    number: int,
+    request: Request,
+    payload: SourceProposalCreatePayload | None = Body(default=None),
+    db: Session = Depends(get_db),
+    role: Role = Depends(create_role),
+):
     """Create one canonical Proposal from the explicitly selected pilot."""
     if number != 454:
         raise HTTPException(409, "PROJECT_NOT_READY_FOR_PROPOSAL")
@@ -115,8 +128,21 @@ def create_proposal_from_source_workspace(number: int, request: Request, db: Ses
     if get_settings().synthetic_only:
         item.fixture_classification = "SYNTHETIC_OWNER_TEST"
     versions = db.scalars(select(DocumentVersion).where(DocumentVersion.metadata_json["source_project_number"].as_integer() == number).order_by(DocumentVersion.ingested_at)).all()
+    excluded_paths = {path.strip() for path in (payload.excluded_source_paths if payload else []) if path and path.strip()}
+    selected_versions = [
+        version for version in versions
+        if (version.metadata_json or {}).get("source_relative_path") not in excluded_paths
+    ]
+    # Promotion is idempotent. If an Owner repeats it after excluding a file,
+    # deactivate the existing Proposal link while leaving the immutable
+    # captured source and Synology untouched.
+    if excluded_paths:
+        for link in db.scalars(select(ProposalSourceLink).where(ProposalSourceLink.proposal_id == item.id, ProposalSourceLink.source_role == "SOURCE_WORKSPACE", ProposalSourceLink.active == True)):  # noqa: E712
+            linked_version = next((version for version in versions if version.id == link.document_version_id), None)
+            if linked_version and (linked_version.metadata_json or {}).get("source_relative_path") in excluded_paths:
+                link.active = False
     hashes: list[str] = []
-    for version in versions:
+    for version in selected_versions:
         hashes.append(version.sha256)
         evidence = db.scalar(select(ProposalSourceEvidence).where(ProposalSourceEvidence.proposal_id == item.id, ProposalSourceEvidence.source_type == "SYNOLOGY_FILE", ProposalSourceEvidence.content_hash == version.sha256))
         if not evidence:
@@ -127,7 +153,7 @@ def create_proposal_from_source_workspace(number: int, request: Request, db: Ses
         if not linked:
             db.add(ProposalSourceLink(proposal_id=item.id, source_evidence_id=evidence.id, document_id=version.document_id, document_version_id=version.id, source_role="SOURCE_WORKSPACE", added_by="source-create-proposal"))
     source_set_hash = hashlib.sha256("".join(sorted(hashes)).encode()).hexdigest()
-    item.proposal_fields_json = {**(item.proposal_fields_json or {}), "source_workspace": {"logical_root": LOGICAL_ROOT, "project_number": number, "source_set_hash": source_set_hash, "captured_count": run["captured_count"]}}
-    editor = ensure_editor_revision(db, item, versions, source_set_hash=source_set_hash, actor="source-create-proposal")
+    item.proposal_fields_json = {**(item.proposal_fields_json or {}), "source_workspace": {"logical_root": LOGICAL_ROOT, "project_number": number, "source_set_hash": source_set_hash, "captured_count": run["captured_count"], "selected_count": len(selected_versions), "excluded_source_paths": sorted(excluded_paths)}}
+    editor = ensure_editor_revision(db, item, selected_versions, source_set_hash=source_set_hash, actor="source-create-proposal")
     db.commit()
-    return {"result": "CREATED", "proposal_id": item.id, "proposal_reference": item.opportunity_reference, "source_set_hash": source_set_hash, "source_count": len(versions), "capture": run, **editor}
+    return {"result": "CREATED", "proposal_id": item.id, "proposal_reference": item.opportunity_reference, "source_set_hash": source_set_hash, "source_count": len(selected_versions), "excluded_source_count": len(excluded_paths), "capture": run, **editor}

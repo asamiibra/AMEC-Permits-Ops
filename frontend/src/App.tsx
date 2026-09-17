@@ -162,7 +162,9 @@ export default function App() {
   };
 
   const visibleNavigation = getPrimaryNavigation(role);
-  const title = visibleNavigation.find((item) => item.page === page)?.label || "Home";
+  const title = page === "opportunities" && window.location.pathname.startsWith("/proposals")
+    ? "Proposals V1"
+    : visibleNavigation.find((item) => item.page === page)?.label || "Home";
   const moduleRole = role as DemoRole;
   const displayName = authSession?.identity.display_name?.trim() || accountIdentity?.displayName?.trim() || "";
   const preferredUsername = authSession?.identity.preferred_username?.trim() || accountIdentity?.preferredUsername?.trim() || "";
@@ -227,7 +229,7 @@ export default function App() {
                 onClick={() => navigate(item.id)}
               >
                 <span className="nav-icon"><Icon name={item.icon} size={18} /></span>
-                <span>{item.label}</span>
+                <span className="nav-label"><span>{item.label}</span>{item.id === "opportunity" && <small>Proposals V1</small>}</span>
               </button>
             </div>
           ))}
@@ -259,7 +261,7 @@ export default function App() {
                       onClick={() => navigate(item.id)}
                     >
                       <span className="nav-icon"><Icon name={item.icon} size={18} /></span>
-                      <span>{item.label}</span>
+                      <span className="nav-label"><span>{item.label}</span>{item.id === "opportunity" && <small>Proposals V1</small>}</span>
                     </button>
                   </div>
                 ))}

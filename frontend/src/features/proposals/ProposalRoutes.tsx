@@ -41,5 +41,5 @@ export function ProposalRoutes({ role }: { role: ProposalRole }) {
   if (path === "/proposals/sources") return <ProposalSourceWorkspace role={role} onBack={() => navigate("/proposals")} onOpenEditor={(proposalId, revisionId) => navigate(`/proposals/${proposalId}/editor?revision=${encodeURIComponent(revisionId)}`)} />;
   if (editorMatch) return <ProposalDocumentEditor role={role} proposalId={editorMatch[1]} revisionId={new URLSearchParams(window.location.search).get("revision") || undefined} onBack={() => navigate(`/proposals/${editorMatch[1]}`)} />;
   if (match) return <ProposalWorkspacePage role={role} proposalId={match[1]} onBack={() => navigate("/proposals")} />;
-  return <ProposalRegisterPage role={role} onOpen={(id) => navigate(`/proposals/${id}`)} onNew={() => navigate("/proposals/new")} />;
+  return <ProposalRegisterPage role={role} onOpen={(id) => navigate(`/proposals/${id}`)} onNew={() => navigate("/proposals/new")} onOpenDraft={(number) => navigate(`/proposals/sources?project=${number}`)} />;
 }
