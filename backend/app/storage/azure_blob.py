@@ -62,6 +62,29 @@ class AzureBlobBinaryStore(BinaryStorePort):
     def _blob(self, relative_path: str):
         return self._container.get_blob_client(normalize_relative_path(relative_path))
 
+    def _legacy_unicode_blob(self, relative_path: str):
+        """Resolve locators written through legacy non-Unicode SQL columns.
+
+        Older Azure SQL deployments persisted ``source_path_or_reference`` as
+        VARCHAR.  A Unicode filename was therefore stored as question marks
+        in the locator, although the immutable Blob was uploaded with its
+        original Unicode name.  The document/version directory is unique, so
+        resolving the sole Blob directly beneath that directory repairs reads
+        without changing the recorded locator or weakening hash verification.
+        """
+        prefix = normalize_relative_path(relative_path).rsplit("/", 1)[0].rstrip("/") + "/"
+        try:
+            candidates = [
+                blob.name
+                for blob in self._container.list_blobs(name_starts_with=prefix)
+                if blob.name.count("/") == prefix.rstrip("/").count("/") + 1
+            ]
+        except Exception:
+            return None
+        if len(candidates) != 1:
+            return None
+        return self._blob(candidates[0])
+
     @staticmethod
     def _map_error(exc: Exception, message: str = "Azure Blob operation failed") -> StorageError:
         status = getattr(exc, "status_code", None)
@@ -100,7 +123,16 @@ class AzureBlobBinaryStore(BinaryStorePort):
             stream = self._blob(locator.relative_path).download_blob(offset=offset, length=length)
             return io.BytesIO(stream.readall())
         except Exception as exc:
-            raise self._map_error(exc, "Azure Blob read failed") from exc
+            mapped = self._map_error(exc, "Azure Blob read failed")
+            if mapped.code == StorageErrorCode.OBJECT_NOT_FOUND:
+                fallback = self._legacy_unicode_blob(locator.relative_path)
+                if fallback is not None:
+                    try:
+                        stream = fallback.download_blob(offset=offset, length=length)
+                        return io.BytesIO(stream.readall())
+                    except Exception as fallback_exc:
+                        raise self._map_error(fallback_exc, "Azure Blob read failed") from fallback_exc
+            raise mapped from exc
 
     def write_temporary(self, target: StorageTarget, content: BinaryIO, *, operation_id: str, expected_size: int, expected_sha256: str) -> TemporaryObject:
         relative = f"{target.relative_path.rstrip('/')}/.proposalops/tmp/.uploading-{operation_id}"
