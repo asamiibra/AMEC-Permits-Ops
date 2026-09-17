@@ -286,7 +286,10 @@ def ingest_bridge_package(db: Session, payload: BridgePackageIn, identity: Bridg
                 filename=payload.source_filename,
                 mime_type=payload.mime_type,
                 target=StorageTarget(store.provider_id, share_id, f"proposal-sources/{payload.project_id}"),
-                actor=f"bridge:{identity.object_id}",
+                # AuditEvent.actor_id is a UUID-sized column.  Keep the
+                # authenticated machine object id as the actor identity and
+                # carry the bridge context in the event type/metadata.
+                actor=identity.object_id,
                 correlation_id=payload.correlation_id,
                 idempotency_key=f"bridge-source:{payload.source_path_snapshot}:{package_sha256}",
                 source_system="QATAR_SOURCE_INTAKE_BRIDGE",
@@ -421,7 +424,7 @@ def ingest_bridge_package(db: Session, payload: BridgePackageIn, identity: Bridg
         event_type="G10_BRIDGE_PACKAGE_ACCEPTED",
         entity_type="Phase4SourceChangeEvent",
         entity_id=event.id,
-        actor_id=f"bridge:{identity.object_id}",
+        actor_id=identity.object_id,
         after={"attempt_id": payload.attempt_id, "package_sha256": package_sha256, "verified_assertion_created": False, "projection_created": False},
     )
     return {
