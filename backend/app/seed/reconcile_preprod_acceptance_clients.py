@@ -9,9 +9,9 @@ markers so the same production enforcement used for real records can run.
 
 from __future__ import annotations
 
-from ..config.settings import get_settings
-from ..db import SessionLocal
-from ..models import ClientAccount
+from backend.app.config.settings import get_settings
+from backend.app.db import SessionLocal
+from backend.app.models import ClientAccount
 
 
 CLIENT_RECONCILIATION = {

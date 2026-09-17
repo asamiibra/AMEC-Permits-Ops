@@ -4,15 +4,12 @@ from __future__ import annotations
 
 import os
 import sys
-import copy
 from pathlib import Path
 from datetime import datetime, timezone
 
 from alembic import command
 from alembic.config import Config
-from alembic.migration import MigrationContext
-from alembic.operations import Operations
-from sqlalchemy import Column, func, inspect, select, text
+from sqlalchemy import func, inspect, select
 
 
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
@@ -72,74 +69,25 @@ def table_counts() -> dict[str, int]:
     return counts
 
 
-def reconcile_legacy_model_columns() -> int:
-    """Add missing nullable ORM columns on the retired R13 schema."""
-    inspector = inspect(engine)
-    table_names = set(inspector.get_table_names()) - {"alembic_version"}
-    repaired = 0
-    for table in Base.metadata.sorted_tables:
-        if table.name not in table_names:
-            continue
-        existing = {column["name"] for column in inspector.get_columns(table.name)}
-        for model_column in table.columns:
-            if model_column.name in existing:
-                continue
-            candidate = Column(
-                model_column.name,
-                copy.copy(model_column.type),
-                nullable=True,
-            )
-            try:
-                with engine.begin() as connection:
-                    operations = Operations(MigrationContext.configure(connection))
-                    operations.add_column(table.name, candidate)
-                existing.add(model_column.name)
-                repaired += 1
-            except Exception as exc:
-                print(
-                    "legacy_column_repair_skipped "
-                    f"table={table.name} column={model_column.name} "
-                    f"reason={type(exc).__name__}",
-                    file=sys.stderr,
-                )
-    return repaired
-
-
 def ensure_current_schema() -> str:
     config = alembic_config()
     inspector = inspect(engine)
     versions = migration_versions()
     if versions:
-        # The hosted synthetic database predates the active rebaseline and
-        # carries the retired R13 stamp.  Its schema was already materialized
-        # by the historical migration set, so replaying the active graph can
-        # duplicate objects that are present but no longer represented by the
-        # repository's migration IDs.  Reconcile any genuinely missing ORM
-        # tables, then stamp the active head without touching existing data.
-        if set(versions) & {"0058_source_intake_ledger", "0059_entra_user_identity"}:
-            Base.metadata.create_all(bind=engine, checkfirst=True)
-            repaired_columns = reconcile_legacy_model_columns()
-            # Alembic cannot run ``stamp`` while the current database row
-            # names a revision that is intentionally absent from the active
-            # graph. Resolve the repository head independently and replace
-            # only the version marker in one transaction.
-            from alembic.script import ScriptDirectory
-
-            heads = tuple(sorted(ScriptDirectory.from_config(config).get_heads()))
-            if len(heads) != 1:
-                raise RuntimeError(f"Expected one active migration head, found {heads or 'NONE'}")
-            with engine.begin() as connection:
-                connection.execute(text("delete from alembic_version"))
-                connection.execute(
-                    text("insert into alembic_version (version_num) values (:version)"),
-                    {"version": heads[0]},
-                )
-            print(f"legacy_schema_repair columns={repaired_columns}")
-            return "stamp_head_legacy_r13"
-        # Alembic is the sole schema authority for a versioned database.  Do
-        # not pre-create ORM tables here: doing so can race the migration that
-        # owns the table and leave a deployment stuck on DuplicateTable after
-        # an otherwise successful legacy upgrade.
+        # Older synthetic Vercel databases were created from a partial
+        # historical migration path. Create only missing current-model tables
+        # before replaying additive Alembic migrations so later DDL can safely
+        # reference them. This is non-destructive and build-time only; it does
+        # not stamp, reset, or replace existing business data.
+        expected_tables = set(Base.metadata.tables) - {"alembic_version"}
+        existing_tables = set(inspector.get_table_names()) - {"alembic_version"}
+        missing_tables = expected_tables - existing_tables
+        if missing_tables:
+            Base.metadata.create_all(
+                bind=engine,
+                tables=[Base.metadata.tables[name] for name in sorted(missing_tables)],
+                checkfirst=True,
+            )
         command.upgrade(config, "head")
         return "upgrade_head"
 
@@ -221,9 +169,6 @@ def main() -> None:
     # Contract → Permit controlling link), so model inspection cannot precede
     # the schema gate.
     migration_action = ensure_current_schema()
-    repaired_columns = reconcile_legacy_model_columns()
-    if repaired_columns:
-        print(f"legacy_schema_repair columns={repaired_columns}")
 
     with SessionLocal() as db:
         fixture_rows = list(db.scalars(select(SyntheticFixtureSet).where(SyntheticFixtureSet.fixture_set_id == CANONICAL_FIXTURE_ID)).all())

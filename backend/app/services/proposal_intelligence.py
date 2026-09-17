@@ -10,21 +10,21 @@ from uuid import uuid4
 from sqlalchemy import select, true
 from sqlalchemy.orm import Session, sessionmaker
 
-from ..ai.provider import AIProviderRequest, AIProviderResult, AIProviderUsage
-from ..ai.skill_registry import PROPOSAL_SKILLS, SkillDefinition
-from ..ai.skill_runtime import RuntimeDependencies, SkillExecutionRequest, SkillRuntime
-from ..api.dependencies import AuthenticatedPrincipal
-from ..config.settings import Settings
-from ..models import (
+from backend.app.ai.provider import AIProviderRequest, AIProviderResult, AIProviderUsage
+from backend.app.ai.skill_registry import PROPOSAL_SKILLS, SkillDefinition
+from backend.app.ai.skill_runtime import RuntimeDependencies, SkillExecutionRequest, SkillRuntime
+from backend.app.api.dependencies import AuthenticatedPrincipal
+from backend.app.config.settings import Settings
+from backend.app.models import (
     AIWorkProduct, CandidateAssertion, ContextDependency, ContextSnapshot,
     IntelligenceCitation,
     IntelligenceReviewDecision, Opportunity, ProposalAcceptedRevision,
     ProposalIntelligenceReviewBinding, User, WorkflowTask, WorkflowTaskStatus,
     ProposalRevision, ProposalSourceLink,
 )
-from .backend_realignment import persona_for_role, require_capability
-from .intelligence_contracts import IntelligenceContractError, stable_hash
-from .intelligence_foundation import (
+from backend.app.services.backend_realignment import persona_for_role, require_capability
+from backend.app.services.intelligence_contracts import IntelligenceContractError, stable_hash
+from backend.app.services.intelligence_foundation import (
     dependency_current, promote_verified_assertion_from_decision,
     register_eval_pack, record_module_review_decision, revalidate_snapshot, invalidate_dependency,
 )

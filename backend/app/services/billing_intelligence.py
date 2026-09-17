@@ -9,11 +9,11 @@ from uuid import uuid4
 
 from sqlalchemy.orm import Session, sessionmaker
 
-from ..ai.provider import AIProviderRequest, AIProviderResult, AIProviderUsage
-from ..ai.billing_skill_pack import BILLING_CONTEXT_VERSION, BILLING_POLICY_VERSION, BILLING_SKILLS_BY_ID
-from ..ai.skill_runtime import RuntimeDependencies, SkillExecutionRequest, SkillRuntime
-from ..api.dependencies import AuthenticatedPrincipal
-from ..config.settings import Settings
+from backend.app.ai.provider import AIProviderRequest, AIProviderResult, AIProviderUsage
+from backend.app.ai.billing_skill_pack import BILLING_CONTEXT_VERSION, BILLING_POLICY_VERSION, BILLING_SKILLS_BY_ID
+from backend.app.ai.skill_runtime import RuntimeDependencies, SkillExecutionRequest, SkillRuntime
+from backend.app.api.dependencies import AuthenticatedPrincipal
+from backend.app.config.settings import Settings
 
 
 class BillingDeterministicProvider:

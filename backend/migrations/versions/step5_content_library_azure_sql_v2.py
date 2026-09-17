@@ -217,11 +217,7 @@ def _create_indexes(bind: sa.Connection) -> None:
 def upgrade() -> None:
     bind = op.get_bind()
     existing_columns, apply_table_present = _existing_step5_state(bind)
-    # A previous deployment may have created the v1 apply-command table
-    # before failing while adding the form-instance columns.  That table has
-    # the same durable contract as this v2 migration, so let the idempotent
-    # reconciliation below finish the upgrade when it is already present.
-    if existing_columns and not apply_table_present:
+    if existing_columns or apply_table_present:
         raise RuntimeError(
             "STEP5_PREEXISTING_PARTIAL_SCHEMA_STATE "
             f"columns={sorted(existing_columns)!r} "

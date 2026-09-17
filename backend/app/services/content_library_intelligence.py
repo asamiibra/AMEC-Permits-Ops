@@ -8,17 +8,17 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
-from ..ai.content_library_skill_pack import (
+from backend.app.ai.content_library_skill_pack import (
     CONTENT_LIBRARY_CONTEXT_VERSION,
     CONTENT_LIBRARY_POLICY_VERSION,
     CONTENT_LIBRARY_SKILLS_BY_ID,
 )
-from ..ai.provider import AIProviderRequest, AIProviderResult, AIProviderUsage
-from ..ai.skill_registry import SKILL_REGISTRY
-from ..ai.skill_runtime import RuntimeDependencies, SkillExecutionRequest, SkillRuntime
-from ..api.dependencies import AuthenticatedPrincipal
-from ..config.settings import Settings
-from ..models import (
+from backend.app.ai.provider import AIProviderRequest, AIProviderResult, AIProviderUsage
+from backend.app.ai.skill_registry import SKILL_REGISTRY
+from backend.app.ai.skill_runtime import RuntimeDependencies, SkillExecutionRequest, SkillRuntime
+from backend.app.api.dependencies import AuthenticatedPrincipal
+from backend.app.config.settings import Settings
+from backend.app.models import (
     AIWorkProduct,
     AIWorkProductDependency,
     ContentCategory,
@@ -28,9 +28,9 @@ from ..models import (
     MasterContentItem,
     WorkflowTask,
 )
-from .backend_realignment import require_capability
-from .intelligence_foundation import record_module_review_decision
-from .intelligence_contracts import IntelligenceContractError
+from backend.app.services.backend_realignment import require_capability
+from backend.app.services.intelligence_foundation import record_module_review_decision
+from backend.app.services.intelligence_contracts import IntelligenceContractError
 
 
 class ContentLibraryDeterministicProvider:
