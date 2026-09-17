@@ -74,6 +74,16 @@ def ensure_current_schema() -> str:
     inspector = inspect(engine)
     versions = migration_versions()
     if versions:
+        # The hosted synthetic database predates the active rebaseline and
+        # carries the retired R13 stamp.  Its schema was already materialized
+        # by the historical migration set, so replaying the active graph can
+        # duplicate objects that are present but no longer represented by the
+        # repository's migration IDs.  Reconcile any genuinely missing ORM
+        # tables, then stamp the active head without touching existing data.
+        if set(versions) & {"0058_source_intake_ledger", "0059_entra_user_identity"}:
+            Base.metadata.create_all(bind=engine, checkfirst=True)
+            command.stamp(config, "head")
+            return "stamp_head_legacy_r13"
         # Alembic is the sole schema authority for a versioned database.  Do
         # not pre-create ORM tables here: doing so can race the migration that
         # owns the table and leave a deployment stuck on DuplicateTable after
