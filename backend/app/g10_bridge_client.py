@@ -10,6 +10,7 @@ import os
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 from uuid import uuid4
 
 import httpx
@@ -222,6 +223,254 @@ class QatarSynologySourceReader:
         self._smbclient = None
 
 
+class QuickConnectSynologySourceReader:
+    """Read-only Synology File Station reader over DSM HTTPS.
+
+    QuickConnect exposes the same bounded source contract as the SMB reader
+    without making the Azure application a NAS client.  This reader belongs on
+    the signed bridge runtime: it logs in to File Station, lists only the
+    configured logical root, downloads bounded file bytes, and logs out.  No
+    write-capable File Station API is called.
+    """
+
+    _API_PATH = "/webapi/entry.cgi"
+
+    def __init__(
+        self,
+        *,
+        base_url: str,
+        account: str,
+        password: str,
+        root: str = LOGICAL_ROOT,
+        max_file_bytes: int = MAX_LIVE_FILE_BYTES,
+        max_entries: int = 100000,
+        timeout_seconds: float = 30,
+        client: httpx.Client | None = None,
+    ):
+        if not base_url or not account or not password:
+            raise ValueError("Synology QuickConnect URL and read-only credentials are required")
+        if not root or root.startswith(("/", "\\")) or ".." in root.split("/") or "\\" in root or ":" in root:
+            raise ValueError("Synology root must be a bounded relative path")
+        if max_file_bytes <= 0 or max_entries <= 0 or timeout_seconds <= 0:
+            raise ValueError("Invalid Synology QuickConnect reader limits")
+        self.base_url = base_url.rstrip("/")
+        self.account = account
+        self.password = password
+        self.root = "/".join(_parts(root.strip("/\\")))
+        self.max_file_bytes = max_file_bytes
+        self.max_entries = max_entries
+        self.timeout_seconds = timeout_seconds
+        self._client = client or httpx.Client(timeout=timeout_seconds, follow_redirects=True)
+        self._owns_client = client is None
+        self._sid: str | None = None
+
+    @staticmethod
+    def _truthy(value: Any) -> bool:
+        return value is True or value == 1 or (isinstance(value, str) and value.lower() in {"1", "true", "yes"})
+
+    @staticmethod
+    def _mtime_ns(value: Any) -> int:
+        """Normalize DSM mtime (normally epoch seconds) to nanoseconds."""
+        try:
+            numeric = float(value or 0)
+        except (TypeError, ValueError):
+            return 0
+        if numeric < 0:
+            return 0
+        if numeric < 10**12:
+            return int(numeric * 1_000_000_000)
+        if numeric < 10**15:
+            return int(numeric * 1_000_000)
+        if numeric < 10**18:
+            return int(numeric * 1_000)
+        return int(numeric)
+
+    def _absolute(self, relative: str = "") -> str:
+        if relative:
+            parts = _parts(relative)
+        else:
+            parts = []
+        return "/" + "/".join(part for part in (self.root, *parts) if part)
+
+    def _api(self, method: str, *, version: int, **params: Any) -> dict[str, Any]:
+        query = {"api": params.pop("api", "SYNO.FileStation.List"), "version": version, "method": method, **params}
+        if self._sid:
+            query["_sid"] = self._sid
+        try:
+            response = self._client.get(f"{self.base_url}{self._API_PATH}", params=query)
+            response.raise_for_status()
+            body = response.json()
+        except httpx.HTTPError as exc:
+            raise RuntimeError("SYNOLOGY_QUICKCONNECT_HTTP_ERROR") from exc
+        except (ValueError, TypeError) as exc:
+            raise RuntimeError("SYNOLOGY_QUICKCONNECT_INVALID_RESPONSE") from exc
+        if not isinstance(body, dict) or not body.get("success"):
+            code = body.get("error", {}).get("code") if isinstance(body, dict) else None
+            raise RuntimeError(f"SYNOLOGY_QUICKCONNECT_API_ERROR:{code or 'UNKNOWN'}")
+        return body
+
+    def _login(self) -> None:
+        if self._sid:
+            return
+        body = self._api(
+            "login",
+            version=7,
+            api="SYNO.API.Auth",
+            account=self.account,
+            passwd=self.password,
+            session="FileStation",
+            format="sid",
+        )
+        sid = body.get("data", {}).get("sid") if isinstance(body.get("data"), dict) else None
+        if not isinstance(sid, str) or not sid:
+            raise RuntimeError("SYNOLOGY_QUICKCONNECT_SESSION_MISSING")
+        self._sid = sid
+
+    def _list(self, absolute_path: str) -> list[dict[str, Any]]:
+        self._login()
+        body = self._api(
+            "list",
+            version=2,
+            api="SYNO.FileStation.List",
+            folder_path=absolute_path,
+            recursive="false",
+            # File Station expects this value as a JSON array.  A comma
+            # separated string is accepted but silently drops metadata on
+            # some DSM versions, leaving files without a bounded size.
+            additional=json.dumps(["size", "time", "real_path", "perm"], separators=(",", ":")),
+        )
+        data = body.get("data") if isinstance(body.get("data"), dict) else {}
+        files = data.get("files") if isinstance(data, dict) else []
+        if not isinstance(files, list):
+            raise RuntimeError("SYNOLOGY_QUICKCONNECT_INVALID_LIST")
+        return [item for item in files if isinstance(item, dict)]
+
+    def _entry(self, relative: str, item: dict[str, Any]) -> SourceEntry:
+        name = item.get("name")
+        if not isinstance(name, str) or not name or "/" in name or "\\" in name:
+            raise RuntimeError("SYNOLOGY_INVALID_ENTRY_NAME")
+        is_directory = self._truthy(item.get("isdir"))
+        if self._truthy(item.get("islink")) or self._truthy(item.get("is_symlink")):
+            raise RuntimeError("SYNOLOGY_SYMLINK_REJECTED")
+        additional = item.get("additional") if isinstance(item.get("additional"), dict) else {}
+        raw_size = item.get("size") if item.get("size") is not None else additional.get("size")
+        if not is_directory and raw_size is None:
+            raise RuntimeError("SYNOLOGY_FILE_METADATA_MISSING")
+        try:
+            size = int(raw_size or 0)
+        except (TypeError, ValueError) as exc:
+            raise RuntimeError("SYNOLOGY_INVALID_FILE_SIZE") from exc
+        if size < 0:
+            raise RuntimeError("SYNOLOGY_INVALID_FILE_SIZE")
+        path = f"{relative}/{name}" if relative else name
+        _parts(path)
+        raw_mtime = item.get("mtime")
+        if raw_mtime is None:
+            raw_time = additional.get("time")
+            raw_mtime = raw_time.get("mtime") if isinstance(raw_time, dict) else None
+        return SourceEntry(path, name, is_directory, size, self._mtime_ns(raw_mtime))
+
+    def children(self, relative: str = "") -> list[SourceEntry]:
+        if relative:
+            _parts(relative)
+        entries = [self._entry(relative, item) for item in self._list(self._absolute(relative))]
+        if len(entries) > self.max_entries:
+            raise RuntimeError("SYNOLOGY_ENTRY_LIMIT_EXCEEDED")
+        return sorted(entries, key=lambda entry: (not entry.is_directory, entry.name, entry.relative_path))
+
+    def discover(self) -> list[SourceProject]:
+        return [project for entry in self.children() if entry.is_directory
+                if (project := classify_project_folder(entry.name)) is not None]
+
+    def inventory(self, project_folder: str) -> list[SourceEntry]:
+        project = classify_project_folder(project_folder)
+        if project is None or len(_parts(project_folder)) != 1:
+            raise RuntimeError("SYNOLOGY_PROJECT_PATH_INVALID")
+        pending = [project_folder]
+        entries: list[SourceEntry] = []
+        while pending:
+            directory = pending.pop()
+            for entry in self.children(directory):
+                entries.append(entry)
+                if entry.is_directory:
+                    pending.append(entry.relative_path)
+                if len(entries) > self.max_entries:
+                    raise RuntimeError("SYNOLOGY_ENTRY_LIMIT_EXCEEDED")
+        return entries
+
+    def _stat(self, relative: str) -> SourceEntry:
+        parts = _parts(relative)
+        if len(parts) < 2 or classify_project_folder(parts[0]) is None:
+            raise RuntimeError("SYNOLOGY_FILE_OUTSIDE_PROJECT")
+        parent = "/".join(parts[:-1])
+        name = parts[-1]
+        matches = [entry for entry in self.children(parent) if entry.name == name]
+        if len(matches) != 1 or matches[0].is_directory:
+            raise RuntimeError("SYNOLOGY_FILE_NOT_FOUND")
+        return matches[0]
+
+    def _download(self, relative: str) -> bytes:
+        self._login()
+        params = {
+            "api": "SYNO.FileStation.Download",
+            "version": 2,
+            "method": "download",
+            "path": self._absolute(relative),
+            "mode": "open",
+            "_sid": self._sid,
+        }
+        try:
+            response = self._client.get(f"{self.base_url}{self._API_PATH}", params=params)
+            response.raise_for_status()
+        except httpx.HTTPError as exc:
+            raise RuntimeError("SYNOLOGY_QUICKCONNECT_DOWNLOAD_ERROR") from exc
+        content_length = response.headers.get("content-length")
+        if content_length:
+            try:
+                if int(content_length) > self.max_file_bytes:
+                    raise RuntimeError("LIVE_FILE_REQUIRES_CHUNKED_TRANSPORT")
+            except ValueError:
+                pass
+        content = response.content
+        content_type = response.headers.get("content-type", "").lower()
+        if "json" in content_type:
+            try:
+                body = response.json()
+            except ValueError:
+                body = None
+            if isinstance(body, dict) and not body.get("success", True):
+                code = body.get("error", {}).get("code") if isinstance(body.get("error"), dict) else None
+                raise RuntimeError(f"SYNOLOGY_QUICKCONNECT_API_ERROR:{code or 'UNKNOWN'}")
+        if len(content) > self.max_file_bytes:
+            raise RuntimeError("LIVE_FILE_REQUIRES_CHUNKED_TRANSPORT")
+        return content
+
+    def capture(self, relative: str, *, attempts: int = 2) -> StableSourceRead:
+        _parts(relative)
+        if not 1 <= attempts <= 3:
+            raise ValueError("Capture attempts must be between one and three")
+        for attempt in range(attempts):
+            before = self._stat(relative)
+            content = self._download(relative)
+            after = self._stat(relative)
+            digest = _sha(content)
+            if before.size == len(content) == after.size and before.modified_ns == after.modified_ns:
+                return StableSourceRead(content, len(content), digest, str(before.modified_ns), str(after.modified_ns))
+            if attempt + 1 == attempts:
+                raise RuntimeError("SYNOLOGY_SOURCE_CHANGED_DURING_CAPTURE")
+        raise AssertionError("unreachable")
+
+    def close(self) -> None:
+        if self._sid:
+            try:
+                self._api("logout", version=7, api="SYNO.API.Auth", session="FileStation")
+            except RuntimeError:
+                pass
+            self._sid = None
+        if self._owns_client:
+            self._client.close()
+
+
 def _live_token() -> str:
     # Keep the SMB reader importable for offline inventory/contract tests. The
     # Azure identity SDK is needed only on the bridge host when publishing.
@@ -239,7 +488,16 @@ def _live_token() -> str:
     return credential.get_token(f"api://{os.environ['BRIDGE_API_CLIENT_ID']}/.default").token
 
 
-def _make_live_reader() -> QatarSynologySourceReader:
+def _make_live_reader() -> QatarSynologySourceReader | QuickConnectSynologySourceReader:
+    transport = os.getenv("QATAR_SYNOLOGY_TRANSPORT", "").strip().upper()
+    if transport in {"QUICKCONNECT", "FILESTATION", "HTTPS"} or os.getenv("SYNOLOGY_BASE_URL"):
+        return QuickConnectSynologySourceReader(
+            base_url=os.environ["SYNOLOGY_BASE_URL"],
+            account=os.environ["SYNOLOGY_ACCOUNT"],
+            password=os.environ["SYNOLOGY_PASSWORD"],
+            root=os.getenv("SYNOLOGY_ROOT", LOGICAL_ROOT),
+            max_file_bytes=int(os.getenv("G10_MAX_LIVE_FILE_BYTES", str(MAX_LIVE_FILE_BYTES))),
+        )
     return QatarSynologySourceReader(
         server=os.environ["QATAR_SYNOLOGY_SERVER"],
         share=os.environ["QATAR_SYNOLOGY_SHARE"],

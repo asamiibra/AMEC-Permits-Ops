@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import httpx
 
 import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
@@ -88,3 +89,52 @@ def test_sync_live_once_can_fail_closed_when_mapping_is_incomplete(monkeypatch):
     monkeypatch.setenv("G10_REQUIRE_ALL_PROJECT_MAPPINGS", "true")
     with pytest.raises(RuntimeError, match="LIVE_PROJECT_MAPPING_INCOMPLETE:520"):
         bridge.sync_live_once(Reader())
+
+
+def test_quickconnect_reader_lists_and_captures_without_write_calls():
+    requests = []
+    file_bytes = b"quickconnect bytes"
+
+    class Client:
+        def get(self, url, *, params):
+            requests.append((url, dict(params)))
+            api = params["api"]
+            method = params["method"]
+            if api == "SYNO.API.Auth" and method == "login":
+                return httpx.Response(200, json={"success": True, "data": {"sid": "sid-1"}}, request=httpx.Request("GET", url))
+            if api == "SYNO.API.Auth" and method == "logout":
+                return httpx.Response(200, json={"success": True}, request=httpx.Request("GET", url))
+            if api == "SYNO.FileStation.List":
+                path = params["folder_path"]
+                listings = {
+                    "/Tenders/1- Proposal/2026": [{"name": "454 - Al Watan Center", "isdir": True, "size": 0, "mtime": 1700000000}],
+                    "/Tenders/1- Proposal/2026/454 - Al Watan Center": [{"name": "Tender", "isdir": True, "size": 0, "mtime": 1700000000}],
+                    "/Tenders/1- Proposal/2026/454 - Al Watan Center/Tender": [{"name": "brief.txt", "isdir": False, "size": len(file_bytes), "mtime": 1700000001}],
+                }
+                return httpx.Response(200, json={"success": True, "data": {"files": listings[path]}}, request=httpx.Request("GET", url))
+            if api == "SYNO.FileStation.Download":
+                return httpx.Response(200, content=file_bytes, headers={"content-type": "application/octet-stream"}, request=httpx.Request("GET", url))
+            raise AssertionError((api, method))
+
+    reader = bridge.QuickConnectSynologySourceReader(
+        base_url="https://quickconnect.example",
+        account="reader",
+        password="secret",
+        client=Client(),
+    )
+    assert [project.folder_name for project in reader.discover()] == ["454 - Al Watan Center"]
+    entries = reader.inventory("454 - Al Watan Center")
+    assert [entry.relative_path for entry in entries if not entry.is_directory] == ["454 - Al Watan Center/Tender/brief.txt"]
+    captured = reader.capture("454 - Al Watan Center/Tender/brief.txt")
+    assert captured.content == file_bytes
+    assert captured.size == len(file_bytes)
+    reader.close()
+    assert all(item[1]["api"] != "SYNO.FileStation.CreateFolder" for item in requests)
+
+
+def test_quickconnect_reader_rejects_paths_outside_project():
+    reader = bridge.QuickConnectSynologySourceReader(
+        base_url="https://quickconnect.example", account="reader", password="secret", client=object()
+    )
+    with pytest.raises(RuntimeError, match="SYNOLOGY_FILE_OUTSIDE_PROJECT"):
+        reader.capture("not-a-project/file.txt")

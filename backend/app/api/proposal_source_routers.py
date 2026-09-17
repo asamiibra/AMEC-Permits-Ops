@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 
 from ..api.dependencies import require_roles
 from ..db import get_db
-from ..models import DocumentVersion, ProposalSourceEvidence, ProposalSourceLink, Role
+from ..models import DocumentVersion, ProposalSourceEvidence, ProposalSourceLink, Project, Role
 from ..services.proposal_source_workspace import LOGICAL_ROOT, captured_version, capture, configured_source_root, ensure_editor_revision, projects, tree
 from ..config.settings import get_settings
 from ..storage import DocumentStorageService, create_binary_store
@@ -119,7 +119,11 @@ def create_proposal_from_source_workspace(
     if number != 454:
         raise HTTPException(409, "PROJECT_NOT_READY_FOR_PROPOSAL")
     run = capture(db, number, actor="source-create-proposal")
-    item = _create_proposal_record(ProposalCreate(proposal_description="Al Watan Center Proposal", project_reference=str(number), client_name="Al Watan Center", idempotency_key=f"proposal-source-project:{number}"), request, db, role)
+    # Bridge captures are attached to the canonical Project row so downstream
+    # intake, provenance, and editor records share one project identity.  The
+    # mounted synthetic fixture keeps its historical provisional behavior.
+    project = db.scalar(select(Project).where(Project.project_number == str(number))) if get_settings().source_intake_mode.upper() == "BRIDGE" else None
+    item = _create_proposal_record(ProposalCreate(proposal_description="Al Watan Center Proposal", project_reference=str(number), project_id=project.id if project else None, client_name="Al Watan Center", idempotency_key=f"proposal-source-project:{number}"), request, db, role)
     # The source adapter is synthetic-only in TEST/DEV/Azure pre-production.
     # Mark the Proposal projection accordingly so the shared AI context
     # compiler can prove that the entity and its captured evidence belong to
