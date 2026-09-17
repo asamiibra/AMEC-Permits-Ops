@@ -221,6 +221,9 @@ def main() -> None:
     # Contract → Permit controlling link), so model inspection cannot precede
     # the schema gate.
     migration_action = ensure_current_schema()
+    repaired_columns = reconcile_legacy_model_columns()
+    if repaired_columns:
+        print(f"legacy_schema_repair columns={repaired_columns}")
 
     with SessionLocal() as db:
         fixture_rows = list(db.scalars(select(SyntheticFixtureSet).where(SyntheticFixtureSet.fixture_set_id == CANONICAL_FIXTURE_ID)).all())
