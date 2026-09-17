@@ -65,6 +65,8 @@ def test_sync_live_once_posts_stable_id_and_reports_unmapped(monkeypatch):
     seen = []
 
     class Response:
+        status_code = 200
+
         def raise_for_status(self):
             return None
 
