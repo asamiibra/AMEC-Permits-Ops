@@ -5,6 +5,7 @@ from __future__ import annotations
 import base64
 import hashlib
 import json
+import mimetypes
 import os
 from datetime import datetime, timezone
 from pathlib import Path
@@ -12,18 +13,234 @@ from uuid import uuid4
 
 import httpx
 from azure.identity import ManagedIdentityCredential
-from cryptography.hazmat.primitives import serialization
+from azure.identity import CertificateCredential
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from .schemas.bridge_intake import BridgePackageIn
 from .services.bridge_intake import canonical_signature_payload
+from .storage.external import StableSourceRead
+from .storage.proposal_source_tree import LOGICAL_ROOT, SourceEntry, SourceProject, _parts, classify_project_folder
+
+
+LIVE_SOURCE_IDENTITY = "QATAR_SYNOLOGY_LIVE"
+LIVE_SOURCE_URI_PREFIX = "synology://qatar/"
+MAX_LIVE_FILE_BYTES = 10 * 1024 * 1024
 
 
 def _sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+class QatarSynologySourceReader:
+    """Read-only bounded source reader for the Qatar bridge host.
+
+    This class is intentionally usable only on the host that can reach the
+    NAS. It has no write methods and never runs in the Azure API container.
+    """
+
+    def __init__(self, *, server: str, share: str, root: str = LOGICAL_ROOT, username: str, password: str, port: int = 445, max_file_bytes: int = MAX_LIVE_FILE_BYTES, max_entries: int = 100000, timeout_seconds: float = 15):
+        if not server or not share or not username or not password:
+            raise ValueError("Qatar Synology server, share, and read-only credentials are required")
+        if not root or root.startswith(("/", "\\")) or ".." in root.split("/") or "\\" in root or ":" in root:
+            raise ValueError("Qatar Synology root must be a bounded relative path")
+        if max_file_bytes <= 0 or max_entries <= 0 or not 1 <= port <= 65535:
+            raise ValueError("Invalid Qatar Synology reader limits")
+        self.server, self.share, self.root = server, share, "/".join(_parts(root.strip("/\\")))
+        self.username, self.password, self.port = username, password, port
+        self.max_file_bytes, self.max_entries = max_file_bytes, max_entries
+        self.timeout_seconds = timeout_seconds
+        self._smbclient = None
+        self._connection_cache: dict = {}
+
+    def _client(self):
+        if self._smbclient is None:
+            try:
+                import smbclient  # type: ignore
+            except ImportError as exc:
+                raise RuntimeError("SMB_PROTOCOL_UNAVAILABLE") from exc
+            self._smbclient = smbclient
+            smbclient.register_session(
+                self.server,
+                username=self.username,
+                password=self.password,
+                port=self.port,
+                auth_protocol=os.getenv("QATAR_SYNOLOGY_AUTH_MODE", "ntlm").lower(),
+                connection_timeout=self.timeout_seconds,
+                require_signing=os.getenv("QATAR_SYNOLOGY_REQUIRE_SIGNING", "true").lower() == "true",
+                encrypt=os.getenv("QATAR_SYNOLOGY_REQUIRE_ENCRYPTION", "true").lower() == "true",
+                connection_cache=self._connection_cache,
+            )
+        return self._smbclient
+
+    def _unc(self, relative: str = "") -> str:
+        safe = relative.strip("/\\") if relative else ""
+        if safe:
+            _parts(safe)
+        suffix = "/".join(part for part in (self.root, safe) if part).replace("/", "\\")
+        return f"\\\\{self.server}\\{self.share}\\{suffix}"
+
+    def _kwargs(self) -> dict:
+        return {
+            "username": self.username,
+            "password": self.password,
+            "port": self.port,
+            "connection_timeout": self.timeout_seconds,
+            "connection_cache": self._connection_cache,
+        }
+
+    def children(self, relative: str = "") -> list[SourceEntry]:
+        if relative:
+            _parts(relative)
+        entries: list[SourceEntry] = []
+        client = self._client()
+        for item in client.scandir(self._unc(relative), **self._kwargs()):
+            if getattr(item, "is_symlink", lambda: False)():
+                raise RuntimeError("SYNOLOGY_SYMLINK_REJECTED")
+            info = item.stat(follow_symlinks=False)
+            is_directory = bool(item.is_dir(follow_symlinks=False))
+            is_file = bool(item.is_file(follow_symlinks=False))
+            if not (is_directory or is_file):
+                raise RuntimeError("SYNOLOGY_SPECIAL_FILE_REJECTED")
+            path = f"{relative}/{item.name}" if relative else item.name
+            _parts(path)
+            entries.append(SourceEntry(path, item.name, is_directory, int(getattr(info, "st_size", 0)), int(getattr(info, "st_mtime_ns", 0))))
+            if len(entries) > self.max_entries:
+                raise RuntimeError("SYNOLOGY_ENTRY_LIMIT_EXCEEDED")
+        return sorted(entries, key=lambda entry: (not entry.is_directory, entry.name, entry.relative_path))
+
+    def discover(self) -> list[SourceProject]:
+        return [project for entry in self.children() if entry.is_directory if (project := classify_project_folder(entry.name)) is not None]
+
+    def inventory(self, project_folder: str) -> list[SourceEntry]:
+        project = classify_project_folder(project_folder)
+        if project is None or len(_parts(project_folder)) != 1:
+            raise RuntimeError("SYNOLOGY_PROJECT_PATH_INVALID")
+        pending = [project_folder]
+        entries: list[SourceEntry] = []
+        while pending:
+            directory = pending.pop()
+            for entry in self.children(directory):
+                entries.append(entry)
+                if entry.is_directory:
+                    pending.append(entry.relative_path)
+                if len(entries) > self.max_entries:
+                    raise RuntimeError("SYNOLOGY_ENTRY_LIMIT_EXCEEDED")
+        return entries
+
+    def capture(self, relative: str, *, attempts: int = 2) -> StableSourceRead:
+        parts = _parts(relative)
+        if len(parts) < 2 or classify_project_folder(parts[0]) is None:
+            raise RuntimeError("SYNOLOGY_FILE_OUTSIDE_PROJECT")
+        if not 1 <= attempts <= 3:
+            raise ValueError("Capture attempts must be between one and three")
+        client = self._client()
+        for attempt in range(attempts):
+            with client.open_file(self._unc(relative), mode="rb", buffering=0, **self._kwargs()) as stream:
+                before = client.stat(self._unc(relative), **self._kwargs())
+                if int(before.st_size) > self.max_file_bytes:
+                    raise RuntimeError("LIVE_FILE_REQUIRES_CHUNKED_TRANSPORT")
+                digest = hashlib.sha256()
+                chunks: list[bytes] = []
+                size = 0
+                for chunk in iter(lambda: stream.read(min(1024 * 1024, self.max_file_bytes - size + 1)), b""):
+                    size += len(chunk)
+                    if size > self.max_file_bytes:
+                        raise RuntimeError("LIVE_FILE_REQUIRES_CHUNKED_TRANSPORT")
+                    digest.update(chunk)
+                    chunks.append(chunk)
+                after = client.stat(self._unc(relative), **self._kwargs())
+            value = b"".join(chunks)
+            if size == int(before.st_size) and int(getattr(before, "st_mtime_ns", 0)) == int(getattr(after, "st_mtime_ns", 0)) and digest.hexdigest() == _sha(value):
+                return StableSourceRead(value, size, digest.hexdigest(), str(getattr(before, "st_mtime_ns", 0)), str(getattr(after, "st_mtime_ns", 0)))
+            if attempt + 1 == attempts:
+                raise RuntimeError("SYNOLOGY_SOURCE_CHANGED_DURING_CAPTURE")
+        raise AssertionError("unreachable")
+
+    def close(self):
+        if self._smbclient is not None:
+            reset = getattr(self._smbclient, "reset_connection_cache", None)
+            if reset:
+                reset(connection_cache=self._connection_cache)
+        self._connection_cache = {}
+        self._smbclient = None
+
+
+def _live_token() -> str:
+    if os.getenv("BRIDGE_CERTIFICATE_PATH"):
+        credential = CertificateCredential(
+            tenant_id=os.environ["BRIDGE_TENANT_ID"],
+            client_id=os.environ["BRIDGE_CLIENT_ID"],
+            certificate_path=os.environ["BRIDGE_CERTIFICATE_PATH"],
+            password=os.getenv("BRIDGE_CERTIFICATE_PASSWORD") or None,
+        )
+    else:
+        credential = ManagedIdentityCredential(client_id=os.environ["BRIDGE_MI_CLIENT_ID"])
+    return credential.get_token(f"api://{os.environ['BRIDGE_API_CLIENT_ID']}/.default").token
+
+
+def run_live() -> None:
+    reader = QatarSynologySourceReader(
+        server=os.environ["QATAR_SYNOLOGY_SERVER"],
+        share=os.environ["QATAR_SYNOLOGY_SHARE"],
+        root=os.getenv("QATAR_SYNOLOGY_ROOT", LOGICAL_ROOT),
+        username=os.environ["QATAR_SYNOLOGY_USERNAME"],
+        password=os.environ["QATAR_SYNOLOGY_PASSWORD"],
+        port=int(os.getenv("QATAR_SYNOLOGY_PORT", "445")),
+        max_file_bytes=int(os.getenv("G10_MAX_LIVE_FILE_BYTES", str(MAX_LIVE_FILE_BYTES))),
+    )
+    try:
+        projects = reader.discover()
+        project_ids = json.loads(os.getenv("G10_PROJECT_ID_MAP_JSON", "{}"))
+        if os.getenv("G10_PROJECT_ID"):
+            project_ids.setdefault("454", os.environ["G10_PROJECT_ID"])
+        field_definition_id = os.environ["G10_FIELD_DEFINITION_ID"]
+        token = _live_token()
+        sent = 0
+        skipped = 0
+        for project in projects:
+            project_id = project_ids.get(str(project.number))
+            if not project_id:
+                skipped += 1
+                continue
+            for entry in reader.inventory(project.folder_name):
+                if entry.is_directory:
+                    continue
+                read = reader.capture(entry.relative_path)
+                snapshot = f"{LIVE_SOURCE_URI_PREFIX}{LOGICAL_ROOT}/{entry.relative_path}"
+                payload = BridgePackageIn(
+                    attempt_id=f"qatar-{uuid4().hex}",
+                    source_identity=LIVE_SOURCE_IDENTITY,
+                    source_path_snapshot=snapshot,
+                    size_bytes=read.size,
+                    mtime_utc=datetime.fromtimestamp(int(read.before_modified_at) / 1_000_000_000, timezone.utc).isoformat().replace("+00:00", "Z"),
+                    payload_sha256=read.sha256,
+                    payload_b64=base64.b64encode(read.content).decode(),
+                    signature_b64="pending",
+                    source_version_token=f"{read.before_modified_at}:{read.sha256}",
+                    correlation_id=f"qatar-bridge-{project.number}-{read.sha256[:16]}",
+                    source_mode="NEW_UNKNOWN_SOURCE",
+                    scope_type="PROJECT",
+                    scope_id=project_id,
+                    project_id=project_id,
+                    field_definition_id=field_definition_id,
+                    field_raw_value=project.folder_name,
+                    source_filename=entry.name,
+                    mime_type=mimetypes.guess_type(entry.name)[0] or "application/octet-stream",
+                )
+                private_key = Ed25519PrivateKey.from_private_bytes(base64.b64decode(os.environ["BRIDGE_SIGNING_PRIVATE_KEY_B64"], validate=True))
+                payload = payload.model_copy(update={"signature_b64": base64.b64encode(private_key.sign(canonical_signature_payload(payload))).decode()})
+                response = httpx.post(os.environ["G10_API_URL"].rstrip("/") + "/api/source-intake/bridge/packages", headers={"Authorization": f"Bearer {token}"}, json=payload.model_dump(), timeout=30)
+                response.raise_for_status()
+                sent += 1
+        print(json.dumps({"source_identity": LIVE_SOURCE_IDENTITY, "logical_root": LOGICAL_ROOT, "projects_discovered": len(projects), "packages_sent": sent, "projects_skipped_without_mapping": skipped, "synology_write_count": 0}, sort_keys=True))
+    finally:
+        reader.close()
+
+
 def main() -> None:
+    if os.getenv("G10_BRIDGE_MODE", "SYNTHETIC").upper() == "LIVE":
+        run_live()
+        return
     fixture_path = Path(os.getenv("G10_BRIDGE_FIXTURE_PATH", "/workspace/backend/app/fixtures/g10_bridge_fixture.txt"))
     before = fixture_path.stat()
     content = fixture_path.read_bytes()

@@ -11,7 +11,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..models import Document, DocumentType, DocumentVersion, DocumentApprovalState, Opportunity, ProposalRevision
-from ..storage.proposal_source_tree import MountedProposalSource, SourceEntry, SourceProject
+from ..storage.proposal_source_tree import BridgeProposalSourceProvider, MountedProposalSource, ProposalSourceProvider, SourceEntry, SourceProject
 from ..storage import DocumentStorageService, StorageTarget, create_binary_store
 from ..config.settings import get_settings
 from .proposal_document_package import DocumentPackageError, digest
@@ -29,18 +29,23 @@ def configured_source_root() -> Path:
     return root
 
 
-def _source() -> MountedProposalSource:
+def _source(db: Session | None = None) -> ProposalSourceProvider:
+    """Select the source implementation without changing Proposal routes."""
+    if get_settings().source_intake_mode.upper() == "BRIDGE":
+        if db is None:
+            raise RuntimeError("BRIDGE_SOURCE_PROVIDER_REQUIRES_DATABASE")
+        return BridgeProposalSourceProvider(db)
     return MountedProposalSource(configured_source_root())
 
 
-def _project(source: MountedProposalSource, number: int) -> SourceProject:
+def _project(source: ProposalSourceProvider, number: int) -> SourceProject:
     projects = [item for item in source.discover() if item.number == number]
     if not projects:
         raise FileNotFoundError("SOURCE_PROJECT_NOT_FOUND")
     return projects[0]
 
 
-def _entry(source: MountedProposalSource, number: int, relative: str) -> SourceEntry:
+def _entry(source: ProposalSourceProvider, number: int, relative: str) -> SourceEntry:
     project = _project(source, number)
     prefix = f"{project.folder_name}/"
     if not relative.startswith(prefix):
@@ -51,8 +56,8 @@ def _entry(source: MountedProposalSource, number: int, relative: str) -> SourceE
     raise FileNotFoundError("SOURCE_FILE_NOT_FOUND")
 
 
-def projects() -> list[dict[str, Any]]:
-    with _source() as source:
+def projects(db: Session | None = None) -> list[dict[str, Any]]:
+    with _source(db) as source:
         rows = []
         for project in source.discover():
             entries = source.inventory(project.folder_name)
@@ -60,8 +65,8 @@ def projects() -> list[dict[str, Any]]:
         return rows
 
 
-def tree(number: int) -> dict[str, Any]:
-    with _source() as source:
+def tree(number: int, db: Session | None = None) -> dict[str, Any]:
+    with _source(db) as source:
         project = _project(source, number)
         entries = source.inventory(project.folder_name)
         # Preserve the adapter's source ordering and exact names.
@@ -69,7 +74,7 @@ def tree(number: int) -> dict[str, Any]:
 
 
 def capture(db: Session, number: int, *, actor: str = "source-workspace") -> dict[str, Any]:
-    with _source() as source:
+    with _source(db) as source:
         project = _project(source, number)
         entries = source.inventory(project.folder_name)
         files = [item for item in entries if not item.is_directory]

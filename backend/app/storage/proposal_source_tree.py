@@ -13,10 +13,16 @@ import os
 from pathlib import Path
 import re
 import stat
+from datetime import datetime
+from typing import Protocol
+
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 from .errors import StorageError, StorageErrorCode
 from .external import SourceChangedDuringImport, StableSourceRead
 from .port import StorageCapabilities
+from ..models import DocumentVersion
 
 LOGICAL_ROOT = "Tenders/1- Proposal/2026"
 PILOT_FOLDER = "454 - Al Watan Center"
@@ -36,6 +42,14 @@ class SourceProject:
     number: int
     folder_name: str
     discovery_class: str
+
+
+class ProposalSourceProvider(Protocol):
+    """Logical source contract shared by mounted and bridge-backed sources."""
+
+    def discover(self) -> list[SourceProject]: ...
+    def inventory(self, project_folder: str) -> list[SourceEntry]: ...
+    def capture(self, relative_path: str, *, attempts: int = 2) -> StableSourceRead: ...
 
 
 def classify_project_folder(name: str) -> SourceProject | None:
@@ -196,3 +210,155 @@ class MountedProposalSource:
                 if attempt + 1 == attempts:
                     raise
         raise AssertionError("unreachable")
+
+
+LIVE_SOURCE_URI_PREFIX = "synology://qatar/"
+
+
+class BridgeProposalSourceProvider:
+    """Reconstruct the Proposal source tree from bridge-captured versions.
+
+    The Azure application never contacts Synology.  The bridge receiver has
+    already verified the source package and persisted the bytes through the
+    canonical binary store; this provider only reads that durable record.
+    """
+
+    def __init__(self, db: Session, *, max_file_bytes: int = 128 * 1024 * 1024, max_entries: int = 100000):
+        if max_file_bytes <= 0 or max_entries <= 0:
+            raise ValueError("Source limits must be positive")
+        self.db = db
+        self.max_file_bytes = max_file_bytes
+        self.max_entries = max_entries
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_):
+        return None
+
+    @staticmethod
+    def _relative_path(version: DocumentVersion) -> str | None:
+        metadata = version.metadata_json or {}
+        relative = metadata.get("source_relative_path")
+        if isinstance(relative, str) and relative:
+            return relative
+        snapshot = metadata.get("source_path_snapshot") or version.source_path_or_reference
+        if isinstance(snapshot, str) and snapshot.startswith(LIVE_SOURCE_URI_PREFIX):
+            logical = snapshot.removeprefix(LIVE_SOURCE_URI_PREFIX)
+            prefix = LOGICAL_ROOT + "/"
+            if logical.startswith(prefix):
+                return logical.removeprefix(prefix)
+        return None
+
+    @staticmethod
+    def _modified_ns(version: DocumentVersion) -> int:
+        metadata = version.metadata_json or {}
+        raw = metadata.get("source_modified_ns") or metadata.get("source_mtime_ns")
+        if isinstance(raw, int):
+            return raw
+        if isinstance(raw, str) and raw.isdigit():
+            return int(raw)
+        raw = metadata.get("source_modified_at") or metadata.get("source_mtime_utc")
+        if isinstance(raw, str):
+            try:
+                return int(datetime.fromisoformat(raw.replace("Z", "+00:00")).timestamp() * 1_000_000_000)
+            except ValueError:
+                pass
+        return 0
+
+    def _current_versions(self) -> dict[str, DocumentVersion]:
+        rows = self.db.scalars(
+            select(DocumentVersion)
+            .where(DocumentVersion.source_system == "QATAR_SOURCE_INTAKE_BRIDGE")
+            .order_by(DocumentVersion.ingested_at, DocumentVersion.version_number)
+        ).all()
+        current: dict[str, DocumentVersion] = {}
+        for row in rows:
+            relative = self._relative_path(row)
+            metadata = row.metadata_json or {}
+            if not relative or metadata.get("source_presence_state", "PRESENT") != "PRESENT":
+                continue
+            try:
+                parts = _parts(relative)
+            except StorageError:
+                continue
+            if len(parts) < 2 or classify_project_folder(parts[0]) is None:
+                continue
+            prior = current.get(relative)
+            if prior is None or row.version_number >= prior.version_number:
+                current[relative] = row
+        if len(current) > self.max_entries:
+            raise StorageError(StorageErrorCode.QUOTA_OR_SPACE, "Source entry limit exceeded")
+        return current
+
+    def discover(self) -> list[SourceProject]:
+        projects: dict[str, SourceProject] = {}
+        for relative in self._current_versions():
+            folder = relative.split("/", 1)[0]
+            project = classify_project_folder(folder)
+            if project is not None:
+                projects[folder] = project
+        return sorted(projects.values(), key=lambda item: (item.number, item.folder_name))
+
+    def inventory(self, project_folder: str) -> list[SourceEntry]:
+        project = classify_project_folder(project_folder)
+        if project is None or len(_parts(project_folder)) != 1:
+            raise StorageError(StorageErrorCode.PATH_INVALID, "Project is outside the discovery rule")
+        versions = {
+            relative: version
+            for relative, version in self._current_versions().items()
+            if relative == project_folder or relative.startswith(project_folder + "/")
+        }
+        if not versions:
+            raise FileNotFoundError("SOURCE_PROJECT_NOT_FOUND")
+        entries: dict[str, SourceEntry] = {}
+        for relative, version in versions.items():
+            parts = _parts(relative)
+            metadata = version.metadata_json or {}
+            entries[relative] = SourceEntry(
+                relative_path=relative,
+                name=parts[-1],
+                is_directory=bool(metadata.get("source_is_directory", False)),
+                size=int(version.file_size or 0),
+                modified_ns=self._modified_ns(version),
+            )
+            for index in range(1, len(parts)):
+                directory = "/".join(parts[:index])
+                entries.setdefault(directory, SourceEntry(directory, parts[index - 1], True, 0, 0))
+        if len(entries) > self.max_entries:
+            raise StorageError(StorageErrorCode.QUOTA_OR_SPACE, "Source entry limit exceeded")
+        return sorted(entries.values(), key=lambda item: (not item.is_directory, item.name, item.relative_path))
+
+    def capture(self, relative_path: str, *, attempts: int = 2) -> StableSourceRead:
+        _parts(relative_path)
+        if not 1 <= attempts <= 3:
+            raise ValueError("Capture attempts must be between one and three")
+        version = self._current_versions().get(relative_path)
+        if version is None:
+            raise FileNotFoundError("SOURCE_FILE_NOT_FOUND")
+        metadata = version.metadata_json or {}
+        if metadata.get("source_is_directory"):
+            raise StorageError(StorageErrorCode.PATH_INVALID, "Directories cannot be captured as files")
+        if version.file_size > self.max_file_bytes:
+            raise StorageError(StorageErrorCode.QUOTA_OR_SPACE, "Source file size limit exceeded")
+        try:
+            if version.source_path_or_reference.startswith("storage://"):
+                from .service import DocumentStorageService
+                from .factory import create_binary_store
+                with DocumentStorageService(create_binary_store()).read_verified(version) as stream:
+                    content = stream.read(self.max_file_bytes + 1)
+            elif version.synthetic_content is not None:
+                content = version.synthetic_content
+            else:
+                raise StorageError(StorageErrorCode.UNAVAILABLE, "Bridge-captured bytes are unavailable")
+        except StorageError:
+            raise
+        except Exception as exc:
+            raise StorageError(StorageErrorCode.UNAVAILABLE, "Bridge-captured bytes could not be read", retryable=True) from exc
+        if len(content) > self.max_file_bytes:
+            raise StorageError(StorageErrorCode.QUOTA_OR_SPACE, "Source file size limit exceeded")
+        digest = hashlib.sha256(content).hexdigest()
+        if len(content) != version.file_size or digest != version.sha256:
+            raise StorageError(StorageErrorCode.INTEGRITY_MISMATCH, "Bridge-captured bytes failed hash verification")
+        modified = str(self._modified_ns(version))
+        return StableSourceRead(content, len(content), digest, modified, modified)

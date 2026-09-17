@@ -23,36 +23,37 @@ source_role = require_roles(Role.OWNER_SPONSOR, Role.PROCESS_CHAMPION, Role.RESP
 create_role = require_roles(Role.OWNER_SPONSOR, Role.PROCESS_CHAMPION, Role.SYSTEM_ADMIN)
 
 
-def _entry(number: int, file_id: str) -> dict[str, Any]:
+def _entry(number: int, file_id: str, db: Session) -> dict[str, Any]:
     expected = str(file_id).lower()
-    for item in tree(number)["entries"]:
+    for item in tree(number, db)["entries"]:
         if not item["is_directory"] and hashlib.sha256(item["path"].encode()).hexdigest()[:24] == expected:
             return item
     raise HTTPException(404, "SOURCE_FILE_NOT_FOUND")
 
 
 @router.get("/2026/projects")
-def source_projects(_: Role = Depends(source_role)):
-    return {"logical_root": "Tenders/1- Proposal/2026", "physical_root_configured": configured_source_root().is_absolute(), "projects": projects()}
+def source_projects(_: Role = Depends(source_role), db: Session = Depends(get_db)):
+    settings = get_settings()
+    return {"logical_root": "Tenders/1- Proposal/2026", "physical_root_configured": settings.source_intake_mode.upper() != "BRIDGE" and configured_source_root().is_absolute(), "projects": projects(db)}
 
 
 @router.get("/2026/projects/{number}/tree")
-def source_tree(number: int, _: Role = Depends(source_role)):
+def source_tree(number: int, _: Role = Depends(source_role), db: Session = Depends(get_db)):
     try:
-        return tree(number)
+        return tree(number, db)
     except (FileNotFoundError, OSError) as exc:
         raise HTTPException(404, str(exc)) from exc
 
 
 @router.get("/2026/projects/{number}/files/{file_id}")
 def source_file(number: int, file_id: str, _: Role = Depends(source_role), db: Session = Depends(get_db)):
-    item = _entry(number, file_id)
+    item = _entry(number, file_id, db)
     version = captured_version(db, number, item["path"])
     return {**item, "captured": bool(version), "source_content_hash": version.sha256 if version else None, "source_version": version.version_number if version else None, "source_presence_state": (version.metadata_json or {}).get("source_presence_state", "NOT_CAPTURED") if version else "NOT_CAPTURED"}
 
 
 def _content(number: int, file_id: str, db: Session) -> tuple[dict[str, Any], bytes]:
-    item = _entry(number, file_id)
+    item = _entry(number, file_id, db)
     version = captured_version(db, number, item["path"])
     if not version:
         result = capture(db, number, actor="source-view")
@@ -92,7 +93,7 @@ def source_download(number: int, file_id: str, _: Role = Depends(source_role), d
 @router.post("/2026/sync")
 def sync_sources(_: Role = Depends(source_role), db: Session = Depends(get_db)):
     try:
-        discovered = projects()
+        discovered = projects(db)
         runs = [capture(db, row["number"], actor="source-sync") for row in discovered]
     except (FileNotFoundError, OSError) as exc:
         raise HTTPException(503, "SOURCE_ROOT_UNAVAILABLE") from exc
