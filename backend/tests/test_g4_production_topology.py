@@ -132,6 +132,8 @@ def test_canonical_preprod_profile_is_synthetic_and_namespaced():
         "param syntheticOnly = true",
         "param realDataAllowed = false",
         "param sourceIntakeMode = 'BRIDGE'",
+        "param bridgeIntakeEnabled = true",
+        "param bridgeMaxPayloadBytes = 10485760",
         "param synologyMode = 'BRIDGE'",
         "param storageProvider = 'azure_blob'",
         "param deriveApiOriginHostName = true",
