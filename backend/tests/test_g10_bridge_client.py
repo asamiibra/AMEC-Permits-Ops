@@ -93,6 +93,40 @@ def test_sync_live_once_can_fail_closed_when_mapping_is_incomplete(monkeypatch):
         bridge.sync_live_once(Reader())
 
 
+def test_sync_live_once_reports_transient_receiver_failure_and_continues(monkeypatch):
+    content = b"retryable source"
+    project = SourceProject(454, "454 - Al Watan Center", "PROPOSALS_V1_ACTIVE_PILOT")
+    entry = SourceEntry("454 - Al Watan Center/Tender/file.pdf", "file.pdf", False, len(content), 123)
+
+    class Reader:
+        def discover(self):
+            return [project]
+
+        def inventory(self, folder):
+            return [entry]
+
+        def capture(self, relative):
+            return StableSourceRead(content, len(content), hashlib.sha256(content).hexdigest(), "123", "123")
+
+    private_key = Ed25519PrivateKey.generate()
+    monkeypatch.setenv("G10_PROJECT_ID_MAP_JSON", '{"454":"project-454"}')
+    monkeypatch.setenv("G10_FIELD_DEFINITION_ID", "field-1")
+    monkeypatch.setenv("G10_API_URL", "https://api.example.test")
+    monkeypatch.setenv("BRIDGE_SIGNING_PRIVATE_KEY_B64", base64.b64encode(private_key.private_bytes_raw()).decode())
+    monkeypatch.setattr(bridge, "_live_token", lambda: "token")
+
+    class Response:
+        status_code = 503
+
+        def json(self):
+            return {"detail": {"code": "BRIDGE_CANONICAL_STORAGE_FAILED"}}
+
+    monkeypatch.setattr(bridge.httpx, "post", lambda *args, **kwargs: Response())
+    result = bridge.sync_live_once(Reader())
+    assert result["packages_sent"] == 0
+    assert result["packages_failed_transient"] == 1
+
+
 def test_quickconnect_reader_lists_and_captures_without_write_calls():
     requests = []
     file_bytes = b"quickconnect bytes"

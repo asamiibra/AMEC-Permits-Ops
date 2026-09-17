@@ -540,6 +540,7 @@ def sync_live_once(reader: QatarSynologySourceReader) -> dict[str, object]:
     sent = 0
     skipped = 0
     skipped_oversize = 0
+    failed_transient = 0
     for project in projects:
         # Number keys are the canonical operator contract; accepting the exact
         # folder name also lets an operator map names containing spaces without
@@ -607,6 +608,13 @@ def sync_live_once(reader: QatarSynologySourceReader) -> dict[str, object]:
                     break
                 time.sleep(2 ** post_attempt)
             assert response is not None
+            if response.status_code >= 500:
+                # A single transient Blob/SQL failure must not prevent later
+                # draft projects from syncing.  Keep the failed package
+                # observable in the run result; the next scheduled pass will
+                # retry the same stable idempotency key.
+                failed_transient += 1
+                continue
             if response.status_code >= 400:
                 # Keep bridge logs useful without ever logging package bytes,
                 # credentials, bearer tokens, or Synology paths.
@@ -627,6 +635,7 @@ def sync_live_once(reader: QatarSynologySourceReader) -> dict[str, object]:
         "packages_sent": sent,
         "projects_skipped_without_mapping": skipped,
         "files_skipped_oversize": skipped_oversize,
+        "packages_failed_transient": failed_transient,
         "synology_write_count": 0,
     }
 
