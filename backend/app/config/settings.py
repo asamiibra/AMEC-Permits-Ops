@@ -32,6 +32,10 @@ class Settings(BaseSettings):
 
     synology_mode: str = "SYNTHETIC"
     source_intake_mode: str = "LOCAL"
+    # The bridge endpoint is opt-in for non-PROD environments.  Preproduction
+    # can enable it for the synthetic bridge fixture without relaxing the
+    # source identity/path allowlists or the real-data gates.
+    bridge_intake_enabled: bool = False
     bridge_tenant_id: str = ""
     bridge_client_id: str = ""
     bridge_audience: str = ""

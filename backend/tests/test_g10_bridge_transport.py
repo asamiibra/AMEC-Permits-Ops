@@ -7,9 +7,11 @@ from types import SimpleNamespace
 
 import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from fastapi import HTTPException
 
 from backend.app.schemas.bridge_intake import BridgePackageIn
 from backend.app.services.bridge_intake import canonical_signature_payload, _decode_payload, _validate_package
+from backend.app.auth import bridge as bridge_auth
 
 
 def _payload(private_key: Ed25519PrivateKey, content: bytes = b"synthetic-qatar-fixture") -> BridgePackageIn:
@@ -59,3 +61,16 @@ def test_bridge_signature_message_is_stable():
     first = _payload(private_key)
     second = _payload(private_key)
     assert canonical_signature_payload(first) == canonical_signature_payload(second)
+
+
+def test_preprod_bridge_gate_is_explicitly_opt_in(monkeypatch):
+    settings = SimpleNamespace(app_env="AZURE-PREPROD", source_intake_mode="BRIDGE", bridge_intake_enabled=False)
+    monkeypatch.setattr(bridge_auth, "get_settings", lambda: settings)
+    with pytest.raises(HTTPException) as disabled:
+        bridge_auth.current_bridge_identity(None)
+    assert disabled.value.status_code == 503
+
+    settings.bridge_intake_enabled = True
+    with pytest.raises(HTTPException) as enabled:
+        bridge_auth.current_bridge_identity(None)
+    assert enabled.value.status_code == 401

@@ -117,7 +117,8 @@ def current_bridge_identity(
     credentials: HTTPAuthorizationCredentials | None = Depends(bridge_bearer_scheme),
 ) -> BridgeIdentity:
     settings = get_settings()
-    if settings.app_env.upper() != "PROD" or settings.source_intake_mode.upper() != "BRIDGE":
+    bridge_enabled = settings.app_env.upper() == "PROD" or bool(getattr(settings, "bridge_intake_enabled", False))
+    if not bridge_enabled or settings.source_intake_mode.upper() != "BRIDGE":
         raise HTTPException(status_code=503, detail="Bridge intake is not enabled")
     if credentials is None or credentials.scheme.lower() != "bearer":
         raise HTTPException(status_code=401, detail="Bridge bearer token is required")
