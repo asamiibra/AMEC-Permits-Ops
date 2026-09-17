@@ -104,8 +104,8 @@ export function ProposalsContractsPage({ projects, persona, openRecord }: { proj
 
   if (routeNew) return <NewProposalInline persona={persona} onBack={backToRegister} navigateRoute={navigateRoute} />;
   if (routePreparationId) return <div className="workflow-page proposals-main route-detail-page"><IssueFocusBanner persona={issuePersona(persona)} /><ProposalPreparationInline proposalId={routePreparationId} persona={persona} onClose={backToRegister} /></div>;
-  if (routeEditorId) return <div className="workflow-page proposals-main route-detail-page"><IssueFocusBanner persona={issuePersona(persona)} /><ProposalDocumentEditor role={persona} onBack={backToRegister} /></div>;
-  if (routeSourceWorkspace) return <div className="workflow-page proposals-main route-detail-page"><IssueFocusBanner persona={issuePersona(persona)} /><ProposalSourceWorkspace role={persona} onBack={backToRegister} /></div>;
+  if (routeEditorId) return <div className="workflow-page proposals-main route-detail-page"><IssueFocusBanner persona={issuePersona(persona)} /><ProposalDocumentEditor role={persona} proposalId={routeEditorId} revisionId={new URLSearchParams(window.location.search).get("revision") || undefined} onBack={() => navigateRoute(`/proposals/${routeEditorId}`)} /></div>;
+  if (routeSourceWorkspace) return <div className="workflow-page proposals-main route-detail-page"><IssueFocusBanner persona={issuePersona(persona)} /><ProposalSourceWorkspace role={persona} onBack={backToRegister} onOpenEditor={(proposalId, revisionId) => navigateRoute(`/proposals/${proposalId}/editor?revision=${encodeURIComponent(revisionId)}`)} /></div>;
   if (routeProposalId) return <div className="workflow-page proposals-main route-detail-page"><IssueFocusBanner persona={issuePersona(persona)} /><ProposalDetailInline proposalId={routeProposalId} persona={persona} projects={projects} onBack={backToRegister} navigateRoute={navigateRoute} /></div>;
   if (routeContractId) return <CanonicalContractRedirect contractId={routeContractId} navigateRoute={navigateRoute} />;
 

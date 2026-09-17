@@ -19,7 +19,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from ..api.dependencies import require_roles
 from ..db import get_db
-from ..models import Document, DocumentType, Opportunity, ProposalRevision, Role
+from ..models import Document, DocumentType, DocumentVersion, Opportunity, ProposalRevision, Role
 from ..storage import DocumentStorageService, StorageTarget, create_binary_store
 
 from ..services.proposal_document_package import DocumentPackageError, apply_text_mutations, digest, package_parts
@@ -134,6 +134,43 @@ def load_canonical_editor_revision(proposal_id: str, revision_id: str, db: Sessi
     _, revision = _canonical_revision(proposal_id, revision_id, db)
     snapshot = revision.snapshot or {}
     return {"proposal_id": proposal_id, "revision_id": revision.id, "revision_number": revision.revision_number, "status": revision.status, "editor_model": snapshot.get("editor_model"), "baseline_hash": snapshot.get("baseline_hash"), "working_hash": snapshot.get("working_hash"), "source_set_hash": snapshot.get("source_set_hash"), "change_plan": snapshot.get("change_plan", {}), "ai_provenance": snapshot.get("ai_provenance", {})}
+
+
+@router.get("/proposals/{proposal_id}/revisions/{revision_id}/document")
+def download_canonical_editor_document(proposal_id: str, revision_id: str, db: Session = Depends(get_db), _: Role = Depends(editor_role)):
+    """Return the exact DOCX package represented by a working revision.
+
+    The browser receives bytes only through this verified server-owned path;
+    it never needs to infer a source path or persist a DOCX itself.
+    """
+    _, revision = _canonical_revision(proposal_id, revision_id, db)
+    snapshot = revision.snapshot or {}
+    version_id = snapshot.get("editor_document_version_id") or snapshot.get("editor_baseline_document_version_id")
+    version = db.get(DocumentVersion, version_id) if version_id else None
+    if version is None:
+        raise HTTPException(404, "PROPOSAL_REVISION_DOCUMENT_NOT_FOUND")
+    try:
+        if version.source_path_or_reference.startswith("storage://"):
+            with DocumentStorageService(create_binary_store()).read_verified(version) as stream:
+                content = stream.read()
+        elif version.synthetic_content is not None:
+            content = version.synthetic_content
+        else:
+            raise HTTPException(404, "PROPOSAL_REVISION_DOCUMENT_NOT_FOUND")
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(503, "PROPOSAL_REVISION_DOCUMENT_READ_FAILED") from exc
+    if digest(content) != version.sha256:
+        raise HTTPException(503, "PROPOSAL_REVISION_DOCUMENT_INTEGRITY_DRIFT")
+    return StreamingResponse(
+        io.BytesIO(content),
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        headers={
+            "Content-Disposition": 'inline; filename="proposal-revision.docx"',
+            "X-Proposal-Document-SHA256": digest(content),
+        },
+    )
 
 
 @router.post("/proposals/{proposal_id}/revisions/{revision_id}/save")

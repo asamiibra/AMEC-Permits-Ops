@@ -90,7 +90,13 @@ def _runtime_settings(settings: Settings, provider: Any | None) -> Settings:
         "ai_uami_principal_id": "00000000-0000-0000-0000-000000000002",
         "ai_azure_tenant_id": "00000000-0000-0000-0000-000000000003",
         "ai_d3_project_ids": ("synthetic-proposal",),
-        "ai_max_input_token_upper_bound": 8192,
+        # The Proposal source workspace intentionally carries the complete
+        # recursive source set (the pilot has 13 files).  The provider input
+        # contains bounded projections for each source, so use the registered
+        # Proposal skill budget rather than the smaller single-document
+        # default.  This changes only the deterministic synthetic provider;
+        # production settings and the real gateway remain unchanged.
+        "ai_max_input_token_upper_bound": 24000,
         "ai_max_output_tokens": 512,
         "ai_max_requests_per_user_per_minute": 100,
         "ai_max_requests_per_user_per_hour": 1000,

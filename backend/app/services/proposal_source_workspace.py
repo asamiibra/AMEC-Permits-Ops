@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import mimetypes
 import os
 from pathlib import Path
@@ -9,10 +10,12 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from ..models import Document, DocumentType, DocumentVersion, DocumentApprovalState
+from ..models import Document, DocumentType, DocumentVersion, DocumentApprovalState, Opportunity, ProposalRevision
 from ..storage.proposal_source_tree import MountedProposalSource, SourceEntry, SourceProject
 from ..storage import DocumentStorageService, StorageTarget, create_binary_store
 from ..config.settings import get_settings
+from .proposal_document_package import DocumentPackageError, digest
+from .proposal_editor_model import import_editor_model
 
 LOGICAL_ROOT = "Tenders/1- Proposal/2026"
 PILOT = "454 - Al Watan Center"
@@ -78,13 +81,34 @@ def capture(db: Session, number: int, *, actor: str = "source-workspace") -> dic
             versions = db.scalars(select(DocumentVersion).where(DocumentVersion.metadata_json["proposal_source_key"].as_string() == key).order_by(DocumentVersion.version_number.desc())).all()
             current = versions[0] if versions else None
             if current and current.sha256 == read.sha256:
+                # Backfill the explicit fixture marker for databases created
+                # before this source bridge carried synthetic provenance. The
+                # marker is only ever added in TEST/DEV synthetic mode; a
+                # live capture can never be relabelled by this path.
+                if get_settings().synthetic_only and get_settings().app_env.upper() in {"TEST", "DEV", "DEVELOPMENT"}:
+                    current.metadata_json = {**(current.metadata_json or {}), "synthetic_non_business_fixture": True, "synthetic_only": True}
                 unchanged += 1
                 continue
             document = current.document if current else Document(document_type=DocumentType.OTHER, logical_name=item.name, language="UNKNOWN", source_system="SYNOLOGY_PROPOSAL_SOURCE")
             if not current:
                 db.add(document)
                 db.flush()
-            metadata = {"proposal_source_key": key, "source_project_number": number, "source_root": LOGICAL_ROOT, "source_relative_path": item.relative_path, "source_modified_at": read.before_modified_at, "capture_actor": actor, "source_presence_state": "PRESENT"}
+            metadata = {
+                "proposal_source_key": key,
+                "source_project_number": number,
+                "source_root": LOGICAL_ROOT,
+                "source_relative_path": item.relative_path,
+                "source_modified_at": read.before_modified_at,
+                "capture_actor": actor,
+                "source_presence_state": "PRESENT",
+                # TEST/DEV captures are explicitly synthetic so the shared
+                # AI context compiler can prove its safety boundary.  Live
+                # bridge captures never inherit this marker.
+                "synthetic_non_business_fixture": bool(
+                    get_settings().synthetic_only
+                    and get_settings().app_env.upper() in {"TEST", "DEV", "DEVELOPMENT"}
+                ),
+            }
             # All new captures use the same verified storage protocol as the
             # rest of the SOR.  The mock provider is permitted only in the
             # synthetic TEST/DEV profile, while SMB/Azure persist outside it.
@@ -112,3 +136,94 @@ def capture(db: Session, number: int, *, actor: str = "source-workspace") -> dic
 def captured_version(db: Session, number: int, relative: str) -> DocumentVersion | None:
     key = f"PROPOSAL_SOURCE:{number}:{relative}"
     return db.scalar(select(DocumentVersion).where(DocumentVersion.metadata_json["proposal_source_key"].as_string() == key).order_by(DocumentVersion.version_number.desc()))
+
+
+def _version_bytes(version: DocumentVersion) -> bytes | None:
+    """Read a captured version through its canonical storage reference."""
+    if version.source_path_or_reference.startswith("storage://"):
+        try:
+            with DocumentStorageService(create_binary_store()).read_verified(version) as stream:
+                return stream.read()
+        except Exception:
+            return None
+    return version.synthetic_content
+
+
+def ensure_editor_revision(
+    db: Session,
+    proposal: Opportunity,
+    versions: list[DocumentVersion],
+    *,
+    source_set_hash: str,
+    actor: str,
+) -> dict[str, Any]:
+    """Create the first working Option B revision from a captured DOCX.
+
+    Source capture and Proposal creation are useful without a DOCX, so an
+    unsupported or malformed source is reported as an explicit readiness
+    state.  A revision is seeded only after the server validates the package
+    and builds its immutable editor anchors.
+    """
+    existing = db.scalar(
+        select(ProposalRevision)
+        .where(ProposalRevision.proposal_id == proposal.id, ProposalRevision.status == "DRAFT")
+        .order_by(ProposalRevision.revision_number.desc())
+    )
+    if existing:
+        return {
+            "editor_ready": True,
+            "editor_revision_id": existing.id,
+            "editor_revision_number": existing.revision_number,
+            "editor_baseline_hash": (existing.snapshot or {}).get("baseline_hash"),
+        }
+
+    candidates = [
+        version for version in versions
+        if (version.source_filename or "").lower().endswith(".docx")
+    ]
+    for version in sorted(candidates, key=lambda item: (item.version_number, item.id)):
+        content = _version_bytes(version)
+        if not content:
+            continue
+        try:
+            editor_model = import_editor_model(content)
+        except (DocumentPackageError, ValueError, TypeError):
+            continue
+        snapshot = {
+            "editor_model": editor_model,
+            "baseline_hash": digest(content),
+            "working_hash": digest(content),
+            "source_set_hash": source_set_hash,
+            "source_ids": [item.id for item in versions],
+            "editor_baseline_document_version_id": version.id,
+            "ai_provenance": {
+                "source_set_hash": source_set_hash,
+                "evidence_refs": [item.id for item in versions],
+                "provenance_state": "RECORDED",
+                "generation_mode": "SYNTHETIC_DETERMINISTIC" if get_settings().synthetic_only else "GOVERNED_SOURCE",
+            },
+        }
+        revision = ProposalRevision(
+            proposal_id=proposal.id,
+            revision_number=1,
+            status="DRAFT",
+            change_summary={"created_from": "SOURCE_WORKSPACE", "source_document_version_id": version.id},
+            snapshot=snapshot,
+            content_hash=digest(json.dumps(snapshot, sort_keys=True, separators=(",", ":")).encode()),
+            created_by=actor,
+        )
+        db.add(revision)
+        db.flush()
+        return {
+            "editor_ready": True,
+            "editor_revision_id": revision.id,
+            "editor_revision_number": revision.revision_number,
+            "editor_baseline_hash": snapshot["baseline_hash"],
+        }
+    return {
+        "editor_ready": False,
+        "editor_revision_id": None,
+        "editor_revision_number": None,
+        "editor_baseline_hash": None,
+        "editor_blocker": "VALID_DOCX_SOURCE_REQUIRED",
+    }

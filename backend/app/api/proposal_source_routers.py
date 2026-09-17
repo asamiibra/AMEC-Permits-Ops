@@ -13,7 +13,8 @@ from sqlalchemy.orm import Session
 from ..api.dependencies import require_roles
 from ..db import get_db
 from ..models import DocumentVersion, ProposalSourceEvidence, ProposalSourceLink, Role
-from ..services.proposal_source_workspace import LOGICAL_ROOT, captured_version, capture, configured_source_root, projects, tree
+from ..services.proposal_source_workspace import LOGICAL_ROOT, captured_version, capture, configured_source_root, ensure_editor_revision, projects, tree
+from ..config.settings import get_settings
 from ..storage import DocumentStorageService, create_binary_store
 from .bd_proposal_routers import ProposalCreate, _create_proposal_record
 
@@ -105,6 +106,13 @@ def create_proposal_from_source_workspace(number: int, request: Request, db: Ses
         raise HTTPException(409, "PROJECT_NOT_READY_FOR_PROPOSAL")
     run = capture(db, number, actor="source-create-proposal")
     item = _create_proposal_record(ProposalCreate(proposal_description="Al Watan Center Proposal", project_reference=str(number), client_name="Al Watan Center", idempotency_key=f"proposal-source-project:{number}"), request, db, role)
+    # The source adapter is synthetic-only in TEST/DEV/Azure pre-production.
+    # Mark the Proposal projection accordingly so the shared AI context
+    # compiler can prove that the entity and its captured evidence belong to
+    # the same non-business fixture boundary. Production/live captures stay
+    # NON_SYNTHETIC and remain fail-closed until governed data is configured.
+    if get_settings().synthetic_only:
+        item.fixture_classification = "SYNTHETIC_OWNER_TEST"
     versions = db.scalars(select(DocumentVersion).where(DocumentVersion.metadata_json["source_project_number"].as_integer() == number).order_by(DocumentVersion.ingested_at)).all()
     hashes: list[str] = []
     for version in versions:
@@ -119,5 +127,6 @@ def create_proposal_from_source_workspace(number: int, request: Request, db: Ses
             db.add(ProposalSourceLink(proposal_id=item.id, source_evidence_id=evidence.id, document_id=version.document_id, document_version_id=version.id, source_role="SOURCE_WORKSPACE", added_by="source-create-proposal"))
     source_set_hash = hashlib.sha256("".join(sorted(hashes)).encode()).hexdigest()
     item.proposal_fields_json = {**(item.proposal_fields_json or {}), "source_workspace": {"logical_root": LOGICAL_ROOT, "project_number": number, "source_set_hash": source_set_hash, "captured_count": run["captured_count"]}}
+    editor = ensure_editor_revision(db, item, versions, source_set_hash=source_set_hash, actor="source-create-proposal")
     db.commit()
-    return {"result": "CREATED", "proposal_id": item.id, "proposal_reference": item.opportunity_reference, "source_set_hash": source_set_hash, "source_count": len(versions), "capture": run}
+    return {"result": "CREATED", "proposal_id": item.id, "proposal_reference": item.opportunity_reference, "source_set_hash": source_set_hash, "source_count": len(versions), "capture": run, **editor}
