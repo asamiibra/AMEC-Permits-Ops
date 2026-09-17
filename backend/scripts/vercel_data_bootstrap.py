@@ -74,20 +74,10 @@ def ensure_current_schema() -> str:
     inspector = inspect(engine)
     versions = migration_versions()
     if versions:
-        # Older synthetic Vercel databases were created from a partial
-        # historical migration path. Create only missing current-model tables
-        # before replaying additive Alembic migrations so later DDL can safely
-        # reference them. This is non-destructive and build-time only; it does
-        # not stamp, reset, or replace existing business data.
-        expected_tables = set(Base.metadata.tables) - {"alembic_version"}
-        existing_tables = set(inspector.get_table_names()) - {"alembic_version"}
-        missing_tables = expected_tables - existing_tables
-        if missing_tables:
-            Base.metadata.create_all(
-                bind=engine,
-                tables=[Base.metadata.tables[name] for name in sorted(missing_tables)],
-                checkfirst=True,
-            )
+        # Alembic is the sole schema authority for a versioned database.  Do
+        # not pre-create ORM tables here: doing so can race the migration that
+        # owns the table and leave a deployment stuck on DuplicateTable after
+        # an otherwise successful legacy upgrade.
         command.upgrade(config, "head")
         return "upgrade_head"
 
