@@ -140,3 +140,13 @@ def test_quickconnect_reader_rejects_paths_outside_project():
     )
     with pytest.raises(RuntimeError, match="SYNOLOGY_FILE_OUTSIDE_PROJECT"):
         reader.capture("not-a-project/file.txt")
+
+
+def test_quickconnect_reader_rejects_oversized_listing_before_download(monkeypatch):
+    reader = bridge.QuickConnectSynologySourceReader(
+        base_url="https://quickconnect.example", account="reader", password="secret", client=object(), max_file_bytes=10
+    )
+    monkeypatch.setattr(reader, "_stat", lambda relative: SourceEntry(relative, "large.bin", False, 11, 1))
+    monkeypatch.setattr(reader, "_download", lambda relative: pytest.fail("oversized file must not be downloaded"))
+    with pytest.raises(RuntimeError, match="LIVE_FILE_REQUIRES_CHUNKED_TRANSPORT"):
+        reader.capture("454 - Al Watan Center/large.bin")

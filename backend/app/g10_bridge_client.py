@@ -451,6 +451,12 @@ class QuickConnectSynologySourceReader:
             raise ValueError("Capture attempts must be between one and three")
         for attempt in range(attempts):
             before = self._stat(relative)
+            # File Station may use chunked transfer encoding and omit a
+            # Content-Length header.  The bounded source contract must make
+            # this decision from the authoritative listing metadata before
+            # downloading any bytes.
+            if before.size > self.max_file_bytes:
+                raise RuntimeError("LIVE_FILE_REQUIRES_CHUNKED_TRANSPORT")
             content = self._download(relative)
             after = self._stat(relative)
             digest = _sha(content)
