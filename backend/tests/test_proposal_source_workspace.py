@@ -124,7 +124,9 @@ def test_source_routes_require_authenticated_owner(client):
     denied = {"X-Dev-Role": "NOT_A_ROLE"}
     assert client.get("/api/proposals/sources/2026/projects", headers=denied).status_code in {401, 403}
     assert client.post("/api/proposals/sources/2026/sync", headers=denied).status_code in {401, 403}
-    assert client.post("/api/proposals/sources/2026/projects/520/create-proposal", headers={"X-Dev-Role": "SYSTEM_ADMIN"}).status_code == 409
+    # Every synced Draft is manually promotable; 520 is no longer a special
+    # blocked case and remains idempotent on repeat promotion.
+    assert client.post("/api/proposals/sources/2026/projects/520/create-proposal", headers={"X-Dev-Role": "SYSTEM_ADMIN"}).status_code == 200
 
 
 def test_fixture_discovers_pilot_and_520_draft_only():

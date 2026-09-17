@@ -28,6 +28,18 @@ class SourceProposalCreatePayload(BaseModel):
     """Owner choices applied when promoting a synced source project."""
 
     excluded_source_paths: list[str] = Field(default_factory=list)
+    source_categories: dict[str, str] = Field(default_factory=dict)
+
+
+LOGICAL_SOURCE_CATEGORIES = {
+    "TENDER_DOCUMENTS",
+    "PHOTOS_IMAGES",
+    "EMAIL",
+    "CLIENT_DATA",
+    "CLIENT_DOCUMENTS",
+    "PROJECT_INFORMATION",
+    "OTHER_UNCLASSIFIED",
+}
 
 
 def _entry(number: int, file_id: str, db: Session) -> dict[str, Any]:
@@ -115,9 +127,7 @@ def create_proposal_from_source_workspace(
     db: Session = Depends(get_db),
     role: Role = Depends(create_role),
 ):
-    """Create one canonical Proposal from the explicitly selected pilot."""
-    if number != 454:
-        raise HTTPException(409, "PROJECT_NOT_READY_FOR_PROPOSAL")
+    """Create one canonical Proposal from any explicitly selected Draft."""
     run = capture(db, number, actor="source-create-proposal")
     # Bridge captures are attached to the canonical Project row so downstream
     # intake, provenance, and editor records share one project identity.  The
@@ -133,6 +143,10 @@ def create_proposal_from_source_workspace(
         item.fixture_classification = "SYNTHETIC_OWNER_TEST"
     versions = db.scalars(select(DocumentVersion).where(DocumentVersion.metadata_json["source_project_number"].as_integer() == number).order_by(DocumentVersion.ingested_at)).all()
     excluded_paths = {path.strip() for path in (payload.excluded_source_paths if payload else []) if path and path.strip()}
+    requested_categories = payload.source_categories if payload else {}
+    invalid_categories = sorted({value for value in requested_categories.values() if value not in LOGICAL_SOURCE_CATEGORIES})
+    if invalid_categories:
+        raise HTTPException(422, {"code": "SOURCE_CATEGORY_INVALID", "allowed": sorted(LOGICAL_SOURCE_CATEGORIES), "values": invalid_categories})
     selected_versions = [
         version for version in versions
         if (version.metadata_json or {}).get("source_relative_path") not in excluded_paths
@@ -150,14 +164,20 @@ def create_proposal_from_source_workspace(
         hashes.append(version.sha256)
         evidence = db.scalar(select(ProposalSourceEvidence).where(ProposalSourceEvidence.proposal_id == item.id, ProposalSourceEvidence.source_type == "SYNOLOGY_FILE", ProposalSourceEvidence.content_hash == version.sha256))
         if not evidence:
-            evidence = ProposalSourceEvidence(proposal_id=item.id, source_type="SYNOLOGY_FILE", source_filename=version.source_filename, source_reference=version.source_path_or_reference, content_hash=version.sha256, content_type=version.mime_type, provenance={"kind": "synology_source_workspace", "relative_path": (version.metadata_json or {}).get("source_relative_path"), "document_version_id": version.id, "verification": "READ_BACK_VERIFIED"}, status="CURRENT", verification_state="READ_BACK_VERIFIED", created_by="source-create-proposal")
+            relative_path = (version.metadata_json or {}).get("source_relative_path")
+            logical_category = requested_categories.get(relative_path, "OTHER_UNCLASSIFIED")
+            evidence = ProposalSourceEvidence(proposal_id=item.id, source_type="SYNOLOGY_FILE", source_filename=version.source_filename, source_reference=version.source_path_or_reference, content_hash=version.sha256, content_type=version.mime_type, provenance={"kind": "synology_source_workspace", "relative_path": relative_path, "logical_category": logical_category, "document_version_id": version.id, "verification": "READ_BACK_VERIFIED"}, status="CURRENT", verification_state="READ_BACK_VERIFIED", created_by="source-create-proposal")
             db.add(evidence)
             db.flush()
         linked = db.scalar(select(ProposalSourceLink).where(ProposalSourceLink.proposal_id == item.id, ProposalSourceLink.document_version_id == version.id, ProposalSourceLink.source_role == "SOURCE_WORKSPACE"))
         if not linked:
             db.add(ProposalSourceLink(proposal_id=item.id, source_evidence_id=evidence.id, document_id=version.document_id, document_version_id=version.id, source_role="SOURCE_WORKSPACE", added_by="source-create-proposal"))
+        elif not linked.active:
+            linked.active = True
+            linked.source_evidence_id = evidence.id
+            linked.added_by = "source-create-proposal"
     source_set_hash = hashlib.sha256("".join(sorted(hashes)).encode()).hexdigest()
-    item.proposal_fields_json = {**(item.proposal_fields_json or {}), "source_workspace": {"logical_root": LOGICAL_ROOT, "project_number": number, "source_set_hash": source_set_hash, "captured_count": run["captured_count"], "selected_count": len(selected_versions), "excluded_source_paths": sorted(excluded_paths)}}
+    item.proposal_fields_json = {**(item.proposal_fields_json or {}), "source_workspace": {"logical_root": LOGICAL_ROOT, "project_number": number, "source_set_hash": source_set_hash, "captured_count": run["captured_count"], "selected_count": len(selected_versions), "excluded_source_paths": sorted(excluded_paths), "source_categories": {key: requested_categories[key] for key in sorted(requested_categories) if key not in excluded_paths}}}
     editor = ensure_editor_revision(db, item, selected_versions, source_set_hash=source_set_hash, actor="source-create-proposal")
     db.commit()
     return {"result": "CREATED", "proposal_id": item.id, "proposal_reference": item.opportunity_reference, "source_set_hash": source_set_hash, "source_count": len(selected_versions), "excluded_source_count": len(excluded_paths), "capture": run, **editor}

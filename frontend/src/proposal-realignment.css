@@ -36,3 +36,25 @@
 .source-file { display: flex; justify-content: space-between; align-items: center; gap: 1rem; border-bottom: 1px solid var(--line, #e5e7eb); padding: .65rem 0; }
 .source-preview { margin-top: 1rem; border: 1px solid var(--line, #e5e7eb); padding: .75rem; }
 .source-preview iframe { width: 100%; min-height: 70vh; border: 0; }
+
+/* Proposal V1 source browser: logical categories stay neutral while exact
+   Synology paths remain visible as provenance. */
+.source-workspace-projects button.active { border-color: #159b90; box-shadow: 0 0 0 2px #159b901c; }
+.source-folder { background: #fff; border: 1px solid #d8e4e8; color: #17324d; cursor: pointer; }
+.source-folder.active { background: #eaf6f3; border-color: #159b90; }
+.source-category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: .5rem; margin: 0 0 1rem; }
+.source-category-grid button { display: flex; justify-content: space-between; gap: .5rem; padding: .65rem .75rem; border: 1px solid #d8e4e8; border-radius: .35rem; background: #fff; color: #31505e; font-size: .75rem; font-weight: 800; cursor: pointer; text-align: left; }
+.source-category-grid button.active { background: #eaf6f3; border-color: #159b90; color: #147c6f; }
+.source-file { align-items: flex-start; }
+.source-file.excluded { opacity: .58; background: #f8fafc; }
+.source-file-copy { min-width: 0; flex: 1; }
+.source-file-copy > b { overflow-wrap: anywhere; }
+.source-badge { display: inline-block; padding: .15rem .4rem; border-radius: 999px; background: #edf3f5; color: #58717e; font-size: .65rem; font-weight: 800; }
+.source-category-select { display: inline-flex; align-items: center; gap: .4rem; margin-top: .45rem; color: #58717e; font-size: .7rem; font-weight: 800; }
+.source-category-select select, .source-add-row select { padding: .4rem .5rem; border: 1px solid #d8e4e8; border-radius: .3rem; background: #fff; color: #17324d; }
+.source-file-actions { display: flex; gap: .35rem; flex-wrap: wrap; justify-content: flex-end; }
+.source-file-action { padding: .4rem .55rem; border: 1px solid #b9d9d4; border-radius: .3rem; background: #fff; color: #147c6f; font-size: .7rem; font-weight: 800; cursor: pointer; }
+.source-file-action:hover { background: #eaf6f3; }
+.source-add-row { display: flex; align-items: end; gap: .65rem; flex-wrap: wrap; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e0e8ed; }
+.source-add-row label { display: grid; gap: .3rem; color: #486878; font-size: .72rem; font-weight: 800; }
+@media (max-width: 700px) { .source-file { display: block; } .source-file-actions { justify-content: flex-start; margin-top: .6rem; } }

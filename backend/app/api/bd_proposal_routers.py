@@ -1021,13 +1021,16 @@ async def create_proposal_intake(request: Request, proposal_description: str = F
 
 
 @router.post("/{proposal_id}/sources")
-async def add_source(proposal_id: str, request: Request, source_type: str = Form(...), file: UploadFile = File(...), source_revision: str | None = Form(default=None), actor: str | None = Form(default=None), idempotency_key: str | None = Form(default=None), db: Session = Depends(get_db), role: Role = Depends(current_user_role), x_synthetic_sor: str | None = Header(default=None)):
+async def add_source(proposal_id: str, request: Request, source_type: str = Form(...), file: UploadFile = File(...), source_revision: str | None = Form(default=None), logical_category: str | None = Form(default=None), actor: str | None = Form(default=None), idempotency_key: str | None = Form(default=None), db: Session = Depends(get_db), role: Role = Depends(current_user_role), x_synthetic_sor: str | None = Header(default=None)):
     require_capability(role, "BD_PROPOSAL_WRITE")
     proposal = db.get(Opportunity, proposal_id)
     if not proposal:
         raise HTTPException(404, "PROPOSAL_NOT_FOUND")
     content = await file.read()
-    result = await _register_source_content(proposal=proposal, request=request, source_type=source_type, source_filename=file.filename or "source.bin", content_type=file.content_type or "application/octet-stream", content=content, source_revision=source_revision, actor=_actor(role, actor), idempotency_key=idempotency_key, source_metadata=None, db=db, role=role)
+    allowed_categories = {"TENDER_DOCUMENTS", "PHOTOS_IMAGES", "EMAIL", "CLIENT_DATA", "CLIENT_DOCUMENTS", "PROJECT_INFORMATION", "OTHER_UNCLASSIFIED"}
+    if logical_category and logical_category not in allowed_categories:
+        raise HTTPException(422, {"code": "SOURCE_CATEGORY_INVALID", "allowed": sorted(allowed_categories)})
+    result = await _register_source_content(proposal=proposal, request=request, source_type=source_type, source_filename=file.filename or "source.bin", content_type=file.content_type or "application/octet-stream", content=content, source_revision=source_revision, actor=_actor(role, actor), idempotency_key=idempotency_key, source_metadata={"logical_category": logical_category} if logical_category else None, db=db, role=role)
     db.commit()
     return {**result, "proposal": proposal_projection(db, proposal)}
 
