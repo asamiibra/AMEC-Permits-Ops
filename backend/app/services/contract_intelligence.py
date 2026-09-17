@@ -9,16 +9,16 @@ from uuid import uuid4
 from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
-from backend.app.ai.contract_skills import CONTRACT_CONTEXT_VERSION, CONTRACT_POLICY_VERSION, CONTRACT_SKILLS_BY_ID
-from backend.app.ai.provider import AIProviderRequest, AIProviderResult, AIProviderUsage
-from backend.app.ai.skill_runtime import RuntimeDependencies, SkillExecutionRequest, SkillRuntime
-from backend.app.api.dependencies import AuthenticatedPrincipal
-from backend.app.config.settings import Settings
-from backend.app.models import AIWorkProduct, Contract, ContractAdminEvidence, ContextDependency, ContractRevision, WorkflowTask
-from backend.app.services.backend_realignment import require_capability
-from backend.app.services.intelligence_contracts import IntelligenceContractError
-from backend.app.services.intelligence_foundation import record_module_review_decision
-from backend.app.ai.skill_registry import SKILL_REGISTRY
+from ..ai.contract_skills import CONTRACT_CONTEXT_VERSION, CONTRACT_POLICY_VERSION, CONTRACT_SKILLS_BY_ID
+from ..ai.provider import AIProviderRequest, AIProviderResult, AIProviderUsage
+from ..ai.skill_runtime import RuntimeDependencies, SkillExecutionRequest, SkillRuntime
+from ..api.dependencies import AuthenticatedPrincipal
+from ..config.settings import Settings
+from ..models import AIWorkProduct, Contract, ContractAdminEvidence, ContextDependency, ContractRevision, WorkflowTask
+from .backend_realignment import require_capability
+from .intelligence_contracts import IntelligenceContractError
+from .intelligence_foundation import record_module_review_decision
+from ..ai.skill_registry import SKILL_REGISTRY
 
 
 class ContractDeterministicProvider:

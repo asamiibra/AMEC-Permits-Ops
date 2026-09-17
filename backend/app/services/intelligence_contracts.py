@@ -15,7 +15,7 @@ from pydantic import BaseModel, ConfigDict, model_validator
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from backend.app.models.intelligence_entities import (
+from ..models.intelligence_entities import (
     AIWorkProduct,
     CandidateAssertion,
     ContextDependency,

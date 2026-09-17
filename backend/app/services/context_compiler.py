@@ -17,7 +17,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from backend.app.models import (
+from ..models import (
     AssertionStatus,
     CandidateAssertion,
     Contract,
@@ -42,8 +42,8 @@ from backend.app.models import (
     User,
     VerifiedAssertion,
 )
-from backend.app.services.backend_realignment import CAPABILITY_MATRIX, persona_for_role, require_capability
-from backend.app.services.intelligence_contracts import (
+from .backend_realignment import CAPABILITY_MATRIX, persona_for_role, require_capability
+from .intelligence_contracts import (
     IntelligenceContractError,
     SkillManifest,
     create_context_snapshot,
@@ -51,8 +51,8 @@ from backend.app.services.intelligence_contracts import (
     record_context_dependency,
     stable_hash,
 )
-from backend.app.services.intelligence_foundation import ensure_builtin_policy
-from backend.app.services.master_content import (
+from .intelligence_foundation import ensure_builtin_policy
+from .master_content import (
     canonical_master_content_candidates,
     exact_master_content_binding_check,
     resolve_master_content_purpose,

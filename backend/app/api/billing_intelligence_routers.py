@@ -9,12 +9,12 @@ from fastapi import APIRouter, Depends, Header, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.orm import Session
 
-from backend.app.api.dependencies import AuthenticatedPrincipal, trusted_current_principal
-from backend.app.ai.billing_skill_pack import BILLING_SKILLS_BY_ID
-from backend.app.config.settings import get_settings
-from backend.app.db import get_db
-from backend.app.services.billing_intelligence import execute_billing_intelligence
-from backend.app.services.context_compiler import ContextSourceSpec
+from .dependencies import AuthenticatedPrincipal, trusted_current_principal
+from ..ai.billing_skill_pack import BILLING_SKILLS_BY_ID
+from ..config.settings import get_settings
+from ..db import get_db
+from ..services.billing_intelligence import execute_billing_intelligence
+from ..services.context_compiler import ContextSourceSpec
 
 
 router = APIRouter(prefix="/api/billing/intelligence", tags=["billing-intelligence"])
