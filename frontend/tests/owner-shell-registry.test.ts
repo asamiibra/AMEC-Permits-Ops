@@ -13,7 +13,7 @@ describe("Owner shell feature registry", () => {
     expect(getPrimaryNavigation("SYSTEM_ADMIN").map((item) => item.label)).toEqual([
       "Home",
       "Content Library",
-      "Proposals",
+      "Proposals V1",
       "Contracts",
       "Billing",
     ]);
