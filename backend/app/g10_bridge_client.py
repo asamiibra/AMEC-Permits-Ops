@@ -7,13 +7,12 @@ import hashlib
 import json
 import mimetypes
 import os
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
 import httpx
-from azure.identity import ManagedIdentityCredential
-from azure.identity import CertificateCredential
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from .schemas.bridge_intake import BridgePackageIn
@@ -29,6 +28,64 @@ MAX_LIVE_FILE_BYTES = 10 * 1024 * 1024
 
 def _sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
+
+
+def _env_bool(name: str, default: bool = False) -> bool:
+    """Parse a strict boolean environment setting.
+
+    Bridge settings are operator supplied, so silently treating a typo as
+    false would make a requested continuous sync look like a one-shot run.
+    """
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    value = raw.strip().lower()
+    if value in {"1", "true", "yes", "on"}:
+        return True
+    if value in {"0", "false", "no", "off"}:
+        return False
+    raise ValueError(f"{name} must be a boolean")
+
+
+def _sync_interval_seconds() -> int:
+    raw = os.getenv("G10_SYNC_INTERVAL_SECONDS", "300")
+    try:
+        interval = int(raw)
+    except ValueError as exc:
+        raise ValueError("G10_SYNC_INTERVAL_SECONDS must be an integer") from exc
+    if interval < 5 or interval > 86400:
+        raise ValueError("G10_SYNC_INTERVAL_SECONDS must be between 5 and 86400")
+    return interval
+
+
+def _project_id_map() -> dict[str, str]:
+    raw = os.getenv("G10_PROJECT_ID_MAP_JSON", "{}")
+    try:
+        value = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise ValueError("G10_PROJECT_ID_MAP_JSON must be valid JSON") from exc
+    if not isinstance(value, dict):
+        raise ValueError("G10_PROJECT_ID_MAP_JSON must be an object")
+    result: dict[str, str] = {}
+    for key, project_id in value.items():
+        if not isinstance(key, str) or not isinstance(project_id, str) or not project_id.strip():
+            raise ValueError("G10_PROJECT_ID_MAP_JSON values must be non-empty strings")
+        result[key.strip()] = project_id.strip()
+    if os.getenv("G10_PROJECT_ID"):
+        result.setdefault("454", os.environ["G10_PROJECT_ID"])
+    return result
+
+
+def _live_attempt_id(source_path_snapshot: str, source_version_token: str) -> str:
+    """Return a stable idempotency key for one source version.
+
+    The former random attempt id caused every polling pass to create a new
+    intake event for unchanged bytes.  Including the bounded URI and the
+    source version token makes retries and later polling passes converge while
+    a changed file receives a new event.
+    """
+    material = f"{source_path_snapshot}\0{source_version_token}".encode("utf-8")
+    return f"qatar-{hashlib.sha256(material).hexdigest()}"
 
 
 class QatarSynologySourceReader:
@@ -166,6 +223,10 @@ class QatarSynologySourceReader:
 
 
 def _live_token() -> str:
+    # Keep the SMB reader importable for offline inventory/contract tests. The
+    # Azure identity SDK is needed only on the bridge host when publishing.
+    from azure.identity import CertificateCredential, ManagedIdentityCredential
+
     if os.getenv("BRIDGE_CERTIFICATE_PATH"):
         credential = CertificateCredential(
             tenant_id=os.environ["BRIDGE_TENANT_ID"],
@@ -178,8 +239,8 @@ def _live_token() -> str:
     return credential.get_token(f"api://{os.environ['BRIDGE_API_CLIENT_ID']}/.default").token
 
 
-def run_live() -> None:
-    reader = QatarSynologySourceReader(
+def _make_live_reader() -> QatarSynologySourceReader:
+    return QatarSynologySourceReader(
         server=os.environ["QATAR_SYNOLOGY_SERVER"],
         share=os.environ["QATAR_SYNOLOGY_SHARE"],
         root=os.getenv("QATAR_SYNOLOGY_ROOT", LOGICAL_ROOT),
@@ -188,51 +249,102 @@ def run_live() -> None:
         port=int(os.getenv("QATAR_SYNOLOGY_PORT", "445")),
         max_file_bytes=int(os.getenv("G10_MAX_LIVE_FILE_BYTES", str(MAX_LIVE_FILE_BYTES))),
     )
-    try:
-        projects = reader.discover()
-        project_ids = json.loads(os.getenv("G10_PROJECT_ID_MAP_JSON", "{}"))
-        if os.getenv("G10_PROJECT_ID"):
-            project_ids.setdefault("454", os.environ["G10_PROJECT_ID"])
-        field_definition_id = os.environ["G10_FIELD_DEFINITION_ID"]
-        token = _live_token()
-        sent = 0
-        skipped = 0
-        for project in projects:
-            project_id = project_ids.get(str(project.number))
-            if not project_id:
-                skipped += 1
+
+
+def sync_live_once(reader: QatarSynologySourceReader) -> dict[str, object]:
+    """Capture and publish one bounded Synology snapshot.
+
+    The returned counters are deliberately machine-readable so the bridge
+    supervisor can record each pass without logging source content.
+    """
+    projects = reader.discover()
+    project_ids = _project_id_map()
+    unmapped = sorted(
+        project.number
+        for project in projects
+        if not (project_ids.get(str(project.number)) or project_ids.get(project.folder_name))
+    )
+    if unmapped and _env_bool("G10_REQUIRE_ALL_PROJECT_MAPPINGS", False):
+        raise RuntimeError(
+            "LIVE_PROJECT_MAPPING_INCOMPLETE:" + ",".join(str(number) for number in unmapped)
+        )
+    field_definition_id = os.environ["G10_FIELD_DEFINITION_ID"]
+    token = _live_token()
+    private_key = Ed25519PrivateKey.from_private_bytes(
+        base64.b64decode(os.environ["BRIDGE_SIGNING_PRIVATE_KEY_B64"], validate=True)
+    )
+    sent = 0
+    skipped = 0
+    for project in projects:
+        # Number keys are the canonical operator contract; accepting the exact
+        # folder name also lets an operator map names containing spaces without
+        # changing the source reader or URI policy.
+        project_id = project_ids.get(str(project.number)) or project_ids.get(project.folder_name)
+        if not project_id:
+            skipped += 1
+            continue
+        for entry in reader.inventory(project.folder_name):
+            if entry.is_directory:
                 continue
-            for entry in reader.inventory(project.folder_name):
-                if entry.is_directory:
-                    continue
-                read = reader.capture(entry.relative_path)
-                snapshot = f"{LIVE_SOURCE_URI_PREFIX}{LOGICAL_ROOT}/{entry.relative_path}"
-                payload = BridgePackageIn(
-                    attempt_id=f"qatar-{uuid4().hex}",
-                    source_identity=LIVE_SOURCE_IDENTITY,
-                    source_path_snapshot=snapshot,
-                    size_bytes=read.size,
-                    mtime_utc=datetime.fromtimestamp(int(read.before_modified_at) / 1_000_000_000, timezone.utc).isoformat().replace("+00:00", "Z"),
-                    payload_sha256=read.sha256,
-                    payload_b64=base64.b64encode(read.content).decode(),
-                    signature_b64="pending",
-                    source_version_token=f"{read.before_modified_at}:{read.sha256}",
-                    correlation_id=f"qatar-bridge-{project.number}-{read.sha256[:16]}",
-                    source_mode="NEW_UNKNOWN_SOURCE",
-                    scope_type="PROJECT",
-                    scope_id=project_id,
-                    project_id=project_id,
-                    field_definition_id=field_definition_id,
-                    field_raw_value=project.folder_name,
-                    source_filename=entry.name,
-                    mime_type=mimetypes.guess_type(entry.name)[0] or "application/octet-stream",
-                )
-                private_key = Ed25519PrivateKey.from_private_bytes(base64.b64decode(os.environ["BRIDGE_SIGNING_PRIVATE_KEY_B64"], validate=True))
-                payload = payload.model_copy(update={"signature_b64": base64.b64encode(private_key.sign(canonical_signature_payload(payload))).decode()})
-                response = httpx.post(os.environ["G10_API_URL"].rstrip("/") + "/api/source-intake/bridge/packages", headers={"Authorization": f"Bearer {token}"}, json=payload.model_dump(), timeout=30)
-                response.raise_for_status()
-                sent += 1
-        print(json.dumps({"source_identity": LIVE_SOURCE_IDENTITY, "logical_root": LOGICAL_ROOT, "projects_discovered": len(projects), "packages_sent": sent, "projects_skipped_without_mapping": skipped, "synology_write_count": 0}, sort_keys=True))
+            read = reader.capture(entry.relative_path)
+            snapshot = f"{LIVE_SOURCE_URI_PREFIX}{LOGICAL_ROOT}/{entry.relative_path}"
+            source_version_token = f"{read.before_modified_at}:{read.sha256}"
+            payload = BridgePackageIn(
+                # Stable ids make retries and continuous polling idempotent;
+                # changed bytes produce a new source version and therefore a
+                # new event.
+                attempt_id=_live_attempt_id(snapshot, source_version_token),
+                source_identity=LIVE_SOURCE_IDENTITY,
+                source_path_snapshot=snapshot,
+                size_bytes=read.size,
+                mtime_utc=datetime.fromtimestamp(int(read.before_modified_at) / 1_000_000_000, timezone.utc).isoformat().replace("+00:00", "Z"),
+                payload_sha256=read.sha256,
+                payload_b64=base64.b64encode(read.content).decode(),
+                signature_b64="pending",
+                source_version_token=source_version_token,
+                correlation_id=f"qatar-bridge-{project.number}-{read.sha256[:16]}",
+                source_mode="NEW_UNKNOWN_SOURCE",
+                scope_type="PROJECT",
+                scope_id=project_id,
+                project_id=project_id,
+                field_definition_id=field_definition_id,
+                field_raw_value=project.folder_name,
+                source_filename=entry.name,
+                mime_type=mimetypes.guess_type(entry.name)[0] or "application/octet-stream",
+            )
+            payload = payload.model_copy(
+                update={"signature_b64": base64.b64encode(private_key.sign(canonical_signature_payload(payload))).decode()}
+            )
+            response = httpx.post(
+                os.environ["G10_API_URL"].rstrip("/") + "/api/source-intake/bridge/packages",
+                headers={"Authorization": f"Bearer {token}"},
+                json=payload.model_dump(),
+                timeout=30,
+            )
+            response.raise_for_status()
+            sent += 1
+    return {
+        "source_identity": LIVE_SOURCE_IDENTITY,
+        "logical_root": LOGICAL_ROOT,
+        "projects_discovered": len(projects),
+        "projects_unmapped": unmapped,
+        "packages_sent": sent,
+        "projects_skipped_without_mapping": skipped,
+        "synology_write_count": 0,
+    }
+
+
+def run_live() -> None:
+    """Run one pass by default, or poll the same bounded root continuously."""
+    reader = _make_live_reader()
+    continuous = _env_bool("G10_CONTINUOUS_SYNC", False)
+    interval = _sync_interval_seconds() if continuous else None
+    try:
+        while True:
+            print(json.dumps(sync_live_once(reader), sort_keys=True), flush=True)
+            if not continuous:
+                return
+            time.sleep(interval)
     finally:
         reader.close()
 
@@ -273,6 +385,8 @@ def main() -> None:
         mime_type="text/plain",
     )
     payload = payload.model_copy(update={"signature_b64": base64.b64encode(private_key.sign(canonical_signature_payload(payload))).decode()})
+    from azure.identity import ManagedIdentityCredential
+
     token = ManagedIdentityCredential(client_id=os.environ["BRIDGE_MI_CLIENT_ID"]).get_token(f"api://{os.environ['BRIDGE_API_CLIENT_ID']}/.default").token
     response = httpx.post(
         os.environ["G10_API_URL"].rstrip("/") + "/api/source-intake/bridge/packages",

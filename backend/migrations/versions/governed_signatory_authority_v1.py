@@ -47,7 +47,7 @@ def upgrade() -> None:
     for name, column_names in (
         ("ix_governed_signatory_authorities_user_id", ["user_id"]),
         ("ix_governed_signatory_authorities_office_id", ["office_id"]),
-        ("ix_governed_signatory_authorities_authority_evidence_document_version_id", ["authority_evidence_document_version_id"]),
+        ("ix_signatory_authority_evidence_docver", ["authority_evidence_document_version_id"]),
         ("ix_signatory_authority_user_status", ["user_id", "status"]),
         ("ix_signatory_authority_entity_status", ["legal_entity_ref", "status"]),
     ):
@@ -58,7 +58,7 @@ def upgrade() -> None:
 def downgrade() -> None:
     op.drop_index("ix_signatory_authority_entity_status", table_name="governed_signatory_authorities")
     op.drop_index("ix_signatory_authority_user_status", table_name="governed_signatory_authorities")
-    op.drop_index("ix_governed_signatory_authorities_authority_evidence_document_version_id", table_name="governed_signatory_authorities")
+    op.drop_index("ix_signatory_authority_evidence_docver", table_name="governed_signatory_authorities")
     op.drop_index("ix_governed_signatory_authorities_office_id", table_name="governed_signatory_authorities")
     op.drop_index("ix_governed_signatory_authorities_user_id", table_name="governed_signatory_authorities")
     op.drop_table("governed_signatory_authorities")

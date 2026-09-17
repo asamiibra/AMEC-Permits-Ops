@@ -30,11 +30,11 @@ def upgrade() -> None:
         op.create_index(index_name, table_name, ["last_contract_id"])
     op.execute(
         sa.text(
-            "IF NOT EXISTS (SELECT 1 FROM contract_reconciliation_scheduler_state "
-            "WHERE id = 'contract-exceptions') "
             "INSERT INTO contract_reconciliation_scheduler_state "
-            "(id, cycle_number, updated_at) VALUES "
-            "('contract-exceptions', 0, SYSUTCDATETIME())"
+            "(id, cycle_number, updated_at) "
+            "SELECT 'contract-exceptions', 0, CURRENT_TIMESTAMP "
+            "WHERE NOT EXISTS (SELECT 1 FROM contract_reconciliation_scheduler_state "
+            "WHERE id = 'contract-exceptions')"
         )
     )
 
