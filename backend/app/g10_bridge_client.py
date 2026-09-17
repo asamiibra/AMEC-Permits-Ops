@@ -579,7 +579,15 @@ def sync_live_once(reader: QatarSynologySourceReader) -> dict[str, object]:
                 json=payload.model_dump(),
                 timeout=30,
             )
-            response.raise_for_status()
+            if response.is_error:
+                # Keep bridge logs useful without ever logging package bytes,
+                # credentials, bearer tokens, or Synology paths.
+                try:
+                    detail = response.json().get("detail", {})
+                    code = detail.get("code") if isinstance(detail, dict) else None
+                except (ValueError, TypeError):
+                    code = None
+                raise RuntimeError(f"LIVE_BRIDGE_POST_FAILED:{response.status_code}:{code or 'UNKNOWN'}")
             sent += 1
     return {
         "source_identity": LIVE_SOURCE_IDENTITY,
