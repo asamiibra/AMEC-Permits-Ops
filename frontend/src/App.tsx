@@ -162,7 +162,9 @@ export default function App() {
   };
 
   const visibleNavigation = getPrimaryNavigation(role);
-  const title = visibleNavigation.find((item) => item.page === page)?.label || "Home";
+  const title = page === "opportunities" && window.location.pathname.startsWith("/proposals")
+    ? "Proposals V1"
+    : visibleNavigation.find((item) => item.page === page)?.label || "Home";
   const moduleRole = role as DemoRole;
   const displayName = authSession?.identity.display_name?.trim() || accountIdentity?.displayName?.trim() || "";
   const preferredUsername = authSession?.identity.preferred_username?.trim() || accountIdentity?.preferredUsername?.trim() || "";
@@ -214,7 +216,7 @@ export default function App() {
           <span className="dot" />
           <span>AMEC Engineering</span>
           <br />
-          <small>QEC-DOHA · SYNTHETIC COMMISSIONING</small>
+          <small>QEC-DOHA · PROPOSALS V1</small>
         </div>
         <nav aria-label="Primary navigation">
           {visibleNavigation.map((item) => (
@@ -227,7 +229,7 @@ export default function App() {
                 onClick={() => navigate(item.id)}
               >
                 <span className="nav-icon"><Icon name={item.icon} size={18} /></span>
-                <span>{item.label}</span>
+                <span className="nav-label"><span>{item.label}</span></span>
               </button>
             </div>
           ))}
@@ -236,7 +238,7 @@ export default function App() {
           <span className="lock"><Icon name="shield" size={17} /></span>
           <span>
             <b>Safe boundary</b>
-            <small>Synthetic data only<br />No portal writes<br />No closure automation</small>
+            <small>Synology read-only<br />No portal writes<br />Owner approval required</small>
           </span>
         </div>
       </aside>
@@ -259,7 +261,7 @@ export default function App() {
                       onClick={() => navigate(item.id)}
                     >
                       <span className="nav-icon"><Icon name={item.icon} size={18} /></span>
-                      <span>{item.label}</span>
+                      <span className="nav-label"><span>{item.label}</span></span>
                     </button>
                   </div>
                 ))}

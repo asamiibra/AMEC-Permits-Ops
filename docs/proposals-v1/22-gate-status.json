@@ -1,0 +1,16 @@
+{
+  "result": "BLOCKED",
+  "code_implementation_complete": false,
+  "editor_option": "B",
+  "first_blocker": "FULL_PROPOSAL_V1_INTEGRATION_AND_ACCEPTANCE_REMAINS_INCOMPLETE",
+  "docx_editor_boundary": "IMPLEMENTED_SERVER_OWNED_ANCHORED_MODEL",
+  "baseline_missing_blocker_resolved": true,
+  "synology_write_count": 0,
+  "production_mutation": false,
+  "main_merged": false,
+  "full_regression": "NOT_RUN",
+  "native_db": "NOT_RUN",
+  "full_browser_e2e": "NOT_RUN",
+  "focused_tests_passed": 54,
+  "primitive_proof_only": true
+}

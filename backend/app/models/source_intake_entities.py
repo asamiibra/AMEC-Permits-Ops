@@ -60,3 +60,51 @@ class SourceIntakeItem(Base, TimestampMixin):
     target_master_content_id: Mapped[str | None] = mapped_column(ForeignKey("master_content_items.id"), index=True)
     target_document_version_id: Mapped[str | None] = mapped_column(ForeignKey("document_versions.id"), index=True)
     metadata_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+
+
+class ProposalSourceScan(Base, TimestampMixin):
+    """Authoritative enumeration of one read-only Synology bridge scan."""
+
+    __tablename__ = "proposal_source_scans"
+    __table_args__ = (UniqueConstraint("source_identity", "scan_id", name="uq_proposal_source_scan_identity"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    scan_id: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    source_identity: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    source_root: Mapped[str] = mapped_column(String(700), nullable=False)
+    source_project_identity: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
+    project_number: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
+    status: Mapped[str] = mapped_column(String(30), nullable=False, default="IN_PROGRESS", index=True)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    bridge_machine_identity: Mapped[str | None] = mapped_column(String(200))
+    signed_manifest_hash: Mapped[str | None] = mapped_column(String(64), index=True)
+    signature_b64: Mapped[str | None] = mapped_column(Text)
+    directories_seen: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    files_seen: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    total_bytes_seen: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    files_successfully_captured: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    files_skipped_oversize: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    files_failed: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    files_unsupported: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    projects_unmapped: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    metadata_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
+
+
+class ProposalSourceScanEntry(Base, TimestampMixin):
+    """Directory/file entry in a signed source scan, including no-payload files."""
+
+    __tablename__ = "proposal_source_scan_entries"
+    __table_args__ = (UniqueConstraint("scan_id", "relative_path", name="uq_proposal_source_scan_entry_path"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    scan_id: Mapped[str] = mapped_column(ForeignKey("proposal_source_scans.id", ondelete="CASCADE"), nullable=False, index=True)
+    relative_path: Mapped[str] = mapped_column(String(700), nullable=False)
+    entry_type: Mapped[str] = mapped_column(String(20), nullable=False)
+    size_bytes: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    mtime_token: Mapped[str | None] = mapped_column(String(160))
+    sha256: Mapped[str | None] = mapped_column(String(64), index=True)
+    capture_status: Mapped[str] = mapped_column(String(40), nullable=False, default="PENDING", index=True)
+    failure_reason: Mapped[str | None] = mapped_column(Text)
+    source_version_token: Mapped[str | None] = mapped_column(String(160))
+    metadata_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)

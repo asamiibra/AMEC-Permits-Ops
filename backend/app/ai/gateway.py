@@ -40,6 +40,9 @@ class ModelGateway:
             raise AIError("AI_EXTERNAL_INFERENCE_DISABLED", status_code=503)
         if not self.settings.ai_d4_commissioning_id.strip():
             raise AIError("AI_D4_COMMISSIONING_REQUIRED", status_code=503)
+        # Global real-content switches remain prohibited.  Proposal V1 has a
+        # separate, execution-scoped commissioning flag checked below after
+        # skill identity and context sensitivity have been proven.
         if self.settings.real_data_allowed or self.settings.ai_real_content_allowed:
             raise AIError("AI_REAL_CONTENT_NOT_AUTHORIZED", status_code=403)
         binding = AIRuntimeBinding.from_settings(self.settings)
@@ -69,9 +72,21 @@ class ModelGateway:
         max_output_tokens: int,
         context_synthetic_proven: bool = False,
         context_contains_sensitive_data: bool = True,
+        real_content_authorized: bool = False,
+        provider_input_content: list[dict[str, Any]] | None = None,
     ) -> AIProviderResult:
         binding = self._validate_runtime_boundary()
-        if not context_synthetic_proven or context_contains_sensitive_data or self.settings.ai_real_content_allowed or self.settings.real_data_allowed:
+        proposal_real_content = (
+            real_content_authorized
+            and self.settings.ai_proposal_real_content_allowed
+            and skill.manifest.owning_module == "BD_PROPOSAL"
+        )
+        if (
+            context_contains_sensitive_data
+            or self.settings.ai_real_content_allowed
+            or self.settings.real_data_allowed
+            or (not context_synthetic_proven and not proposal_real_content)
+        ):
             raise AIError("AI_REAL_CONTENT_NOT_AUTHORIZED", status_code=403)
         self._validate_skill_binding(skill, binding)
         if skill.manifest.allowed_tools:
@@ -85,6 +100,7 @@ class ModelGateway:
             response_schema=skill.output.provider_schema,
             schema_name=skill.output.schema_name,
             tools=(),
+            provider_input_content=provider_input_content,
         )
         active_provider = self.provider or AzureOpenAIResponsesProvider(self.settings)
         return active_provider.execute_structured(request)

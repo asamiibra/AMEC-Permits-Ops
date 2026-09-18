@@ -30,6 +30,7 @@ from .structured_output import (
     PROPOSAL_TENDER_INTAKE_ANALYSIS_OUTPUT,
     PROPOSAL_REQUIREMENT_EVIDENCE_ANALYSIS_OUTPUT,
     PROPOSAL_SECTION_DRAFT_OUTPUT,
+    PROPOSAL_DOCUMENT_CHANGE_PLAN_OUTPUT,
     PROPOSAL_COMMERCIAL_CONSISTENCY_REVIEW_OUTPUT,
     PROPOSAL_HANDOFF_PREFLIGHT_OUTPUT,
 )
@@ -191,12 +192,18 @@ PROPOSAL_SKILLS = (
     _proposal_skill("proposal.handoff-preflight", "PROPOSAL_HANDOFF_PREFLIGHT", PROPOSAL_HANDOFF_PREFLIGHT_OUTPUT, "ANALYSIS"),
 )
 
+# This generated artifact skill is intentionally kept in a separate pack so
+# the historical six-skill P08 analysis contract remains stable.
+PROPOSAL_GENERATION_SKILLS = (
+    _proposal_skill("proposal.document-change-plan", "PROPOSAL_DOCUMENT_CHANGE_PLAN", PROPOSAL_DOCUMENT_CHANGE_PLAN_OUTPUT, "DRAFT"),
+)
+
 from .billing_skill_pack import BILLING_SKILLS
 from .contract_skills import CONTRACT_SKILLS
 from .content_library_skill_pack import CONTENT_LIBRARY_SKILLS
 
 
-SKILL_REGISTRY = SkillRegistry((COMPATIBILITY_SKILL, *PROPOSAL_SKILLS, *BILLING_SKILLS, *CONTRACT_SKILLS, *CONTENT_LIBRARY_SKILLS))
+SKILL_REGISTRY = SkillRegistry((COMPATIBILITY_SKILL, *PROPOSAL_SKILLS, *PROPOSAL_GENERATION_SKILLS, *BILLING_SKILLS, *CONTRACT_SKILLS, *CONTENT_LIBRARY_SKILLS))
 
 
 def build_skill_definition(

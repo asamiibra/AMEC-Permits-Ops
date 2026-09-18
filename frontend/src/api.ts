@@ -42,6 +42,11 @@ const API = import.meta.env.DEV
   ? ""
   : validateApiOrigin(import.meta.env.VITE_API_URL);
 
+/** Resolve a backend route for non-JSON consumers such as source downloads. */
+export function apiUrl(path: string): string {
+  return `${API}${path}`;
+}
+
 export class ApiError extends Error {
   readonly status: number;
   readonly path: string;
@@ -308,4 +313,27 @@ export async function api<T>(
       path,
     );
   }
+}
+
+/** Fetch a binary API response with the same auth ownership as api(). */
+export async function apiBlob(path: string, init?: RequestInit): Promise<Blob> {
+  const headers = new Headers(init?.headers);
+  const mode = browserAuthMode();
+  if (mode === "DEV_HEADER") {
+    const demoRole = typeof sessionStorage !== "undefined" ? (sessionStorage.getItem("proposalops-role") || "SYSTEM_ADMIN") : "SYSTEM_ADMIN";
+    headers.delete("Authorization");
+    headers.set("X-Dev-Role", demoRole);
+  } else {
+    const token = (await getApiAccessToken()).trim();
+    if (!token) throw new Error("Authenticated API token is unavailable");
+    headers.delete("X-Dev-Role");
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+  const response = await fetch(apiUrl(path), { ...init, headers });
+  if (!response.ok) {
+    let payload: unknown;
+    try { payload = await response.json(); } catch { payload = undefined; }
+    throw responseError(payload, response.status, path, response.headers.get("x-correlation-id") || undefined);
+  }
+  return response.blob();
 }

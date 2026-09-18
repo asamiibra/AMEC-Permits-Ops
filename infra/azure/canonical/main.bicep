@@ -21,6 +21,21 @@ param realDataAllowed bool = false
 @description('Source intake protocol for the environment.')
 param sourceIntakeMode string = 'BRIDGE'
 
+@description('Explicitly enable the authenticated bridge endpoint in non-PROD environments.')
+param bridgeIntakeEnabled bool = false
+
+@description('Maximum signed bridge package size in bytes.')
+param bridgeMaxPayloadBytes int = 10485760
+
+@description('Ed25519 public key used to verify signed bridge packages.')
+param bridgePackageSigningPublicKey string = ''
+
+@description('Comma-separated bridge source identities permitted by the API.')
+param bridgeAllowedSourceIdentities string = 'QATAR_SYNOLOGY_SYNTHETIC_FIXTURE'
+
+@description('Comma-separated source URI prefixes permitted by the API.')
+param bridgeAllowedSourcePathPrefixes string = 'synthetic://qatar-synology/'
+
 @description('Synology integration mode for the environment.')
 param synologyMode string = 'BRIDGE'
 
@@ -83,6 +98,8 @@ param aiFeatureEnabled bool = true
 param aiExternalInferenceEnabled bool = true
 @description('Real business content remains forbidden for the Owner-test release.')
 param aiRealContentAllowed bool = false
+@description('Allow governed Proposal V1 real source content to reach its commissioned AI runtime. Defaults fail-closed.')
+param aiProposalRealContentAllowed bool = false
 @description('Immutable D4 commissioning record identifier.')
 param aiD4CommissioningId string
 @description('Azure OpenAI account resource group containing the commissioned deployment.')
@@ -525,6 +542,11 @@ resource apiApp 'Microsoft.App/containerApps@2024-03-01' = {
           { name: 'AZURE_BLOB_UAMI_CLIENT_ID', value: apiIdentity.properties.clientId }
           { name: 'SYNOLOGY_MODE', value: synologyMode }
           { name: 'SOURCE_INTAKE_MODE', value: sourceIntakeMode }
+          { name: 'BRIDGE_INTAKE_ENABLED', value: string(bridgeIntakeEnabled) }
+          { name: 'BRIDGE_MAX_PAYLOAD_BYTES', value: string(bridgeMaxPayloadBytes) }
+          { name: 'BRIDGE_PACKAGE_SIGNING_PUBLIC_KEY', value: bridgePackageSigningPublicKey }
+          { name: 'BRIDGE_ALLOWED_SOURCE_IDENTITIES', value: bridgeAllowedSourceIdentities }
+          { name: 'BRIDGE_ALLOWED_SOURCE_PATH_PREFIXES', value: bridgeAllowedSourcePathPrefixes }
           { name: 'BRIDGE_TENANT_ID', value: bridgeTenantId }
           { name: 'BRIDGE_CLIENT_ID', value: bridgeClientId }
           { name: 'BRIDGE_AUDIENCE', value: bridgeAudience }
@@ -536,6 +558,7 @@ resource apiApp 'Microsoft.App/containerApps@2024-03-01' = {
           { name: 'AI_FEATURE_ENABLED', value: string(aiFeatureEnabled) }
           { name: 'AI_EXTERNAL_INFERENCE_ENABLED', value: string(aiExternalInferenceEnabled) }
           { name: 'AI_REAL_CONTENT_ALLOWED', value: string(aiRealContentAllowed) }
+          { name: 'AI_PROPOSAL_REAL_CONTENT_ALLOWED', value: string(aiProposalRealContentAllowed) }
           { name: 'AI_D4_COMMISSIONING_ID', value: aiD4CommissioningId }
           { name: 'AI_AZURE_OPENAI_ENDPOINT', value: aiAzureOpenaiEndpoint }
           { name: 'AI_AZURE_OPENAI_DEPLOYMENT', value: aiAzureOpenaiDeployment }
@@ -661,6 +684,7 @@ resource workerApp 'Microsoft.App/containerApps@2024-03-01' = {
           { name: 'AI_FEATURE_ENABLED', value: string(aiFeatureEnabled) }
           { name: 'AI_EXTERNAL_INFERENCE_ENABLED', value: string(aiExternalInferenceEnabled) }
           { name: 'AI_REAL_CONTENT_ALLOWED', value: string(aiRealContentAllowed) }
+          { name: 'AI_PROPOSAL_REAL_CONTENT_ALLOWED', value: string(aiProposalRealContentAllowed) }
           { name: 'AI_D4_COMMISSIONING_ID', value: aiD4CommissioningId }
           { name: 'AI_AZURE_OPENAI_ENDPOINT', value: aiAzureOpenaiEndpoint }
           { name: 'AI_AZURE_OPENAI_DEPLOYMENT', value: aiAzureOpenaiDeployment }
@@ -735,6 +759,7 @@ resource migrationJob 'Microsoft.App/jobs@2024-03-01' = {
           { name: 'AI_FEATURE_ENABLED', value: string(aiFeatureEnabled) }
           { name: 'AI_EXTERNAL_INFERENCE_ENABLED', value: string(aiExternalInferenceEnabled) }
           { name: 'AI_REAL_CONTENT_ALLOWED', value: string(aiRealContentAllowed) }
+          { name: 'AI_PROPOSAL_REAL_CONTENT_ALLOWED', value: string(aiProposalRealContentAllowed) }
           { name: 'AI_D4_COMMISSIONING_ID', value: aiD4CommissioningId }
           { name: 'AI_AZURE_OPENAI_ENDPOINT', value: aiAzureOpenaiEndpoint }
           { name: 'AI_AZURE_OPENAI_DEPLOYMENT', value: aiAzureOpenaiDeployment }

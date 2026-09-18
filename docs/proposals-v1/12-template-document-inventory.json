@@ -1,0 +1,22 @@
+{
+  "sha256": "d383cd55ac370cb6793e3481bd60774be6b711237693b41eec5b699bd1edf485",
+  "bytes": 3701567,
+  "parts": 79,
+  "paragraphs": 475,
+  "tables": 8,
+  "sections": 1,
+  "media": 54,
+  "headers": [
+    "word/header2.xml",
+    "word/header1.xml"
+  ],
+  "footers": [
+    "word/footer2.xml",
+    "word/footer1.xml"
+  ],
+  "status": "BASELINE_SUPPLIED_BY_OWNER",
+  "filename": "AMEC-P-D-2026-Q-498 - Rev 01.docx",
+  "rendered_pages": 12,
+  "filename_difference_authorized_by": "Owner follow-up supplied this exact path after baseline question",
+  "visual_notes": "Baseline renderer already overlaps some cover/footer text; preserve original OOXML, do not silently restyle."
+}

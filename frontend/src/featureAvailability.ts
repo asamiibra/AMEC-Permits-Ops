@@ -66,7 +66,7 @@ export const primaryNavigation: readonly PrimaryNavigationItem[] = [
     id: "opportunity",
     page: "opportunities",
     route: "/opportunities",
-    label: "Proposals",
+    label: "Proposals V1",
     icon: "briefcase",
     feature: "moduleOpportunityProposalClientTender",
   },

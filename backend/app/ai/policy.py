@@ -103,7 +103,10 @@ def _proposal_skill_policy(purpose: AIPurpose) -> AIPurposePolicy:
         allow_master_content=True,
         allow_transactional_evidence=True,
         allow_definitions=True,
-        allowed_sensitivity_classes=frozenset({"NONE", "SYNTHETIC"}),
+        # Proposal V1 may carry ordinary INTERNAL tender material under its
+        # separate commissioning switch.  Restricted or explicitly sensitive
+        # material still fails in the context compiler/runtime.
+        allowed_sensitivity_classes=frozenset({"NONE", "SYNTHETIC", "INTERNAL"}),
         allow_historical=False,
         allow_superseded=False,
         real_content_allowed=False,
@@ -121,6 +124,7 @@ PROPOSAL_V1_POLICIES = {
         AIPurpose.PROPOSAL_COMMERCIAL_CONSISTENCY_REVIEW,
         AIPurpose.PROPOSAL_LPO_VARIANCE_ANALYSIS,
         AIPurpose.PROPOSAL_HANDOFF_PREFLIGHT,
+        AIPurpose.PROPOSAL_DOCUMENT_CHANGE_PLAN,
     )
 }
 

@@ -34,8 +34,10 @@ from ..models import (
     Phase4DocumentEvidenceEnvelope,
     Phase4SourceChangeEvent,
     Project,
+    ProposalSourceScan,
+    ProposalSourceScanEntry,
 )
-from ..schemas.bridge_intake import BridgePackageIn
+from ..schemas.bridge_intake import BridgePackageIn, BridgeScanIn
 from ..services.classifier_v2 import (
     CLASSIFIER_VERSION,
     RULES_VERSION,
@@ -47,9 +49,35 @@ from ..schemas.classifier_v2 import ClassifierV2Request
 from ..services.phase4 import PHASE3C_MODULE_TRUTH_SHA, PHASE4_CORPUS_APP_SHA
 from ..models.base import utcnow
 from ..auth.bridge import BridgeIdentity
+from ..storage import DocumentStorageService, StorageTarget, create_binary_store
+from ..storage.proposal_source_tree import LOGICAL_ROOT, LIVE_SOURCE_URI_PREFIX, _parts, classify_project_folder
+from .proposal_source_workspace import canonical_source_project_identity, source_processing_state
 
 
 MAX_DEFAULT_PAYLOAD_BYTES = 1_048_576
+
+
+def _live_source_metadata(payload: BridgePackageIn) -> dict[str, Any]:
+    """Validate and normalize a live Synology URI into source-tree metadata."""
+    if not payload.source_path_snapshot.startswith(LIVE_SOURCE_URI_PREFIX):
+        return {}
+    logical = payload.source_path_snapshot.removeprefix(LIVE_SOURCE_URI_PREFIX)
+    prefix = LOGICAL_ROOT + "/"
+    if not logical.startswith(prefix):
+        raise _error(403, "BRIDGE_SOURCE_PATH_NOT_ALLOWLISTED")
+    relative = logical.removeprefix(prefix)
+    parts = _parts(relative)
+    if len(parts) < 2 or classify_project_folder(parts[0]) is None:
+        raise _error(422, "BRIDGE_SOURCE_PROJECT_PATH_INVALID")
+    if payload.source_filename != parts[-1]:
+        raise _error(422, "BRIDGE_SOURCE_FILENAME_MISMATCH")
+    return {
+        "source_root": LOGICAL_ROOT,
+        "source_project_number": classify_project_folder(parts[0]).number,
+        "source_project_folder": parts[0],
+        "source_relative_path": relative,
+        "source_is_directory": False,
+    }
 
 
 def _json(value: Any) -> str:
@@ -82,7 +110,99 @@ def canonical_signature_payload(payload: BridgePackageIn) -> bytes:
         "field_raw_value": payload.field_raw_value,
         "source_filename": payload.source_filename,
         "mime_type": payload.mime_type,
+        "scan_id": payload.scan_id,
+        "scan_status": payload.scan_status,
+        "scan_source_root": payload.scan_source_root,
+        "scan_project_identity": payload.scan_project_identity,
+        "scan_entry_type": payload.scan_entry_type,
+        "scan_entry_size_bytes": payload.scan_entry_size_bytes,
+        "scan_entry_mtime_token": payload.scan_entry_mtime_token,
+        "scan_capture_status": payload.scan_capture_status,
+        "scan_failure_reason": payload.scan_failure_reason,
+        "scan_manifest_hash": payload.scan_manifest_hash,
+        "scan_counts": payload.scan_counts,
     }).encode("utf-8")
+
+
+def canonical_scan_signature_payload(payload: BridgeScanIn) -> bytes:
+    return _json({
+        "scan_id": payload.scan_id, "source_identity": payload.source_identity,
+        "source_root": payload.source_root, "source_project_identity": payload.source_project_identity,
+        "project_number": payload.project_number, "status": payload.status,
+        "started_at": payload.started_at, "completed_at": payload.completed_at,
+        "entries": [entry.model_dump(mode="json") for entry in payload.entries],
+        "counts": payload.counts, "manifest_hash": payload.manifest_hash,
+    }).encode("utf-8")
+
+
+def ingest_bridge_scan(db: Session, payload: BridgeScanIn, identity: BridgeIdentity, settings) -> dict[str, Any]:
+    """Persist a signed source enumeration before/independently of payloads."""
+    allowed = {value.strip() for value in str(getattr(settings, "bridge_allowed_source_identities", "")).split(",") if value.strip()}
+    if payload.source_identity not in allowed:
+        raise _error(403, "BRIDGE_SOURCE_NOT_ALLOWLISTED")
+    prefixes = tuple(value.strip() for value in str(getattr(settings, "bridge_allowed_source_path_prefixes", "")).split(",") if value.strip())
+    if not any(payload.source_root.startswith(prefix) or payload.source_root == LOGICAL_ROOT for prefix in prefixes):
+        raise _error(403, "BRIDGE_SOURCE_PATH_NOT_ALLOWLISTED")
+    # Verify the manifest hash over stable entry identity, then the machine
+    # signature over the exact scan envelope.
+    canonical_entries = [entry.model_dump(mode="json") for entry in payload.entries]
+    observed_hash = hashlib.sha256(_json(sorted(canonical_entries, key=lambda item: item["relative_path"])).encode()).hexdigest()
+    if observed_hash != payload.manifest_hash:
+        raise _error(422, "BRIDGE_SCAN_MANIFEST_HASH_MISMATCH")
+    public_key_b64 = str(getattr(settings, "bridge_package_signing_public_key", "")).strip()
+    if not public_key_b64:
+        raise _error(503, "BRIDGE_SIGNING_KEY_NOT_CONFIGURED")
+    try:
+        public_key = Ed25519PublicKey.from_public_bytes(base64.b64decode(public_key_b64, validate=True))
+        public_key.verify(base64.b64decode(payload.signature_b64, validate=True), canonical_scan_signature_payload(payload))
+    except (ValueError, binascii.Error, InvalidSignature) as exc:
+        raise _error(422, "BRIDGE_SIGNATURE_INVALID") from exc
+    try:
+        started = datetime.fromisoformat(payload.started_at.replace("Z", "+00:00"))
+        completed = datetime.fromisoformat(payload.completed_at.replace("Z", "+00:00")) if payload.completed_at else None
+    except ValueError as exc:
+        raise _error(422, "BRIDGE_SCAN_TIMESTAMP_INVALID") from exc
+    existing = db.scalar(select(ProposalSourceScan).where(ProposalSourceScan.source_identity == payload.source_identity, ProposalSourceScan.scan_id == payload.scan_id))
+    if existing is not None:
+        # Package envelopes create an IN_PROGRESS scan before the final
+        # signed enumeration arrives.  Finalization is allowed to replace
+        # that provisional hash and reconcile its entries; a terminal scan
+        # with a different hash is still an idempotency violation.
+        if existing.status in {"COMPLETED", "INCOMPLETE", "FAILED"} and existing.signed_manifest_hash != payload.manifest_hash:
+            raise _error(409, "BRIDGE_SCAN_ID_REUSE_MISMATCH")
+        existing.source_root = payload.source_root
+        existing.source_project_identity = payload.source_project_identity
+        existing.project_number = payload.project_number
+        existing.status = payload.status
+        existing.started_at = started
+        existing.completed_at = completed
+        existing.signed_manifest_hash = payload.manifest_hash
+        existing.signature_b64 = payload.signature_b64
+        existing.metadata_json = {**(existing.metadata_json or {}), "signature_verified": True}
+        for key in ("directories_seen", "files_seen", "total_bytes_seen", "files_successfully_captured", "files_skipped_oversize", "files_failed", "files_unsupported", "projects_unmapped"):
+            if key in payload.counts:
+                setattr(existing, key, int(payload.counts[key]))
+        existing_entries = {row.relative_path: row for row in db.scalars(select(ProposalSourceScanEntry).where(ProposalSourceScanEntry.scan_id == existing.id)).all()}
+        for entry in payload.entries:
+            row = existing_entries.get(entry.relative_path)
+            values = {"entry_type": entry.entry_type, "size_bytes": entry.size_bytes, "mtime_token": entry.mtime_token, "sha256": entry.sha256, "capture_status": entry.capture_status, "failure_reason": entry.failure_reason, "source_version_token": entry.source_version_token}
+            if row is None:
+                db.add(ProposalSourceScanEntry(scan_id=existing.id, relative_path=entry.relative_path, **values))
+            else:
+                for key, value in values.items():
+                    setattr(row, key, value)
+        db.flush()
+        return {"result": "FINALIZED" if existing.status in {"COMPLETED", "INCOMPLETE", "FAILED"} else "IDEMPOTENT", "scan_id": existing.scan_id, "status": existing.status, "entry_count": len(payload.entries), "signature_verified": True}
+    scan = ProposalSourceScan(scan_id=payload.scan_id, source_identity=payload.source_identity, source_root=payload.source_root, source_project_identity=payload.source_project_identity, project_number=payload.project_number, status=payload.status, started_at=started, completed_at=completed, bridge_machine_identity=identity.object_id, signed_manifest_hash=payload.manifest_hash, signature_b64=payload.signature_b64, metadata_json={"signature_verified": True})
+    for key in ("directories_seen", "files_seen", "total_bytes_seen", "files_successfully_captured", "files_skipped_oversize", "files_failed", "files_unsupported", "projects_unmapped"):
+        if key in payload.counts:
+            setattr(scan, key, int(payload.counts[key]))
+    db.add(scan)
+    db.flush()
+    for entry in payload.entries:
+        db.add(ProposalSourceScanEntry(scan_id=scan.id, relative_path=entry.relative_path, entry_type=entry.entry_type, size_bytes=entry.size_bytes, mtime_token=entry.mtime_token, sha256=entry.sha256, capture_status=entry.capture_status, failure_reason=entry.failure_reason, source_version_token=entry.source_version_token))
+    db.flush()
+    return {"result": "RECORDED", "scan_id": scan.scan_id, "status": scan.status, "entry_count": len(payload.entries), "signature_verified": True}
 
 
 def _decode_payload(payload: BridgePackageIn, settings) -> tuple[bytes, str]:
@@ -174,9 +294,45 @@ def _existing_result(db: Session, event: Phase4SourceChangeEvent) -> dict[str, A
     }
 
 
+def _record_scan_entry(db: Session, payload: BridgePackageIn, identity: BridgeIdentity, live_metadata: dict[str, Any], package_sha256: str) -> ProposalSourceScan | None:
+    """Persist scan enumeration independently from payload arrival."""
+    if not payload.scan_id:
+        return None
+    project_folder = str(live_metadata.get("source_project_folder") or "")
+    project_number = str(live_metadata.get("source_project_number") or payload.project_id)
+    source_project_identity = payload.scan_project_identity or canonical_source_project_identity(number=int(project_number) if project_number.isdigit() else 0, folder_name=project_folder or project_number, logical_root=payload.scan_source_root or LOGICAL_ROOT, source_system=payload.source_identity)
+    scan = db.scalar(select(ProposalSourceScan).where(ProposalSourceScan.source_identity == payload.source_identity, ProposalSourceScan.scan_id == payload.scan_id))
+    now = datetime.now(timezone.utc)
+    if scan is None:
+        scan = ProposalSourceScan(scan_id=payload.scan_id, source_identity=payload.source_identity, source_root=payload.scan_source_root or LOGICAL_ROOT, source_project_identity=source_project_identity, project_number=project_number, status="IN_PROGRESS", started_at=now, bridge_machine_identity=identity.object_id, signed_manifest_hash=payload.scan_manifest_hash, signature_b64=payload.signature_b64)
+        db.add(scan)
+        db.flush()
+    entry_path = str(live_metadata.get("source_relative_path") or payload.source_path_snapshot)
+    entry = db.scalar(select(ProposalSourceScanEntry).where(ProposalSourceScanEntry.scan_id == scan.id, ProposalSourceScanEntry.relative_path == entry_path))
+    entry_values = {"entry_type": payload.scan_entry_type, "size_bytes": int(payload.scan_entry_size_bytes if payload.scan_entry_size_bytes is not None else payload.size_bytes), "mtime_token": payload.scan_entry_mtime_token or payload.mtime_utc, "sha256": package_sha256 if payload.scan_entry_type == "FILE" else None, "capture_status": payload.scan_capture_status or ("CAPTURED" if payload.scan_entry_type == "FILE" else "PRESENT"), "failure_reason": payload.scan_failure_reason, "source_version_token": payload.source_version_token}
+    if entry is None:
+        entry = ProposalSourceScanEntry(scan_id=scan.id, relative_path=entry_path, **entry_values)
+        db.add(entry)
+    else:
+        for key, value in entry_values.items():
+            setattr(entry, key, value)
+    if payload.scan_counts:
+        for key in ("directories_seen", "files_seen", "total_bytes_seen", "files_successfully_captured", "files_skipped_oversize", "files_failed", "files_unsupported", "projects_unmapped"):
+            if key in payload.scan_counts:
+                setattr(scan, key, int(payload.scan_counts[key]))
+    if payload.scan_status:
+        scan.status = payload.scan_status
+        if payload.scan_status in {"COMPLETED", "INCOMPLETE", "FAILED"}:
+            scan.completed_at = now
+    return scan
+
+
 def ingest_bridge_package(db: Session, payload: BridgePackageIn, identity: BridgeIdentity, settings) -> dict[str, Any]:
     raw, package_sha256 = _decode_payload(payload, settings)
     _validate_package(payload, raw, settings)
+    live_metadata = _live_source_metadata(payload)
+    scan = _record_scan_entry(db, payload, identity, live_metadata, package_sha256)
+    synthetic_fixture = payload.source_identity == "QATAR_SYNOLOGY_SYNTHETIC_FIXTURE" or payload.source_path_snapshot.startswith("synthetic://")
     event_id = f"bridge:{payload.attempt_id}"
     event_content = {
         "event_id": event_id,
@@ -217,32 +373,70 @@ def ingest_bridge_package(db: Session, payload: BridgePackageIn, identity: Bridg
     )
     db.add(document)
     db.flush()
-    version = DocumentVersion(
-        document_id=document.id,
-        version_number=1,
-        source_filename=payload.source_filename,
-        source_path_or_reference=payload.source_path_snapshot,
-        sha256=package_sha256,
-        mime_type=payload.mime_type,
-        file_size=len(raw),
-        language="und",
-        approval_state=DocumentApprovalState.WORKING,
-        source_system="QATAR_SOURCE_INTAKE_BRIDGE",
-        metadata_json={
-            "bridge_attempt_id": payload.attempt_id,
-            "source_identity": payload.source_identity,
-            "source_mtime_utc": payload.mtime_utc,
-            "synthetic_non_business_fixture": True,
-        },
-        synthetic_content=raw,
-    )
-    db.add(version)
-    db.flush()
-    document.current_version_id = version.id
+    source_metadata = {
+        "bridge_attempt_id": payload.attempt_id,
+        "source_identity": payload.source_identity,
+        "source_path_snapshot": payload.source_path_snapshot,
+        "source_version_token": payload.source_version_token,
+        "source_mtime_utc": payload.mtime_utc,
+        "source_presence_state": "PRESENT",
+        "processing_state": source_processing_state(payload.source_filename, payload.mime_type),
+        "synthetic_non_business_fixture": synthetic_fixture,
+        **live_metadata,
+    }
+    if synthetic_fixture:
+        version = DocumentVersion(
+            document_id=document.id,
+            version_number=1,
+            source_filename=payload.source_filename,
+            source_path_or_reference=payload.source_path_snapshot,
+            sha256=package_sha256,
+            mime_type=payload.mime_type,
+            file_size=len(raw),
+            language="und",
+            approval_state=DocumentApprovalState.WORKING,
+            source_system="QATAR_SOURCE_INTAKE_BRIDGE",
+            metadata_json=source_metadata,
+            synthetic_content=raw,
+        )
+        db.add(version)
+        db.flush()
+        document.current_version_id = version.id
+    else:
+        # Live bytes are published through the canonical managed store before
+        # the source version is made current. The Azure API never reaches SMB.
+        try:
+            store = create_binary_store()
+            config = getattr(store, "config", None)
+            share_id = getattr(config, "container", None) or getattr(config, "share", None) or "managed-artifacts"
+            stored = DocumentStorageService(store).store_version(
+                db,
+                document=document,
+                content=raw,
+                filename=payload.source_filename,
+                mime_type=payload.mime_type,
+                target=StorageTarget(store.provider_id, share_id, f"proposal-sources/{payload.project_id}"),
+                # AuditEvent.actor_id is a UUID-sized column.  Keep the
+                # authenticated machine object id as the actor identity and
+                # carry the bridge context in the event type/metadata.
+                actor=identity.object_id,
+                correlation_id=payload.correlation_id,
+                idempotency_key=f"bridge-source:{payload.source_path_snapshot}:{package_sha256}",
+                source_system="QATAR_SOURCE_INTAKE_BRIDGE",
+                metadata=source_metadata,
+                version_number=1,
+            )
+            version = stored.version
+        except Exception as exc:
+            # Preserve the fail-closed public error while making the runtime
+            # diagnosis actionable without exposing connection strings,
+            # source bytes, or other secret-bearing exception text.
+            storage_code = getattr(getattr(exc, "code", None), "value", None) or type(exc).__name__
+            raise _error(503, "BRIDGE_CANONICAL_STORAGE_FAILED", storage_error_class=storage_code) from exc
 
     event = Phase4SourceChangeEvent(
         event_id=event_id,
-        scan_id_or_observation_group=f"bridge-scan:{payload.attempt_id}",
+        scan_id_or_observation_group=f"{payload.scan_id or 'bridge-scan'}:{payload.attempt_id}",
         source_surface="SYNOLOGY_EXTERNAL_EVIDENCE",
         source_artifact_id_or_locator=payload.source_path_snapshot,
         source_version_id=version.id,
@@ -274,10 +468,10 @@ def ingest_bridge_package(db: Session, payload: BridgePackageIn, identity: Bridg
         document_intelligence_runtime_version="g10-bridge-package-v1",
         runtime_sha256=_sha({"runtime": "g10-bridge-package-v1"}),
         capability_id="G10_SOURCE_INTAKE_BRIDGE",
-        handler_parser_identity="g10-synthetic-bridge-package-v1",
-        metering_json={"external_calls": 0, "bytes_read": len(raw), "real_content": False},
-        warnings_json=["SYNTHETIC_NON_BUSINESS_FIXTURE"],
-        content_retention_class="SYNTHETIC_FIXTURE_BYTES",
+        handler_parser_identity="g10-synthetic-bridge-package-v1" if synthetic_fixture else "qatar-live-bridge-package-v1",
+        metering_json={"external_calls": 0, "bytes_read": len(raw), "real_content": not synthetic_fixture},
+        warnings_json=["SYNTHETIC_NON_BUSINESS_FIXTURE"] if synthetic_fixture else [],
+        content_retention_class="SYNTHETIC_FIXTURE_BYTES" if synthetic_fixture else "CANONICAL_MANAGED_STORAGE",
         evidence_json={
             "attempt_id": payload.attempt_id,
             "document_version_id": version.id,
@@ -287,21 +481,22 @@ def ingest_bridge_package(db: Session, payload: BridgePackageIn, identity: Bridg
             "size_bytes": len(raw),
             "mtime_utc": payload.mtime_utc,
             "signature_verified": True,
+            **live_metadata,
         },
     )
     db.add(evidence)
     db.flush()
 
     classifier_payload = ClassifierV2Request(
-        fixture_id=f"g10-bridge:{payload.attempt_id}",
+        fixture_id=f"g10-bridge:{payload.attempt_id}" if synthetic_fixture else f"qatar-live-bridge:{payload.attempt_id}",
         source_artifact_id=payload.source_path_snapshot,
         source_version_token=payload.source_version_token,
         source_mode=payload.source_mode,
         scope_type=payload.scope_type,
         scope_id=payload.scope_id,
         correlation_id=payload.correlation_id,
-        evidence_ids=[f"synthetic-evidence://g10-bridge/{payload.attempt_id}"],
-        document_type_hint="CONTROLLED_SYNTHETIC_DOCUMENT",
+        evidence_ids=[f"synthetic-evidence://g10-bridge/{payload.attempt_id}" if synthetic_fixture else f"bridge-evidence://qatar-live/{payload.attempt_id}"],
+        document_type_hint="CONTROLLED_SYNTHETIC_DOCUMENT" if synthetic_fixture else "SOURCE_DOCUMENT",
         discipline_hint="ENGINEERING",
     )
     proposal = classify_document(classifier_payload)
@@ -359,7 +554,7 @@ def ingest_bridge_package(db: Session, payload: BridgePackageIn, identity: Bridg
         event_type="G10_BRIDGE_PACKAGE_ACCEPTED",
         entity_type="Phase4SourceChangeEvent",
         entity_id=event.id,
-        actor_id=f"bridge:{identity.object_id}",
+        actor_id=identity.object_id,
         after={"attempt_id": payload.attempt_id, "package_sha256": package_sha256, "verified_assertion_created": False, "projection_created": False},
     )
     return {

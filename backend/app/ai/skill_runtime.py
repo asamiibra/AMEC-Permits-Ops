@@ -69,6 +69,13 @@ class RuntimeDependencies:
 def _provider_input(skill: SkillDefinition, compiled: Any) -> str:
     """Serialize only P04's bounded, safe projections for provider input."""
 
+    def projection_for_text(item: Any) -> dict[str, Any]:
+        projection = dict(item.projection)
+        media = projection.get("source_media")
+        if isinstance(media, dict) and "image_data_url" in media:
+            projection["source_media"] = {key: value for key, value in media.items() if key != "image_data_url"}
+        return projection
+
     payload = {
         "instructions": skill.instructions,
         "skill": {
@@ -82,7 +89,7 @@ def _provider_input(skill: SkillDefinition, compiled: Any) -> str:
                 "context_type": item.context_type,
                 "trust_state": item.trust_state,
                 "currentness_state": item.currentness_state,
-                "projection": item.projection,
+                "projection": projection_for_text(item),
                 "citation_key": f"CIT-{index:03d}",
             }
             for index, item in enumerate(compiled.items, 1)
@@ -90,6 +97,23 @@ def _provider_input(skill: SkillDefinition, compiled: Any) -> str:
     }
     encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     return encoded
+
+
+def _provider_input_content(provider_input: str, compiled: Any) -> list[dict[str, Any]] | None:
+    """Build Responses API multimodal parts without changing text providers."""
+    content: list[dict[str, Any]] = [{"type": "input_text", "text": provider_input}]
+    for item in compiled.items:
+        media = item.projection.get("source_media") if isinstance(item.projection, dict) else None
+        if not isinstance(media, dict):
+            continue
+        image_data_url = media.get("image_data_url")
+        if isinstance(image_data_url, str) and image_data_url.startswith("data:image/"):
+            content.append({
+                "type": "input_text",
+                "text": f"Image evidence for {item.key}; source filename {item.projection.get('source_filename')}; SHA-256 {media.get('sha256')}.",
+            })
+            content.append({"type": "input_image", "image_url": image_data_url, "detail": "low"})
+    return [{"role": "user", "content": content}] if len(content) > 1 else None
 
 
 def _request_fingerprint(
@@ -305,10 +329,18 @@ class SkillRuntime:
             )
             if not compiled.items:
                 raise AIError("AI_CONTEXT_EMPTY", status_code=422)
-            if compiled.contains_sensitive_data or not compiled.synthetic_only:
+            proposal_real_content = (
+                settings.ai_proposal_real_content_allowed
+                and skill.manifest.owning_module == "BD_PROPOSAL"
+            )
+            if compiled.contains_sensitive_data or (not compiled.synthetic_only and not proposal_real_content):
                 raise AIError("AI_REAL_CONTENT_NOT_AUTHORIZED", status_code=403)
             _verify_snapshot(db, request, skill, compiled)
             provider_input = _provider_input(skill, compiled)
+            # The deterministic acceptance provider consumes the canonical
+            # JSON string and must not be charged/budgeted for vision parts.
+            # Hosted Azure execution receives the transient multimodal parts.
+            provider_input_content = _provider_input_content(provider_input, compiled) if provider is None else None
             request_fingerprint = _request_fingerprint(request, skill, compiled, principal)
             db.commit()
         except AIError:
@@ -361,6 +393,8 @@ class SkillRuntime:
                 skill_id=skill.manifest.skill_id,
                 skill_version=skill.manifest.version,
                 skill_manifest_hash=skill.manifest.manifest_hash,
+                synthetic_only=compiled.synthetic_only,
+                provider_input_content=provider_input_content,
             )
             reserve_audit(
                 reservation_db,
@@ -387,6 +421,8 @@ class SkillRuntime:
                 max_output_tokens=settings.ai_max_output_tokens,
                 context_synthetic_proven=compiled.synthetic_only,
                 context_contains_sensitive_data=compiled.contains_sensitive_data,
+                real_content_authorized=proposal_real_content,
+                provider_input_content=provider_input_content,
             )
             output = skill.output.validator(result.payload)
             citations = validate_compiled_citations(output, compiled, skill.output)

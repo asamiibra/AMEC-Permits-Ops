@@ -58,6 +58,16 @@ def test_classifier_v2_rejects_non_synthetic_evidence_reference():
         raise AssertionError("raw evidence reference was accepted")
 
 
+def test_classifier_v2_accepts_signed_live_bridge_evidence_reference():
+    result = classify_document(request(
+        source_artifact_id="synology://qatar/Tenders/1- Proposal/2026/454 - Al Watan Center/brief.pdf",
+        evidence_ids=["bridge-evidence://qatar-live/attempt-1"],
+        scope_id="project-454",
+    ))
+    assert result["bounded_evidence"][0]["evidence_id"] == "bridge-evidence://qatar-live/attempt-1"
+    assert result["hard_gate"]["llm_allowed"] is False
+
+
 def test_hard_gates_short_circuit_before_l2_and_l5(monkeypatch):
     def fail(*_args, **_kwargs):
         raise AssertionError("deeper classifier lane was invoked for hard gate")

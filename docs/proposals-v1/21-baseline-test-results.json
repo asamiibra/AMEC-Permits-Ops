@@ -1,0 +1,8 @@
+{
+  "baseline_tests_passed": 9,
+  "final_focused_tests_passed": 54,
+  "final_duration_seconds": 8.15,
+  "warning_count": 1,
+  "full_regression": "NOT_RUN",
+  "scope": "standalone primitives and existing storage/template compatibility"
+}

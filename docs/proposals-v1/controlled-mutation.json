@@ -1,0 +1,13 @@
+{
+  "baseline_hash": "d383cd55ac370cb6793e3481bd60774be6b711237693b41eec5b699bd1edf485",
+  "output_hash": "6e52ecd561c90cd191264274e7f1bc944d29d30a72f3d8d7030bb7b1232d1293",
+  "changed_parts": [
+    "word/document.xml"
+  ],
+  "unchanged_parts": 78,
+  "total_parts": 79,
+  "target": "word/document.xml#c3c2391e74669731835da9ea969aa68e068caacecf6d0f4dfe1f53549c7d832b",
+  "text_change": "Duration: 3 months -> Duration: 4 months",
+  "purpose": "controlled QA probe, not an Al Watan proposal",
+  "package_reopens": true
+}

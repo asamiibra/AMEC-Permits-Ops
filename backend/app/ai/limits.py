@@ -72,6 +72,8 @@ def reserve_execution(
     skill_id: str | None = None,
     skill_version: str | None = None,
     skill_manifest_hash: str | None = None,
+    synthetic_only: bool = True,
+    provider_input_content: list[dict[str, object]] | None = None,
 ) -> Reservation:
     existing = db.scalar(select(AIExecutionLedger).where(AIExecutionLedger.idempotency_key == idempotency_key).with_for_update())
     if existing is not None:
@@ -97,7 +99,19 @@ def reserve_execution(
         code = "AI_REQUEST_IN_PROGRESS" if existing.status == "RESERVED" else "AI_REQUEST_ALREADY_COMPLETED"
         raise AIError(code, status_code=409)
 
-    upper_bound = input_upper_bound(provider_input)
+    if provider_input_content is not None:
+        # Base64 image bytes are transport payload, not text tokens. Reserve
+        # a bounded multimodal allowance per image alongside the serialized
+        # text estimate so low-detail vision inputs do not exhaust the text
+        # budget merely because of encoding overhead.
+        image_count = sum(
+            1 for message in provider_input_content
+            for part in (message.get("content", []) if isinstance(message, dict) else [])
+            if isinstance(part, dict) and part.get("type") == "input_image"
+        )
+        upper_bound = len(provider_input.encode("utf-8")) + 2048 + image_count * 1024
+    else:
+        upper_bound = input_upper_bound(provider_input)
     if upper_bound > settings.ai_max_input_token_upper_bound:
         raise AIError("AI_INPUT_TOKEN_BUDGET_EXCEEDED", status_code=429)
     maximum_cost = (upper_bound * settings.ai_input_price_usd_per_1m_tokens / 1_000_000) + (settings.ai_max_output_tokens * settings.ai_output_price_usd_per_1m_tokens / 1_000_000)
@@ -132,10 +146,11 @@ def reserve_execution(
         provider_region=provider_region, deployment_name=deployment_name, model_name=model_name, model_version=model_version,
         status="RESERVED", input_token_upper_bound=upper_bound, input_rate_usd_per_1m=settings.ai_input_price_usd_per_1m_tokens,
         output_rate_usd_per_1m=settings.ai_output_price_usd_per_1m_tokens, pricing_source_reference=settings.ai_pricing_source_reference,
-        reserved_cost_usd=maximum_cost, citation_count=citation_count, synthetic_only=True,
+        reserved_cost_usd=maximum_cost, citation_count=citation_count,
         reservation_owner_token=reservation_owner_token, reservation_generation=1,
         reserved_at=reserved_at,
         reservation_lease_expires_at=reserved_at + timedelta(seconds=int(getattr(settings, "ai_reservation_lease_seconds", 300))),
+        synthetic_only=synthetic_only,
     )
     db.add(ledger)
     try:

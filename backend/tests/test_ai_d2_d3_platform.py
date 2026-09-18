@@ -77,6 +77,30 @@ def test_provider_request_is_exact_v1_responses_without_tools_or_redirects():
     assert body["text"]["format"]["strict"] is True
 
 
+def test_provider_forwards_governed_multimodal_input_parts():
+    captured = {}
+
+    class Response:
+        status_code = 200
+        def json(self):
+            return {"id": "resp-image-1", "status": "completed", "output": [{"type": "message", "content": [{"type": "output_text", "text": json.dumps(_payload())}]}], "usage": {"input_tokens": 10, "output_tokens": 20, "total_tokens": 30}}
+
+    class Client:
+        def __init__(self, **kwargs):
+            del kwargs
+        def __enter__(self): return self
+        def __exit__(self, *args): return False
+        def post(self, url, **kwargs):
+            del url
+            captured["input"] = kwargs["json"]["input"]
+            return Response()
+
+    parts = [{"role": "user", "content": [{"type": "input_text", "text": "bounded source context"}, {"type": "input_image", "image_url": "data:image/jpeg;base64,AA==", "detail": "low"}]}]
+    provider = AzureOpenAIResponsesProvider(_settings(), token_provider=lambda _: "memory-token", http_client_factory=Client)
+    provider.execute_structured(AIProviderRequest(provider_input="bounded source context", provider_input_content=parts, max_output_tokens=6000))
+    assert captured["input"] == parts
+
+
 def test_provider_skips_reasoning_items_before_final_message():
     class Response:
         status_code = 200

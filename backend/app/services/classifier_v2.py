@@ -31,7 +31,7 @@ LLM_EXTERNAL_CALL_COUNT = 0
 ALLOWED_L0_MODES = {
     "EXISTING_KNOWN_SOURCE", "NEW_UNKNOWN_SOURCE", "MODIFIED_KNOWN_SOURCE", "MOVE_RENAME_CANDIDATE",
 }
-_SAFE_EVIDENCE_PREFIX = "synthetic-evidence://"
+_ALLOWED_EVIDENCE_PREFIXES = ("synthetic-evidence://", "bridge-evidence://qatar-live/")
 
 
 def _sha(value: Any) -> str:
@@ -66,7 +66,7 @@ def _event_type(source_mode: str) -> str:
 
 
 def _safe_evidence_ids(ids: list[str]) -> list[str]:
-    return [value for value in ids if value.startswith(_SAFE_EVIDENCE_PREFIX)]
+    return [value for value in ids if value.startswith(_ALLOWED_EVIDENCE_PREFIXES)]
 
 
 def _l0_l1_rules(payload: ClassifierV2Request, evidence_ids: list[str], hard_gate: str) -> list[dict[str, Any]]:

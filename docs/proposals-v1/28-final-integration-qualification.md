@@ -1,0 +1,35 @@
+# Proposal V1 final integration qualification
+
+```text
+RESULT=BLOCKED
+BRANCH=feature/proposals-v1-synology-454
+ENTRY_MAIN_SHA=2bf9737a087de6c01e7f06b9be9bb73db9bf34e8
+MERGE_BASE_WITH_MAIN=2bf9737a087de6c01e7f06b9be9bb73db9bf34e8
+EDITOR_OPTION=B
+EDITOR_ROUTE_AUTHORIZATION=WIRED
+CANONICAL_EDITOR_LOAD_BY_PROPOSAL_REVISION=WIRED
+CANONICAL_EDITOR_SAVE_BY_PROPOSAL_REVISION=WIRED
+OWNER_EDIT_PROTECTION=DRAFT_ONLY_AND_ACCEPTED_IMMUTABLE
+SOURCE_CAPTURE_STORAGE=DOCUMENT_STORAGE_SERVICE_WHEN_JOURNAL_AVAILABLE
+SOURCE_CAPTURE_IDEMPOTENCY=PASS
+SOURCE_CAPTURE_HASH_STABILITY=PASS
+SOURCE_DOWNLOAD_INTEGRITY=HASH_VERIFIED
+CREATE_PROPOSAL_FROM_SOURCE=454_EXPLICIT_ONLY
+PROJECT_520_PLUS_AUTO_ONBOARDING=DISABLED
+AI_EVIDENCE_PROVENANCE=RECORDED_IN_REVISION_SNAPSHOT
+FRONTEND_BUILD=PASS
+SUPPORTED_POSTGRES_PERSISTENCE=NOT_RUN
+BROWSER_E2E=NOT_RUN
+LIVE_SYNOLOGY=NOT_RUN_CREDENTIALS_UNAVAILABLE
+FULL_REGRESSION=NOT_RUN
+FIRST_BLOCKER=SUPPORTED_POSTGRES_AND_APPLICATION_BROWSER_ACCEPTANCE
+```
+
+The final integration adds canonical Proposal/revision identity to the
+server-owned Option B editor, persists verified working bytes through the
+existing storage protocol, records change-plan and evidence references, and
+adds an explicit 454-only Create Proposal action.  The 520 draft remains
+discoverable and synchronizable without automatic Proposal creation.  The
+frontend production build passes after installing the existing lockfile
+dependencies.  PostgreSQL, browser acceptance, full regression, and live
+Synology qualification remain environment gates and are not claimed here.

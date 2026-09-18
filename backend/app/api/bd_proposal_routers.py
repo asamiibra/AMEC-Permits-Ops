@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 from pathlib import Path
 from datetime import datetime, timezone
@@ -43,6 +44,11 @@ class ProposalCreate(BaseModel):
     client_account_id: str | None = None
     client_name: str | None = None
     idempotency_key: str | None = Field(default=None, max_length=200)
+    # Source-workspace promotion may create a provisional Proposal before a
+    # canonical CRM ClientAccount is known. This flag is only set by the
+    # authenticated Synology source route; ordinary Proposal creation remains
+    # fail-closed on canonical client identity.
+    provisional_source_identity: bool = False
 
 
 class ProposalFieldsPatch(BaseModel):
@@ -103,8 +109,9 @@ def _create_proposal_record(payload: ProposalCreate, request: Request, db: Sessi
     if production_mode():
         reject_synthetic_value(payload.proposal_description, code="CANONICAL_PROPOSAL_CONTEXT_REQUIRED")
         reject_synthetic_value(payload.project_reference, code="CANONICAL_PROPOSAL_CONTEXT_REQUIRED")
-        client = require_canonical_active_client(db, client_id)
-        client_id = client.id
+        if not (payload.provisional_source_identity and not client_id):
+            client = require_canonical_active_client(db, client_id)
+            client_id = client.id
     office = require_authorized_office(db, principal, project_id=payload.project_id)
     if payload.idempotency_key:
         existing = db.scalar(select(Opportunity).where(Opportunity.idempotency_key == payload.idempotency_key))
@@ -119,6 +126,9 @@ def _create_proposal_record(payload: ProposalCreate, request: Request, db: Sessi
         client_id = client.id
     reference = allocate_proposal_reference(db)
     fields = {"intake_client_name": payload.client_name, "project_reference": payload.project_reference, "provenance": {"intake_client_name": "manual", "project_reference": "manual"}}
+    if payload.provisional_source_identity:
+        fields["source_identity_state"] = "PROVISIONAL_UNRESOLVED"
+        fields["client_resolution_state"] = "UNRESOLVED_PROVISIONAL"
     fields = {key: value for key, value in fields.items() if value is not None}
     item = Opportunity(office_id=office.id, client_account_id=client_id, opportunity_reference=reference, title=payload.proposal_description.strip(), status="IN_REVIEW", source_type="BD_WORKSPACE", project_id=payload.project_id, reference_state="CANONICAL" if payload.project_id else "PROVISIONAL", proposal_fields_json=fields, idempotency_key=payload.idempotency_key, provisional_reference=reference, canonical_project_reference=payload.project_reference)
     db.add(item)
@@ -905,14 +915,16 @@ async def _register_source_content(*, proposal: Opportunity, request: Request, s
     # as generated outputs. The legacy local/Synology adapter remains confined
     # to synthetic TEST fixtures.
     if production_mode():
-        require_canonical_active_client(db, proposal.client_account_id)
+        workspace = (proposal.proposal_fields_json or {}).get("source_workspace") or {}
+        if not (workspace and proposal.client_account_id is None):
+            require_canonical_active_client(db, proposal.client_account_id)
         store = create_binary_store()
         target = StorageTarget(store.provider_id, getattr(getattr(store, "config", None), "container", None) or getattr(getattr(store, "config", None), "share", ""), f"proposal-intake/{proposal.id}/{source_type.lower()}")
         production_document = Document(project_id=proposal.project_id, document_type=DocumentType.OTHER, logical_name=f"{proposal.opportunity_reference}:{source_type}:{digest}", language="EN", source_system="PROPOSAL_INTAKE")
         db.add(production_document)
         db.flush()
         try:
-            stored = DocumentStorageService(store).store_version(db, document=production_document, content=content, filename=source_filename, mime_type=content_type, target=target, actor=actor, correlation_id=request.state.correlation_id, idempotency_key=operation_key, source_system="PROPOSAL_INTAKE", metadata={"proposal_id": proposal.id, "source_type": source_type, "source_revision": source_revision})
+            stored = DocumentStorageService(store).store_version(db, document=production_document, content=content, filename=source_filename, mime_type=content_type, target=target, actor=actor, correlation_id=request.state.correlation_id, idempotency_key=operation_key, source_system="PROPOSAL_INTAKE", metadata={"proposal_id": proposal.id, "source_type": source_type, "source_revision": source_revision, **(source_metadata or {})})
         except StorageError as exc:
             raise domain_error(503, "PRODUCTION_SOURCE_STORAGE_FAILED", storage_code=exc.code.value) from exc
         production_version = stored.version
@@ -938,10 +950,11 @@ async def _register_source_content(*, proposal: Opportunity, request: Request, s
         db.flush()
     document = db.scalar(select(Document).where(Document.logical_name == f"{proposal.opportunity_reference}:{source_type}:{digest}"))
     if not document and production_document is None:
+        local_fixture_metadata = {"synthetic_only": True, "sensitivity_class": "SYNTHETIC", **(source_metadata or {})} if app_settings().synthetic_only else dict(source_metadata or {})
         document = Document(project_id=proposal.project_id, document_type=DocumentType.OTHER, logical_name=f"{proposal.opportunity_reference}:{source_type}:{digest}", language="EN", source_system="PROPOSAL_INTAKE", current_version_id=None)
         db.add(document)
         db.flush()
-        version = DocumentVersion(document_id=document.id, version_number=1, source_filename=result["source_filename"], source_path_or_reference=result["sor_path"], sha256=digest, mime_type=content_type, file_size=len(content), language="EN", revision_label=source_revision, approval_state=DocumentApprovalState.WORKING, source_system="PROPOSAL_INTAKE")
+        version = DocumentVersion(document_id=document.id, version_number=1, source_filename=result["source_filename"], source_path_or_reference=result["sor_path"], sha256=digest, mime_type=content_type, file_size=len(content), language="EN", revision_label=source_revision, approval_state=DocumentApprovalState.WORKING, source_system="PROPOSAL_INTAKE", metadata_json=local_fixture_metadata)
         db.add(version)
         db.flush()
         document.current_version_id = version.id
@@ -952,7 +965,8 @@ async def _register_source_content(*, proposal: Opportunity, request: Request, s
         version = db.scalar(select(DocumentVersion).where(DocumentVersion.document_id == document.id, DocumentVersion.sha256 == digest))
         if not version:
             next_version = (db.scalar(select(DocumentVersion.version_number).where(DocumentVersion.document_id == document.id).order_by(DocumentVersion.version_number.desc())) or 0) + 1
-            version = DocumentVersion(document_id=document.id, version_number=next_version, source_filename=result["source_filename"], source_path_or_reference=result["sor_path"], sha256=digest, mime_type=content_type, file_size=len(content), language="EN", revision_label=source_revision, approval_state=DocumentApprovalState.WORKING, source_system="PROPOSAL_INTAKE")
+            local_fixture_metadata = {"synthetic_only": True, "sensitivity_class": "SYNTHETIC", **(source_metadata or {})} if app_settings().synthetic_only else dict(source_metadata or {})
+            version = DocumentVersion(document_id=document.id, version_number=next_version, source_filename=result["source_filename"], source_path_or_reference=result["sor_path"], sha256=digest, mime_type=content_type, file_size=len(content), language="EN", revision_label=source_revision, approval_state=DocumentApprovalState.WORKING, source_system="PROPOSAL_INTAKE", metadata_json=local_fixture_metadata)
             db.add(version)
             db.flush()
             document.current_version_id = version.id
@@ -1021,15 +1035,68 @@ async def create_proposal_intake(request: Request, proposal_description: str = F
 
 
 @router.post("/{proposal_id}/sources")
-async def add_source(proposal_id: str, request: Request, source_type: str = Form(...), file: UploadFile = File(...), source_revision: str | None = Form(default=None), actor: str | None = Form(default=None), idempotency_key: str | None = Form(default=None), db: Session = Depends(get_db), role: Role = Depends(current_user_role), x_synthetic_sor: str | None = Header(default=None)):
+async def add_source(proposal_id: str, request: Request, source_type: str = Form(...), file: UploadFile = File(...), source_revision: str | None = Form(default=None), logical_category: str | None = Form(default=None), actor: str | None = Form(default=None), idempotency_key: str | None = Form(default=None), db: Session = Depends(get_db), role: Role = Depends(current_user_role), x_synthetic_sor: str | None = Header(default=None)):
     require_capability(role, "BD_PROPOSAL_WRITE")
     proposal = db.get(Opportunity, proposal_id)
     if not proposal:
         raise HTTPException(404, "PROPOSAL_NOT_FOUND")
     content = await file.read()
-    result = await _register_source_content(proposal=proposal, request=request, source_type=source_type, source_filename=file.filename or "source.bin", content_type=file.content_type or "application/octet-stream", content=content, source_revision=source_revision, actor=_actor(role, actor), idempotency_key=idempotency_key, source_metadata=None, db=db, role=role)
+    allowed_categories = {"TENDER_DOCUMENTS", "PHOTOS_IMAGES", "EMAIL", "CLIENT_DATA", "CLIENT_DOCUMENTS", "PROJECT_INFORMATION", "OTHER_UNCLASSIFIED"}
+    if logical_category and logical_category not in allowed_categories:
+        raise HTTPException(422, {"code": "SOURCE_CATEGORY_INVALID", "allowed": sorted(allowed_categories)})
+    result = await _register_source_content(proposal=proposal, request=request, source_type=source_type, source_filename=file.filename or "source.bin", content_type=file.content_type or "application/octet-stream", content=content, source_revision=source_revision, actor=_actor(role, actor), idempotency_key=idempotency_key, source_metadata={"logical_category": logical_category} if logical_category else None, db=db, role=role)
     db.commit()
     return {**result, "proposal": proposal_projection(db, proposal)}
+
+
+@router.post("/{proposal_id}/sources/batch")
+async def add_sources_batch(
+    proposal_id: str,
+    request: Request,
+    files: list[UploadFile] = File(...),
+    source_types: str = Form(default="[]"),
+    logical_categories: str = Form(default="[]"),
+    db: Session = Depends(get_db),
+    role: Role = Depends(current_user_role),
+):
+    """Stage Owner-added sources atomically before Proposal generation."""
+    require_capability(role, "BD_PROPOSAL_WRITE")
+    proposal = db.get(Opportunity, proposal_id)
+    if not proposal:
+        raise HTTPException(404, "PROPOSAL_NOT_FOUND")
+    try:
+        types = json.loads(source_types or "[]")
+        categories = json.loads(logical_categories or "[]")
+    except (TypeError, json.JSONDecodeError) as exc:
+        raise HTTPException(422, "SOURCE_BATCH_METADATA_INVALID") from exc
+    if not isinstance(types, list) or not isinstance(categories, list) or len(types) != len(files) or len(categories) != len(files):
+        raise HTTPException(422, "SOURCE_BATCH_METADATA_COUNT_MISMATCH")
+    allowed_categories = {"TENDER_DOCUMENTS", "PHOTOS_IMAGES", "EMAIL", "CLIENT_DATA", "CLIENT_DOCUMENTS", "PROJECT_INFORMATION", "OTHER_UNCLASSIFIED"}
+    if any(category not in allowed_categories for category in categories):
+        raise HTTPException(422, {"code": "SOURCE_CATEGORY_INVALID", "allowed": sorted(allowed_categories)})
+    try:
+        results = []
+        for upload, source_type, category in zip(files, types, categories):
+            content = await upload.read()
+            results.append(await _register_source_content(
+                proposal=proposal,
+                request=request,
+                source_type=str(source_type),
+                source_filename=upload.filename or "source.bin",
+                content_type=upload.content_type or "application/octet-stream",
+                content=content,
+                source_revision=None,
+                actor=_actor(role),
+                idempotency_key=None,
+                source_metadata={"logical_category": category, "owner_staged": True},
+                db=db,
+                role=role,
+            ))
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+    return {"result": "SOURCES_STAGED", "proposal_id": proposal_id, "sources": results, "count": len(results)}
 
 
 @router.get("/{proposal_id}/sources/{source_id}/content")

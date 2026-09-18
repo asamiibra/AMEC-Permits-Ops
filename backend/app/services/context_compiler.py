@@ -9,6 +9,11 @@ truth, or execute protected actions.
 
 from __future__ import annotations
 
+import base64
+import io
+import hashlib
+import re
+from pathlib import Path
 from dataclasses import dataclass
 from typing import Any
 
@@ -21,7 +26,9 @@ from backend.app.models import (
     AssertionStatus,
     CandidateAssertion,
     Contract,
+    ContractAdminEvidence,
     ContractRevision,
+    ContractTemplateSnapshot,
     ContextDependency,
     ContextSnapshot,
     DefinitionEntry,
@@ -42,6 +49,7 @@ from backend.app.models import (
     User,
     VerifiedAssertion,
 )
+from backend.app.config.settings import get_settings, repo_root
 from backend.app.services.backend_realignment import CAPABILITY_MATRIX, persona_for_role, require_capability
 from backend.app.services.intelligence_contracts import (
     IntelligenceContractError,
@@ -57,6 +65,7 @@ from backend.app.services.master_content import (
     exact_master_content_binding_check,
     resolve_master_content_purpose,
 )
+from backend.app.storage import DocumentStorageService, create_binary_store
 
 
 TRUST_RANKS = {
@@ -517,7 +526,7 @@ class GovernedContextCompiler:
             raise IntelligenceContractError("CONTEXT_CROSS_PROJECT_SOURCE")
         if scope_type in {"CONTRACT", "CONTRACT_REVISION"} and project_id not in {None, request_project_id}:
             raise IntelligenceContractError("CONTEXT_CROSS_PROJECT_SOURCE")
-        if project_id is not None and scope_type not in {"PROJECT", "PROPOSAL"}:
+        if project_id is not None and scope_type not in {"PROJECT", "PROPOSAL", "CONTRACT", "CONTRACT_REVISION"}:
             raise IntelligenceContractError("CONTEXT_NON_PROJECT_SOURCE_SCOPE")
 
     def _require_capability(self, capabilities: set[str], capability: str) -> None:
@@ -556,6 +565,149 @@ class GovernedContextCompiler:
     def _synthetic_version(version: DocumentVersion) -> bool:
         metadata = version.metadata_json or {}
         return bool(metadata.get("synthetic_non_business_fixture") or metadata.get("synthetic_only") or str(version.source_path_or_reference).startswith("synthetic-"))
+
+    @staticmethod
+    def _version_bytes(version: DocumentVersion) -> bytes:
+        """Read a verified source object without exposing its locator/content.
+
+        Proposal V1 is the only runtime that asks the compiler for bounded
+        source excerpts.  The storage service still verifies the immutable
+        SHA-256 before any bytes are parsed.
+        """
+        if version.source_path_or_reference.startswith("storage://"):
+            with DocumentStorageService(create_binary_store()).read_verified(version) as stream:
+                return stream.read()
+        if version.synthetic_content is not None:
+            return version.synthetic_content
+        # Local TEST/DEVELOPMENT source uploads are persisted by the
+        # provisional intake SOR adapter as files under the configured mock
+        # systems root. Read those bytes only after constraining the resolved
+        # path to that root and verifying the immutable version hash/size.
+        # Production and hosted runtimes must use storage:// or DB-backed
+        # synthetic_content and never accept an arbitrary filesystem path.
+        settings = get_settings()
+        if str(settings.app_env).upper() in {"TEST", "DEV", "DEVELOPMENT"}:
+            configured_root = Path(settings.mock_systems_root)
+            if not configured_root.is_absolute():
+                configured_root = repo_root() / configured_root
+            try:
+                allowed_root = configured_root.resolve(strict=True)
+                resolved_path = Path(version.source_path_or_reference).resolve(strict=True)
+                resolved_path.relative_to(allowed_root)
+            except (FileNotFoundError, OSError, RuntimeError, ValueError):
+                resolved_path = None
+            if resolved_path is not None and resolved_path.is_file():
+                content = resolved_path.read_bytes()
+                if len(content) == version.file_size and hashlib.sha256(content).hexdigest() == version.sha256:
+                    return content
+        raise IntelligenceContractError("CONTEXT_SOURCE_CONTENT_UNAVAILABLE")
+
+    @staticmethod
+    def _bounded_text(value: str, limit: int = 1600) -> tuple[str, bool]:
+        value = re.sub(r"\x00", "", value).strip()
+        if len(value) <= limit:
+            return value, False
+        return value[:limit], True
+
+    @staticmethod
+    def _vision_image(content: bytes, mime: str) -> tuple[str | None, int | None, int | None]:
+        """Create a bounded data URL for the Responses vision input part.
+
+        The original verified artifact stays in managed storage. Only a low
+        detail, size-capped rendition is placed in the transient provider
+        request, and the projection retains its source hash for provenance.
+        """
+        try:
+            from PIL import Image  # type: ignore
+            image = Image.open(io.BytesIO(content))
+            width, height = image.size
+            image.load()
+            image.thumbnail((768, 768))
+            if image.mode not in {"RGB", "L"}:
+                image = image.convert("RGB")
+            for quality in (60, 45, 30):
+                buffer = io.BytesIO()
+                image.save(buffer, format="JPEG", quality=quality, optimize=True)
+                encoded = buffer.getvalue()
+                if len(encoded) <= 20_000:
+                    return f"data:image/jpeg;base64,{base64.b64encode(encoded).decode('ascii')}", width, height
+        except Exception:
+            return None, None, None
+        return None, None, None
+
+    @classmethod
+    def _proposal_source_projection(cls, version: DocumentVersion) -> dict[str, Any]:
+        """Build a small, source-grounded projection for Proposal V1.
+
+        Raw bytes, full paths and transport locators never enter the model
+        input.  DOCX blocks retain their immutable anchor/hash preconditions so
+        a returned change plan can only target the exact baseline package.
+        Other readable sources receive a bounded UTF-8 excerpt and media
+        metadata. Images retain their source hash while a low-detail,
+        size-capped rendition is available only to the transient vision input.
+        """
+        metadata = version.metadata_json if isinstance(version.metadata_json, dict) else {}
+        projection: dict[str, Any] = {
+            "document_version_id": version.id,
+            "document_id": version.document_id,
+            "version_number": version.version_number,
+            "sha256": version.sha256,
+            "mime_type": version.mime_type,
+            "approval_state": version.approval_state.value if hasattr(version.approval_state, "value") else str(version.approval_state),
+            "revision_label": version.revision_label,
+            "document_date": version.document_date.isoformat() if version.document_date else None,
+            "source_filename": version.source_filename,
+            "source_relative_path": metadata.get("source_relative_path"),
+            "logical_category": metadata.get("logical_category") or "OTHER_UNCLASSIFIED",
+            "logical_category_source": metadata.get("logical_category_source") or "AUTO_CLASSIFIED",
+        }
+        content = cls._version_bytes(version)
+        mime = (version.mime_type or "").lower()
+        filename = (version.source_filename or "").lower()
+        if filename.endswith(".docx") or "wordprocessingml.document" in mime:
+            # Import locally to keep the compiler's package boundary clear.
+            from .proposal_document_package import document_map
+            blocks = [item for item in document_map(content) if item.text.strip()]
+            # Every editable paragraph is represented. The prior first-40
+            # slice silently made later sections invisible to Proposal V1.
+            editable = [
+                {"anchor": item.anchor, "expected_xml_hash": item.xml_hash, "value": item.text[:500], "document_order": index}
+                for index, item in enumerate(blocks)
+            ]
+            excerpt, truncated = cls._bounded_text("\n".join(item.text for item in blocks), 2400)
+            projection.update({"source_excerpt": excerpt, "source_excerpt_truncated": truncated, "editable_blocks": editable, "document_coverage": {"state": "FULL_EDITABLE_BLOCKS", "block_count": len(editable)}})
+        elif mime.startswith("text/") or filename.endswith((".txt", ".csv", ".json", ".xml", ".eml", ".md")):
+            try:
+                value = content.decode("utf-8", errors="replace")
+            except Exception:
+                value = ""
+            excerpt, truncated = cls._bounded_text(value)
+            projection.update({"source_excerpt": excerpt, "source_excerpt_truncated": truncated})
+        elif mime == "application/pdf" or filename.endswith(".pdf"):
+            # PDF parsing is intentionally optional.  Keep a deterministic
+            # marker when no text extractor is present so the model can still
+            # cite the verified artifact without receiving binary gibberish.
+            text = ""
+            try:
+                from pypdf import PdfReader  # type: ignore
+                reader = PdfReader(io.BytesIO(content))
+                text = "\n".join(page.extract_text() or "" for page in reader.pages)
+            except Exception:
+                text = ""
+            excerpt, truncated = cls._bounded_text(text)
+            projection.update({"source_excerpt": excerpt, "source_excerpt_truncated": truncated, "source_text_state": "EXTRACTED" if excerpt else "BINARY_ARTIFACT_ONLY"})
+        else:
+            media: dict[str, Any] = {"mime_type": version.mime_type, "byte_size": version.file_size, "sha256": version.sha256}
+            if mime.startswith("image/") or filename.endswith((".jpg", ".jpeg", ".png", ".webp")):
+                image_data_url, width, height = cls._vision_image(content, mime)
+                media["vision_state"] = "READY" if image_data_url else "UNAVAILABLE"
+                if width is not None and height is not None:
+                    media["image_width"] = width
+                    media["image_height"] = height
+                if image_data_url:
+                    media["image_data_url"] = image_data_url
+            projection.update({"source_excerpt": "", "source_excerpt_truncated": False, "source_media": media})
+        return cls._safe_projection(projection)
 
     def _current_document_version(self, version: DocumentVersion | None) -> None:
         if version is None or version.document is None:
@@ -618,23 +770,39 @@ class GovernedContextCompiler:
         self._check_project(version.document.project_id, request)
         if request.scope_type.upper() in {"CONTRACT", "CONTRACT_REVISION"}:
             metadata = version.metadata_json if isinstance(version.metadata_json, dict) else {}
-            if metadata.get("contract_id") != request.scope_id:
+            contract = self.db.get(Contract, request.scope_id)
+            current_revision_id = contract.current_revision_id if contract else None
+            linked_template = self.db.scalar(select(ContractTemplateSnapshot.id).where(
+                ContractTemplateSnapshot.contract_id == request.scope_id,
+                ContractTemplateSnapshot.contract_revision_id == current_revision_id,
+                ContractTemplateSnapshot.document_version_id == version.id,
+            ))
+            linked_evidence = self.db.scalar(select(ContractAdminEvidence.id).where(
+                ContractAdminEvidence.contract_id == request.scope_id,
+                ContractAdminEvidence.contract_revision_id == current_revision_id,
+                ContractAdminEvidence.document_version_id == version.id,
+            ))
+            if metadata.get("contract_id") != request.scope_id and not (linked_template or linked_evidence):
                 raise IntelligenceContractError("CONTEXT_CONTRACT_SOURCE_SCOPE_MISMATCH")
         synthetic = self._synthetic_version(version)
+        metadata = version.metadata_json if isinstance(version.metadata_json, dict) else {}
+        data_classification = str(metadata.get("sensitivity_class") or ("SYNTHETIC" if synthetic else "INTERNAL")).upper()
+        contains_sensitive = bool(metadata.get("contains_sensitive_data") or data_classification in {"CONFIDENTIAL", "RESTRICTED"})
+        is_proposal = request.skill_manifest.owning_module.upper() == "BD_PROPOSAL"
+        projection = self._proposal_source_projection(version) if is_proposal else self._safe_projection({
+            "document_version_id": version.id,
+            "document_id": version.document_id,
+            "version_number": version.version_number,
+            "sha256": version.sha256,
+            "mime_type": version.mime_type,
+            "approval_state": version.approval_state.value if hasattr(version.approval_state, "value") else str(version.approval_state),
+            "revision_label": version.revision_label,
+            "document_date": version.document_date.isoformat() if version.document_date else None,
+        })
         return _ResolvedSource(
             "DOCUMENT_VERSION", "DOCUMENT_VERSION", version.id, version.sha256,
-            "GOVERNED_EVIDENCE", "CURRENT", "SYNTHETIC" if synthetic else "INTERNAL", False, synthetic,
-            self._safe_projection({
-                "document_version_id": version.id,
-                "document_id": version.document_id,
-                "version_number": version.version_number,
-                "sha256": version.sha256,
-                "mime_type": version.mime_type,
-                "approval_state": version.approval_state.value if hasattr(version.approval_state, "value") else str(version.approval_state),
-                "revision_label": version.revision_label,
-                "document_date": version.document_date.isoformat() if version.document_date else None,
-            }),
-            {"document_id": version.document_id},
+            "GOVERNED_EVIDENCE", "CURRENT", data_classification, contains_sensitive,
+            synthetic, projection, {"document_id": version.document_id, "source_relative_path": metadata.get("source_relative_path"), "logical_category": metadata.get("logical_category") or "OTHER_UNCLASSIFIED", "logical_category_source": metadata.get("logical_category_source") or "AUTO_CLASSIFIED"},
         )
 
     def _resolve_evidence_envelope(self, request: ContextCompileRequest, source: ContextSourceSpec, capabilities: set[str]) -> _ResolvedSource | None:

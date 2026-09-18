@@ -55,7 +55,7 @@ describe("P04 canonical Proposal experience", () => {
 
   it.each([
     ["/proposals", "/proposals"], ["/proposals/", "/proposals"], ["/proposals/new", "/proposals/new"],
-    ["/proposals/proposal-1", "/proposals/proposal-1"], ["/opportunities", "/proposals"],
+    ["/proposals/proposal-1", "/proposals/proposal-1"], ["/proposals/proposal-1/editor", "/proposals/proposal-1/editor"], ["/opportunities", "/proposals"],
     ["/opportunities/new", "/proposals/new"], ["/opportunities/proposal-1", "/proposals/proposal-1"],
     ["/bd", "/proposals"], ["/bd/proposals", "/proposals"],
   ])("maps %s to the canonical Proposal route %s", (source, expected) => {

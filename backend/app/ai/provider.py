@@ -22,6 +22,10 @@ class AIProviderRequest:
     response_schema: dict[str, Any] | None = None
     schema_name: str = "technical_methodology_draft"
     tools: tuple[dict[str, Any], ...] = ()
+    # Optional Responses API content parts used for governed multimodal
+    # Proposal sources. The canonical serialized text remains available to
+    # deterministic providers and audit fingerprints.
+    provider_input_content: list[dict[str, Any]] | None = None
 
 
 @dataclass(frozen=True)
@@ -101,7 +105,7 @@ class AzureOpenAIResponsesProvider:
             "model": self.settings.ai_azure_openai_deployment,
             "store": False,
             "max_output_tokens": request.max_output_tokens,
-            "input": request.provider_input,
+            "input": request.provider_input_content or request.provider_input,
             "tools": list(request.tools),
             "text": {"format": {"type": "json_schema", "name": request.schema_name, "strict": True, "schema": request.response_schema or PROVIDER_JSON_SCHEMA}},
         }

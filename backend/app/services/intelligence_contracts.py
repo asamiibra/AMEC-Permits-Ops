@@ -171,8 +171,13 @@ def create_candidate_assertion(db: Session, payload: dict[str, Any]) -> Candidat
         raise IntelligenceContractError("INTELLIGENCE_PROMOTION_REQUIRES_EXPLICIT_REFERENCE")
     if "value_hash" not in values:
         values["value_hash"] = stable_hash(values.get("value_json"))
-    identity = _identity(values, "value_hash")
-    return _existing_or_new(db, CandidateAssertion, values["idempotency_key"], identity, values, ("value_hash",))
+    # Candidate status is a mutable lifecycle field.  A current candidate can
+    # be superseded when a newer source version arrives, then replayed by the
+    # bridge's idempotent retry path.  It must not make the original immutable
+    # payload appear to be a different request.
+    mutable_fields = ("value_hash", "status", "supersedes_candidate_assertion_id", "promoted_verified_assertion_id")
+    identity = _identity(values, *mutable_fields)
+    return _existing_or_new(db, CandidateAssertion, values["idempotency_key"], identity, values, mutable_fields)
 
 
 def create_context_snapshot(db: Session, payload: dict[str, Any]) -> ContextSnapshot:
