@@ -222,7 +222,12 @@ def _generate_proposal_revision(
         intelligence = execute_proposal_intelligence(
             db, proposal_id=proposal.id, operation="document-change-plan",
             principal=authenticated_principal_context() or AuthenticatedPrincipal(auth_mode="DEV_HEADER", role=role, user_id=None),
-            idempotency_key=f"proposal-document-generation:{proposal.id}:{seeded_editor.get('editor_revision_id') or uuid4()}",
+            # A failed provider reservation is terminal for its idempotency
+            # key.  Generation is retried when the Owner repeats Create
+            # Proposal, so each attempt needs a fresh key; the surrounding
+            # source-set/provenance check still makes successful promotion
+            # idempotent and prevents duplicate generated revisions.
+            idempotency_key=f"proposal-document-generation:{proposal.id}:{source_set_hash}:{uuid4().hex}",
             correlation_id=getattr(request.state, "correlation_id", str(uuid4())),
             settings=settings, provider=provider,
         )
