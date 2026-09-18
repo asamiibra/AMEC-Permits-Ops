@@ -157,16 +157,42 @@ def ingest_bridge_scan(db: Session, payload: BridgeScanIn, identity: BridgeIdent
         public_key.verify(base64.b64decode(payload.signature_b64, validate=True), canonical_scan_signature_payload(payload))
     except (ValueError, binascii.Error, InvalidSignature) as exc:
         raise _error(422, "BRIDGE_SIGNATURE_INVALID") from exc
-    existing = db.scalar(select(ProposalSourceScan).where(ProposalSourceScan.source_identity == payload.source_identity, ProposalSourceScan.scan_id == payload.scan_id))
-    if existing is not None:
-        if existing.signed_manifest_hash != payload.manifest_hash:
-            raise _error(409, "BRIDGE_SCAN_ID_REUSE_MISMATCH")
-        return {"result": "IDEMPOTENT", "scan_id": existing.scan_id, "status": existing.status, "entry_count": len(payload.entries)}
     try:
         started = datetime.fromisoformat(payload.started_at.replace("Z", "+00:00"))
         completed = datetime.fromisoformat(payload.completed_at.replace("Z", "+00:00")) if payload.completed_at else None
     except ValueError as exc:
         raise _error(422, "BRIDGE_SCAN_TIMESTAMP_INVALID") from exc
+    existing = db.scalar(select(ProposalSourceScan).where(ProposalSourceScan.source_identity == payload.source_identity, ProposalSourceScan.scan_id == payload.scan_id))
+    if existing is not None:
+        # Package envelopes create an IN_PROGRESS scan before the final
+        # signed enumeration arrives.  Finalization is allowed to replace
+        # that provisional hash and reconcile its entries; a terminal scan
+        # with a different hash is still an idempotency violation.
+        if existing.status in {"COMPLETED", "INCOMPLETE", "FAILED"} and existing.signed_manifest_hash != payload.manifest_hash:
+            raise _error(409, "BRIDGE_SCAN_ID_REUSE_MISMATCH")
+        existing.source_root = payload.source_root
+        existing.source_project_identity = payload.source_project_identity
+        existing.project_number = payload.project_number
+        existing.status = payload.status
+        existing.started_at = started
+        existing.completed_at = completed
+        existing.signed_manifest_hash = payload.manifest_hash
+        existing.signature_b64 = payload.signature_b64
+        existing.metadata_json = {**(existing.metadata_json or {}), "signature_verified": True}
+        for key in ("directories_seen", "files_seen", "total_bytes_seen", "files_successfully_captured", "files_skipped_oversize", "files_failed", "files_unsupported", "projects_unmapped"):
+            if key in payload.counts:
+                setattr(existing, key, int(payload.counts[key]))
+        existing_entries = {row.relative_path: row for row in db.scalars(select(ProposalSourceScanEntry).where(ProposalSourceScanEntry.scan_id == existing.id)).all()}
+        for entry in payload.entries:
+            row = existing_entries.get(entry.relative_path)
+            values = {"entry_type": entry.entry_type, "size_bytes": entry.size_bytes, "mtime_token": entry.mtime_token, "sha256": entry.sha256, "capture_status": entry.capture_status, "failure_reason": entry.failure_reason, "source_version_token": entry.source_version_token}
+            if row is None:
+                db.add(ProposalSourceScanEntry(scan_id=existing.id, relative_path=entry.relative_path, **values))
+            else:
+                for key, value in values.items():
+                    setattr(row, key, value)
+        db.flush()
+        return {"result": "FINALIZED" if existing.status in {"COMPLETED", "INCOMPLETE", "FAILED"} else "IDEMPOTENT", "scan_id": existing.scan_id, "status": existing.status, "entry_count": len(payload.entries), "signature_verified": True}
     scan = ProposalSourceScan(scan_id=payload.scan_id, source_identity=payload.source_identity, source_root=payload.source_root, source_project_identity=payload.source_project_identity, project_number=payload.project_number, status=payload.status, started_at=started, completed_at=completed, bridge_machine_identity=identity.object_id, signed_manifest_hash=payload.manifest_hash, signature_b64=payload.signature_b64, metadata_json={"signature_verified": True})
     for key in ("directories_seen", "files_seen", "total_bytes_seen", "files_successfully_captured", "files_skipped_oversize", "files_failed", "files_unsupported", "projects_unmapped"):
         if key in payload.counts:

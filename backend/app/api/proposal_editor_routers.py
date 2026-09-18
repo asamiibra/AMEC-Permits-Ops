@@ -222,7 +222,13 @@ def active_proposal_sources(proposal_id: str, db: Session = Depends(get_db), _: 
             "view_route": f"/api/proposals/sources/2026/projects/{source_number}/files/{file_id}/content" if file_id else (f"/api/bd/proposals/{proposal_id}/sources/{link.source_evidence_id}/content" if link.source_evidence_id else None),
             "download_route": f"/api/proposals/sources/2026/projects/{source_number}/files/{file_id}/download" if file_id else (f"/api/bd/proposals/{proposal_id}/sources/{link.source_evidence_id}/content" if link.source_evidence_id else None),
         })
-    return {"proposal_id": proposal_id, "source_manifest_hash": workspace.get("source_manifest_hash"), "sources": sources}
+    return {
+        "proposal_id": proposal_id,
+        "source_manifest_hash": workspace.get("source_manifest_hash"),
+        "generation_state": (proposal.proposal_fields_json or {}).get("generation_state"),
+        "source_changes_available": bool((proposal.proposal_fields_json or {}).get("source_changes_available")),
+        "sources": sources,
+    }
 
 
 def _active_source_link(proposal_id: str, link_id: str, db: Session) -> tuple[Opportunity, ProposalSourceLink, DocumentVersion]:

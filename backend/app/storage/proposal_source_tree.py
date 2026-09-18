@@ -295,22 +295,24 @@ class BridgeProposalSourceProvider:
         return current
 
     def _latest_scan(self, project_folder: str):
-        """Return the latest completed scan for this exact source folder."""
+        """Return the newest scan for this exact source folder, whatever its status."""
         from ..models import ProposalSourceScan
         project = classify_project_folder(project_folder)
         if project is None:
             return None
         rows = self.db.scalars(
             select(ProposalSourceScan)
-            .where(ProposalSourceScan.project_number == str(project.number), ProposalSourceScan.status == "COMPLETED")
-            .order_by(ProposalSourceScan.completed_at.desc(), ProposalSourceScan.created_at.desc())
+            .where(ProposalSourceScan.project_number == str(project.number))
+            .order_by(ProposalSourceScan.created_at.desc(), ProposalSourceScan.started_at.desc(), ProposalSourceScan.completed_at.desc())
         ).all()
         return rows[0] if rows else None
 
     def discover(self) -> list[SourceProject]:
         projects: dict[str, SourceProject] = {}
         from ..models import ProposalSourceScan, ProposalSourceScanEntry
-        for scan in self.db.scalars(select(ProposalSourceScan).where(ProposalSourceScan.status == "COMPLETED")).all():
+        # A newer incomplete/failed scan is still a real discovered project;
+        # its readiness is represented by the scan status and manifest.
+        for scan in self.db.scalars(select(ProposalSourceScan)).all():
             for entry in self.db.scalars(select(ProposalSourceScanEntry).where(ProposalSourceScanEntry.scan_id == scan.id)).all():
                 folder = entry.relative_path.split("/", 1)[0]
                 project = classify_project_folder(folder)

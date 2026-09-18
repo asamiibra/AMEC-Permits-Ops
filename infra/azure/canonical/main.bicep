@@ -98,6 +98,8 @@ param aiFeatureEnabled bool = true
 param aiExternalInferenceEnabled bool = true
 @description('Real business content remains forbidden for the Owner-test release.')
 param aiRealContentAllowed bool = false
+@description('Allow governed Proposal V1 real source content to reach its commissioned AI runtime. Defaults fail-closed.')
+param aiProposalRealContentAllowed bool = false
 @description('Immutable D4 commissioning record identifier.')
 param aiD4CommissioningId string
 @description('Azure OpenAI account resource group containing the commissioned deployment.')
@@ -556,6 +558,7 @@ resource apiApp 'Microsoft.App/containerApps@2024-03-01' = {
           { name: 'AI_FEATURE_ENABLED', value: string(aiFeatureEnabled) }
           { name: 'AI_EXTERNAL_INFERENCE_ENABLED', value: string(aiExternalInferenceEnabled) }
           { name: 'AI_REAL_CONTENT_ALLOWED', value: string(aiRealContentAllowed) }
+          { name: 'AI_PROPOSAL_REAL_CONTENT_ALLOWED', value: string(aiProposalRealContentAllowed) }
           { name: 'AI_D4_COMMISSIONING_ID', value: aiD4CommissioningId }
           { name: 'AI_AZURE_OPENAI_ENDPOINT', value: aiAzureOpenaiEndpoint }
           { name: 'AI_AZURE_OPENAI_DEPLOYMENT', value: aiAzureOpenaiDeployment }
@@ -681,6 +684,7 @@ resource workerApp 'Microsoft.App/containerApps@2024-03-01' = {
           { name: 'AI_FEATURE_ENABLED', value: string(aiFeatureEnabled) }
           { name: 'AI_EXTERNAL_INFERENCE_ENABLED', value: string(aiExternalInferenceEnabled) }
           { name: 'AI_REAL_CONTENT_ALLOWED', value: string(aiRealContentAllowed) }
+          { name: 'AI_PROPOSAL_REAL_CONTENT_ALLOWED', value: string(aiProposalRealContentAllowed) }
           { name: 'AI_D4_COMMISSIONING_ID', value: aiD4CommissioningId }
           { name: 'AI_AZURE_OPENAI_ENDPOINT', value: aiAzureOpenaiEndpoint }
           { name: 'AI_AZURE_OPENAI_DEPLOYMENT', value: aiAzureOpenaiDeployment }
@@ -755,6 +759,7 @@ resource migrationJob 'Microsoft.App/jobs@2024-03-01' = {
           { name: 'AI_FEATURE_ENABLED', value: string(aiFeatureEnabled) }
           { name: 'AI_EXTERNAL_INFERENCE_ENABLED', value: string(aiExternalInferenceEnabled) }
           { name: 'AI_REAL_CONTENT_ALLOWED', value: string(aiRealContentAllowed) }
+          { name: 'AI_PROPOSAL_REAL_CONTENT_ALLOWED', value: string(aiProposalRealContentAllowed) }
           { name: 'AI_D4_COMMISSIONING_ID', value: aiD4CommissioningId }
           { name: 'AI_AZURE_OPENAI_ENDPOINT', value: aiAzureOpenaiEndpoint }
           { name: 'AI_AZURE_OPENAI_DEPLOYMENT', value: aiAzureOpenaiDeployment }

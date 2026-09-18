@@ -46,6 +46,10 @@ def test_active_graph_and_legacy_archive_are_exact():
         "billing_intelligence_final_merge_v1.py",
         "contract_reconciliation_scheduler_v1.py",
         "proposal_billing_contract_convergence_v1.py",
+        "proposal_source_scan_closure_v1.py",
+        "proposal_source_decisions_v1.py",
+        "proposal_generation_attempts_v1.py",
+        "proposal_source_staging_v1.py",
     }
     phase4_source = PHASE4.read_text(encoding="utf-8")
     assert 'revision = "phase4_corpus_app_integration_v1"' in phase4_source

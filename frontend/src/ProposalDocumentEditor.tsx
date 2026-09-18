@@ -3,7 +3,8 @@ import { api, apiBlob } from "./api";
 
 type EditorNode = { id: string; anchor: string; part: string; text: string; xml_hash: string; editable: boolean; block_type: string };
 type EditorModel = { version: string; nodes: EditorNode[]; editable_node_count: number; read_only_node_count: number; read_only_block_types: string[]; [key: string]: any };
-type ProposalSource = { link_id: string; filename: string; logical_category?: string; source_role: string; sha256: string; view_route?: string; download_route?: string };
+type ProposalSource = { link_id: string; filename: string; logical_category?: string; source_role: string; sha256: string; included_in_proposal?: boolean; view_route?: string; download_route?: string };
+const SOURCE_CATEGORIES = ["TENDER_DOCUMENTS", "PHOTOS_IMAGES", "EMAIL", "CLIENT_DATA", "CLIENT_DOCUMENTS", "PROJECT_INFORMATION", "OTHER_UNCLASSIFIED"];
 
 const headers = (role: string) => ({ "X-Dev-Role": role });
 
@@ -11,6 +12,7 @@ const headers = (role: string) => ({ "X-Dev-Role": role });
 export function ProposalDocumentEditor({ role = "OWNER_SPONSOR", proposalId, revisionId, onBack }: { role?: string; proposalId?: string; revisionId?: string; onBack?: () => void }) {
   const canonical = Boolean(proposalId);
   const [resolvedRevisionId, setResolvedRevisionId] = useState(revisionId);
+  const [revisionOverride, setRevisionOverride] = useState<string>();
   const [file, setFile] = useState<File | null>(null);
   const [model, setModel] = useState<EditorModel | null>(null);
   const [nodes, setNodes] = useState<EditorNode[]>([]);
@@ -20,6 +22,8 @@ export function ProposalDocumentEditor({ role = "OWNER_SPONSOR", proposalId, rev
   const [busy, setBusy] = useState(false);
   const [previewUrl, setPreviewUrl] = useState("");
   const [sources, setSources] = useState<ProposalSource[]>([]);
+  const [sourceCategoryDrafts, setSourceCategoryDrafts] = useState<Record<string, string>>({});
+  const [sourceState, setSourceState] = useState("");
   const load = async () => {
     if (!file) return;
     setBusy(true); setStatus("");
@@ -41,7 +45,7 @@ export function ProposalDocumentEditor({ role = "OWNER_SPONSOR", proposalId, rev
         // Use the shared API client for every canonical request. Relative
         // fetch() calls hit the web host in production and receive its HTML
         // shell, which is the source of the "Unexpected token '<'" error.
-        let canonicalRevisionId = revisionId || resolvedRevisionId;
+        let canonicalRevisionId = revisionOverride || revisionId || resolvedRevisionId;
         if (!canonicalRevisionId) {
           const entry = await api<any>(`/api/proposals-v1/editor/proposals/${proposalId}/entry`, { headers: headers(role) });
           if (!entry.revision_id) {
@@ -50,6 +54,7 @@ export function ProposalDocumentEditor({ role = "OWNER_SPONSOR", proposalId, rev
           }
           canonicalRevisionId = entry.revision_id;
           setResolvedRevisionId(canonicalRevisionId);
+          setRevisionOverride(canonicalRevisionId);
         }
         const revision = await api<any>(`/api/proposals-v1/editor/proposals/${proposalId}/revisions/${canonicalRevisionId}`, { headers: headers(role) });
         const documentBlob = await apiBlob(`/api/proposals-v1/editor/proposals/${proposalId}/revisions/${canonicalRevisionId}/document`, { headers: headers(role) });
@@ -64,16 +69,46 @@ export function ProposalDocumentEditor({ role = "OWNER_SPONSOR", proposalId, rev
     };
     void loadCanonical();
     return () => { cancelled = true; };
-  }, [canonical, proposalId, revisionId, resolvedRevisionId, role]);
+  }, [canonical, proposalId, revisionId, revisionOverride, resolvedRevisionId, role]);
   useEffect(() => {
     if (!canonical || !proposalId) return;
     let cancelled = false;
-    api<{ sources?: ProposalSource[] }>(`/api/proposals-v1/editor/proposals/${proposalId}/sources`, { headers: headers(role) })
-      .then((result) => { if (!cancelled) setSources(result.sources || []); })
+    api<{ sources?: ProposalSource[]; generation_state?: string }>(`/api/proposals-v1/editor/proposals/${proposalId}/sources`, { headers: headers(role) })
+      .then((result) => { if (!cancelled) { const next = result.sources || []; setSources(next); setSourceCategoryDrafts(Object.fromEntries(next.map((item) => [item.link_id, item.logical_category || "OTHER_UNCLASSIFIED"]))); setSourceState(result.generation_state || ""); } })
       .catch(() => { if (!cancelled) setSources([]); });
     return () => { cancelled = true; };
   }, [canonical, proposalId, role]);
   const current = useMemo(() => model && ({ ...model, nodes }), [model, nodes]);
+  const activeRevisionId = revisionOverride || revisionId || resolvedRevisionId;
+  const saveSourceCategory = async (source: ProposalSource, logicalCategory: string) => {
+    if (!proposalId || source.source_role === "BASELINE_TEMPLATE") return;
+    try {
+      await api(`/api/proposals-v1/editor/proposals/${proposalId}/sources/${source.link_id}/category`, { method: "PATCH", headers: headers(role), body: JSON.stringify({ logical_category: logicalCategory }) });
+      setSources((items) => items.map((item) => item.link_id === source.link_id ? { ...item, logical_category: logicalCategory } : item));
+      setSourceCategoryDrafts((items) => ({ ...items, [source.link_id]: logicalCategory }));
+      setSourceState("STALE_SOURCE_MANIFEST"); setStatus("Source category saved. Regenerate the Proposal to apply it.");
+    } catch (error) { setStatus(error instanceof Error ? error.message : "Source category could not be saved"); }
+  };
+  const toggleSourceInclusion = async (source: ProposalSource) => {
+    if (!proposalId || source.source_role === "BASELINE_TEMPLATE") return;
+    try {
+      const included = !(source.included_in_proposal !== false);
+      await api(`/api/proposals-v1/editor/proposals/${proposalId}/sources/${source.link_id}/inclusion`, { method: "PATCH", headers: headers(role), body: JSON.stringify({ included_in_proposal: included }) });
+      setSources((items) => items.map((item) => item.link_id === source.link_id ? { ...item, included_in_proposal: included } : item));
+      setSourceState("STALE_SOURCE_MANIFEST"); setStatus(`Source ${included ? "added back to" : "removed from"} the Proposal. Regenerate to apply it.`);
+    } catch (error) { setStatus(error instanceof Error ? error.message : "Source inclusion could not be saved"); }
+  };
+  const regenerateProposal = async () => {
+    if (!proposalId) return;
+    setBusy(true);
+    try {
+      const result = await api<any>(`/api/proposals/sources/proposals/${proposalId}/regenerate`, { method: "POST", headers: headers(role) });
+      if (result.editor_revision_id) setRevisionOverride(result.editor_revision_id);
+      setSourceState("READY_FOR_EDIT"); setStatus("Proposal regenerated from the current active source set.");
+      await api<{ sources?: ProposalSource[]; generation_state?: string }>(`/api/proposals-v1/editor/proposals/${proposalId}/sources`, { headers: headers(role) }).then((next) => { const refreshed = next.sources || []; setSources(refreshed); setSourceCategoryDrafts(Object.fromEntries(refreshed.map((item) => [item.link_id, item.logical_category || "OTHER_UNCLASSIFIED"]))); setSourceState(next.generation_state || "READY_FOR_EDIT"); });
+    } catch (error) { setStatus(error instanceof Error ? error.message : "Proposal regeneration failed"); }
+    finally { setBusy(false); }
+  };
   const inspectChanges = async () => {
     if (!file || !model || !current) return;
     const form = new FormData(); form.append("file", file); form.append("imported_model", JSON.stringify(model)); form.append("current_model", JSON.stringify(current));
@@ -81,7 +116,6 @@ export function ProposalDocumentEditor({ role = "OWNER_SPONSOR", proposalId, rev
     catch (error) { setStatus(error instanceof Error ? error.message : "Change review failed"); }
   };
   const saveCanonical = async (): Promise<any | null> => {
-    const activeRevisionId = revisionId || resolvedRevisionId;
     if (!canonical || !proposalId || !activeRevisionId || !file || !model || !current) return null;
     setBusy(true);
     try {
@@ -98,7 +132,6 @@ export function ProposalDocumentEditor({ role = "OWNER_SPONSOR", proposalId, rev
     if (!file || !model || !current) return;
     setBusy(true);
     try {
-      const activeRevisionId = revisionId || resolvedRevisionId;
       if (canonical && proposalId && activeRevisionId) {
         setBusy(false);
         const saved = await saveCanonical();
@@ -130,7 +163,6 @@ export function ProposalDocumentEditor({ role = "OWNER_SPONSOR", proposalId, rev
     } catch (error) { setStatus(error instanceof Error ? error.message : "Source could not be opened"); }
   };
   const showMutationSource = async (anchor: string) => {
-    const activeRevisionId = revisionId || resolvedRevisionId;
     if (!proposalId || !activeRevisionId) return;
     try {
       const evidence = await api<any>(`/api/proposals-v1/editor/proposals/${proposalId}/revisions/${activeRevisionId}/mutations/${encodeURIComponent(anchor)}/evidence`, { headers: headers(role) });
@@ -142,7 +174,7 @@ export function ProposalDocumentEditor({ role = "OWNER_SPONSOR", proposalId, rev
     <div className="proposal-editor-toolbar">{canonical ? <span className="muted">Canonical server revision · source DOCX loaded and verified</span> : <><label>Open baseline DOCX<input type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={(event) => setFile(event.target.files?.[0] || null)} /></label><button className="button-secondary" disabled={!file || busy} onClick={() => void load()}>Import</button></>}{model && <><button className="button-secondary" onClick={() => void inspectChanges()}>Review changes</button><button className="button-secondary" onClick={() => void truePreview()}>Preview true render</button>{canonical && <button className="button-secondary" disabled={busy} onClick={() => void saveCanonical()}>Save revision</button>}<button className="button-primary" disabled={busy} onClick={() => void exportDocx()}>{canonical ? "Save & download DOCX" : "Export DOCX"}</button></>}</div>
     {status && <div className="inline-message" role="status">{status}</div>}
     {model && <div className="proposal-editor-meta"><span>Editable nodes: <b>{model.editable_node_count}</b></span><span>Read-only blocks: <b>{model.read_only_node_count}</b></span><span>Import: <b>server</b></span><span>Export: <b>preserved package</b></span></div>}
-    {canonical && <aside className="proposal-editor-sources" aria-label="Active Proposal sources"><h4>Active Proposal sources</h4>{sources.length ? sources.map((source) => <div key={source.link_id}><b>{source.filename}</b><small>{source.logical_category || "Source"} · {source.source_role}</small><button className="text-button" onClick={() => void openSource(source)}>View</button><button className="text-button" onClick={() => void openSource(source, true)}>Download</button></div>) : <p className="muted">No active sources recorded.</p>}</aside>}
+    {canonical && <aside className="proposal-editor-sources" aria-label="Active Proposal sources"><div className="proposal-editor-sources-head"><h4>Active Proposal sources</h4>{sourceState === "STALE_SOURCE_MANIFEST" && <span className="source-stale">Changed · regeneration required</span>}<button className="button-secondary" disabled={busy || sourceState !== "STALE_SOURCE_MANIFEST"} onClick={() => void regenerateProposal()}>Regenerate Proposal</button></div>{sources.length ? sources.map((source) => { const included = source.included_in_proposal !== false; const category = sourceCategoryDrafts[source.link_id] || source.logical_category || "OTHER_UNCLASSIFIED"; const baseline = source.source_role === "BASELINE_TEMPLATE"; return <div key={source.link_id} className={!included ? "source-excluded" : ""}><b>{source.filename}</b><small>{category} · {source.source_role}{!included ? " · Removed from Proposal" : ""}</small>{!baseline && <label>Category<select value={SOURCE_CATEGORIES.includes(category) ? category : "OTHER_UNCLASSIFIED"} onChange={(event) => setSourceCategoryDrafts((items) => ({ ...items, [source.link_id]: event.target.value }))}>{SOURCE_CATEGORIES.map((item) => <option key={item} value={item}>{item.replaceAll("_", " ")}</option>)}</select><button className="text-button" disabled={sourceCategoryDrafts[source.link_id] === source.logical_category} onClick={() => void saveSourceCategory(source, sourceCategoryDrafts[source.link_id] || category)}>Save category</button></label>}<button className="text-button" onClick={() => void openSource(source)}>View</button><button className="text-button" onClick={() => void openSource(source, true)}>Download</button>{!baseline && <button className="text-button" onClick={() => void toggleSourceInclusion(source)}>{included ? "Remove from Proposal" : "Add back to Proposal"}</button>}</div>; }) : <p className="muted">No active sources recorded.</p>}</aside>}
     {model && <div className="proposal-editor-grid"><div className="proposal-editor-canvas">{nodes.map((node, index) => <div key={node.id} className={`proposal-editor-node ${node.editable ? "editable" : "readonly"}`} data-anchor={node.anchor}><small>{node.editable ? "Editable text" : `Read-only ${node.block_type.toLowerCase().replaceAll("_", " ")}`} · {node.part}</small>{node.editable ? <div contentEditable suppressContentEditableWarning role="textbox" aria-label={`Editable paragraph ${index + 1}`} onInput={(event) => { const text = event.currentTarget.textContent || ""; setNodes((items) => items.map((item) => item.id === node.id ? { ...item, text } : item)); }}>{node.text}</div> : <div aria-label="Read-only document block">{node.text || "[layout / media block]"}</div>}</div>)}</div><aside className="proposal-editor-review"><h4>Change review</h4>{changes.length ? changes.map((change) => <div className="proposal-editor-change" key={change.anchor}><del>{change.before}</del><ins>{change.after}</ins><small>{change.anchor}</small><div><button className="text-button" onClick={() => setNodes((items) => items.map((node) => node.id === change.anchor ? { ...node, text: change.before } : node))}>Reject</button><button className="text-button" onClick={() => setStatus("Change accepted; export will apply this anchor.")}>Accept</button><button className="text-button" onClick={() => void showMutationSource(change.anchor)}>Show source</button></div></div>) : <p className="muted">No proposed changes. Owner edits appear here after Review changes.</p>}</aside></div>}
     {previewUrl && <iframe className="proposal-editor-preview" title="True rendered proposal preview" src={previewUrl} />}
   </section>;

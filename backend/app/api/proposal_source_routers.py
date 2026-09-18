@@ -652,20 +652,26 @@ def _generate_proposal_revision(
 
 
 def _select_baseline_docx(versions: list[DocumentVersion]) -> DocumentVersion:
-    """Select one explicit baseline; never use arbitrary source ordering."""
+    """Select exactly one recognized AMEC Proposal baseline."""
     candidates = [version for version in versions if (version.source_filename or "").lower().endswith(".docx")]
+    recognized = [version for version in candidates if _is_recognized_baseline_docx(version)]
+    if len(recognized) == 1:
+        return recognized[0]
+    if len(recognized) > 1:
+        raise HTTPException(409, "PROPOSAL_BASELINE_SELECTION_REQUIRED")
+    # Generic DOCX files (scope briefs, client letters, project descriptions)
+    # remain source evidence and never silently become the baseline.
     if not candidates:
         raise HTTPException(422, "VALID_DOCX_SOURCE_REQUIRED")
-    explicit = [version for version in candidates if (version.metadata_json or {}).get("template_baseline") or (version.metadata_json or {}).get("source_role") == "BASELINE_TEMPLATE"]
-    if len(explicit) == 1:
-        return explicit[0]
-    named = [version for version in candidates if re.search(r"(?:amec.*p[-_ ]?d|proposal|baseline|template)", (version.source_filename or "").lower())]
-    if len(named) == 1:
-        return named[0]
-    # A single arbitrary DOCX is not evidence that the file is the AMEC
-    # Proposal baseline.  Block and require an explicit Owner selection or a
-    # governed Master Content template.
-    raise HTTPException(409, "PROPOSAL_BASELINE_SELECTION_REQUIRED")
+    raise HTTPException(422, "VALID_DOCX_SOURCE_REQUIRED")
+
+
+def _is_recognized_baseline_docx(version: DocumentVersion) -> bool:
+    metadata = version.metadata_json or {}
+    if metadata.get("template_baseline") or metadata.get("source_role") == "BASELINE_TEMPLATE":
+        return True
+    filename = (version.source_filename or "").lower()
+    return bool(re.search(r"(?:amec\s*[-_ ]?p[-_ ]?d|amec.{0,40}proposal|proposal.{0,40}(?:docx|baseline)|baseline.{0,40}(?:docx|proposal)|template.{0,40}(?:docx|proposal))", filename))
 
 
 @router.post("/2026/projects/{number}/create-proposal")
@@ -754,13 +760,10 @@ def create_proposal_from_source_workspace(
             manifest["entries"].append({"source_identity": f"OWNER_STAGING:{staging.id}:{staged.sha256}", "source_path": staged.filename, "document_version_id": version.id, "document_id": version.document_id, "sha256": version.sha256, "filename": staged.filename, "content_type": version.mime_type, "size": version.file_size, "source_version_token": version.id, "source_presence_state": "PRESENT", "currentness_state": "CURRENT", "source_role": "OWNER_SOURCE", "effective_category": staged.logical_category, "category_origin": "OWNER", "included": True, "inclusion_origin": "OWNER", "processing_state": "PENDING", "capture_status": "CAPTURED"})
         manifest["entries"].sort(key=lambda entry: (entry["source_path"], entry["source_identity"]))
         manifest["source_manifest_hash"] = hashlib.sha256(json.dumps(manifest["entries"], sort_keys=True, separators=(",", ":")).encode()).hexdigest()
-    settings = get_settings()
-    # Synthetic TEST/DEV fixtures retain their historical explicit blocker;
-    # the managed template fallback is for the live governed bridge only.
-    if (
-        not any((version.source_filename or "").lower().endswith(".docx") for version in selected_versions)
-        and not (settings.synthetic_only and settings.app_env.upper() in {"TEST", "DEV", "DEVELOPMENT"})
-    ):
+    # Only a recognized AMEC Proposal DOCX satisfies the baseline contract.
+    # An unrelated single DOCX must still fall back to the governed Master
+    # Content template instead of producing a false selection blocker.
+    if not any(_is_recognized_baseline_docx(version) for version in selected_versions):
         selected_versions.append(_ensure_baseline_template(db, item))
     # Promotion is idempotent. If an Owner repeats it after excluding a file,
     # deactivate the existing Proposal link while leaving the immutable

@@ -16,10 +16,11 @@ from uuid import uuid4
 import httpx
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
-from .schemas.bridge_intake import BridgePackageIn
-from .services.bridge_intake import canonical_signature_payload
+from .schemas.bridge_intake import BridgePackageIn, BridgeScanEntryIn, BridgeScanIn
+from .services.bridge_intake import canonical_scan_signature_payload, canonical_signature_payload
 from .storage.external import StableSourceRead
 from .storage.proposal_source_tree import LOGICAL_ROOT, SourceEntry, SourceProject, _parts, classify_project_folder
+from .services.proposal_source_workspace import canonical_source_project_identity
 
 
 LIVE_SOURCE_IDENTITY = "QATAR_SYNOLOGY_LIVE"
@@ -29,6 +30,10 @@ MAX_LIVE_FILE_BYTES = 10 * 1024 * 1024
 
 def _sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
+
+
+def _json(value: Any) -> str:
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), default=str)
 
 
 def _env_bool(name: str, default: bool = False) -> bool:
@@ -515,7 +520,24 @@ def _make_live_reader() -> QatarSynologySourceReader | QuickConnectSynologySourc
     )
 
 
-def sync_live_once(reader: QatarSynologySourceReader) -> dict[str, object]:
+def _post_bridge_json(url: str, token: str, payload: dict[str, Any]) -> httpx.Response:
+    """Post one signed bridge envelope, retrying only transient receiver errors."""
+    response: httpx.Response | None = None
+    for attempt in range(3):
+        response = httpx.post(url, headers={"Authorization": f"Bearer {token}"}, json=payload, timeout=30)
+        if response.status_code not in {502, 503, 504} or attempt == 2:
+            break
+        time.sleep(2 ** attempt)
+    assert response is not None
+    return response
+
+
+def _scan_manifest_hash(entries: list[BridgeScanEntryIn]) -> str:
+    canonical = sorted((entry.model_dump(mode="json") for entry in entries), key=lambda item: item["relative_path"])
+    return hashlib.sha256(_json(canonical).encode("utf-8")).hexdigest()
+
+
+def sync_live_once(reader: QatarSynologySourceReader | QuickConnectSynologySourceReader) -> dict[str, object]:
     """Capture and publish one bounded Synology snapshot.
 
     The returned counters are deliberately machine-readable so the bridge
@@ -541,29 +563,70 @@ def sync_live_once(reader: QatarSynologySourceReader) -> dict[str, object]:
     skipped = 0
     skipped_oversize = 0
     failed_transient = 0
+    scans_failed_transient = 0
+    scans_posted = 0
+    scans_incomplete = 0
     for project in projects:
         # Number keys are the canonical operator contract; accepting the exact
         # folder name also lets an operator map names containing spaces without
         # changing the source reader or URI policy.
         project_id = project_ids.get(str(project.number)) or project_ids.get(project.folder_name)
         if not project_id:
+            # Still publish the full hierarchy for an unmapped project.  The
+            # source remains visible as an incomplete Draft, while package
+            # ingestion waits for an explicit canonical Project mapping.
             skipped += 1
-            continue
-        for entry in reader.inventory(project.folder_name):
+        scan_id = f"qatar-scan-{uuid4().hex}"
+        scan_started = datetime.now(timezone.utc)
+        source_project_identity = canonical_source_project_identity(number=project.number, folder_name=project.folder_name, logical_root=LOGICAL_ROOT, source_system=LIVE_SOURCE_IDENTITY)
+        scan_entries: list[BridgeScanEntryIn] = [BridgeScanEntryIn(relative_path=project.folder_name, entry_type="DIRECTORY", size_bytes=0, mtime_token=None, capture_status="PRESENT")]
+        captures: list[tuple[SourceEntry, StableSourceRead]] = []
+        enumeration_failed = False
+        try:
+            discovered_entries = reader.inventory(project.folder_name)
+        except Exception as exc:
+            discovered_entries = []
+            enumeration_failed = True
+            scan_entries[0] = scan_entries[0].model_copy(update={"capture_status": "FAILED", "failure_reason": type(exc).__name__})
+        for entry in discovered_entries:
             if entry.is_directory:
+                scan_entries.append(BridgeScanEntryIn(relative_path=entry.relative_path, entry_type="DIRECTORY", size_bytes=entry.size, mtime_token=str(entry.modified_ns), capture_status="PRESENT", source_version_token=entry.source_version_token))
                 continue
             try:
                 read = reader.capture(entry.relative_path)
-            except RuntimeError as exc:
-                # The bridge contract deliberately bounds one signed package.
-                # Keep the project discovery pass alive when an older draft
-                # contains a larger archive/CAD export; supported files from
-                # that project still become draft sources and the bounded
-                # omission is reported in the machine result.
-                if str(exc) == "LIVE_FILE_REQUIRES_CHUNKED_TRANSPORT":
+            except Exception as exc:
+                reason = str(exc) or type(exc).__name__
+                capture_status = "OVERSIZE_NOT_CAPTURED" if reason == "LIVE_FILE_REQUIRES_CHUNKED_TRANSPORT" else "FAILED"
+                if capture_status == "OVERSIZE_NOT_CAPTURED":
                     skipped_oversize += 1
-                    continue
-                raise
+                scan_entries.append(BridgeScanEntryIn(relative_path=entry.relative_path, entry_type="FILE", size_bytes=entry.size, mtime_token=str(entry.modified_ns), capture_status=capture_status, failure_reason=reason, source_version_token=entry.source_version_token))
+                continue
+            captures.append((entry, read))
+            scan_entries.append(BridgeScanEntryIn(relative_path=entry.relative_path, entry_type="FILE", size_bytes=read.size, mtime_token=read.before_modified_at, sha256=read.sha256, capture_status="CAPTURED", source_version_token=f"{read.before_modified_at}:{read.sha256}"))
+        files_seen = sum(entry.entry_type == "FILE" for entry in scan_entries)
+        directories_seen = sum(entry.entry_type == "DIRECTORY" for entry in scan_entries)
+        total_bytes_seen = sum(entry.size_bytes for entry in scan_entries if entry.entry_type == "FILE")
+        required_ok = not enumeration_failed and all(entry.entry_type != "FILE" or entry.capture_status == "CAPTURED" for entry in scan_entries)
+        status = "COMPLETED" if required_ok else "INCOMPLETE"
+        counts = {
+            "directories_seen": directories_seen,
+            "files_seen": files_seen,
+            "total_bytes_seen": total_bytes_seen,
+            "files_successfully_captured": sum(entry.capture_status == "CAPTURED" for entry in scan_entries if entry.entry_type == "FILE"),
+            "files_skipped_oversize": sum(entry.capture_status == "OVERSIZE_NOT_CAPTURED" for entry in scan_entries),
+            "files_failed": sum(entry.capture_status == "FAILED" for entry in scan_entries),
+            "files_unsupported": 0,
+            "projects_unmapped": len(unmapped),
+        }
+        # Package envelopes bind each captured file to the scan identity.  The
+        # final signed scan below is the authority for status and manifest.
+        if not project_id:
+            for index, scan_entry in enumerate(scan_entries):
+                if scan_entry.entry_type == "FILE" and scan_entry.capture_status == "CAPTURED":
+                    scan_entries[index] = scan_entry.model_copy(update={"capture_status": "FAILED", "failure_reason": "PROJECT_MAPPING_REQUIRED"})
+            captures = []
+        entry_indexes = {entry.relative_path: index for index, entry in enumerate(scan_entries)}
+        for entry, read in captures:
             snapshot = f"{LIVE_SOURCE_URI_PREFIX}{LOGICAL_ROOT}/{entry.relative_path}"
             source_version_token = f"{read.before_modified_at}:{read.sha256}"
             payload = BridgePackageIn(
@@ -588,45 +651,62 @@ def sync_live_once(reader: QatarSynologySourceReader) -> dict[str, object]:
                 field_raw_value=project.folder_name,
                 source_filename=entry.name,
                 mime_type=mimetypes.guess_type(entry.name)[0] or "application/octet-stream",
+                scan_id=scan_id,
+                scan_status="IN_PROGRESS",
+                scan_source_root=LOGICAL_ROOT,
+                scan_project_identity=source_project_identity,
+                scan_entry_type="FILE",
+                scan_entry_size_bytes=read.size,
+                scan_entry_mtime_token=read.before_modified_at,
+                scan_capture_status="CAPTURED",
+                scan_counts=counts,
             )
             payload = payload.model_copy(
                 update={"signature_b64": base64.b64encode(private_key.sign(canonical_signature_payload(payload))).decode()}
             )
-            response = None
-            # Scheduled ACA executions can overlap a long source walk.  A
-            # short retry makes a transient storage/DB 503 converge on the
-            # same signed idempotency key instead of abandoning the entire
-            # pass; permanent 4xx responses still fail closed below.
-            for post_attempt in range(3):
-                response = httpx.post(
-                    os.environ["G10_API_URL"].rstrip("/") + "/api/source-intake/bridge/packages",
-                    headers={"Authorization": f"Bearer {token}"},
-                    json=payload.model_dump(),
-                    timeout=30,
-                )
-                if response.status_code not in {502, 503, 504} or post_attempt == 2:
-                    break
-                time.sleep(2 ** post_attempt)
-            assert response is not None
+            response = _post_bridge_json(os.environ["G10_API_URL"].rstrip("/") + "/api/source-intake/bridge/packages", token, payload.model_dump())
             if response.status_code >= 500:
-                # A single transient Blob/SQL failure must not prevent later
-                # draft projects from syncing.  Keep the failed package
-                # observable in the run result; the next scheduled pass will
-                # retry the same stable idempotency key.
                 failed_transient += 1
+                index = entry_indexes[entry.relative_path]
+                scan_entries[index] = scan_entries[index].model_copy(update={"capture_status": "FAILED", "failure_reason": f"BRIDGE_HTTP_{response.status_code}"})
                 continue
             if response.status_code >= 400:
-                # Keep bridge logs useful without ever logging package bytes,
-                # credentials, bearer tokens, or Synology paths.
-                try:
-                    detail = response.json().get("detail", {})
-                    code = detail.get("code") if isinstance(detail, dict) else None
-                    error_class = detail.get("storage_error_class") if isinstance(detail, dict) else None
-                except (ValueError, TypeError):
-                    code, error_class = None, None
-                suffix = f":{error_class}" if error_class else ""
-                raise RuntimeError(f"LIVE_BRIDGE_POST_FAILED:{response.status_code}:{code or 'UNKNOWN'}{suffix}")
+                failed_transient += 1
+                index = entry_indexes[entry.relative_path]
+                scan_entries[index] = scan_entries[index].model_copy(update={"capture_status": "FAILED", "failure_reason": f"BRIDGE_HTTP_{response.status_code}"})
+                continue
             sent += 1
+        files_seen = sum(entry.entry_type == "FILE" for entry in scan_entries)
+        directories_seen = sum(entry.entry_type == "DIRECTORY" for entry in scan_entries)
+        total_bytes_seen = sum(entry.size_bytes for entry in scan_entries if entry.entry_type == "FILE")
+        required_ok = not enumeration_failed and all(entry.entry_type != "FILE" or entry.capture_status == "CAPTURED" for entry in scan_entries)
+        status = "COMPLETED" if required_ok else "INCOMPLETE"
+        counts.update({
+            "directories_seen": directories_seen,
+            "files_seen": files_seen,
+            "total_bytes_seen": total_bytes_seen,
+            "files_successfully_captured": sum(entry.capture_status == "CAPTURED" for entry in scan_entries if entry.entry_type == "FILE"),
+            "files_skipped_oversize": sum(entry.capture_status == "OVERSIZE_NOT_CAPTURED" for entry in scan_entries),
+            "files_failed": sum(entry.capture_status == "FAILED" for entry in scan_entries),
+        })
+        manifest_hash = _scan_manifest_hash(scan_entries)
+        scan_payload = BridgeScanIn(
+            scan_id=scan_id, source_identity=LIVE_SOURCE_IDENTITY, source_root=LOGICAL_ROOT,
+            source_project_identity=source_project_identity, project_number=str(project.number),
+            status=status, started_at=scan_started.isoformat().replace("+00:00", "Z"),
+            completed_at=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+            entries=scan_entries, counts=counts, manifest_hash=manifest_hash, signature_b64="pending",
+        )
+        scan_payload = scan_payload.model_copy(update={"signature_b64": base64.b64encode(private_key.sign(canonical_scan_signature_payload(scan_payload))).decode()})
+        response = _post_bridge_json(os.environ["G10_API_URL"].rstrip("/") + "/api/source-intake/bridge/scans", token, scan_payload.model_dump())
+        if response.status_code >= 500:
+            scans_failed_transient += 1
+            continue
+        if response.status_code >= 400:
+            raise RuntimeError(f"LIVE_BRIDGE_SCAN_POST_FAILED:{response.status_code}")
+        scans_posted += 1
+        if status != "COMPLETED":
+            scans_incomplete += 1
     return {
         "source_identity": LIVE_SOURCE_IDENTITY,
         "logical_root": LOGICAL_ROOT,
@@ -636,6 +716,9 @@ def sync_live_once(reader: QatarSynologySourceReader) -> dict[str, object]:
         "projects_skipped_without_mapping": skipped,
         "files_skipped_oversize": skipped_oversize,
         "packages_failed_transient": failed_transient,
+        "scans_failed_transient": scans_failed_transient,
+        "scans_posted": scans_posted,
+        "scans_incomplete": scans_incomplete,
         "synology_write_count": 0,
     }
 
