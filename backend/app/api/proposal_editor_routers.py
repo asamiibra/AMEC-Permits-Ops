@@ -142,6 +142,28 @@ def canonical_editor_entry(proposal_id: str, db: Session = Depends(get_db), _: R
         raise HTTPException(404, "PROPOSAL_V1_EDITOR_ENTRY_NOT_FOUND")
     generation_state = str((proposal.proposal_fields_json or {}).get("generation_state") or "READY_FOR_EDIT")
     revision = db.scalar(select(ProposalRevision).where(ProposalRevision.proposal_id == proposal.id, ProposalRevision.status == "DRAFT").order_by(ProposalRevision.revision_number.desc()))
+    # A prior attempt can leave a retryable marker while a later request has
+    # already committed a generated draft.  Reconcile only when the durable
+    # revision provenance proves it was generated from the current manifest;
+    # genuine failures and stale-source states remain blocked below.
+    proposal_fields = proposal.proposal_fields_json or {}
+    workspace_manifest_hashes = {
+        value for value in (
+            workspace.get("source_manifest_hash"),
+            workspace.get("source_set_hash"),
+            proposal_fields.get("source_manifest_hash"),
+            proposal_fields.get("source_set_hash"),
+        ) if value
+    }
+    revision_provenance = ((revision.snapshot or {}).get("ai_provenance") or {}) if revision else {}
+    if (
+        generation_state in {"FAILED_RETRYABLE", "GENERATION_REVIEW_REQUIRED", "FAILED_VALIDATION"}
+        and revision is not None
+        and revision_provenance.get("generated_from_ai")
+        and revision_provenance.get("source_set_hash") in workspace_manifest_hashes
+        and (revision.snapshot or {}).get("source_set_hash") in workspace_manifest_hashes
+    ):
+        generation_state = "READY_FOR_EDIT"
     blocked_states = {
         "PENDING_OWNER_SOURCES", "GENERATION_PENDING", "RUNNING", "FAILED_RETRYABLE",
         "BLOCKED_BASELINE", "STALE_SOURCE_MANIFEST", "GENERATION_REVIEW_REQUIRED",
@@ -357,6 +379,7 @@ async def save_canonical_editor_revision(
         {"anchor": mutation.anchor, "expected_xml_hash": mutation.expected_xml_hash, "replacement": mutation.replacement}
         for mutation in owner_mutations
     ]
+    prior_ai_provenance = prior.get("ai_provenance") or {}
     source_ids = prior.get("source_ids", [])
     source_set_hash = prior.get("source_set_hash") or digest(json.dumps(source_ids, sort_keys=True, separators=(",", ":")).encode())
     document_id = prior.get("editor_document_id")
@@ -381,7 +404,13 @@ async def save_canonical_editor_revision(
         "editor_document_id": document.id,
         "editor_document_version_id": stored.version.id,
         "change_plan": plan,
-        "ai_provenance": {"evidence_refs": refs, "mutation_count": len(mutations), "owner_mutation_count": len(owner_mutations), "provenance_state": "RECORDED"},
+        "ai_provenance": {
+            **prior_ai_provenance,
+            "evidence_refs": refs,
+            "mutation_count": prior_ai_provenance.get("mutation_count", len(mutations)),
+            "owner_mutation_count": len(owner_mutations),
+            "provenance_state": "RECORDED",
+        },
     }
     revision.content_hash = digest(json.dumps(revision.snapshot, sort_keys=True, separators=(",", ":")).encode())
     revision.change_summary = {**(revision.change_summary or {}), "editor_saved": True, "mutation_count": len(mutations), "working_hash": working_hash}

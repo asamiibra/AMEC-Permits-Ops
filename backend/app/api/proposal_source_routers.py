@@ -900,6 +900,9 @@ def regenerate_proposal_from_sources(
             proposal.proposal_fields_json = {**(proposal.proposal_fields_json or {}), "generation_state": "FAILED_RETRYABLE", "generation_error": detail}
             db.commit()
             return {"result": "GENERATION_FAILED_RETRYABLE", "proposal_id": proposal.id, "source_set_hash": source_set_hash, "generation_state": "FAILED_RETRYABLE", "generation_error": detail, **editor}
-    proposal.proposal_fields_json = {**(proposal.proposal_fields_json or {}), "generation_state": "READY_FOR_EDIT", "source_set_hash": source_set_hash}
+    current_fields = dict(proposal.proposal_fields_json or {})
+    current_workspace = dict(current_fields.get("source_workspace") or {})
+    current_workspace.update({"source_set_hash": source_set_hash, "source_manifest_hash": source_set_hash})
+    proposal.proposal_fields_json = {**current_fields, "source_workspace": current_workspace, "generation_state": "READY_FOR_EDIT", "source_set_hash": source_set_hash}
     db.commit()
     return {"result": "REGENERATED", "proposal_id": proposal.id, "source_set_hash": source_set_hash, "source_count": len(selected_versions), **editor}
