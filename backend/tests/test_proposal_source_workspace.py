@@ -4,6 +4,8 @@ import io
 import zipfile
 from pathlib import Path
 
+import pytest
+
 from backend.app.services.proposal_source_workspace import projects, tree
 from backend.app.api.proposal_source_routers import _baseline_identity_matches
 from backend.app.models import DocumentVersion
@@ -63,6 +65,8 @@ def test_explicit_454_create_proposal_persists_source_set(client):
         f"/api/proposals-v1/editor/proposals/{payload['proposal_id']}/revisions/{payload['editor_revision_id']}/render",
         headers={"X-Dev-Role": "SYSTEM_ADMIN"},
     )
+    if rendered.status_code == 503 and rendered.json().get("detail") == "TRUE_RENDER_PIPELINE_UNAVAILABLE":
+        pytest.skip("true DOCX renderer is not installed in this test runner")
     assert rendered.status_code == 200
     assert rendered.headers["x-proposal-document-version-id"] == revision_payload["editor_document_version_id"]
     assert rendered.headers["x-proposal-document-sha256"] == downloaded.headers["x-proposal-document-sha256"]
