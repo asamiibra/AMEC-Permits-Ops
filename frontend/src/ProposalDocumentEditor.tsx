@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { api } from "./api";
+import { api, apiBlob } from "./api";
 
 type EditorNode = { id: string; anchor: string; part: string; text: string; xml_hash: string; editable: boolean; block_type: string };
 type EditorModel = { version: string; nodes: EditorNode[]; editable_node_count: number; read_only_node_count: number; read_only_block_types: string[]; [key: string]: any };
@@ -33,17 +33,14 @@ export function ProposalDocumentEditor({ role = "OWNER_SPONSOR", proposalId, rev
     const loadCanonical = async () => {
       setBusy(true); setStatus("");
       try {
-        const revisionResponse = await fetch(`/api/proposals-v1/editor/proposals/${proposalId}/revisions/${revisionId}`, { headers: headers(role) });
-        if (!revisionResponse.ok) throw new Error(await revisionResponse.text());
-        const revision = await revisionResponse.json();
-        const documentResponse = await fetch(`/api/proposals-v1/editor/proposals/${proposalId}/revisions/${revisionId}/document`, { headers: headers(role) });
-        if (!documentResponse.ok) throw new Error(await documentResponse.text());
-        const documentBlob = await documentResponse.blob();
+        // Use the shared API client for every canonical request. Relative
+        // fetch() calls hit the web host in production and receive its HTML
+        // shell, which is the source of the "Unexpected token '<'" error.
+        const revision = await api<any>(`/api/proposals-v1/editor/proposals/${proposalId}/revisions/${revisionId}`, { headers: headers(role) });
+        const documentBlob = await apiBlob(`/api/proposals-v1/editor/proposals/${proposalId}/revisions/${revisionId}/document`, { headers: headers(role) });
         const canonicalFile = new File([documentBlob], "proposal-revision.docx", { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
         const form = new FormData(); form.append("file", canonicalFile);
-        const importedResponse = await fetch("/api/proposals-v1/editor/import", { method: "POST", headers: headers(role), body: form });
-        if (!importedResponse.ok) throw new Error(await importedResponse.text());
-        const imported = await importedResponse.json() as EditorModel;
+        const imported = await api<EditorModel>("/api/proposals-v1/editor/import", { method: "POST", headers: headers(role), body: form });
         if (cancelled) return;
         setFile(canonicalFile); setModel(imported); setNodes(imported.nodes); setChanges([]); setEvidenceRefs(revision.ai_provenance?.evidence_refs || []); setPreviewUrl("");
         setStatus(`Loaded canonical Proposal revision ${revision.revision_number}. Owner edits remain reviewable and revisioned.`);
@@ -67,9 +64,7 @@ export function ProposalDocumentEditor({ role = "OWNER_SPONSOR", proposalId, rev
       const form = new FormData(); form.append("file", file); form.append("imported_model", JSON.stringify(model)); form.append("current_model", JSON.stringify(current));
       form.append("change_plan", JSON.stringify({ mode: "OWNER_REVIEWED_EDIT", anchors: changes.map((change) => change.anchor) }));
       form.append("evidence_refs", JSON.stringify(evidenceRefs));
-      const response = await fetch(`/api/proposals-v1/editor/proposals/${proposalId}/revisions/${revisionId}/save`, { method: "POST", headers: headers(role), body: form });
-      if (!response.ok) throw new Error(await response.text());
-      const result = await response.json();
+      const result = await api<any>(`/api/proposals-v1/editor/proposals/${proposalId}/revisions/${revisionId}/save`, { method: "POST", headers: headers(role), body: form });
       setStatus(`Saved Proposal revision ${result.revision_id}; ${result.tracked_changes?.length || 0} anchored change(s) recorded.`);
       return result;
     } catch (error) { setStatus(error instanceof Error ? error.message : "Canonical Proposal revision could not be saved"); return null; }
@@ -83,23 +78,19 @@ export function ProposalDocumentEditor({ role = "OWNER_SPONSOR", proposalId, rev
         setBusy(false);
         const saved = await saveCanonical();
         if (!saved) return;
-        const response = await fetch(`/api/proposals-v1/editor/proposals/${proposalId}/revisions/${revisionId}/document`, { headers: headers(role) });
-        if (!response.ok) throw new Error(await response.text());
-        const blob = await response.blob(); const url = URL.createObjectURL(blob); const link = document.createElement("a"); link.href = url; link.download = "proposal-revised.docx"; link.click(); URL.revokeObjectURL(url);
+        const blob = await apiBlob(`/api/proposals-v1/editor/proposals/${proposalId}/revisions/${revisionId}/document`, { headers: headers(role) }); const url = URL.createObjectURL(blob); const link = document.createElement("a"); link.href = url; link.download = "proposal-revised.docx"; link.click(); URL.revokeObjectURL(url);
         setStatus("Saved and downloaded the server-owned revised DOCX.");
         return;
       }
       const form = new FormData(); form.append("file", file); form.append("imported_model", JSON.stringify(model)); form.append("current_model", JSON.stringify(current));
-      const response = await fetch("/api/proposals-v1/editor/export", { method: "POST", headers: headers(role), body: form });
-      if (!response.ok) throw new Error(await response.text());
-      const blob = await response.blob(); const url = URL.createObjectURL(blob); const link = document.createElement("a"); link.href = url; link.download = "proposal-edited.docx"; link.click(); URL.revokeObjectURL(url); setStatus("Exported from the preserved original package using anchored mutations.");
+      const blob = await apiBlob("/api/proposals-v1/editor/export", { method: "POST", headers: headers(role), body: form }); const url = URL.createObjectURL(blob); const link = document.createElement("a"); link.href = url; link.download = "proposal-edited.docx"; link.click(); URL.revokeObjectURL(url); setStatus("Exported from the preserved original package using anchored mutations.");
     } catch (error) { setStatus(error instanceof Error ? error.message : "DOCX export failed"); }
     finally { setBusy(false); }
   };
   const truePreview = async () => {
     if (!file || !model || !current) return;
     const form = new FormData(); form.append("file", file); form.append("imported_model", JSON.stringify(model)); form.append("current_model", JSON.stringify(current));
-    try { const response = await fetch("/api/proposals-v1/editor/preview", { method: "POST", headers: headers(role), body: form }); if (!response.ok) throw new Error(await response.text()); const url = URL.createObjectURL(await response.blob()); setPreviewUrl(url); setStatus("True render generated from the actual mutated DOCX package."); }
+    try { const url = URL.createObjectURL(await apiBlob("/api/proposals-v1/editor/preview", { method: "POST", headers: headers(role), body: form })); setPreviewUrl(url); setStatus("True render generated from the actual mutated DOCX package."); }
     catch (error) { setStatus(error instanceof Error ? error.message : "True render unavailable"); }
   };
   return <section className="panel proposal-editor" aria-label="Proposal document editor">

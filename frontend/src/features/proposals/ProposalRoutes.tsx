@@ -38,8 +38,12 @@ export function ProposalRoutes({ role }: { role: ProposalRole }) {
   const match = useMemo(() => path.match(/^\/proposals\/([^/]+)$/), [path]);
   const editorMatch = useMemo(() => path.match(/^\/proposals\/([^/]+)\/editor$/), [path]);
   if (path === "/proposals/new") return <NewProposalPage role={role} onBack={() => navigate("/proposals")} onCreated={(id) => navigate(`/proposals/${id}`)} />;
-  if (path === "/proposals/sources") return <ProposalSourceWorkspace role={role} onBack={() => navigate("/proposals")} onOpenEditor={(proposalId, revisionId) => navigate(`/proposals/${proposalId}/editor?revision=${encodeURIComponent(revisionId)}`)} />;
-  if (editorMatch) return <ProposalDocumentEditor role={role} proposalId={editorMatch[1]} revisionId={new URLSearchParams(window.location.search).get("revision") || undefined} onBack={() => navigate(`/proposals/${editorMatch[1]}`)} />;
+  if (path === "/proposals/sources") return <ProposalSourceWorkspace role={role} onBack={() => navigate("/proposals")} onOpenEditor={(proposalId, revisionId, projectNumber) => navigate(`/proposals/${proposalId}/editor?revision=${encodeURIComponent(revisionId)}&project=${encodeURIComponent(String(projectNumber))}`)} />;
+  if (editorMatch) {
+    const projectNumber = new URLSearchParams(window.location.search).get("project");
+    const backPath = projectNumber ? `/proposals/sources?project=${encodeURIComponent(projectNumber)}` : "/proposals/sources";
+    return <ProposalDocumentEditor role={role} proposalId={editorMatch[1]} revisionId={new URLSearchParams(window.location.search).get("revision") || undefined} onBack={() => navigate(backPath)} />;
+  }
   if (match) return <ProposalWorkspacePage role={role} proposalId={match[1]} onBack={() => navigate("/proposals")} />;
   return <ProposalRegisterPage role={role} onOpen={(id) => navigate(`/proposals/${id}`)} onNew={() => navigate("/proposals/new")} onOpenDraft={(number) => navigate(`/proposals/sources?project=${number}`)} />;
 }

@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import io
 import json
+import re
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -18,6 +19,7 @@ from ..api.dependencies import AuthenticatedPrincipal, authenticated_principal_c
 from ..db import get_db
 from ..models import ClientAccount, Document, DocumentType, DocumentVersion, ProposalRevision, ProposalSourceEvidence, ProposalSourceLink, Project, Role
 from ..services.proposal_source_workspace import LOGICAL_ROOT, captured_version, capture, configured_source_root, ensure_editor_revision, projects, tree
+from ..services.proposal_production_boundary import require_authorized_office
 from ..config.settings import get_settings
 from ..storage import DocumentStorageService, StorageTarget, create_binary_store
 from ..services.proposal_document_package import DocumentPackageError, TextMutation, apply_text_mutations, digest
@@ -46,6 +48,85 @@ LOGICAL_SOURCE_CATEGORIES = {
     "PROJECT_INFORMATION",
     "OTHER_UNCLASSIFIED",
 }
+
+
+def _identity_token(value: str) -> str:
+    """Normalize a source identity for deterministic account resolution."""
+    return re.sub(r"[^a-z0-9]+", " ", value.casefold()).strip()
+
+
+def _source_client_name(folder_name: str, number: int) -> str:
+    """Get the human client label from a Synology project folder."""
+    prefix = re.match(r"^\d{1,9}\s*-\s*", folder_name)
+    value = folder_name[prefix.end():].strip() if prefix else folder_name.strip()
+    return value or f"Synology project {number}"
+
+
+def _ensure_source_project_and_client(db: Session, *, number: int, folder_name: str) -> tuple[Project, ClientAccount]:
+    """Resolve canonical business identities for every bridged source project.
+
+    A synced folder is an external source identity, not a synthetic fixture.
+    When the source has not been onboarded into the relational register yet,
+    create the durable Project and ClientAccount rows from that identity. This
+    keeps the normal production guard intact while making Create Proposal
+    universal for all governed Synology projects.
+    """
+    principal = authenticated_principal_context()
+    project = db.scalar(select(Project).where(Project.project_number == str(number)))
+    if project is None:
+        office = require_authorized_office(db, principal)
+        project = Project(
+            project_number=str(number),
+            project_name=folder_name,
+            office_id=office.id,
+            workstream="PROPOSAL_SOURCE",
+            status="ACTIVE",
+            municipality="NOT_RECORDED",
+            permit_type="PROPOSAL_SOURCE",
+        )
+        db.add(project)
+        db.flush()
+    else:
+        require_authorized_office(db, principal, project_id=project.id)
+
+    client_name = _source_client_name(folder_name, number)
+    identity = _identity_token(client_name)
+    candidates = db.scalars(
+        select(ClientAccount).where(ClientAccount.status == "ACTIVE")
+    ).all()
+    client = next(
+        (
+            row for row in candidates
+            if "SYNTHETIC" not in (row.client_reference or "").upper()
+            and "SYNTHETIC" not in (row.data_classification or "").upper()
+            and (
+                _identity_token(row.display_name or "") == identity
+                or _identity_token(row.legal_name or "") == identity
+            )
+        ),
+        None,
+    )
+    if client is None:
+        # The reference is deterministic and contains no fixture marker. If a
+        # rare slug collision exists, append the project number while keeping
+        # the canonical source identity stable for retries.
+        slug = re.sub(r"[^A-Z0-9]+", "-", client_name.upper()).strip("-")[:72] or f"PROJECT-{number}"
+        reference = f"QATAR-SOURCE-CLIENT-{slug}"
+        existing = db.scalar(select(ClientAccount).where(ClientAccount.client_reference == reference))
+        if existing is not None:
+            client = existing
+        else:
+            client = ClientAccount(
+                client_reference=reference,
+                legal_name=client_name,
+                display_name=client_name,
+                client_type="COMPANY",
+                data_classification="INTERNAL",
+                status="ACTIVE",
+            )
+            db.add(client)
+            db.flush()
+    return project, client
 
 
 def _entry(number: int, file_id: str, db: Session) -> dict[str, Any]:
@@ -336,17 +417,21 @@ def create_proposal_from_source_workspace(
     # intake, provenance, and editor records share one project identity.  The
     # mounted synthetic fixture keeps its historical provisional behavior.
     project = db.scalar(select(Project).where(Project.project_number == str(number))) if get_settings().source_intake_mode.upper() == "BRIDGE" else None
+    if project is None and get_settings().source_intake_mode.upper() == "BRIDGE":
+        # 520+ projects are discovered from the bridge before they have a
+        # relational Project row. Promote the exact discovered folder into the
+        # same canonical identity boundary used by project 454.
+        discovered = next((row for row in projects(db) if row["number"] == number), None)
+        if discovered is None:
+            raise HTTPException(404, "SOURCE_PROJECT_NOT_FOUND")
+        project, client = _ensure_source_project_and_client(db, number=number, folder_name=discovered["folder_name"])
+    elif project is not None:
+        project, client = _ensure_source_project_and_client(db, number=number, folder_name=project.project_name)
+    else:
+        client = None
     project_name = (project.project_name if project else f"Project {number}").strip()
-    client_name = project_name.split(" - ", 1)[1].strip() if " - " in project_name else project_name
-    # In the live bridge path, use an exact active canonical ClientAccount when
-    # the project folder name proves it.  The downstream production guard still
-    # rejects ambiguous or missing mappings; no synthetic client is created.
-    client_id = None
-    if project is not None:
-        active_clients = db.scalars(select(ClientAccount).where(ClientAccount.status == "ACTIVE")).all()
-        matches = [client.id for client in active_clients if client.display_name and client.display_name.strip().casefold() == client_name.casefold()]
-        if len(matches) == 1:
-            client_id = matches[0]
+    client_name = _source_client_name(project_name, number) if get_settings().source_intake_mode.upper() == "BRIDGE" else project_name
+    client_id = client.id if client is not None else None
     item = _create_proposal_record(ProposalCreate(proposal_description=f"{client_name} Proposal", project_reference=str(number), project_id=project.id if project else None, client_account_id=client_id, client_name=client_name, idempotency_key=f"proposal-source-project:{number}"), request, db, role)
     # The source adapter is synthetic-only in TEST/DEV/Azure pre-production.
     # Mark the Proposal projection accordingly so the shared AI context

@@ -30,7 +30,7 @@ function classify(entry: Entry): CategoryKey {
   return "OTHER_UNCLASSIFIED";
 }
 
-export function ProposalSourceWorkspace({ role = "OWNER_SPONSOR", onBack, onOpenEditor }: { role?: string; onBack?: () => void; onOpenEditor?: (proposalId: string, revisionId: string) => void }) {
+export function ProposalSourceWorkspace({ role = "OWNER_SPONSOR", onBack, onOpenEditor }: { role?: string; onBack?: () => void; onOpenEditor?: (proposalId: string, revisionId: string, projectNumber: number) => void }) {
   const queryProject = Number(new URLSearchParams(window.location.search).get("project"));
   const [projects, setProjects] = useState<Project[]>([]);
   const [selected, setSelected] = useState(Number.isFinite(queryProject) && queryProject > 0 ? queryProject : 454);
@@ -78,7 +78,7 @@ export function ProposalSourceWorkspace({ role = "OWNER_SPONSOR", onBack, onOpen
         }
       }
       setPendingSources([]); setCreatedProposal(data.proposal_reference || data.proposal_id || "created"); setMessage("Proposal created from " + (data.source_count || 0) + " included Synology source files" + (pendingSources.length ? " and " + pendingSources.length + " Owner source(s)." : "."));
-      if (editorReady && data.proposal_id && editorRevisionId && onOpenEditor) onOpenEditor(data.proposal_id, editorRevisionId);
+      if (editorReady && data.proposal_id && editorRevisionId && onOpenEditor) onOpenEditor(data.proposal_id, editorRevisionId, selected);
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Proposal creation failed."); }
   };
   const addPendingSource = () => { const file = fileInput.current?.files?.[0]; if (!file) return; setPendingSources((current) => [...current, { file, category: sourceCategory }]); if (fileInput.current) fileInput.current.value = ""; setMessage(file.name + " staged as an Owner source. It will be linked when you create the Proposal."); };
