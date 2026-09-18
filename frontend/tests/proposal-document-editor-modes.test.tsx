@@ -7,23 +7,24 @@ vi.mock("../src/api", () => ({ api: vi.fn(), apiBlob: vi.fn() }));
 
 const mockedApi = vi.mocked(api);
 const mockedApiBlob = vi.mocked(apiBlob);
+let savedRevision = false;
 
-const revision = {
-  revision_number: 2,
+const revision = () => ({
+  revision_number: savedRevision ? 3 : 2,
   source_set_hash: "manifest-current",
   change_plan: {
     mutations: [{ anchor: "n-1", section: "Cover", before: "Old client", after: "Al Watan Center", reason: "Source-backed identity", citation_keys: ["CIT-001"] }],
   },
   ai_provenance: { mutation_count: 1, evidence_refs: ["dv-1"] },
-};
+});
 
 function configureApi() {
   mockedApi.mockImplementation(async (path: string) => {
-    if (path.endsWith("/save")) return { revision_id: "r-3", tracked_changes: [] };
+    if (path.endsWith("/save")) { savedRevision = true; return { revision_id: "r-3", tracked_changes: [] }; }
     if (path.endsWith("/changes")) return { changes: [{ anchor: "n-1", before: "ABC", after: "XYZ" }] };
-    if (path.includes("/revisions/") && !path.endsWith("/document")) return revision;
+    if (path.includes("/revisions/") && !path.endsWith("/document")) return revision();
     if (path.endsWith("/import")) return {
-      nodes: [{ id: "node-id", anchor: "n-1", part: "word/document.xml", text: "ABC", xml_hash: "hash", editable: true, block_type: "PARAGRAPH" }],
+      nodes: [{ id: "node-id", anchor: "n-1", part: "word/document.xml", text: savedRevision ? "XYZ" : "ABC", xml_hash: "hash", editable: true, block_type: "PARAGRAPH" }],
       editable_node_count: 1,
       read_only_node_count: 0,
       read_only_block_types: [],
@@ -42,6 +43,7 @@ describe("Proposal V1 document workspace modes", () => {
   beforeEach(() => {
     mockedApi.mockReset();
     mockedApiBlob.mockReset();
+    savedRevision = false;
     vi.stubGlobal("URL", { ...URL, createObjectURL: vi.fn(() => "blob:proposal"), revokeObjectURL: vi.fn() });
     configureApi();
   });
@@ -50,6 +52,7 @@ describe("Proposal V1 document workspace modes", () => {
     renderEditor();
     expect(await screen.findByRole("heading", { name: "Proposal Document" })).toBeVisible();
     expect(await screen.findByTitle("Rendered generated proposal DOCX")).toBeVisible();
+    expect(screen.queryByRole("textbox", { name: "Editable paragraph 1" })).not.toBeInTheDocument();
     expect(mockedApiBlob).toHaveBeenCalledWith(expect.stringContaining("/revisions/r-2/render"), expect.anything());
     expect(screen.getByText("Rendered ✓")).toBeVisible();
     expect(screen.getByRole("button", { name: "Document" })).toHaveClass("active");
@@ -94,6 +97,8 @@ describe("Proposal V1 document workspace modes", () => {
     await waitFor(() => expect(screen.getByRole("button", { name: "Saved ✓" })).toBeVisible());
     await waitFor(() => expect(mockedApi).toHaveBeenCalledWith(expect.stringContaining("/revisions/r-3"), expect.anything()));
     expect(mockedApiBlob.mock.calls.filter(([path]) => String(path).includes("/render")).length).toBeGreaterThanOrEqual(2);
+    fireEvent.click(screen.getByRole("button", { name: "Edit Sections" }));
+    expect(await screen.findByRole("textbox", { name: "Editable paragraph 1" })).toHaveTextContent("XYZ");
   });
 
   it("keeps AI Changes sourced from persisted generation mutations, not the owner diff", async () => {
