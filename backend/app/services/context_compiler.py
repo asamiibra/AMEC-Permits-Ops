@@ -35,6 +35,7 @@ from backend.app.models import (
     DefinitionRevision,
     DocumentApprovalState,
     DocumentVersion,
+    ClientAccount,
     FieldDefinition,
     FieldObservation,
     MasterContentGovernanceProfile,
@@ -658,6 +659,8 @@ class GovernedContextCompiler:
             "document_date": version.document_date.isoformat() if version.document_date else None,
             "source_filename": version.source_filename,
             "source_relative_path": metadata.get("source_relative_path"),
+            "template_baseline": bool(metadata.get("template_baseline")),
+            "source_role": metadata.get("source_role"),
             "logical_category": metadata.get("logical_category") or "OTHER_UNCLASSIFIED",
             "logical_category_source": metadata.get("logical_category_source") or "AUTO_CLASSIFIED",
         }
@@ -1029,6 +1032,8 @@ class GovernedContextCompiler:
                     else stable_hash({"proposal_id": proposal.id, "proposal_fields": proposal.proposal_fields_json, "updated_at": proposal.updated_at.isoformat()})
                 )
             self._check_project(proposal.project_id, request)
+            project = self.db.get(Project, proposal.project_id) if proposal.project_id else None
+            client = self.db.get(ClientAccount, proposal.client_account_id) if proposal.client_account_id else None
             lpo = self.db.scalar(select(ProposalLpoReconciliation).where(
                 ProposalLpoReconciliation.proposal_id == proposal.id,
                 ProposalLpoReconciliation.accepted_revision_id == accepted.id if accepted else False,
@@ -1041,6 +1046,9 @@ class GovernedContextCompiler:
                 "title": proposal.title,
                 "status": proposal.status,
                 "project_id": proposal.project_id,
+                "project_number": proposal.canonical_project_reference or proposal.provisional_reference,
+                "project_name": project.project_name if project is not None else None,
+                "client_name": (client.display_name or client.legal_name) if client is not None else None,
                 "working_revision_id": working.id if working else None,
                 "working_revision_number": working.revision_number if working else None,
                 "working_revision_hash": working.content_hash if working else None,

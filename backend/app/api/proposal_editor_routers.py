@@ -345,7 +345,7 @@ def load_canonical_editor_revision(proposal_id: str, revision_id: str, db: Sessi
     """Load the server-owned editor state by canonical Proposal identity."""
     _, revision = _canonical_revision(proposal_id, revision_id, db)
     snapshot = revision.snapshot or {}
-    return {"proposal_id": proposal_id, "revision_id": revision.id, "revision_number": revision.revision_number, "status": revision.status, "editor_model": snapshot.get("editor_model"), "baseline_hash": snapshot.get("baseline_hash"), "working_hash": snapshot.get("working_hash"), "source_set_hash": snapshot.get("source_set_hash"), "change_plan": snapshot.get("change_plan", {}), "ai_provenance": snapshot.get("ai_provenance", {})}
+    return {"proposal_id": proposal_id, "revision_id": revision.id, "revision_number": revision.revision_number, "status": revision.status, "editor_model": snapshot.get("editor_model"), "baseline_hash": snapshot.get("baseline_hash"), "working_hash": snapshot.get("working_hash"), "source_set_hash": snapshot.get("source_set_hash"), "editor_document_version_id": snapshot.get("editor_document_version_id"), "baseline_selection_method": snapshot.get("baseline_selection_method"), "baseline_identity": snapshot.get("baseline_identity"), "change_plan": snapshot.get("change_plan", {}), "ai_provenance": snapshot.get("ai_provenance", {})}
 
 
 @router.get("/proposals/{proposal_id}/revisions/{revision_id}/document")
@@ -381,6 +381,7 @@ def download_canonical_editor_document(proposal_id: str, revision_id: str, db: S
         headers={
             "Content-Disposition": 'inline; filename="proposal-revision.docx"',
             "X-Proposal-Document-SHA256": digest(content),
+            "X-Proposal-Document-Version-ID": str(version.id),
         },
     )
 
@@ -409,7 +410,7 @@ def render_canonical_editor_document(proposal_id: str, revision_id: str, db: Ses
     if digest(content) != version.sha256:
         raise HTTPException(503, "PROPOSAL_REVISION_DOCUMENT_INTEGRITY_DRIFT")
     rendered = _render_pdf_bytes(content)
-    return StreamingResponse(io.BytesIO(rendered), media_type="application/pdf", headers={"Content-Disposition": 'inline; filename="proposal-preview.pdf"', "X-Proposal-Render": "TRUE_DOCX_TO_PDF"})
+    return StreamingResponse(io.BytesIO(rendered), media_type="application/pdf", headers={"Content-Disposition": 'inline; filename="proposal-preview.pdf"', "X-Proposal-Render": "TRUE_DOCX_TO_PDF", "X-Proposal-Document-Version-ID": str(version.id), "X-Proposal-Document-SHA256": digest(content)})
 
 
 @router.post("/proposals/{proposal_id}/revisions/{revision_id}/save")

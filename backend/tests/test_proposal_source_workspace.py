@@ -1,7 +1,12 @@
 import json
+import hashlib
+import io
+import zipfile
 from pathlib import Path
 
 from backend.app.services.proposal_source_workspace import projects, tree
+from backend.app.api.proposal_source_routers import _baseline_identity_matches
+from backend.app.models import DocumentVersion
 
 
 def test_explicit_454_create_proposal_persists_source_set(client):
@@ -12,7 +17,10 @@ def test_explicit_454_create_proposal_persists_source_set(client):
     assert response.status_code == 200, response.text
     payload = response.json()
     assert payload["result"] == "CREATED"
-    assert payload["source_count"] == 13
+    # The stale Q-498-named source remains evidence; the governed Proposal
+    # template is added as the editable baseline, so the promoted set has one
+    # additional server-owned source version.
+    assert payload["source_count"] == 14
     assert payload["capture"]["synology_write_count"] == 0
     assert payload["editor_ready"] is True
     assert payload["editor_revision_id"]
@@ -36,6 +44,32 @@ def test_explicit_454_create_proposal_persists_source_set(client):
         f"/api/proposals-v1/editor/proposals/{payload['proposal_id']}/revisions/{payload['editor_revision_id']}",
         headers={"X-Dev-Role": "SYSTEM_ADMIN"},
     )
+    revision_payload = revision.json()
+    assert revision_payload["baseline_selection_method"] == "GOVERNED_MASTER_CONTENT_TEMPLATE"
+    assert revision_payload["editor_document_version_id"]
+    downloaded = client.get(
+        f"/api/proposals-v1/editor/proposals/{payload['proposal_id']}/revisions/{payload['editor_revision_id']}/document",
+        headers={"X-Dev-Role": "SYSTEM_ADMIN"},
+    )
+    assert downloaded.status_code == 200
+    assert downloaded.headers["x-proposal-document-version-id"] == revision_payload["editor_document_version_id"]
+    assert downloaded.headers["x-proposal-document-sha256"] == hashlib.sha256(downloaded.content).hexdigest()
+    expected_parts = set(zipfile.ZipFile(io.BytesIO(Path("backend/app/fixtures/AMEC-P-D-2026-Q-454.docx").read_bytes())).namelist())
+    actual_zip = zipfile.ZipFile(io.BytesIO(downloaded.content))
+    assert set(actual_zip.namelist()) == expected_parts
+    for part in ("word/header1.xml", "word/footer1.xml", "word/styles.xml", "word/media/logo.png"):
+        assert actual_zip.read(part) == zipfile.ZipFile(io.BytesIO(Path("backend/app/fixtures/AMEC-P-D-2026-Q-454.docx").read_bytes())).read(part)
+    rendered = client.get(
+        f"/api/proposals-v1/editor/proposals/{payload['proposal_id']}/revisions/{payload['editor_revision_id']}/render",
+        headers={"X-Dev-Role": "SYSTEM_ADMIN"},
+    )
+    assert rendered.status_code == 200
+    assert rendered.headers["x-proposal-document-version-id"] == revision_payload["editor_document_version_id"]
+    assert rendered.headers["x-proposal-document-sha256"] == downloaded.headers["x-proposal-document-sha256"]
+    revision = client.get(
+        f"/api/proposals-v1/editor/proposals/{payload['proposal_id']}/revisions/{payload['editor_revision_id']}",
+        headers={"X-Dev-Role": "SYSTEM_ADMIN"},
+    )
     assert revision.status_code == 200, revision.text
     mutation = revision.json()["change_plan"]["mutations"][0]
     assert mutation["before"]
@@ -54,9 +88,54 @@ def test_source_create_applies_owner_exclusions_without_mutating_synology(client
     )
     assert response.status_code == 200, response.text
     payload = response.json()
-    assert payload["source_count"] == 12
+    assert payload["source_count"] == 13
     assert payload["excluded_source_count"] == 1
     assert payload["capture"]["synology_write_count"] == 0
+
+
+def test_cross_project_docx_body_cannot_become_project_454_baseline():
+    stale_path = Path(
+        "mock-systems/proposal-sources/Tenders/1- Proposal/2026/"
+        "454 - Al Watan Center/AMEC-P-D-2026-Q-454.docx"
+    )
+    template_path = Path("backend/app/fixtures/AMEC-P-D-2026-Q-454.docx")
+    expected = {"project_number": "454", "project_name": "al watan center", "client_name": "al watan center"}
+    stale = DocumentVersion(
+        source_filename=stale_path.name,
+        source_path_or_reference="synthetic://stale",
+        synthetic_content=stale_path.read_bytes(),
+        sha256=hashlib.sha256(stale_path.read_bytes()).hexdigest(),
+    )
+    template = DocumentVersion(
+        source_filename=template_path.name,
+        source_path_or_reference="synthetic://template",
+        synthetic_content=template_path.read_bytes(),
+        sha256=hashlib.sha256(template_path.read_bytes()).hexdigest(),
+        metadata_json={"template_baseline": True},
+    )
+    assert _baseline_identity_matches(stale, expected) is False
+    assert _baseline_identity_matches(template, expected) is True
+
+
+def test_synology_draft_520_uses_universal_template_generation(client):
+    response = client.post(
+        "/api/proposals/sources/2026/projects/520/create-proposal",
+        headers={"X-Dev-Role": "SYSTEM_ADMIN"},
+    )
+    assert response.status_code == 200, response.text
+    payload = response.json()
+    assert payload["result"] == "CREATED"
+    assert payload["generation_state"] == "READY_FOR_EDIT"
+    document = client.get(
+        f"/api/proposals-v1/editor/proposals/{payload['proposal_id']}/revisions/{payload['editor_revision_id']}/document",
+        headers={"X-Dev-Role": "SYSTEM_ADMIN"},
+    )
+    assert document.status_code == 200
+    from backend.app.services.proposal_document_package import document_map
+    text = "\n".join(block.text for block in document_map(document.content))
+    assert "Q-520" in text
+    assert "Future Draft" in text
+    assert "Q-454" not in text
 
 
 def test_source_create_seeds_canonical_editor_and_owner_save_roundtrip(client):
