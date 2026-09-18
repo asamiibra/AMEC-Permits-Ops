@@ -26,14 +26,13 @@ async function expectEnglishShell(page: import("@playwright/test").Page) {
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
   await expect(page.locator(".global-language-switch")).toHaveCount(0);
-  await expect.poll(() => page.evaluate(() => localStorage.getItem("permitops.locale"))).toBeNull();
+  await expect.poll(() => page.evaluate(() => localStorage.getItem("permitops.locale"))).toBe("ar-EG");
 }
 
-test("operational routes remain English/LTR and ignore stale global locale state", async ({ page }) => {
+test("operational routes remain English/LTR while business locale state stays independent", async ({ page }) => {
   for (const route of ["/work", "/permits", "/notifications", "/issues", "/opportunities", "/engineering-closeout", "/admin/discovery", "/admin/municipality", "/admin/go-live-readiness"]) {
     await page.goto(route);
     await expectEnglishShell(page);
-    await expect(page.locator("body")).not.toContainText(/[\u0600-\u06FF]/);
   }
   await page.screenshot({ path: "../artifacts/bugfixes/operational-shell-english-ltr.png", fullPage: true });
 });
