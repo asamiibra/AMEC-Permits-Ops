@@ -58,6 +58,13 @@ COPY backend/__init__.py /workspace/backend/__init__.py
 COPY backend/app /workspace/backend/app
 COPY backend/migrations /workspace/backend/migrations
 
+# Fail the image build if the API runtime package is missing from the
+# deployment context.  A previous local build silently omitted this package
+# and produced a container that crashed before uvicorn could start.
+RUN test -f /workspace/backend/app/storage/__init__.py \
+    && test -f /workspace/backend/app/services/work_projection.py \
+    && python -m compileall -q /workspace/backend/app
+
 RUN groupadd --gid 10001 proposalops \
     && useradd --uid 10001 --gid 10001 --create-home \
        --home-dir /home/proposalops --shell /usr/sbin/nologin proposalops \
