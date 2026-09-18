@@ -36,8 +36,8 @@ describe("Proposal V1 document workspace modes", () => {
     expect(screen.getByRole("button", { name: "Document" })).toHaveClass("active");
     fireEvent.click(screen.getByRole("button", { name: "AI Changes" }));
     expect(await screen.findByText("Source-backed identity")).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: "Edit Text" }));
-    await waitFor(() => expect(screen.getByRole("heading", { name: "Anchored editing canvas" })).toBeVisible());
+    fireEvent.click(screen.getByRole("button", { name: "Edit Sections" }));
+    await waitFor(() => expect(screen.getByRole("heading", { name: "Edit Proposal sections" })).toBeVisible());
     expect(screen.getByRole("textbox", { name: "Editable paragraph 1" })).toBeVisible();
   });
 });

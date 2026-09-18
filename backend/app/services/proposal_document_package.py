@@ -48,6 +48,8 @@ class DocumentBlock:
     text: str
     text_spans: tuple[TextSpan, ...]
     has_nested_paragraphs: bool
+    heading_level: int | None = None
+    heading_style: str | None = None
 
 
 @dataclass(frozen=True)
@@ -130,7 +132,43 @@ def package_parts(content: bytes) -> dict[str, bytes]:
     return parts
 
 
-def _part_blocks(part: str, data: bytes) -> list[DocumentBlock]:
+def _heading_metadata(xml: bytes, style_headings: dict[str, tuple[int | None, str | None]] | None = None) -> tuple[int | None, str | None]:
+    """Read native Word heading/outline metadata without guessing bold text."""
+    ppr = re.search(rb"<w:pPr\b[^>]*>(.*?)</w:pPr>", xml, re.S)
+    if not ppr:
+        return None, None
+    props = ppr.group(1)
+    style_match = re.search(rb"<w:pStyle\b[^>]*w:val=[\"']([^\"']+)", props)
+    style = style_match.group(1).decode("utf-8", "ignore") if style_match else None
+    outline_match = re.search(rb"<w:outlineLvl\b[^>]*w:val=[\"'](\d+)", props)
+    level = int(outline_match.group(1)) + 1 if outline_match else None
+    numbering = bool(re.search(rb"<w:numPr\b", props))
+    style_info = style_headings.get(style, (None, None)) if style_headings and style else (None, None)
+    if level is None:
+        level = style_info[0]
+    if level is None and style:
+        # Word commonly emits a direct Heading1/Heading2 style reference even
+        # when the package omits a styles.xml definition (as in minimal DOCX
+        # fixtures and some generated documents).  This is still native Word
+        # structure, so recognize the explicit style name without guessing
+        # from visual formatting.
+        heading_match = re.search(r"heading\s*([1-9])", style, re.I)
+        if heading_match:
+            level = int(heading_match.group(1))
+    if style is None:
+        style = style_info[1]
+    if level is None and numbering:
+        # Numbering is accepted only when the paragraph visibly begins with a
+        # reliable hierarchical number. This avoids turning arbitrary bold
+        # paragraphs into guessed sections.
+        visible = re.sub(rb"<[^>]+>", b"", xml)
+        number_match = re.match(rb"\s*\d+(?:[.]\d+)*[.)]?\s+", visible)
+        if number_match:
+            level = number_match.group(0).count(b".") + 1
+    return level, style
+
+
+def _part_blocks(part: str, data: bytes, style_headings: dict[str, tuple[int | None, str | None]] | None = None) -> list[DocumentBlock]:
     parser = _parse(data)
     stack: list[dict] = []
     paragraphs: list[dict] = []
@@ -175,9 +213,10 @@ def _part_blocks(part: str, data: bytes) -> list[DocumentBlock]:
             paragraphs.pop()
             spans = tuple(frame["spans"])
             anchor = f"{part}#{digest(frame['path'].encode())}"
+            heading_level, heading_style = _heading_metadata(data[frame["start"]:end_offset], style_headings)
             blocks.append(DocumentBlock(anchor, part, frame["start"], end_offset,
                                         digest(data[frame["start"]:end_offset]),
-                                        "".join(s.value for s in spans), spans, frame["nested"]))
+                                        "".join(s.value for s in spans), spans, frame["nested"], heading_level, heading_style))
 
     parser.StartElementHandler = start
     parser.CharacterDataHandler = chars
@@ -191,8 +230,39 @@ def _part_blocks(part: str, data: bytes) -> list[DocumentBlock]:
 
 def document_map(content: bytes) -> list[DocumentBlock]:
     parts = package_parts(content)
+    style_headings: dict[str, tuple[int | None, str | None]] = {}
+    style_bases: dict[str, str | None] = {}
+    styles = parts.get("word/styles.xml", b"")
+    for match in re.finditer(rb"<w:style\b([^>]*)>(.*?)</w:style>", styles, re.S):
+        attrs, body = match.groups()
+        style_id = re.search(rb"w:styleId=[\"']([^\"']+)", attrs)
+        if not style_id or not re.search(rb"(?:w:)?type=[\"']paragraph[\"']", attrs):
+            continue
+        sid = style_id.group(1).decode("utf-8", "ignore")
+        name_match = re.search(rb"<w:name\b[^>]*w:val=[\"']([^\"']+)", body)
+        name = name_match.group(1).decode("utf-8", "ignore") if name_match else sid
+        outline_match = re.search(rb"<w:outlineLvl\b[^>]*w:val=[\"'](\d+)", body)
+        level = int(outline_match.group(1)) + 1 if outline_match else None
+        heading_match = re.search(r"heading\s*([1-9])", f"{sid} {name}", re.I)
+        if heading_match:
+            level = level or int(heading_match.group(1))
+        style_headings[sid] = (level, name)
+        based_on = re.search(rb"<w:basedOn\b[^>]*w:val=[\"']([^\"']+)", body)
+        style_bases[sid] = based_on.group(1).decode("utf-8", "ignore") if based_on else None
+    for sid in list(style_headings):
+        seen: set[str] = set()
+        level, name = style_headings[sid]
+        base = style_bases.get(sid)
+        while level is None and base and base not in seen:
+            seen.add(base)
+            parent = style_headings.get(base)
+            if parent:
+                level, inherited_name = parent
+                name = name or inherited_name
+            base = style_bases.get(base)
+        style_headings[sid] = (level, name)
     names = [n for n in parts if n == "word/document.xml" or re.fullmatch(r"word/(?:header|footer)\d+\.xml", n)]
-    return [block for name in sorted(names) for block in _part_blocks(name, parts[name])]
+    return [block for name in sorted(names) for block in _part_blocks(name, parts[name], style_headings)]
 
 
 def _escape(value: str) -> bytes:

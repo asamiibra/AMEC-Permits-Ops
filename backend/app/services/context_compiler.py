@@ -636,7 +636,7 @@ class GovernedContextCompiler:
         return None, None, None
 
     @classmethod
-    def _proposal_source_projection(cls, version: DocumentVersion) -> dict[str, Any]:
+    def _proposal_source_projection(cls, version: DocumentVersion, *, source_metadata: dict[str, Any] | None = None) -> dict[str, Any]:
         """Build a small, source-grounded projection for Proposal V1.
 
         Raw bytes, full paths and transport locators never enter the model
@@ -646,7 +646,7 @@ class GovernedContextCompiler:
         metadata. Images retain their source hash while a low-detail,
         size-capped rendition is available only to the transient vision input.
         """
-        metadata = version.metadata_json if isinstance(version.metadata_json, dict) else {}
+        metadata = source_metadata if source_metadata is not None else (version.metadata_json if isinstance(version.metadata_json, dict) else {})
         projection: dict[str, Any] = {
             "document_version_id": version.id,
             "document_id": version.document_id,
@@ -789,7 +789,22 @@ class GovernedContextCompiler:
         data_classification = str(metadata.get("sensitivity_class") or ("SYNTHETIC" if synthetic else "INTERNAL")).upper()
         contains_sensitive = bool(metadata.get("contains_sensitive_data") or data_classification in {"CONFIDENTIAL", "RESTRICTED"})
         is_proposal = request.skill_manifest.owning_module.upper() == "BD_PROPOSAL"
-        projection = self._proposal_source_projection(version) if is_proposal else self._safe_projection({
+        # Resolve the same Owner source decision ledger used by Source
+        # Workspace and Active Proposal Sources before compiling AI context.
+        effective_metadata = dict(metadata)
+        if is_proposal and request.scope_type.upper() == "PROPOSAL":
+            proposal = self.db.get(Opportunity, request.scope_id)
+            workspace = (proposal.proposal_fields_json or {}).get("source_workspace") if proposal else {}
+            from .proposal_source_workspace import source_decision_for_version, source_category
+            decision = source_decision_for_version(
+                self.db,
+                source_project_identity=(workspace or {}).get("source_project_identity"),
+                version=version,
+            )
+            if decision is not None:
+                effective_metadata["logical_category"] = source_category(version, decision)
+                effective_metadata["logical_category_source"] = decision.category_origin or "OWNER"
+        projection = self._proposal_source_projection(version, source_metadata=effective_metadata) if is_proposal else self._safe_projection({
             "document_version_id": version.id,
             "document_id": version.document_id,
             "version_number": version.version_number,
@@ -802,7 +817,7 @@ class GovernedContextCompiler:
         return _ResolvedSource(
             "DOCUMENT_VERSION", "DOCUMENT_VERSION", version.id, version.sha256,
             "GOVERNED_EVIDENCE", "CURRENT", data_classification, contains_sensitive,
-            synthetic, projection, {"document_id": version.document_id, "source_relative_path": metadata.get("source_relative_path"), "logical_category": metadata.get("logical_category") or "OTHER_UNCLASSIFIED", "logical_category_source": metadata.get("logical_category_source") or "AUTO_CLASSIFIED"},
+            synthetic, projection, {"document_id": version.document_id, "source_relative_path": metadata.get("source_relative_path"), "logical_category": effective_metadata.get("logical_category") or "OTHER_UNCLASSIFIED", "logical_category_source": effective_metadata.get("logical_category_source") or "AUTO_CLASSIFIED"},
         )
 
     def _resolve_evidence_envelope(self, request: ContextCompileRequest, source: ContextSourceSpec, capabilities: set[str]) -> _ResolvedSource | None:

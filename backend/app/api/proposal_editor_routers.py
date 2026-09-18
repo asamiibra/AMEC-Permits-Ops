@@ -24,7 +24,7 @@ from ..storage import DocumentStorageService, StorageTarget, create_binary_store
 
 from ..services.proposal_document_package import DocumentPackageError, apply_text_mutations, digest, package_parts
 from ..services.proposal_editor_model import editor_diff_to_mutations, import_editor_model, tracked_changes
-from ..services.proposal_source_workspace import LOGICAL_SOURCE_CATEGORIES, build_effective_proposal_source_manifest, save_source_category, save_source_inclusion, source_manifest
+from ..services.proposal_source_workspace import LOGICAL_SOURCE_CATEGORIES, build_effective_proposal_source_manifest, save_source_category, save_source_inclusion, source_category, source_decision_for_version, source_manifest, source_included
 
 router = APIRouter(prefix="/api/proposals-v1/editor", tags=["proposal-editor-option-b"])
 MAX_UPLOAD = 64 * 1024 * 1024
@@ -249,6 +249,13 @@ def active_proposal_sources(proposal_id: str, db: Session = Depends(get_db), _: 
             continue
         metadata = version.metadata_json or {}
         manifest_entry = manifest_by_version.get(str(version.id), {})
+        decision = source_decision_for_version(
+            db,
+            source_project_identity=workspace.get("source_project_identity"),
+            version=version,
+        )
+        effective_category = "BASELINE_TEMPLATE" if link.source_role == "BASELINE_TEMPLATE" else (manifest_entry.get("effective_category") or source_category(version, decision))
+        effective_included = manifest_entry.get("included") if "included" in manifest_entry else source_included(version, decision)
         path = metadata.get("source_relative_path")
         source_number = metadata.get("source_project_number", number)
         file_id = __import__("hashlib").sha256(path.encode()).hexdigest()[:24] if path and source_number else None
@@ -257,8 +264,8 @@ def active_proposal_sources(proposal_id: str, db: Session = Depends(get_db), _: 
             "document_version_id": version.id,
             "filename": version.source_filename,
             "source_role": link.source_role,
-            "logical_category": manifest_entry.get("effective_category") or metadata.get("logical_category") or ("BASELINE_TEMPLATE" if link.source_role == "BASELINE_TEMPLATE" else None),
-            "included_in_proposal": manifest_entry.get("included", metadata.get("included_in_proposal", True)),
+            "logical_category": effective_category,
+            "included_in_proposal": effective_included,
             "sha256": version.sha256,
             "source_path": path,
             "view_route": f"/api/proposals/sources/2026/projects/{source_number}/files/{file_id}/content" if file_id else (f"/api/bd/proposals/{proposal_id}/sources/{link.source_evidence_id}/content" if link.source_evidence_id else None),
