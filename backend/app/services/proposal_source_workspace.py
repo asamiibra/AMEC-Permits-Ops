@@ -10,7 +10,7 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from ..models import Document, DocumentType, DocumentVersion, DocumentApprovalState, Opportunity, ProposalRevision
+from ..models import Document, DocumentType, DocumentVersion, DocumentApprovalState, Opportunity, ProposalRevision, Project
 from ..storage.proposal_source_tree import BridgeProposalSourceProvider, MountedProposalSource, ProposalSourceProvider, SourceEntry, SourceProject
 from ..storage import DocumentStorageService, StorageTarget, create_binary_store
 from ..config.settings import get_settings
@@ -19,6 +19,10 @@ from .proposal_editor_model import import_editor_model
 
 LOGICAL_ROOT = "Tenders/1- Proposal/2026"
 PILOT = "454 - Al Watan Center"
+LOGICAL_SOURCE_CATEGORIES = frozenset({
+    "TENDER_DOCUMENTS", "PHOTOS_IMAGES", "EMAIL", "CLIENT_DATA",
+    "CLIENT_DOCUMENTS", "PROJECT_INFORMATION", "OTHER_UNCLASSIFIED",
+})
 
 
 def configured_source_root() -> Path:
@@ -56,12 +60,82 @@ def _entry(source: ProposalSourceProvider, number: int, relative: str) -> Source
     raise FileNotFoundError("SOURCE_FILE_NOT_FOUND")
 
 
+def default_logical_category(relative_path: str, filename: str | None = None) -> str:
+    """Classify a source only as an initial suggestion.
+
+    The value is deliberately kept beside the server source index so the
+    browser and promotion path cannot drift into different classifications.
+    An Owner override is written to DocumentVersion metadata and always wins.
+    """
+    value = f"{relative_path} {filename or relative_path}".lower()
+    ext = (filename or relative_path).lower().rsplit(".", 1)[-1] if "." in (filename or relative_path) else ""
+    if ext in {"eml", "msg"} or "email" in value or "correspondence" in value:
+        return "EMAIL"
+    if ext in {"jpg", "jpeg", "png", "gif", "webp", "heic", "tif", "tiff", "bmp"} or any(token in value for token in ("photo", "image", "screenshot", "drawing", "plan")):
+        return "PHOTOS_IMAGES"
+    if any(token in value for token in ("client document", "registration", "certificate", "commercial record", " cr ", "identity", " id ")):
+        return "CLIENT_DOCUMENTS"
+    if any(token in value for token in ("client data", "client information", "contact", "company profile")):
+        return "CLIENT_DATA"
+    if any(token in value for token in ("tender", "rfp", "rfq", "boq", "scope", "specification", "sow", "schedule")) or ext in {"pdf", "doc", "docx", "xls", "xlsx", "csv"}:
+        return "TENDER_DOCUMENTS"
+    if any(token in value for token in ("project", "site", "location", "brief", "method statement")):
+        return "PROJECT_INFORMATION"
+    return "OTHER_UNCLASSIFIED"
+
+
+def source_category(version: DocumentVersion) -> str:
+    metadata = version.metadata_json if isinstance(version.metadata_json, dict) else {}
+    value = str(metadata.get("logical_category") or "").strip().upper()
+    return value if value in LOGICAL_SOURCE_CATEGORIES else default_logical_category(
+        str(metadata.get("source_relative_path") or version.source_filename or ""), version.source_filename
+    )
+
+
+def save_source_category(version: DocumentVersion, category: str, *, actor: str) -> dict[str, Any]:
+    category = category.strip().upper()
+    if category not in LOGICAL_SOURCE_CATEGORIES:
+        raise ValueError("SOURCE_CATEGORY_INVALID")
+    prior = dict(version.metadata_json or {})
+    previous = source_category(version)
+    history = list(prior.get("logical_category_history") or [])
+    if previous != category or prior.get("logical_category_source") != "OWNER_OVERRIDE":
+        history.append({"from": previous, "to": category, "actor": actor})
+    updated = {
+        **prior,
+        "logical_category": category,
+        "logical_category_source": "OWNER_OVERRIDE",
+        "logical_category_history": history[-25:],
+    }
+    version.metadata_json = updated
+    return updated
+
+
 def projects(db: Session | None = None) -> list[dict[str, Any]]:
+    created_numbers: set[str] = set()
+    if db is not None:
+        # This is intentionally resolved server-side.  A Proposal is a
+        # durable promotion of its source project; once the transaction is
+        # committed the project must leave the Draft source queue.
+        for project_number in db.scalars(
+            select(Project.project_number).join(Opportunity, Opportunity.project_id == Project.id)
+        ).all():
+            created_numbers.add(str(project_number))
+        for proposal in db.scalars(select(Opportunity)).all():
+            workspace = (proposal.proposal_fields_json or {}).get("source_workspace") or {}
+            if workspace.get("project_number") is not None:
+                created_numbers.add(str(workspace["project_number"]))
     with _source(db) as source:
         rows = []
         for project in source.discover():
+            if str(project.number) in created_numbers:
+                continue
             entries = source.inventory(project.folder_name)
-            rows.append({"number": project.number, "name": project.folder_name, "folder_name": project.folder_name, "state": "ACTIVE_PILOT" if project.discovery_class == "PROPOSALS_V1_ACTIVE_PILOT" else "DRAFT_SYNCED", "discovery_class": project.discovery_class, "folder_count": sum(item.is_directory for item in entries), "file_count": sum(not item.is_directory for item in entries)})
+            # The no-DB helper remains compatible with the synthetic fixture
+            # contract; authenticated API callers always receive the
+            # server-owned Draft queue state.
+            state = "ACTIVE_PILOT" if db is None and project.discovery_class == "PROPOSALS_V1_ACTIVE_PILOT" else "DRAFT_SYNCED"
+            rows.append({"number": project.number, "name": project.folder_name, "folder_name": project.folder_name, "state": state, "discovery_class": project.discovery_class, "folder_count": sum(item.is_directory for item in entries), "file_count": sum(not item.is_directory for item in entries)})
         return rows
 
 
@@ -70,7 +144,18 @@ def tree(number: int, db: Session | None = None) -> dict[str, Any]:
         project = _project(source, number)
         entries = source.inventory(project.folder_name)
         # Preserve the adapter's source ordering and exact names.
-        return {"number": number, "name": project.folder_name, "root": project.folder_name, "entries": [{"id": hashlib.sha256(item.relative_path.encode()).hexdigest()[:24], "path": item.relative_path, "name": item.name, "is_directory": item.is_directory, "size": item.size, "modified_ns": item.modified_ns, "content_type": mimetypes.guess_type(item.name)[0] or "application/octet-stream"} for item in entries]}
+        result = []
+        for item in entries:
+            version = captured_version(db, number, item.relative_path) if db is not None and not item.is_directory else None
+            result.append({
+                "id": hashlib.sha256(item.relative_path.encode()).hexdigest()[:24],
+                "path": item.relative_path, "name": item.name, "is_directory": item.is_directory,
+                "size": item.size, "modified_ns": item.modified_ns,
+                "content_type": mimetypes.guess_type(item.name)[0] or "application/octet-stream",
+                "logical_category": source_category(version) if version else default_logical_category(item.relative_path, item.name),
+                "category_source": ((version.metadata_json or {}).get("logical_category_source") if version else None) or "AUTO_CLASSIFIED",
+            })
+        return {"number": number, "name": project.folder_name, "root": project.folder_name, "entries": result}
 
 
 def capture(db: Session, number: int, *, actor: str = "source-workspace") -> dict[str, Any]:

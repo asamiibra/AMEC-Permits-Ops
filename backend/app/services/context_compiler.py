@@ -656,6 +656,8 @@ class GovernedContextCompiler:
             "document_date": version.document_date.isoformat() if version.document_date else None,
             "source_filename": version.source_filename,
             "source_relative_path": metadata.get("source_relative_path"),
+            "logical_category": metadata.get("logical_category") or "OTHER_UNCLASSIFIED",
+            "logical_category_source": metadata.get("logical_category_source") or "AUTO_CLASSIFIED",
         }
         content = cls._version_bytes(version)
         mime = (version.mime_type or "").lower()
@@ -784,7 +786,7 @@ class GovernedContextCompiler:
         return _ResolvedSource(
             "DOCUMENT_VERSION", "DOCUMENT_VERSION", version.id, version.sha256,
             "GOVERNED_EVIDENCE", "CURRENT", data_classification, contains_sensitive,
-            synthetic, projection, {"document_id": version.document_id, "source_relative_path": metadata.get("source_relative_path")},
+            synthetic, projection, {"document_id": version.document_id, "source_relative_path": metadata.get("source_relative_path"), "logical_category": metadata.get("logical_category") or "OTHER_UNCLASSIFIED", "logical_category_source": metadata.get("logical_category_source") or "AUTO_CLASSIFIED"},
         )
 
     def _resolve_evidence_envelope(self, request: ContextCompileRequest, source: ContextSourceSpec, capabilities: set[str]) -> _ResolvedSource | None:

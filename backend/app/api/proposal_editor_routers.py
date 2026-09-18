@@ -128,6 +128,28 @@ def _canonical_revision(proposal_id: str, revision_id: str, db: Session) -> tupl
     return proposal, revision
 
 
+@router.get("/proposals/{proposal_id}/entry")
+def canonical_editor_entry(proposal_id: str, db: Session = Depends(get_db), _: Role = Depends(editor_role)):
+    """Resolve every Proposal V1 entry point to its canonical DOCX revision."""
+    proposal = db.get(Opportunity, proposal_id)
+    if proposal is None:
+        raise HTTPException(404, "PROPOSAL_NOT_FOUND")
+    workspace = (proposal.proposal_fields_json or {}).get("source_workspace")
+    if not isinstance(workspace, dict):
+        # This endpoint deliberately does not hijack legacy Proposal routes.
+        raise HTTPException(404, "PROPOSAL_V1_EDITOR_ENTRY_NOT_FOUND")
+    revision = db.scalar(select(ProposalRevision).where(ProposalRevision.proposal_id == proposal.id, ProposalRevision.status == "DRAFT").order_by(ProposalRevision.revision_number.desc()))
+    if revision is None:
+        raise HTTPException(409, "PROPOSAL_V1_EDITOR_REVISION_REQUIRED")
+    return {
+        "proposal_id": proposal.id,
+        "revision_id": revision.id,
+        "revision_number": revision.revision_number,
+        "project_number": workspace.get("project_number"),
+        "route": f"/proposals/{proposal.id}/editor",
+    }
+
+
 @router.get("/proposals/{proposal_id}/revisions/{revision_id}")
 def load_canonical_editor_revision(proposal_id: str, revision_id: str, db: Session = Depends(get_db), _: Role = Depends(editor_role)):
     """Load the server-owned editor state by canonical Proposal identity."""

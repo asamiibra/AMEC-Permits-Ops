@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Icon } from "../../Icon";
 import { api } from "../../api";
 import { loadProposalRegister } from "./api";
@@ -52,8 +52,10 @@ export function ProposalRegisterPage({ role, onOpen, onNew, onOpenDraft }: {
   }, [role, refreshKey]);
 
   const rows = data?.items || [];
-  const activeProjectNumbers = useMemo(() => new Set(rows.map((row) => Number(row.project_ref)).filter((value) => Number.isFinite(value))), [rows]);
-  const drafts = sourceProjects.filter((project) => !activeProjectNumbers.has(project.number));
+  // The API returns only source projects without a committed Proposal.  Keep
+  // this page a projection of that server-owned queue; client-side matching
+  // by project reference used to hide or resurrect projects incorrectly.
+  const drafts = sourceProjects;
   return <div className="proposal-feature-page proposal-v1-page">
     <header className="proposal-page-intro">
       <div><span className="eyebrow">PROPOSALS V1 · SYNOLOGY SOURCES</span><h2>Proposal worklist</h2><p>Start with a synced source project, review its files, and create a Proposal only when the Owner is ready.</p></div>

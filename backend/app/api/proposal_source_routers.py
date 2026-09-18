@@ -15,10 +15,11 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from ..api.dependencies import AuthenticatedPrincipal, authenticated_principal_context, require_roles
+from ..api.dependencies import AuthenticatedPrincipal, authenticated_actor, authenticated_principal_context, require_roles
+from ..audit.service import audit
 from ..db import get_db
 from ..models import ClientAccount, Document, DocumentType, DocumentVersion, ProposalRevision, ProposalSourceEvidence, ProposalSourceLink, Project, Role
-from ..services.proposal_source_workspace import LOGICAL_ROOT, captured_version, capture, configured_source_root, ensure_editor_revision, projects, tree
+from ..services.proposal_source_workspace import LOGICAL_ROOT, LOGICAL_SOURCE_CATEGORIES, captured_version, capture, configured_source_root, ensure_editor_revision, projects, save_source_category, source_category, tree
 from ..services.proposal_production_boundary import require_authorized_office
 from ..config.settings import get_settings
 from ..storage import DocumentStorageService, StorageTarget, create_binary_store
@@ -39,15 +40,8 @@ class SourceProposalCreatePayload(BaseModel):
     source_categories: dict[str, str] = Field(default_factory=dict)
 
 
-LOGICAL_SOURCE_CATEGORIES = {
-    "TENDER_DOCUMENTS",
-    "PHOTOS_IMAGES",
-    "EMAIL",
-    "CLIENT_DATA",
-    "CLIENT_DOCUMENTS",
-    "PROJECT_INFORMATION",
-    "OTHER_UNCLASSIFIED",
-}
+class SourceCategoryUpdatePayload(BaseModel):
+    logical_category: str = Field(min_length=1, max_length=60)
 
 
 def _identity_token(value: str) -> str:
@@ -155,7 +149,34 @@ def source_tree(number: int, _: Role = Depends(source_role), db: Session = Depen
 def source_file(number: int, file_id: str, _: Role = Depends(source_role), db: Session = Depends(get_db)):
     item = _entry(number, file_id, db)
     version = captured_version(db, number, item["path"])
-    return {**item, "captured": bool(version), "source_content_hash": version.sha256 if version else None, "source_version": version.version_number if version else None, "source_presence_state": (version.metadata_json or {}).get("source_presence_state", "NOT_CAPTURED") if version else "NOT_CAPTURED"}
+    return {**item, "captured": bool(version), "source_content_hash": version.sha256 if version else None, "source_version": version.version_number if version else None, "source_presence_state": (version.metadata_json or {}).get("source_presence_state", "NOT_CAPTURED") if version else "NOT_CAPTURED", "logical_category": source_category(version) if version else item.get("logical_category"), "category_source": ((version.metadata_json or {}).get("logical_category_source") if version else None) or item.get("category_source", "AUTO_CLASSIFIED")}
+
+
+@router.patch("/2026/projects/{number}/files/{file_id}/category")
+def save_source_file_category(
+    number: int,
+    file_id: str,
+    payload: SourceCategoryUpdatePayload,
+    request: Request,
+    db: Session = Depends(get_db),
+    role: Role = Depends(source_role),
+):
+    """Persist one explicit Owner category without writing back to Synology."""
+    item = _entry(number, file_id, db)
+    version = captured_version(db, number, item["path"])
+    if version is None:
+        capture(db, number, actor="source-category-save")
+        version = captured_version(db, number, item["path"])
+    if version is None:
+        raise HTTPException(404, "SOURCE_FILE_NOT_CAPTURED")
+    previous_category = source_category(version)
+    try:
+        metadata = save_source_category(version, payload.logical_category, actor=authenticated_actor() or getattr(role, "value", str(role)))
+    except ValueError as exc:
+        raise HTTPException(422, {"code": str(exc), "allowed": sorted(LOGICAL_SOURCE_CATEGORIES)}) from exc
+    audit(db, correlation_id=getattr(request.state, "correlation_id", f"source-category:{version.id}"), event_type="PROPOSAL_SOURCE_CATEGORY_SAVED", entity_type="DocumentVersion", entity_id=version.id, actor_id=authenticated_actor(), before={"logical_category": previous_category}, after={"logical_category": metadata["logical_category"], "source_relative_path": metadata.get("source_relative_path"), "sha256": version.sha256}, metadata={"project_number": number, "file_id": file_id, "synology_write_count": 0})
+    db.commit()
+    return {**item, "captured": True, "source_content_hash": version.sha256, "source_version": version.version_number, "source_presence_state": metadata.get("source_presence_state", "PRESENT"), "logical_category": metadata["logical_category"], "category_source": metadata["logical_category_source"], "synology_write_count": 0}
 
 
 def _content(number: int, file_id: str, db: Session) -> tuple[dict[str, Any], bytes]:
@@ -445,6 +466,9 @@ def create_proposal_from_source_workspace(
         item.fixture_classification = "SYNTHETIC_OWNER_TEST"
     versions = db.scalars(select(DocumentVersion).where(DocumentVersion.metadata_json["source_project_number"].as_integer() == number).order_by(DocumentVersion.ingested_at)).all()
     excluded_paths = {path.strip() for path in (payload.excluded_source_paths if payload else []) if path and path.strip()}
+    # Categories are server-owned DocumentVersion metadata.  The legacy
+    # request field remains accepted for compatibility but never controls AI
+    # promotion; an unsaved browser dropdown must not change the source set.
     requested_categories = payload.source_categories if payload else {}
     invalid_categories = sorted({value for value in requested_categories.values() if value not in LOGICAL_SOURCE_CATEGORIES})
     if invalid_categories:
@@ -479,10 +503,12 @@ def create_proposal_from_source_workspace(
         source_role = "BASELINE_TEMPLATE" if is_template else "SOURCE_WORKSPACE"
         evidence = db.scalar(select(ProposalSourceEvidence).where(ProposalSourceEvidence.proposal_id == item.id, ProposalSourceEvidence.source_type == source_type, ProposalSourceEvidence.content_hash == version.sha256))
         if not evidence:
-            logical_category = "BASELINE_TEMPLATE" if is_template else requested_categories.get(relative_path, "OTHER_UNCLASSIFIED")
+            logical_category = "BASELINE_TEMPLATE" if is_template else source_category(version)
             evidence = ProposalSourceEvidence(proposal_id=item.id, source_type=source_type, source_filename=version.source_filename, source_reference=version.source_path_or_reference, content_hash=version.sha256, content_type=version.mime_type, provenance={"kind": "proposal_baseline_template" if is_template else "synology_source_workspace", "relative_path": relative_path, "logical_category": logical_category, "document_version_id": version.id, "verification": "READ_BACK_VERIFIED"}, status="CURRENT", verification_state="READ_BACK_VERIFIED", created_by="source-create-proposal")
             db.add(evidence)
             db.flush()
+        elif not is_template:
+            evidence.provenance = {**(evidence.provenance or {}), "relative_path": relative_path, "logical_category": source_category(version), "document_version_id": version.id}
         linked = db.scalar(select(ProposalSourceLink).where(ProposalSourceLink.proposal_id == item.id, ProposalSourceLink.document_version_id == version.id, ProposalSourceLink.source_role == source_role))
         if not linked:
             db.add(ProposalSourceLink(proposal_id=item.id, source_evidence_id=evidence.id, document_id=version.document_id, document_version_id=version.id, source_role=source_role, added_by="source-create-proposal"))
@@ -491,7 +517,8 @@ def create_proposal_from_source_workspace(
             linked.source_evidence_id = evidence.id
             linked.added_by = "source-create-proposal"
     source_set_hash = hashlib.sha256("".join(sorted(hashes)).encode()).hexdigest()
-    item.proposal_fields_json = {**(item.proposal_fields_json or {}), "source_workspace": {"logical_root": LOGICAL_ROOT, "project_number": number, "source_set_hash": source_set_hash, "captured_count": run["captured_count"], "selected_count": len(selected_versions), "excluded_source_paths": sorted(excluded_paths), "source_categories": {key: requested_categories[key] for key in sorted(requested_categories) if key not in excluded_paths}}}
+    effective_categories = {str((version.metadata_json or {}).get("source_relative_path")): source_category(version) for version in selected_versions if not (version.metadata_json or {}).get("template_baseline")}
+    item.proposal_fields_json = {**(item.proposal_fields_json or {}), "source_workspace": {"logical_root": LOGICAL_ROOT, "project_number": number, "source_set_hash": source_set_hash, "captured_count": run["captured_count"], "selected_count": len(selected_versions), "excluded_source_paths": sorted(excluded_paths), "source_categories": effective_categories}}
     editor = ensure_editor_revision(db, item, selected_versions, source_set_hash=source_set_hash, actor="source-create-proposal")
     # Promotion is the single causal handoff into Proposal Intelligence.  The
     # generated revision is published before the browser is allowed to open
