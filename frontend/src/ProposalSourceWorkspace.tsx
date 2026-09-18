@@ -31,7 +31,7 @@ function classify(entry: Entry): CategoryKey {
   return "OTHER_UNCLASSIFIED";
 }
 
-export function ProposalSourceWorkspace({ role = "OWNER_SPONSOR", onBack, onOpenEditor }: { role?: string; onBack?: () => void; onOpenEditor?: (proposalId: string, revisionId: string, projectNumber: number) => void }) {
+export function ProposalSourceWorkspace({ role = "OWNER_SPONSOR", onBack, onOpenEditor, onOpenProposal }: { role?: string; onBack?: () => void; onOpenEditor?: (proposalId: string, revisionId: string, projectNumber: number) => void; onOpenProposal?: (proposalId: string) => void }) {
   const queryProject = Number(new URLSearchParams(window.location.search).get("project"));
   const hasQueryProject = Number.isFinite(queryProject) && queryProject > 0;
   const [projects, setProjects] = useState<Project[]>([]);
@@ -86,7 +86,7 @@ export function ProposalSourceWorkspace({ role = "OWNER_SPONSOR", onBack, onOpen
         durableStagingSessionId = staged.staging_session_id;
         setStagingSessionId(durableStagingSessionId);
       }
-      const data = await api<{ proposal_id?: string; proposal_reference?: string; editor_ready?: boolean; editor_revision_id?: string; source_count?: number }>("/api/proposals/sources/2026/projects/" + selected + "/create-proposal", { method: "POST", headers: roleHeaders(role), body: JSON.stringify({ defer_generation: false, staging_session_id: durableStagingSessionId || undefined }) });
+      const data = await api<{ proposal_id?: string; proposal_reference?: string; editor_ready?: boolean; editor_revision_id?: string; generation_state?: string; source_count?: number }>("/api/proposals/sources/2026/projects/" + selected + "/create-proposal", { method: "POST", headers: roleHeaders(role), body: JSON.stringify({ defer_generation: false, staging_session_id: durableStagingSessionId || undefined }) });
       let editorReady = data.editor_ready;
       let editorRevisionId = data.editor_revision_id;
       if (data.proposal_id) {
@@ -96,7 +96,10 @@ export function ProposalSourceWorkspace({ role = "OWNER_SPONSOR", onBack, onOpen
         setStagingSessionId("");
       }
       setPendingSources([]); setCreatedProposal(data.proposal_reference || data.proposal_id || "created"); setMessage("Proposal created from " + (data.source_count || 0) + " included Synology source files" + (pendingSources.length ? " and " + pendingSources.length + " Owner source(s)." : "."));
-      if (editorReady && data.proposal_id && editorRevisionId && onOpenEditor) onOpenEditor(data.proposal_id, editorRevisionId, selected);
+      if (data.proposal_id) {
+        if (data.generation_state === "READY_FOR_EDIT" && editorReady && editorRevisionId && onOpenEditor) onOpenEditor(data.proposal_id, editorRevisionId, selected);
+        else if (onOpenProposal) onOpenProposal(data.proposal_id);
+      }
     } catch (cause) { setError(cause instanceof Error ? cause.message : "Proposal creation failed."); }
   };
   const categoryFor = (entry: Entry): CategoryKey => (categoryDrafts[entry.id] || entry.logical_category || classify(entry)) as CategoryKey;

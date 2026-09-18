@@ -51,7 +51,7 @@ export function ProposalRegisterPage({ role, onOpen, onNew, onOpenDraft }: {
     return () => { active = false; };
   }, [role, refreshKey]);
 
-  const rows = data?.items || [];
+  const rows = (data?.items || []).filter((row) => row.proposal_v1 !== false);
   // The API returns only source projects without a committed Proposal.  Keep
   // this page a projection of that server-owned queue; client-side matching
   // by project reference used to hide or resurrect projects incorrectly.
@@ -59,7 +59,7 @@ export function ProposalRegisterPage({ role, onOpen, onNew, onOpenDraft }: {
   return <div className="proposal-feature-page proposal-v1-page">
     <header className="proposal-page-intro">
       <div><span className="eyebrow">PROPOSALS V1 · SYNOLOGY SOURCES</span><h2>Proposal worklist</h2><p>Start with a synced source project, review its files, and create a Proposal only when the Owner is ready.</p></div>
-      <div className="proposal-intro-actions"><span className="tag">{role === "RESPONSIBLE_ENGINEER" ? "ENGINEERING" : role === "COMMERCIAL_APPROVER" ? "BUSINESS DEVELOPMENT" : "OWNER"}</span><button type="button" className="button-primary" onClick={onNew}><Icon name="plus" size={15} /> New Proposal</button></div>
+      <div className="proposal-intro-actions"><span className="tag">{role === "RESPONSIBLE_ENGINEER" ? "ENGINEERING" : role === "COMMERCIAL_APPROVER" ? "BUSINESS DEVELOPMENT" : "OWNER"}</span><button type="button" className="button-primary" onClick={onNew}><Icon name="plus" size={15} /> Intake &amp; Sources</button></div>
     </header>
     {error && <div className="proposal-alert error-state" role="alert"><Icon name="alert" size={17} /> <span>{error}</span><button type="button" className="text-button" onClick={() => setRefreshKey((value) => value + 1)}>Retry</button></div>}
     {sourceError && <div className="proposal-alert warning-copy" role="status"><Icon name="alert" size={17} /> <span>{sourceError}</span></div>}

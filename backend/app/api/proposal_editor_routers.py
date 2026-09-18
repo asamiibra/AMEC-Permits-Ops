@@ -140,7 +140,6 @@ def canonical_editor_entry(proposal_id: str, db: Session = Depends(get_db), _: R
     if not isinstance(workspace, dict):
         # This endpoint deliberately does not hijack legacy Proposal routes.
         raise HTTPException(404, "PROPOSAL_V1_EDITOR_ENTRY_NOT_FOUND")
-    generation_state = str((proposal.proposal_fields_json or {}).get("generation_state") or "READY_FOR_EDIT")
     revision = db.scalar(select(ProposalRevision).where(ProposalRevision.proposal_id == proposal.id, ProposalRevision.status == "DRAFT").order_by(ProposalRevision.revision_number.desc()))
     # A prior attempt can leave a retryable marker while a later request has
     # already committed a generated draft.  Reconcile only when the durable
@@ -156,6 +155,29 @@ def canonical_editor_entry(proposal_id: str, db: Session = Depends(get_db), _: R
         ) if value
     }
     revision_provenance = ((revision.snapshot or {}).get("ai_provenance") or {}) if revision else {}
+    stored_generation_state = (proposal.proposal_fields_json or {}).get("generation_state")
+    manifest_hashes = {
+        value for value in (
+            workspace.get("source_manifest_hash"),
+            workspace.get("source_set_hash"),
+            (proposal.proposal_fields_json or {}).get("source_manifest_hash"),
+            (proposal.proposal_fields_json or {}).get("source_set_hash"),
+        ) if value
+    }
+    generated_revision_is_current = bool(
+        revision is not None
+        and revision_provenance.get("generated_from_ai") is True
+        and revision_provenance.get("source_set_hash") in manifest_hashes
+        and (revision.snapshot or {}).get("source_set_hash") in manifest_hashes
+    )
+    # A V1 record with only the seeded baseline must remain in V1 recovery
+    # state.  It is never a successful editor entry just because a draft
+    # revision exists or the old field is missing.
+    generation_state = str(stored_generation_state or ("READY_FOR_EDIT" if generated_revision_is_current else "BASELINE_READY"))
+    if generated_revision_is_current and generation_state != "STALE_SOURCE_MANIFEST":
+        generation_state = "READY_FOR_EDIT"
+    if generation_state == "READY_FOR_EDIT" and not generated_revision_is_current:
+        generation_state = "BASELINE_READY"
     if (
         generation_state in {"FAILED_RETRYABLE", "GENERATION_REVIEW_REQUIRED", "FAILED_VALIDATION"}
         and revision is not None
@@ -166,11 +188,11 @@ def canonical_editor_entry(proposal_id: str, db: Session = Depends(get_db), _: R
         generation_state = "READY_FOR_EDIT"
     blocked_states = {
         "PENDING_OWNER_SOURCES", "GENERATION_PENDING", "RUNNING", "FAILED_RETRYABLE",
-        "BLOCKED_BASELINE", "STALE_SOURCE_MANIFEST", "GENERATION_REVIEW_REQUIRED",
+        "BASELINE_READY", "BLOCKED_BASELINE", "STALE_SOURCE_MANIFEST", "GENERATION_REVIEW_REQUIRED",
         "FAILED_VALIDATION",
     }
     if generation_state in blocked_states:
-        return {"proposal_id": proposal.id, "revision_id": None, "revision_number": None, "project_number": workspace.get("project_number"), "source_project_identity": workspace.get("source_project_identity"), "generation_state": generation_state, "editor_mode": "PROGRESS" if generation_state in {"PENDING_OWNER_SOURCES", "GENERATION_PENDING", "RUNNING"} else "RECOVERY", "editable": False, "retry_allowed": generation_state in {"FAILED_RETRYABLE", "GENERATION_REVIEW_REQUIRED"}, "blocker": (proposal.proposal_fields_json or {}).get("generation_error"), "route": f"/proposals/{proposal.id}/editor"}
+        return {"proposal_id": proposal.id, "revision_id": None, "revision_number": None, "project_number": workspace.get("project_number"), "source_project_identity": workspace.get("source_project_identity"), "generation_state": generation_state, "editor_mode": "PROGRESS" if generation_state in {"PENDING_OWNER_SOURCES", "GENERATION_PENDING", "RUNNING"} else "RECOVERY", "editable": False, "retry_allowed": generation_state in {"FAILED_RETRYABLE", "GENERATION_REVIEW_REQUIRED", "STALE_SOURCE_MANIFEST"}, "blocker": (proposal.proposal_fields_json or {}).get("generation_error") or ("AI_GENERATION_REQUIRED" if generation_state == "BASELINE_READY" else None), "route": f"/proposals/{proposal.id}/editor"}
     if revision is None:
         raise HTTPException(409, "PROPOSAL_V1_EDITOR_REVISION_REQUIRED")
     return {
