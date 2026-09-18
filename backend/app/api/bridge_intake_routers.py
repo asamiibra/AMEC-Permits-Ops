@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 from ..auth.bridge import BridgeIdentity, current_bridge_identity
 from ..config.settings import get_settings
 from ..db import get_db
-from ..schemas.bridge_intake import BridgePackageIn
-from ..services.bridge_intake import ingest_bridge_package
+from ..schemas.bridge_intake import BridgePackageIn, BridgeScanIn
+from ..services.bridge_intake import ingest_bridge_package, ingest_bridge_scan
 
 
 router = APIRouter(prefix="/api/source-intake/bridge", tags=["source-intake-bridge"])
@@ -31,5 +31,16 @@ def ingest_package(
     db: Session = Depends(get_db),
 ):
     result = ingest_bridge_package(db, payload, identity, get_settings())
+    db.commit()
+    return result
+
+
+@router.post("/scans")
+def ingest_scan(
+    payload: BridgeScanIn,
+    identity: BridgeIdentity = Depends(current_bridge_identity),
+    db: Session = Depends(get_db),
+):
+    result = ingest_bridge_scan(db, payload, identity, get_settings())
     db.commit()
     return result

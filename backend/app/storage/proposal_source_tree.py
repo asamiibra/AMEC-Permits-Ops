@@ -35,6 +35,9 @@ class SourceEntry:
     is_directory: bool
     size: int
     modified_ns: int
+    capture_status: str = "PRESENT"
+    failure_reason: str | None = None
+    source_version_token: str | None = None
 
 
 @dataclass(frozen=True)
@@ -291,8 +294,28 @@ class BridgeProposalSourceProvider:
             raise StorageError(StorageErrorCode.QUOTA_OR_SPACE, "Source entry limit exceeded")
         return current
 
+    def _latest_scan(self, project_folder: str):
+        """Return the latest completed scan for this exact source folder."""
+        from ..models import ProposalSourceScan
+        project = classify_project_folder(project_folder)
+        if project is None:
+            return None
+        rows = self.db.scalars(
+            select(ProposalSourceScan)
+            .where(ProposalSourceScan.project_number == str(project.number), ProposalSourceScan.status == "COMPLETED")
+            .order_by(ProposalSourceScan.completed_at.desc(), ProposalSourceScan.created_at.desc())
+        ).all()
+        return rows[0] if rows else None
+
     def discover(self) -> list[SourceProject]:
         projects: dict[str, SourceProject] = {}
+        from ..models import ProposalSourceScan, ProposalSourceScanEntry
+        for scan in self.db.scalars(select(ProposalSourceScan).where(ProposalSourceScan.status == "COMPLETED")).all():
+            for entry in self.db.scalars(select(ProposalSourceScanEntry).where(ProposalSourceScanEntry.scan_id == scan.id)).all():
+                folder = entry.relative_path.split("/", 1)[0]
+                project = classify_project_folder(folder)
+                if project is not None:
+                    projects[folder] = project
         for relative in self._current_versions():
             folder = relative.split("/", 1)[0]
             project = classify_project_folder(folder)
@@ -309,9 +332,17 @@ class BridgeProposalSourceProvider:
             for relative, version in self._current_versions().items()
             if relative == project_folder or relative.startswith(project_folder + "/")
         }
-        if not versions:
+        scan = self._latest_scan(project_folder)
+        if not versions and scan is None:
             raise FileNotFoundError("SOURCE_PROJECT_NOT_FOUND")
         entries: dict[str, SourceEntry] = {}
+        if scan is not None:
+            from ..models import ProposalSourceScanEntry
+            for scan_entry in self.db.scalars(select(ProposalSourceScanEntry).where(ProposalSourceScanEntry.scan_id == scan.id)).all():
+                relative = scan_entry.relative_path
+                if relative == project_folder or relative.startswith(project_folder + "/"):
+                    parts = _parts(relative)
+                    entries[relative] = SourceEntry(relative, parts[-1], scan_entry.entry_type == "DIRECTORY", scan_entry.size_bytes, 0, scan_entry.capture_status, scan_entry.failure_reason, scan_entry.source_version_token)
         for relative, version in versions.items():
             parts = _parts(relative)
             metadata = version.metadata_json or {}
@@ -321,6 +352,9 @@ class BridgeProposalSourceProvider:
                 is_directory=bool(metadata.get("source_is_directory", False)),
                 size=int(version.file_size or 0),
                 modified_ns=self._modified_ns(version),
+                capture_status=str(metadata.get("capture_status") or "CAPTURED"),
+                failure_reason=metadata.get("failure_reason"),
+                source_version_token=metadata.get("source_version_token"),
             )
             for index in range(1, len(parts)):
                 directory = "/".join(parts[:index])

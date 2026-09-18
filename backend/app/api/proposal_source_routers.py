@@ -10,17 +10,17 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
-from fastapi import APIRouter, Body, Depends, HTTPException, Request
+from fastapi import APIRouter, Body, Depends, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
-from sqlalchemy import select
+from sqlalchemy import select, true
 from sqlalchemy.orm import Session
 
 from ..api.dependencies import AuthenticatedPrincipal, authenticated_actor, authenticated_principal_context, require_roles
 from ..audit.service import audit
 from ..db import get_db
-from ..models import ClientAccount, Document, DocumentType, DocumentVersion, ProposalRevision, ProposalSourceEvidence, ProposalSourceLink, Project, Role
-from ..services.proposal_source_workspace import LOGICAL_ROOT, LOGICAL_SOURCE_CATEGORIES, capture, configured_source_root, current_source_versions, ensure_editor_revision, projects, save_source_category, save_source_inclusion, source_category, source_included, source_manifest, tree
+from ..models import ClientAccount, Document, DocumentApprovalState, DocumentType, DocumentVersion, Opportunity, ProposalGenerationAttempt, ProposalRevision, ProposalSourceEvidence, ProposalSourceLink, ProposalSourceStagedFile, ProposalSourceStagingSession, ProposalStalenessEvent, Project, Role
+from ..services.proposal_source_workspace import LOGICAL_ROOT, LOGICAL_SOURCE_CATEGORIES, build_effective_proposal_source_manifest, capture, canonical_source_project_identity, configured_source_root, current_source_versions, ensure_editor_revision, projects, save_source_category, save_source_inclusion, source_category, source_included, source_manifest, tree
 from ..services.proposal_production_boundary import require_authorized_office
 from ..config.settings import get_settings
 from ..storage import DocumentStorageService, StorageTarget, create_binary_store
@@ -32,6 +32,8 @@ from .bd_proposal_routers import ProposalCreate, _create_proposal_record
 
 router = APIRouter(prefix="/api/proposals/sources", tags=["proposal-source-workspace"])
 source_role = require_roles(Role.OWNER_SPONSOR, Role.PROCESS_CHAMPION, Role.RESPONSIBLE_ENGINEER, Role.SYSTEM_ADMIN)
+source_curate_role = require_roles(Role.OWNER_SPONSOR, Role.PROCESS_CHAMPION, Role.SYSTEM_ADMIN)
+sync_role = require_roles(Role.OWNER_SPONSOR, Role.PROCESS_CHAMPION, Role.SYSTEM_ADMIN)
 create_role = require_roles(Role.OWNER_SPONSOR, Role.PROCESS_CHAMPION, Role.SYSTEM_ADMIN)
 
 
@@ -41,6 +43,7 @@ class SourceProposalCreatePayload(BaseModel):
     excluded_source_paths: list[str] = Field(default_factory=list)
     source_categories: dict[str, str] = Field(default_factory=dict)
     defer_generation: bool = False
+    staging_session_id: str | None = None
 
 
 class SourceCategoryUpdatePayload(BaseModel):
@@ -49,6 +52,20 @@ class SourceCategoryUpdatePayload(BaseModel):
 
 class SourceInclusionUpdatePayload(BaseModel):
     included_in_proposal: bool
+
+
+def _mark_bound_proposals_stale(db: Session, number: int, manifest_hash: str, reason: str, *, source_project_identity: str) -> None:
+    for proposal in db.scalars(select(Opportunity)).all():
+        workspace = (proposal.proposal_fields_json or {}).get("source_workspace") or {}
+        if workspace.get("source_project_identity") != source_project_identity:
+            continue
+        if workspace.get("source_manifest_hash") == manifest_hash:
+            continue
+        current = dict(proposal.proposal_fields_json or {})
+        proposal.proposal_fields_json = {**current, "generation_state": "STALE_SOURCE_MANIFEST", "source_changes_available": True, "current_source_manifest_hash": manifest_hash}
+        active = db.scalar(select(ProposalStalenessEvent).where(ProposalStalenessEvent.proposal_id == proposal.id, ProposalStalenessEvent.status == "ACTIVE", ProposalStalenessEvent.reason_code == "SOURCE_MANIFEST_CHANGED"))
+        if active is None:
+            db.add(ProposalStalenessEvent(proposal_id=proposal.id, trigger_type="SOURCE_SCAN", trigger_reference=manifest_hash, reason_code="SOURCE_MANIFEST_CHANGED", impacted_sections=[reason], detected_by="proposal-source-workspace"))
 
 
 def _source_client_name(folder_name: str, number: int) -> str:
@@ -75,11 +92,75 @@ def _ensure_source_project_and_client(db: Session, *, number: int, folder_name: 
 
 
 def _entry(number: int, file_id: str, db: Session) -> dict[str, Any]:
+    linked_project = db.scalar(select(Project).where(Project.project_number == str(number)))
+    if linked_project is not None:
+        require_authorized_office(db, authenticated_principal_context(), project_id=linked_project.id)
     expected = str(file_id).lower()
     for item in tree(number, db)["entries"]:
         if not item["is_directory"] and hashlib.sha256(item["path"].encode()).hexdigest()[:24] == expected:
             return item
     raise HTTPException(404, "SOURCE_FILE_NOT_FOUND")
+
+
+@router.post("/2026/projects/{number}/staging")
+async def stage_owner_sources(
+    number: int,
+    files: list[UploadFile] = File(...),
+    logical_categories: str = Form(default="[]"),
+    session_key: str | None = Form(default=None),
+    db: Session = Depends(get_db),
+    role: Role = Depends(source_curate_role),
+):
+    """Persist Owner files before Proposal promotion; browser memory is not lifecycle state."""
+    try:
+        categories = json.loads(logical_categories or "[]")
+    except (TypeError, json.JSONDecodeError) as exc:
+        raise HTTPException(422, "SOURCE_STAGING_METADATA_INVALID") from exc
+    if not isinstance(categories, list) or len(categories) != len(files):
+        raise HTTPException(422, "SOURCE_STAGING_METADATA_COUNT_MISMATCH")
+    if any(str(category) not in LOGICAL_SOURCE_CATEGORIES for category in categories):
+        raise HTTPException(422, "SOURCE_CATEGORY_INVALID")
+    discovered = next((row for row in projects(db) if row["number"] == number), None)
+    if discovered is None:
+        raise HTTPException(404, "SOURCE_PROJECT_NOT_FOUND")
+    identity = discovered["source_project_identity"]
+    key = session_key or f"owner-source-{uuid4().hex}"
+    session = db.scalar(select(ProposalSourceStagingSession).where(ProposalSourceStagingSession.source_project_identity == identity, ProposalSourceStagingSession.session_key == key))
+    if session is None:
+        session = ProposalSourceStagingSession(session_key=key, source_project_identity=identity, project_number=str(number), status="UPLOADING", created_by=authenticated_actor() or getattr(role, "value", str(role)))
+        db.add(session)
+        db.flush()
+    project = db.scalar(select(Project).where(Project.project_number == str(number)))
+    try:
+        results = []
+        for upload, category in zip(files, categories):
+            content = await upload.read()
+            sha = hashlib.sha256(content).hexdigest()
+            if db.scalar(select(ProposalSourceStagedFile).where(ProposalSourceStagedFile.session_id == session.id, ProposalSourceStagedFile.sha256 == sha)):
+                continue
+            document = Document(project_id=project.id if project else None, document_type=DocumentType.OTHER, logical_name=upload.filename or "owner-source", language="UNKNOWN", source_system="PROPOSAL_OWNER_STAGING")
+            db.add(document)
+            db.flush()
+            metadata = {"owner_staged": True, "source_project_number": number, "source_project_identity": identity, "logical_category": category, "logical_category_source": "OWNER_OVERRIDE", "included_in_proposal": True, "inclusion_origin": "OWNER", "source_presence_state": "PRESENT", "currentness_state": "CURRENT", "processing_state": "PENDING", "proposal_source_key": f"OWNER_STAGING:{session.id}:{sha}"}
+            stored_version = None
+            if db.bind is not None and db.bind.dialect.has_table(db.connection(), "storage_operations"):
+                store = create_binary_store()
+                target = StorageTarget(store.provider_id, getattr(getattr(store, "config", None), "container", None) or getattr(getattr(store, "config", None), "share", "synthetic"), f"proposal-staging/{session.id}")
+                stored_version = DocumentStorageService(store).store_version(db, document=document, content=content, filename=upload.filename or "owner-source.bin", mime_type=upload.content_type or "application/octet-stream", target=target, actor=authenticated_actor() or "owner-staging", correlation_id=f"proposal-staging:{session.id}", idempotency_key=f"proposal-staging:{session.id}:{sha}", source_system="PROPOSAL_OWNER_STAGING", metadata=metadata, version_number=1).version
+            elif get_settings().synthetic_only and get_settings().app_env.upper() in {"TEST", "DEV", "DEVELOPMENT"}:
+                stored_version = DocumentVersion(document_id=document.id, version_number=1, source_filename=upload.filename or "owner-source.bin", source_path_or_reference=f"synthetic-db://proposal-staging/{session.id}/{sha}", sha256=sha, mime_type=upload.content_type or "application/octet-stream", file_size=len(content), language="UNKNOWN", approval_state=DocumentApprovalState.WORKING, source_system="PROPOSAL_OWNER_STAGING", synthetic_content=content, metadata_json=metadata)
+                db.add(stored_version)
+                db.flush()
+            else:
+                raise HTTPException(503, "CANONICAL_STORAGE_JOURNAL_REQUIRED")
+            db.add(ProposalSourceStagedFile(session_id=session.id, document_version_id=stored_version.id, filename=upload.filename or "owner-source.bin", sha256=sha, logical_category=category, verified=True))
+            results.append({"filename": upload.filename, "document_version_id": stored_version.id, "sha256": sha, "verified": True})
+        session.status = "READY"
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+    return {"result": "STAGED", "staging_session_id": session.id, "session_key": session.session_key, "status": session.status, "files": results}
 
 
 @router.get("/2026/projects")
@@ -89,20 +170,35 @@ def source_projects(_: Role = Depends(source_role), db: Session = Depends(get_db
 
 
 @router.get("/runtime-version")
-def proposal_v1_runtime_version(_: Role = Depends(source_role)):
+def proposal_v1_runtime_version(db: Session = Depends(get_db), _: Role = Depends(source_role)):
     """Expose the non-secret runtime identity used by browser diagnostics."""
+    from sqlalchemy import inspect, text
+    migration_head = None
+    try:
+        if inspect(db.bind).has_table("alembic_version"):
+            migration_head = db.execute(text("SELECT version_num FROM alembic_version ORDER BY version_num")).scalars().all()
+    except Exception:
+        migration_head = None
     return {
         "feature": "PROPOSALS_V1",
+        "backend_source_sha": os.getenv("SOURCE_VERSION", os.getenv("GIT_SHA", "UNKNOWN")),
+        "backend_image_digest": os.getenv("IMAGE_DIGEST", "UNKNOWN"),
         "source_sha": os.getenv("SOURCE_VERSION", os.getenv("GIT_SHA", "UNKNOWN")),
         "image_digest": os.getenv("IMAGE_DIGEST", "UNKNOWN"),
         "api_revision": os.getenv("API_REVISION", "UNKNOWN"),
-        "migration_head": "proposal_billing_contract_convergence_v1",
+        "environment": get_settings().app_env,
+        "build_timestamp": os.getenv("BUILD_TIMESTAMP", "UNKNOWN"),
+        "frontend_build_sha": os.getenv("FRONTEND_BUILD_SHA", os.getenv("VITE_SOURCE_SHA", "UNKNOWN")),
+        "migration_head": migration_head or "UNAVAILABLE",
     }
 
 
 @router.get("/2026/projects/{number}/tree")
 def source_tree(number: int, _: Role = Depends(source_role), db: Session = Depends(get_db)):
     try:
+        linked_project = db.scalar(select(Project).where(Project.project_number == str(number)))
+        if linked_project is not None:
+            require_authorized_office(db, authenticated_principal_context(), project_id=linked_project.id)
         return tree(number, db)
     except (FileNotFoundError, OSError) as exc:
         raise HTTPException(404, str(exc)) from exc
@@ -111,6 +207,9 @@ def source_tree(number: int, _: Role = Depends(source_role), db: Session = Depen
 @router.get("/2026/projects/{number}/manifest")
 def source_manifest_view(number: int, _: Role = Depends(source_role), db: Session = Depends(get_db)):
     try:
+        linked_project = db.scalar(select(Project).where(Project.project_number == str(number)))
+        if linked_project is not None:
+            require_authorized_office(db, authenticated_principal_context(), project_id=linked_project.id)
         return source_manifest(db, number)
     except (FileNotFoundError, OSError) as exc:
         raise HTTPException(404, str(exc)) from exc
@@ -130,7 +229,7 @@ def save_source_file_category(
     payload: SourceCategoryUpdatePayload,
     request: Request,
     db: Session = Depends(get_db),
-    role: Role = Depends(source_role),
+    role: Role = Depends(source_curate_role),
 ):
     """Persist one explicit Owner category without writing back to Synology."""
     item = _entry(number, file_id, db)
@@ -142,10 +241,14 @@ def save_source_file_category(
         raise HTTPException(404, "SOURCE_FILE_NOT_CAPTURED")
     previous_category = source_category(version)
     try:
-        metadata = save_source_category(version, payload.logical_category, actor=authenticated_actor() or getattr(role, "value", str(role)))
+        manifest_identity = source_manifest(db, number).get("source_project_identity")
+        metadata = save_source_category(version, payload.logical_category, actor=authenticated_actor() or getattr(role, "value", str(role)), db=db, source_project_identity=manifest_identity)
     except ValueError as exc:
         raise HTTPException(422, {"code": str(exc), "allowed": sorted(LOGICAL_SOURCE_CATEGORIES)}) from exc
     audit(db, correlation_id=getattr(request.state, "correlation_id", f"source-category:{version.id}"), event_type="PROPOSAL_SOURCE_CATEGORY_SAVED", entity_type="DocumentVersion", entity_id=version.id, actor_id=authenticated_actor(), before={"logical_category": previous_category}, after={"logical_category": metadata["logical_category"], "source_relative_path": metadata.get("source_relative_path"), "sha256": version.sha256}, metadata={"project_number": number, "file_id": file_id, "synology_write_count": 0})
+    db.flush()
+    current_manifest = source_manifest(db, number)
+    _mark_bound_proposals_stale(db, number, current_manifest["source_manifest_hash"], "CATEGORY_CHANGED", source_project_identity=current_manifest["source_project_identity"])
     db.commit()
     return {**item, "captured": True, "source_content_hash": version.sha256, "source_version": version.version_number, "source_presence_state": metadata.get("source_presence_state", "PRESENT"), "logical_category": metadata["logical_category"], "category_source": metadata["logical_category_source"], "synology_write_count": 0}
 
@@ -157,7 +260,7 @@ def save_source_file_inclusion(
     payload: SourceInclusionUpdatePayload,
     request: Request,
     db: Session = Depends(get_db),
-    role: Role = Depends(source_role),
+    role: Role = Depends(source_curate_role),
 ):
     item = _entry(number, file_id, db)
     version = current_source_versions(db, number).get(item["path"])
@@ -167,10 +270,14 @@ def save_source_file_inclusion(
     if version is None:
         raise HTTPException(404, "SOURCE_FILE_NOT_CAPTURED")
     prior = source_included(version)
-    metadata = save_source_inclusion(version, payload.included_in_proposal, actor=authenticated_actor() or getattr(role, "value", str(role)))
+    manifest_identity = source_manifest(db, number).get("source_project_identity")
+    metadata = save_source_inclusion(version, payload.included_in_proposal, actor=authenticated_actor() or getattr(role, "value", str(role)), db=db, source_project_identity=manifest_identity)
     audit(db, correlation_id=getattr(request.state, "correlation_id", f"source-inclusion:{version.id}"), event_type="PROPOSAL_SOURCE_INCLUSION_SAVED", entity_type="DocumentVersion", entity_id=version.id, actor_id=authenticated_actor(), before={"included_in_proposal": prior}, after={"included_in_proposal": metadata["included_in_proposal"], "source_relative_path": metadata.get("source_relative_path"), "sha256": version.sha256}, metadata={"project_number": number, "file_id": file_id, "synology_write_count": 0})
+    db.flush()
+    current_manifest = source_manifest(db, number)
+    _mark_bound_proposals_stale(db, number, current_manifest["source_manifest_hash"], "INCLUSION_CHANGED", source_project_identity=current_manifest["source_project_identity"])
     db.commit()
-    return {**item, "captured": True, "source_content_hash": version.sha256, "source_version": version.version_number, "included_in_proposal": source_included(version), "inclusion_origin": metadata["inclusion_origin"], "synology_write_count": 0}
+    return {**item, "captured": True, "source_content_hash": version.sha256, "source_version": version.version_number, "included_in_proposal": metadata["included_in_proposal"], "inclusion_origin": metadata["inclusion_origin"], "synology_write_count": 0}
 
 
 def _content(number: int, file_id: str, db: Session) -> tuple[dict[str, Any], bytes]:
@@ -212,10 +319,13 @@ def source_download(number: int, file_id: str, _: Role = Depends(source_role), d
 
 
 @router.post("/2026/sync")
-def sync_sources(_: Role = Depends(source_role), db: Session = Depends(get_db)):
+def sync_sources(_: Role = Depends(sync_role), db: Session = Depends(get_db)):
     try:
         discovered = projects(db)
         runs = [capture(db, row["number"], actor="source-sync") for row in discovered]
+        for row in discovered:
+            current_manifest = source_manifest(db, row["number"])
+            _mark_bound_proposals_stale(db, row["number"], current_manifest["source_manifest_hash"], "SOURCE_VERSION_CHANGED", source_project_identity=current_manifest["source_project_identity"])
     except (FileNotFoundError, OSError) as exc:
         raise HTTPException(503, "SOURCE_ROOT_UNAVAILABLE") from exc
     return {"logical_root": "Tenders/1- Proposal/2026", "runs": runs, "synology_write_count": 0, "auto_proposal_created_for_520_plus": 0, "projects_455_519_auto_onboarded": 0}
@@ -228,6 +338,33 @@ def _captured_bytes(version: DocumentVersion) -> bytes:
     if version.synthetic_content is not None:
         return version.synthetic_content
     raise HTTPException(503, "PROPOSAL_BASELINE_DOCUMENT_UNAVAILABLE")
+
+
+def _mark_generation_failed(db: Session, proposal_id: str, manifest_hash: str, detail: str) -> None:
+    attempt = db.scalar(select(ProposalGenerationAttempt).where(ProposalGenerationAttempt.proposal_id == proposal_id, ProposalGenerationAttempt.manifest_hash == manifest_hash, ProposalGenerationAttempt.generation_kind == "DOCUMENT_CHANGE_PLAN"))
+    if attempt is not None:
+        attempt.status = "FAILED_RETRYABLE"
+        attempt.failure_code = detail[:160]
+        from datetime import datetime, timezone
+        attempt.completed_at = datetime.now(timezone.utc)
+
+
+def _validate_generated_docx(proposal: Any, content: bytes, selected_versions: list[DocumentVersion]) -> None:
+    """Deterministic business validation before a revision is editable."""
+    try:
+        model = import_editor_model(content)
+    except (DocumentPackageError, ValueError, TypeError) as exc:
+        raise HTTPException(409, "FAILED_VALIDATION:DOCX_PACKAGE_INVALID") from exc
+    text = "\n".join(str(node.get("text") or "") for node in model.get("nodes", []))
+    if any(token.lower() in text.lower() for token in ("<tbd>", "[tbd]", "sample proposal", "xxx")):
+        raise HTTPException(409, "GENERATION_REVIEW_REQUIRED:UNRESOLVED_PLACEHOLDER")
+    proposal_ref = str(getattr(proposal, "opportunity_reference", ""))
+    project_ref = str(getattr(proposal, "canonical_project_reference", "") or getattr(proposal, "provisional_reference", ""))
+    if proposal_ref and any(value and value not in text for value in (proposal_ref, project_ref)):
+        # The baseline may intentionally omit the reference; only reject a
+        # clear cross-project leak from the known pilot template.
+        if "454" in text and project_ref and project_ref != "454":
+            raise HTTPException(409, "FAILED_VALIDATION:SOURCE_PROJECT_MISMATCH")
 
 
 def _ensure_baseline_template(db: Session, proposal: Any) -> DocumentVersion:
@@ -318,6 +455,23 @@ def _generate_proposal_revision(
     those preconditioned mutations to the captured baseline and stores a new
     canonical working revision before the browser opens.
     """
+    generation = db.scalar(select(ProposalGenerationAttempt).where(ProposalGenerationAttempt.proposal_id == proposal.id, ProposalGenerationAttempt.manifest_hash == source_set_hash, ProposalGenerationAttempt.generation_kind == "DOCUMENT_CHANGE_PLAN").with_for_update())
+    if generation is not None and generation.status == "SUCCEEDED":
+        raise HTTPException(409, "GENERATION_ALREADY_SUCCEEDED")
+    if generation is not None and generation.status == "RUNNING":
+        raise HTTPException(409, "GENERATION_RUNNING")
+    if generation is None:
+        generation = ProposalGenerationAttempt(proposal_id=proposal.id, manifest_hash=source_set_hash, generation_kind="DOCUMENT_CHANGE_PLAN", attempt_number=1, status="PENDING", created_by=getattr(role, "value", str(role)))
+        db.add(generation)
+        db.flush()
+    else:
+        generation.attempt_number = int(generation.attempt_number or 0) + 1
+        generation.status = "PENDING"
+        generation.failure_code = None
+    generation.status = "RUNNING"
+    from datetime import datetime, timezone
+    generation.started_at = datetime.now(timezone.utc)
+    db.commit()
     baseline = _select_baseline_docx(selected_versions)
     if baseline is None:
         raise HTTPException(422, "VALID_DOCX_SOURCE_REQUIRED")
@@ -339,7 +493,7 @@ def _generate_proposal_revision(
             # Proposal, so each attempt needs a fresh key; the surrounding
             # source-set/provenance check still makes successful promotion
             # idempotent and prevents duplicate generated revisions.
-            idempotency_key=f"proposal-document-generation:{proposal.id}:{source_set_hash}:{uuid4().hex}",
+            idempotency_key=f"proposal-document-generation:{generation.id}",
             correlation_id=getattr(request.state, "correlation_id", str(uuid4())),
             settings=settings, provider=provider,
         )
@@ -353,11 +507,22 @@ def _generate_proposal_revision(
     if plan.get("baseline_document_version_id") != baseline.id:
         raise HTTPException(409, "PROPOSAL_AI_BASELINE_MISMATCH")
     raw_mutations = plan.get("mutations") or []
+    available_citations = {
+        str((item.get("citation_key") or item.get("locator", {}).get("citation_key") or item.get("locator_json", {}).get("citation_key"))) if isinstance(item, dict) else str(item)
+        for item in (intelligence.get("citations") or [])
+    }
+    if not available_citations:
+        available_citations = {str(item) for item in (plan.get("citation_keys") or [])}
+    for mutation in raw_mutations:
+        mutation_citations = {str(item) for item in (mutation.get("citation_keys") or [])} if isinstance(mutation, dict) else set()
+        if not mutation_citations or not mutation_citations.issubset(available_citations):
+            raise HTTPException(409, "PROPOSAL_AI_MUTATION_CITATION_INVALID")
     try:
         mutations = [TextMutation(str(item["anchor"]), str(item["expected_xml_hash"]), str(item["replacement"])) for item in raw_mutations]
         generated_bytes = apply_text_mutations(baseline_bytes, mutations)
     except (KeyError, TypeError, ValueError, DocumentPackageError) as exc:
         raise HTTPException(409, "PROPOSAL_AI_CHANGE_PLAN_INVALID") from exc
+    _validate_generated_docx(proposal, generated_bytes, selected_versions)
 
     store = create_binary_store()
     generated_document = Document(
@@ -421,6 +586,10 @@ def _generate_proposal_revision(
     )
     db.add(revision)
     db.flush()
+    generation.status = "SUCCEEDED"
+    generation.provider_execution_id = intelligence.get("work_product_id")
+    generation.completed_at = datetime.now(timezone.utc)
+    db.flush()
     return {
         "editor_ready": True, "editor_revision_id": revision.id,
         "editor_revision_number": revision.revision_number,
@@ -445,8 +614,9 @@ def _select_baseline_docx(versions: list[DocumentVersion]) -> DocumentVersion:
     named = [version for version in candidates if re.search(r"(?:amec.*p[-_ ]?d|proposal|baseline|template)", (version.source_filename or "").lower())]
     if len(named) == 1:
         return named[0]
-    if len(candidates) == 1:
-        return candidates[0]
+    # A single arbitrary DOCX is not evidence that the file is the AMEC
+    # Proposal baseline.  Block and require an explicit Owner selection or a
+    # governed Master Content template.
     raise HTTPException(409, "PROPOSAL_BASELINE_SELECTION_REQUIRED")
 
 
@@ -460,6 +630,7 @@ def create_proposal_from_source_workspace(
 ):
     """Create one canonical Proposal from any explicitly selected Draft."""
     run = capture(db, number, actor="source-create-proposal")
+    discovered = next((row for row in projects(db) if row["number"] == number), None)
     # Bridge captures are attached to the canonical Project row so downstream
     # intake, provenance, and editor records share one project identity.  The
     # mounted synthetic fixture keeps its historical provisional behavior.
@@ -479,7 +650,8 @@ def create_proposal_from_source_workspace(
     project_name = (project.project_name if project else f"Project {number}").strip()
     client_name = _source_client_name(project_name, number) if get_settings().source_intake_mode.upper() == "BRIDGE" else project_name
     client_id = client.id if client is not None else None
-    item = _create_proposal_record(ProposalCreate(proposal_description=f"{client_name} Proposal", project_reference=str(number), project_id=project.id if project else None, client_account_id=client_id, client_name=client_name, idempotency_key=f"proposal-source-project:{number}", provisional_source_identity=True), request, db, role)
+    source_project_identity = canonical_source_project_identity(number=number, folder_name=project_name if project else (discovered or {}).get("folder_name", f"Project {number}"))
+    item = _create_proposal_record(ProposalCreate(proposal_description=f"{client_name} Proposal", project_reference=str(number), project_id=project.id if project else None, client_account_id=client_id, client_name=client_name, idempotency_key=f"proposal-source-project:{source_project_identity}", provisional_source_identity=True), request, db, role)
     # The source adapter is synthetic-only in TEST/DEV/Azure pre-production.
     # Mark the Proposal projection accordingly so the shared AI context
     # compiler can prove that the entity and its captured evidence belong to
@@ -491,6 +663,9 @@ def create_proposal_from_source_workspace(
     ):
         item.fixture_classification = "SYNTHETIC_OWNER_TEST"
     manifest = source_manifest(db, number)
+    if manifest.get("completeness_state") != "COMPLETE":
+        db.rollback()
+        raise HTTPException(409, {"code": "SOURCE_SNAPSHOT_INCOMPLETE", "reasons": manifest.get("completeness_reasons", []), "scan_status": manifest.get("scan_status")})
     excluded_paths = {path.strip() for path in (payload.excluded_source_paths if payload else []) if path and path.strip()}
     # Categories are server-owned DocumentVersion metadata.  The legacy
     # request field remains accepted for compatibility but never controls AI
@@ -515,6 +690,22 @@ def create_proposal_from_source_workspace(
         if entry.get("included") and entry.get("document_version_id") and current_versions.get(entry["source_path"]) is not None
     ]
     selected_versions = [version for version in selected_versions if version is not None]
+    staged_versions: list[DocumentVersion] = []
+    if payload and payload.staging_session_id:
+        staging = db.get(ProposalSourceStagingSession, payload.staging_session_id)
+        if staging is None or staging.project_number != str(number) or staging.status != "READY":
+            db.rollback()
+            raise HTTPException(409, "OWNER_SOURCE_STAGING_NOT_READY")
+        staged_rows = db.scalars(select(ProposalSourceStagedFile).where(ProposalSourceStagedFile.session_id == staging.id, ProposalSourceStagedFile.verified == true())).all()
+        staged_versions = [version for row in staged_rows if (version := db.get(DocumentVersion, row.document_version_id)) is not None]
+        if len(staged_versions) != len(staged_rows):
+            db.rollback()
+            raise HTTPException(409, "OWNER_SOURCE_STAGING_READBACK_FAILED")
+        selected_versions.extend(staged_versions)
+        for version, staged in zip(staged_versions, staged_rows):
+            manifest["entries"].append({"source_identity": f"OWNER_STAGING:{staging.id}:{staged.sha256}", "source_path": staged.filename, "document_version_id": version.id, "document_id": version.document_id, "sha256": version.sha256, "filename": staged.filename, "content_type": version.mime_type, "size": version.file_size, "source_version_token": version.id, "source_presence_state": "PRESENT", "currentness_state": "CURRENT", "source_role": "OWNER_SOURCE", "effective_category": staged.logical_category, "category_origin": "OWNER", "included": True, "inclusion_origin": "OWNER", "processing_state": "PENDING", "capture_status": "CAPTURED"})
+        manifest["entries"].sort(key=lambda entry: (entry["source_path"], entry["source_identity"]))
+        manifest["source_manifest_hash"] = hashlib.sha256(json.dumps(manifest["entries"], sort_keys=True, separators=(",", ":")).encode()).hexdigest()
     settings = get_settings()
     # Synthetic TEST/DEV fixtures retain their historical explicit blocker;
     # the managed template fallback is for the live governed bridge only.
@@ -527,7 +718,7 @@ def create_proposal_from_source_workspace(
     # deactivate the existing Proposal link while leaving the immutable
     # captured source and Synology untouched.
     if excluded_paths:
-        for link in db.scalars(select(ProposalSourceLink).where(ProposalSourceLink.proposal_id == item.id, ProposalSourceLink.source_role == "SOURCE_WORKSPACE", ProposalSourceLink.active == True)):  # noqa: E712
+        for link in db.scalars(select(ProposalSourceLink).where(ProposalSourceLink.proposal_id == item.id, ProposalSourceLink.source_role == "SOURCE_WORKSPACE", ProposalSourceLink.active == true())).all():
             linked_version = db.get(DocumentVersion, link.document_version_id)
             if linked_version and (linked_version.metadata_json or {}).get("source_relative_path") in excluded_paths:
                 link.active = False
@@ -537,8 +728,9 @@ def create_proposal_from_source_workspace(
         metadata = version.metadata_json or {}
         relative_path = metadata.get("source_relative_path")
         is_template = bool(metadata.get("template_baseline"))
-        source_type = "PROPOSAL_TEMPLATE" if is_template else "SYNOLOGY_FILE"
-        source_role = "BASELINE_TEMPLATE" if is_template else "SOURCE_WORKSPACE"
+        owner_staged = bool(metadata.get("owner_staged"))
+        source_type = "PROPOSAL_TEMPLATE" if is_template else ("OWNER_SOURCE" if owner_staged else "SYNOLOGY_FILE")
+        source_role = "BASELINE_TEMPLATE" if is_template else ("OWNER_SOURCE" if owner_staged else "SOURCE_WORKSPACE")
         evidence = db.scalar(select(ProposalSourceEvidence).where(ProposalSourceEvidence.proposal_id == item.id, ProposalSourceEvidence.source_type == source_type, ProposalSourceEvidence.content_hash == version.sha256))
         if not evidence:
             logical_category = "BASELINE_TEMPLATE" if is_template else source_category(version)
@@ -561,7 +753,7 @@ def create_proposal_from_source_workspace(
     # change instead of silently reusing an older AI result.
     source_manifest_hash = manifest["source_manifest_hash"]
     effective_categories = {str(entry["source_path"]): entry["effective_category"] for entry in manifest_entries}
-    item.proposal_fields_json = {**(item.proposal_fields_json or {}), "source_workspace": {"logical_root": LOGICAL_ROOT, "project_number": number, "source_set_hash": source_manifest_hash, "source_manifest_hash": source_manifest_hash, "source_manifest_version": manifest.get("source_manifest_version"), "source_manifest": manifest, "captured_count": run["captured_count"], "selected_count": len(selected_versions), "excluded_source_paths": sorted(excluded_paths), "source_categories": effective_categories}}
+    item.proposal_fields_json = {**(item.proposal_fields_json or {}), "source_workspace": {"logical_root": LOGICAL_ROOT, "project_number": number, "source_project_identity": manifest.get("source_project_identity") or source_project_identity, "source_set_hash": source_manifest_hash, "source_manifest_hash": source_manifest_hash, "source_manifest_version": manifest.get("source_manifest_version"), "source_manifest": manifest, "captured_count": run["captured_count"], "selected_count": len(selected_versions), "excluded_source_paths": sorted(excluded_paths), "source_categories": effective_categories}}
     editor = ensure_editor_revision(db, item, selected_versions, source_set_hash=source_manifest_hash, actor="source-create-proposal")
     # Persist the Proposal, manifest, source links and baseline before any
     # external AI call. A provider outage must leave a durable retryable
@@ -588,6 +780,14 @@ def create_proposal_from_source_workspace(
             ai_generation = editor.get("ai_generation")
         except HTTPException as exc:
             detail = exc.detail if isinstance(exc.detail, str) else json.dumps(exc.detail, sort_keys=True)
+            _mark_generation_failed(db, item.id, source_manifest_hash, detail)
+            item.proposal_fields_json = {**(item.proposal_fields_json or {}), "generation_state": "FAILED_RETRYABLE", "generation_error": detail}
+            db.commit()
+            return {"result": "GENERATION_FAILED_RETRYABLE", "proposal_id": item.id, "proposal_reference": item.opportunity_reference, "source_set_hash": source_manifest_hash, "source_manifest_hash": source_manifest_hash, "source_count": len(selected_versions), "excluded_source_count": len(excluded_paths), "capture": run, "generation_state": "FAILED_RETRYABLE", "generation_error": detail, **editor}
+        except Exception:
+            db.rollback()
+            detail = "PROPOSAL_AI_GENERATION_FAILED"
+            _mark_generation_failed(db, item.id, source_manifest_hash, detail)
             item.proposal_fields_json = {**(item.proposal_fields_json or {}), "generation_state": "FAILED_RETRYABLE", "generation_error": detail}
             db.commit()
             return {"result": "GENERATION_FAILED_RETRYABLE", "proposal_id": item.id, "proposal_reference": item.opportunity_reference, "source_set_hash": source_manifest_hash, "source_manifest_hash": source_manifest_hash, "source_count": len(selected_versions), "excluded_source_count": len(excluded_paths), "capture": run, "generation_state": "FAILED_RETRYABLE", "generation_error": detail, **editor}
@@ -617,25 +817,14 @@ def regenerate_proposal_from_sources(
     proposal = db.get(Opportunity, proposal_id)
     if proposal is None:
         raise HTTPException(404, "PROPOSAL_NOT_FOUND")
-    links = db.scalars(select(ProposalSourceLink).where(ProposalSourceLink.proposal_id == proposal.id, ProposalSourceLink.active == True).order_by(ProposalSourceLink.created_at, ProposalSourceLink.id)).all()  # noqa: E712
+    links = db.scalars(select(ProposalSourceLink).where(ProposalSourceLink.proposal_id == proposal.id, ProposalSourceLink.active == true()).order_by(ProposalSourceLink.created_at, ProposalSourceLink.id)).all()
     selected_versions = [version for link in links if (version := db.get(DocumentVersion, link.document_version_id)) is not None]
     if not selected_versions:
         raise HTTPException(422, "PROPOSAL_SOURCE_SET_EMPTY")
-    semantic_sources = []
-    for link in links:
-        version = db.get(DocumentVersion, link.document_version_id)
-        if version is None:
-            continue
-        metadata = version.metadata_json or {}
-        semantic_sources.append({
-            "source_identity": metadata.get("proposal_source_key") or link.id,
-            "source_path": metadata.get("source_relative_path") or version.source_filename,
-            "sha256": version.sha256,
-            "logical_category": metadata.get("logical_category") or "OTHER_UNCLASSIFIED",
-            "included": metadata.get("included_in_proposal", True),
-            "source_role": link.source_role,
-        })
-    source_set_hash = hashlib.sha256(json.dumps(sorted(semantic_sources, key=lambda item: (item["source_path"], item["source_identity"])), sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    manifest = build_effective_proposal_source_manifest(db, proposal)
+    source_set_hash = manifest["source_manifest_hash"]
+    included_ids = {str(entry.get("document_version_id")) for entry in manifest["entries"] if entry.get("included") and entry.get("document_version_id")}
+    selected_versions = [version for version in selected_versions if str(version.id) in included_ids]
     latest = db.scalar(select(ProposalRevision).where(ProposalRevision.proposal_id == proposal.id, ProposalRevision.status == "DRAFT").order_by(ProposalRevision.revision_number.desc()))
     if latest is None:
         editor = ensure_editor_revision(db, proposal, selected_versions, source_set_hash=source_set_hash, actor="source-regenerate-proposal")
@@ -649,9 +838,17 @@ def regenerate_proposal_from_sources(
         try:
             editor = _generate_proposal_revision(request=request, db=db, proposal=proposal, selected_versions=selected_versions, source_set_hash=source_set_hash, seeded_editor=editor, role=role)
         except HTTPException as exc:
+            _mark_generation_failed(db, proposal.id, source_set_hash, str(exc.detail))
             proposal.proposal_fields_json = {**(proposal.proposal_fields_json or {}), "generation_state": "FAILED_RETRYABLE", "generation_error": str(exc.detail)}
             db.commit()
             return {"result": "GENERATION_FAILED_RETRYABLE", "proposal_id": proposal.id, "source_set_hash": source_set_hash, "generation_state": "FAILED_RETRYABLE", "generation_error": str(exc.detail), **editor}
+        except Exception:
+            db.rollback()
+            detail = "PROPOSAL_AI_GENERATION_FAILED"
+            _mark_generation_failed(db, proposal.id, source_set_hash, detail)
+            proposal.proposal_fields_json = {**(proposal.proposal_fields_json or {}), "generation_state": "FAILED_RETRYABLE", "generation_error": detail}
+            db.commit()
+            return {"result": "GENERATION_FAILED_RETRYABLE", "proposal_id": proposal.id, "source_set_hash": source_set_hash, "generation_state": "FAILED_RETRYABLE", "generation_error": detail, **editor}
     proposal.proposal_fields_json = {**(proposal.proposal_fields_json or {}), "generation_state": "READY_FOR_EDIT", "source_set_hash": source_set_hash}
     db.commit()
     return {"result": "REGENERATED", "proposal_id": proposal.id, "source_set_hash": source_set_hash, "source_count": len(selected_versions), **editor}

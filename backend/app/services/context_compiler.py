@@ -26,7 +26,9 @@ from backend.app.models import (
     AssertionStatus,
     CandidateAssertion,
     Contract,
+    ContractAdminEvidence,
     ContractRevision,
+    ContractTemplateSnapshot,
     ContextDependency,
     ContextSnapshot,
     DefinitionEntry,
@@ -524,7 +526,7 @@ class GovernedContextCompiler:
             raise IntelligenceContractError("CONTEXT_CROSS_PROJECT_SOURCE")
         if scope_type in {"CONTRACT", "CONTRACT_REVISION"} and project_id not in {None, request_project_id}:
             raise IntelligenceContractError("CONTEXT_CROSS_PROJECT_SOURCE")
-        if project_id is not None and scope_type not in {"PROJECT", "PROPOSAL"}:
+        if project_id is not None and scope_type not in {"PROJECT", "PROPOSAL", "CONTRACT", "CONTRACT_REVISION"}:
             raise IntelligenceContractError("CONTEXT_NON_PROJECT_SOURCE_SCOPE")
 
     def _require_capability(self, capabilities: set[str], capability: str) -> None:
@@ -768,7 +770,19 @@ class GovernedContextCompiler:
         self._check_project(version.document.project_id, request)
         if request.scope_type.upper() in {"CONTRACT", "CONTRACT_REVISION"}:
             metadata = version.metadata_json if isinstance(version.metadata_json, dict) else {}
-            if metadata.get("contract_id") != request.scope_id:
+            contract = self.db.get(Contract, request.scope_id)
+            current_revision_id = contract.current_revision_id if contract else None
+            linked_template = self.db.scalar(select(ContractTemplateSnapshot.id).where(
+                ContractTemplateSnapshot.contract_id == request.scope_id,
+                ContractTemplateSnapshot.contract_revision_id == current_revision_id,
+                ContractTemplateSnapshot.document_version_id == version.id,
+            ))
+            linked_evidence = self.db.scalar(select(ContractAdminEvidence.id).where(
+                ContractAdminEvidence.contract_id == request.scope_id,
+                ContractAdminEvidence.contract_revision_id == current_revision_id,
+                ContractAdminEvidence.document_version_id == version.id,
+            ))
+            if metadata.get("contract_id") != request.scope_id and not (linked_template or linked_evidence):
                 raise IntelligenceContractError("CONTEXT_CONTRACT_SOURCE_SCOPE_MISMATCH")
         synthetic = self._synthetic_version(version)
         metadata = version.metadata_json if isinstance(version.metadata_json, dict) else {}

@@ -47,6 +47,7 @@ export function ProposalSourceWorkspace({ role = "OWNER_SPONSOR", onBack, onOpen
   const [loading, setLoading] = useState(false);
   const [createdProposal, setCreatedProposal] = useState("");
   const [pendingSources, setPendingSources] = useState<PendingSource[]>([]);
+  const [stagingSessionId, setStagingSessionId] = useState("");
   const [savingInclusion, setSavingInclusion] = useState<Record<string, boolean>>({});
   const [manifest, setManifest] = useState<Manifest>({});
   const [sourceCategory, setSourceCategory] = useState<CategoryKey>("OTHER_UNCLASSIFIED");
@@ -76,25 +77,23 @@ export function ProposalSourceWorkspace({ role = "OWNER_SPONSOR", onBack, onOpen
   const createProposal = async () => {
     setError(""); setCreatedProposal("");
     try {
-      const data = await api<{ proposal_id?: string; proposal_reference?: string; editor_ready?: boolean; editor_revision_id?: string; source_count?: number }>("/api/proposals/sources/2026/projects/" + selected + "/create-proposal", { method: "POST", headers: roleHeaders(role), body: JSON.stringify({ defer_generation: pendingSources.length > 0 }) });
+      let durableStagingSessionId = stagingSessionId;
+      if (pendingSources.length && !durableStagingSessionId) {
+        const stagingBody = new FormData();
+        pendingSources.forEach((pending) => stagingBody.append("files", pending.file));
+        stagingBody.append("logical_categories", JSON.stringify(pendingSources.map((pending) => pending.category)));
+        const staged = await api<{ staging_session_id: string }>("/api/proposals/sources/2026/projects/" + selected + "/staging", { method: "POST", headers: roleHeaders(role), body: stagingBody });
+        durableStagingSessionId = staged.staging_session_id;
+        setStagingSessionId(durableStagingSessionId);
+      }
+      const data = await api<{ proposal_id?: string; proposal_reference?: string; editor_ready?: boolean; editor_revision_id?: string; source_count?: number }>("/api/proposals/sources/2026/projects/" + selected + "/create-proposal", { method: "POST", headers: roleHeaders(role), body: JSON.stringify({ defer_generation: false, staging_session_id: durableStagingSessionId || undefined }) });
       let editorReady = data.editor_ready;
       let editorRevisionId = data.editor_revision_id;
       if (data.proposal_id) {
-        if (pendingSources.length) {
-          const body = new FormData();
-          pendingSources.forEach((pending) => body.append("files", pending.file));
-          body.append("source_types", JSON.stringify(pendingSources.map((pending) => CATEGORY_DEFS.find((item) => item.key === pending.category)?.sourceType || "TENDER_DOCUMENT")));
-          body.append("logical_categories", JSON.stringify(pendingSources.map((pending) => pending.category)));
-          await api("/api/bd/proposals/" + data.proposal_id + "/sources/batch", { method: "POST", headers: roleHeaders(role), body });
-        }
         // Owner-added sources are linked after the JSON promotion request. A
         // single explicit regeneration makes those files part of the exact AI
         // context before the editor opens.
-        if (pendingSources.length) {
-          const regenerated = await api<{ editor_ready?: boolean; editor_revision_id?: string }>("/api/proposals/sources/proposals/" + data.proposal_id + "/regenerate", { method: "POST", headers: roleHeaders(role) });
-          editorReady = regenerated.editor_ready;
-          editorRevisionId = regenerated.editor_revision_id;
-        }
+        setStagingSessionId("");
       }
       setPendingSources([]); setCreatedProposal(data.proposal_reference || data.proposal_id || "created"); setMessage("Proposal created from " + (data.source_count || 0) + " included Synology source files" + (pendingSources.length ? " and " + pendingSources.length + " Owner source(s)." : "."));
       if (editorReady && data.proposal_id && editorRevisionId && onOpenEditor) onOpenEditor(data.proposal_id, editorRevisionId, selected);

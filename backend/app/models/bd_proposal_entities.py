@@ -87,6 +87,23 @@ class ProposalSourceLink(Base, TimestampMixin):
     note: Mapped[str | None] = mapped_column(Text)
 
 
+class ProposalSourceDecision(Base, TimestampMixin):
+    """Mutable Owner interpretation kept separate from immutable evidence."""
+
+    __tablename__ = "proposal_source_decisions"
+    __table_args__ = (UniqueConstraint("source_project_identity", "logical_source_identity", name="uq_proposal_source_decision_identity"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    source_project_identity: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
+    logical_source_identity: Mapped[str] = mapped_column(String(700), nullable=False, index=True)
+    logical_category: Mapped[str | None] = mapped_column(String(60))
+    category_origin: Mapped[str] = mapped_column(String(30), nullable=False, default="AUTO")
+    included_in_proposal: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    inclusion_origin: Mapped[str] = mapped_column(String(30), nullable=False, default="DEFAULT")
+    decision_version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    updated_by: Mapped[str | None] = mapped_column(String(200))
+
+
 class ProposalServiceScopeItem(Base, TimestampMixin):
     __tablename__ = "proposal_service_scope_items"
     __table_args__ = (Index("ix_proposal_service_scope_proposal_order", "proposal_id", "sort_order"),)
@@ -276,6 +293,53 @@ class ProposalRevision(Base):
     content_hash: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
     created_by: Mapped[str] = mapped_column(String(200), nullable=False)
     superseded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class ProposalGenerationAttempt(Base, TimestampMixin):
+    """Durable idempotency/concurrency record for one manifest generation."""
+
+    __tablename__ = "proposal_generation_attempts"
+    __table_args__ = (UniqueConstraint("proposal_id", "manifest_hash", "generation_kind", name="uq_proposal_generation_identity"), Index("ix_proposal_generation_status", "proposal_id", "status"))
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    proposal_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id"), nullable=False, index=True)
+    manifest_hash: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    generation_kind: Mapped[str] = mapped_column(String(80), nullable=False, default="DOCUMENT_CHANGE_PLAN")
+    attempt_number: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    status: Mapped[str] = mapped_column(String(30), nullable=False, default="PENDING", index=True)
+    provider_execution_id: Mapped[str | None] = mapped_column(String(200))
+    failure_code: Mapped[str | None] = mapped_column(String(160))
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_by: Mapped[str] = mapped_column(String(200), nullable=False)
+
+
+class ProposalSourceStagingSession(Base, TimestampMixin):
+    """Server-owned Owner source staging before Proposal promotion."""
+
+    __tablename__ = "proposal_source_staging_sessions"
+    __table_args__ = (UniqueConstraint("source_project_identity", "session_key", name="uq_proposal_source_staging_identity"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    session_key: Mapped[str] = mapped_column(String(160), nullable=False)
+    source_project_identity: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
+    project_number: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
+    status: Mapped[str] = mapped_column(String(30), nullable=False, default="READY", index=True)
+    created_by: Mapped[str] = mapped_column(String(200), nullable=False)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class ProposalSourceStagedFile(Base, TimestampMixin):
+    __tablename__ = "proposal_source_staged_files"
+    __table_args__ = (UniqueConstraint("session_id", "sha256", name="uq_proposal_source_staged_file_hash"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
+    session_id: Mapped[str] = mapped_column(ForeignKey("proposal_source_staging_sessions.id", ondelete="CASCADE"), nullable=False, index=True)
+    document_version_id: Mapped[str] = mapped_column(ForeignKey("document_versions.id"), nullable=False, index=True)
+    filename: Mapped[str] = mapped_column(String(300), nullable=False)
+    sha256: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    logical_category: Mapped[str] = mapped_column(String(60), nullable=False)
+    verified: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 
 
 class ProposalClientResponse(Base):
