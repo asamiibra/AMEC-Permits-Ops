@@ -180,6 +180,26 @@ def test_source_routes_require_authenticated_owner(client):
     assert client.post("/api/proposals/sources/2026/projects/520/create-proposal", headers={"X-Dev-Role": "SYSTEM_ADMIN"}).status_code == 200
 
 
+def test_workspace_sync_is_scoped_to_selected_project(client, monkeypatch):
+    from backend.app.api import proposal_source_routers
+    discovered = [
+        {"number": 454, "name": "454 - Al Watan Center"},
+        {"number": 520, "name": "520 - Romana Hypermarket"},
+    ]
+    monkeypatch.setattr(proposal_source_routers, "projects", lambda db: discovered)
+    monkeypatch.setattr(proposal_source_routers, "capture", lambda db, number, actor: {"project_number": number, "captured_count": 0, "unchanged_count": 1})
+    monkeypatch.setattr(proposal_source_routers, "source_manifest", lambda db, number: {"source_manifest_hash": f"hash-{number}", "source_project_identity": f"identity-{number}"})
+    monkeypatch.setattr(proposal_source_routers, "_mark_bound_proposals_stale", lambda *args, **kwargs: None)
+    response = client.post(
+        "/api/proposals/sources/2026/sync?project=520",
+        headers={"X-Dev-Role": "SYSTEM_ADMIN"},
+    )
+    assert response.status_code == 200, response.text
+    payload = response.json()
+    assert [run["project_number"] for run in payload["runs"]] == [520]
+    assert payload["synology_write_count"] == 0
+
+
 def test_fixture_discovers_pilot_and_520_draft_only():
     rows = projects()
     assert {row["number"] for row in rows} >= {454, 520}

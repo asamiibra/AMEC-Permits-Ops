@@ -317,6 +317,20 @@ def save_source_category(version: DocumentVersion, category: str, *, actor: str,
         decision.category_origin = "OWNER"
         decision.updated_by = actor
         decision.decision_version = int(decision.decision_version or 0) + 1
+        # Keep the canonical DocumentVersion projection in step with the
+        # decision ledger.  Context compilation resolves DocumentVersion
+        # metadata server-side, so an Owner category must flow into Proposal
+        # AI without relying on a browser dropdown or a filename heuristic.
+        history = list(prior.get("logical_category_history") or [])
+        previous = source_category(version)
+        if previous != category or prior.get("logical_category_source") != "OWNER_OVERRIDE":
+            history.append({"from": previous, "to": category, "actor": actor})
+        version.metadata_json = {
+            **prior,
+            "logical_category": category,
+            "logical_category_source": "OWNER_OVERRIDE",
+            "logical_category_history": history[-25:],
+        }
         return {"logical_category": category, "logical_category_source": "OWNER_OVERRIDE", "decision_id": decision.id}
     previous = source_category(version)
     history = list(prior.get("logical_category_history") or [])
@@ -345,6 +359,7 @@ def save_source_inclusion(version: DocumentVersion, included: bool, *, actor: st
         decision.inclusion_origin = "OWNER"
         decision.updated_by = actor
         decision.decision_version = int(decision.decision_version or 0) + 1
+        version.metadata_json = {**prior, "included_in_proposal": bool(included), "inclusion_origin": "OWNER"}
         return {"included_in_proposal": bool(included), "inclusion_origin": "OWNER", "decision_id": decision.id}
     return_value = {
         **prior,

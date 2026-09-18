@@ -279,9 +279,9 @@ export default function App() {
             </div>
           </div>
           <div className="top-actions">
-            <span className="env-chip">
-              <span className="dot green" /> SYNTHETIC PROTOTYPE
-            </span>
+            {page !== "opportunities" && <span className="env-chip">
+              <span className="dot green" /> AMEC System
+            </span>}
             {browserAuthMode() === "DEV_HEADER" && (
               <label aria-label="Demo as" className="role-switcher">
                 Demo as
@@ -333,9 +333,9 @@ export default function App() {
           </div>
         </header>
         <div className="content">
-          <div className="synthetic-note compact-environment-badge">
-            SYNTHETIC PROTOTYPE · NO PORTAL WRITES · HUMAN SUBMISSION REQUIRED
-          </div>
+          {page !== "opportunities" && <div className="synthetic-note compact-environment-badge">
+            Synology read-only · Human approval required
+          </div>}
           {page === "home" && <HomePage />}
           {page === "opportunities" && <ProposalRoutes role={moduleRole as ProposalRole} />}
           {page === "contract-mobilization" && <ContractMobilizationFeature />}

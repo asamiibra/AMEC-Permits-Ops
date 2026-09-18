@@ -22,6 +22,16 @@ describe("Proposal V1 editor entry routing", () => {
     expect(window.location.search).toContain("revision=r-1");
   });
 
+  it("resolves a direct editor link without a revision through the canonical entry", async () => {
+    window.history.pushState({}, "", "/proposals/p-1/editor");
+    mockedApi.mockImplementation(async (path: string) => path.includes("/entry")
+      ? { proposal_id: "p-1", revision_id: "r-direct", generation_state: "READY_FOR_EDIT", editor_mode: "EDIT" }
+      : {});
+    render(<ProposalRoutes role="SYSTEM_ADMIN" />);
+    await waitFor(() => expect(window.location.pathname).toBe("/proposals/p-1/editor"));
+    expect(window.location.search).toContain("revision=r-direct");
+  });
+
   it("keeps a failed V1 generation on the recovery surface", async () => {
     mockedApi.mockImplementation(async (path: string) => path.includes("/entry")
       ? { proposal_id: "p-1", revision_id: null, generation_state: "FAILED_RETRYABLE", editor_mode: "RECOVERY", retry_allowed: true, blocker: "PROPOSAL_AI_GENERATION_FAILED" }

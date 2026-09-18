@@ -159,9 +159,28 @@ def _proposal_sources(db: Session, context: ProposalContext) -> list[dict[str, A
         ProposalSourceLink.active == true(),
     ).order_by(ProposalSourceLink.created_at, ProposalSourceLink.id)).all()
     accepted_only = context.skill.manifest.skill_id in ACCEPTED_REVISION_SKILLS
+    included_source_ids: set[str] | None = None
+    # Proposal V1 source curation is persisted in the source manifest.  Use
+    # that server-owned projection when selecting AI context so an Owner's
+    # include/exclude decision survives refreshes and cannot be overridden by
+    # a stale active link or browser state.
+    try:
+        from .proposal_source_workspace import build_effective_proposal_source_manifest
+        workspace = (context.proposal.proposal_fields_json or {}).get("source_workspace") or {}
+        if workspace.get("source_project_identity"):
+            effective = build_effective_proposal_source_manifest(db, context.proposal, include_excluded=True)
+            included_source_ids = {
+                str(item.get("document_version_id"))
+                for item in effective.get("entries", [])
+                if item.get("included") and item.get("document_version_id")
+            }
+    except (KeyError, TypeError, ValueError):
+        included_source_ids = None
     for index, link in enumerate(links, 1):
         role = link.source_role.upper()
         if accepted_only and role not in {"LPO_PO", "CLIENT_ACCEPTANCE", "CLIENT_RESPONSE", "DISTRIBUTION", "TENDER_DOCUMENT"}:
+            continue
+        if included_source_ids is not None and str(link.document_version_id) not in included_source_ids:
             continue
         sources.append({
             "key": f"proposal-source-{index}",

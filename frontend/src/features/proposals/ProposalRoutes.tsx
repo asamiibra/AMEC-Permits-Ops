@@ -41,7 +41,9 @@ export function ProposalRoutes({ role }: { role: ProposalRole }) {
   if (path === "/proposals/new") return <NewProposalPage role={role} onBack={() => navigate("/proposals")} onCreated={(id) => navigate(`/proposals/${id}`)} />;
   if (path === "/proposals/sources") return <ProposalSourceWorkspace role={role} onBack={() => navigate("/proposals")} onOpenEditor={(proposalId, revisionId, projectNumber) => navigate(`/proposals/${proposalId}/editor?revision=${encodeURIComponent(revisionId)}&project=${encodeURIComponent(String(projectNumber))}`)} onOpenProposal={(proposalId) => navigate(`/proposals/${proposalId}`)} />;
   if (editorMatch) {
-    return <ProposalDocumentEditor role={role} proposalId={editorMatch[1]} revisionId={new URLSearchParams(window.location.search).get("revision") || undefined} onBack={() => navigate("/proposals")} />;
+    const revisionId = new URLSearchParams(window.location.search).get("revision");
+    if (!revisionId) return <ProposalEditorEntryRedirect role={role} proposalId={editorMatch[1]} navigate={navigate} />;
+    return <ProposalDocumentEditor role={role} proposalId={editorMatch[1]} revisionId={revisionId} onBack={() => navigate("/proposals")} />;
   }
   if (match) return <ProposalEditorEntryRedirect role={role} proposalId={match[1]} navigate={navigate} />;
   return <ProposalRegisterPage role={role} onOpen={(id) => navigate(`/proposals/${id}`)} onNew={() => navigate("/proposals/sources")} onOpenDraft={(number) => navigate(`/proposals/sources?project=${number}`)} />;

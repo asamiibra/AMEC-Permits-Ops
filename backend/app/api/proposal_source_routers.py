@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
-from fastapi import APIRouter, Body, Depends, File, Form, HTTPException, Request, UploadFile
+from fastapi import APIRouter, Body, Depends, File, Form, HTTPException, Query, Request, UploadFile
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import select, true
@@ -319,9 +319,18 @@ def source_download(number: int, file_id: str, _: Role = Depends(source_role), d
 
 
 @router.post("/2026/sync")
-def sync_sources(_: Role = Depends(sync_role), db: Session = Depends(get_db)):
+def sync_sources(project: int | None = Query(default=None, ge=1), _: Role = Depends(sync_role), db: Session = Depends(get_db)):
+    """Reconcile one selected source project, or all projects for admin sync.
+
+    The workspace always supplies ``project``.  Omitting it preserves the
+    existing admin/global operation for scheduled or operational callers.
+    """
     try:
         discovered = projects(db)
+        if project is not None:
+            discovered = [row for row in discovered if row["number"] == project]
+            if not discovered:
+                raise HTTPException(404, "SOURCE_PROJECT_NOT_FOUND")
         runs = [capture(db, row["number"], actor="source-sync") for row in discovered]
         for row in discovered:
             current_manifest = source_manifest(db, row["number"])
