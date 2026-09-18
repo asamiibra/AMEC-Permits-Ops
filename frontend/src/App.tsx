@@ -72,23 +72,6 @@ export default function App() {
   ));
 
   useEffect(() => {
-    document.documentElement.lang = "en";
-    document.documentElement.dir = "ltr";
-    document.body.dir = "ltr";
-    try {
-      [
-        "permitops.locale",
-        "permitops-locale",
-        "permitops-language",
-        "language",
-        "locale",
-      ].forEach((key) => window.localStorage.removeItem(key));
-    } catch {
-      // The application remains English/LTR when browser storage is unavailable.
-    }
-  }, []);
-
-  useEffect(() => {
     if (!accountMenuOpen && !mobileNavOpen) return;
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
@@ -199,6 +182,8 @@ export default function App() {
   return (
     <div
       className="app-shell"
+      lang="en"
+      dir="ltr"
       data-g9-authenticated={authSession?.authenticated ? "true" : "false"}
       data-g9-auth-tenant={authSession?.identity.tenant_id || ""}
       data-g9-auth-object-id={authSession?.identity.object_id || ""}
@@ -279,9 +264,9 @@ export default function App() {
             </div>
           </div>
           <div className="top-actions">
-            <span className="env-chip">
-              <span className="dot green" /> SYNTHETIC PROTOTYPE
-            </span>
+            {page !== "opportunities" && <span className="env-chip">
+              <span className="dot green" /> AMEC System
+            </span>}
             {browserAuthMode() === "DEV_HEADER" && (
               <label aria-label="Demo as" className="role-switcher">
                 Demo as
@@ -333,9 +318,9 @@ export default function App() {
           </div>
         </header>
         <div className="content">
-          <div className="synthetic-note compact-environment-badge">
-            SYNTHETIC PROTOTYPE · NO PORTAL WRITES · HUMAN SUBMISSION REQUIRED
-          </div>
+          {page !== "opportunities" && <div className="synthetic-note compact-environment-badge">
+            Synology read-only · Human approval required
+          </div>}
           {page === "home" && <HomePage />}
           {page === "opportunities" && <ProposalRoutes role={moduleRole as ProposalRole} />}
           {page === "contract-mobilization" && <ContractMobilizationFeature />}

@@ -9,7 +9,7 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
-from sqlalchemy import select, true
+from sqlalchemy import or_, select, true
 from sqlalchemy.orm import Session
 
 from ..models import Document, DocumentType, DocumentVersion, DocumentApprovalState, Opportunity, ProposalRevision, ProposalSourceDecision, ProposalSourceLink, Project
@@ -146,6 +146,82 @@ def _decision_for(
     return next((row for key, row in decisions.items() if str(key).endswith(suffix)), None)
 
 
+def canonical_source_decisions(
+    db: Session,
+    *,
+    source_project_identity: str | None,
+    versions: list[DocumentVersion] | tuple[DocumentVersion, ...] = (),
+) -> dict[str, ProposalSourceDecision]:
+    """Resolve Owner decisions across current and legacy source identities.
+
+    Source decisions have historically been keyed by either the canonical
+    project identity, the identity persisted on a DocumentVersion, or the
+    relative source path/proposal_source_key.  Every Proposal V1 surface uses
+    this one resolver so a decision cannot disappear when a Proposal is
+    promoted or regenerated.
+    """
+    candidates = {str(source_project_identity)} if source_project_identity else set()
+    for version in versions:
+        metadata = version.metadata_json if isinstance(version.metadata_json, dict) else {}
+        if metadata.get("source_project_identity"):
+            candidates.add(str(metadata["source_project_identity"]))
+    if not candidates:
+        return {}
+    rows = db.scalars(
+        select(ProposalSourceDecision)
+        .where(ProposalSourceDecision.source_project_identity.in_(candidates))
+        .order_by(ProposalSourceDecision.updated_at.desc(), ProposalSourceDecision.decision_version.desc(), ProposalSourceDecision.id.desc())
+    ).all()
+    # A source can have both a legacy and canonical project identity after a
+    # bridge promotion.  The newest Owner decision is the authoritative one;
+    # this keeps the resolver deterministic while allowing old records to be
+    # read without migration or duplicate fallback code.
+    decisions: dict[str, ProposalSourceDecision] = {}
+    for row in rows:
+        decisions.setdefault(str(row.logical_source_identity), row)
+    return decisions
+
+
+def source_decision_for_version(
+    db: Session,
+    *,
+    source_project_identity: str | None,
+    version: DocumentVersion,
+    path: str | None = None,
+) -> ProposalSourceDecision | None:
+    """Resolve the one Owner decision for a version across identity aliases."""
+    metadata = version.metadata_json if isinstance(version.metadata_json, dict) else {}
+    logical_identity = str(path or metadata.get("proposal_source_key") or metadata.get("source_relative_path") or version.id)
+    decision = _decision_for(
+        canonical_source_decisions(db, source_project_identity=source_project_identity, versions=(version,)),
+        version,
+        logical_identity,
+    )
+    if decision is not None:
+        return decision
+    # Last-resort legacy lookup: older captures may not have persisted the
+    # project identity on the version, while their decision key still carries
+    # the canonical relative path or proposal_source_key. Keep this fallback
+    # here so every caller shares exactly the same identity semantics.
+    aliases = {
+        str(value)
+        for value in (metadata.get("proposal_source_key"), metadata.get("source_relative_path"), logical_identity)
+        if value
+    }
+    predicates = [ProposalSourceDecision.logical_source_identity.in_(aliases)] if aliases else []
+    path_value = str(metadata.get("source_relative_path") or path or "")
+    if path_value:
+        predicates.append(ProposalSourceDecision.logical_source_identity.like(f"%:{path_value}"))
+    if not predicates:
+        return None
+    rows = db.scalars(
+        select(ProposalSourceDecision)
+        .where(or_(*predicates))
+        .order_by(ProposalSourceDecision.updated_at.desc(), ProposalSourceDecision.decision_version.desc(), ProposalSourceDecision.id.desc())
+    ).all()
+    return rows[0] if rows else None
+
+
 def current_source_versions(db: Session, number: int) -> dict[str, DocumentVersion]:
     """Return exactly one present, non-superseded version per source path."""
     rows = db.scalars(
@@ -174,13 +250,7 @@ def source_manifest(db: Session, number: int, *, include_excluded: bool = True) 
     identity = (scan.source_project_identity if scan is not None else None) or canonical_source_project_identity(number=number, folder_name=project.folder_name)
     decisions: dict[str, ProposalSourceDecision] = {}
     if db is not None:
-        identity_candidates = {identity}
-        identity_candidates.update(
-            str((version.metadata_json or {}).get("source_project_identity"))
-            for version in current.values()
-            if isinstance(version.metadata_json, dict) and version.metadata_json.get("source_project_identity")
-        )
-        decisions = {row.logical_source_identity: row for row in db.scalars(select(ProposalSourceDecision).where(ProposalSourceDecision.source_project_identity.in_(identity_candidates))).all()}
+        decisions = canonical_source_decisions(db, source_project_identity=identity, versions=tuple(current.values()))
     historical_by_path: dict[str, DocumentVersion] = {}
     if db is not None:
         for version in db.scalars(select(DocumentVersion).where(DocumentVersion.source_system.in_(("QATAR_SOURCE_INTAKE_BRIDGE", "SYNOLOGY_PROPOSAL_SOURCE"))).order_by(DocumentVersion.ingested_at.desc(), DocumentVersion.version_number.desc())).all():
@@ -235,6 +305,7 @@ def source_manifest(db: Session, number: int, *, include_excluded: bool = True) 
             metadata = version.metadata_json if isinstance(version.metadata_json, dict) else {}
             if path in present_paths:
                 continue
+            decision = _decision_for(decisions, version, path)
             entries.append({
                 "source_identity": metadata.get("proposal_source_key") or f"PROPOSAL_SOURCE:{number}:{path}",
                 "source_path": path, "document_version_id": version.id, "document_id": version.document_id,
@@ -243,10 +314,10 @@ def source_manifest(db: Session, number: int, *, include_excluded: bool = True) 
                 "source_version_token": metadata.get("source_version_token") or metadata.get("source_modified_at"),
                 "source_presence_state": "MISSING_AT_SOURCE", "currentness_state": "MISSING",
                 "source_role": metadata.get("source_role") or "SOURCE_WORKSPACE",
-                "effective_category": source_category(version),
-                "category_origin": "OWNER" if metadata.get("logical_category_source") == "OWNER_OVERRIDE" else "AUTO",
-                "included": source_included(version, _decision_for(decisions, version, path)),
-                "inclusion_origin": "OWNER" if ((_decision_for(decisions, version, path) and _decision_for(decisions, version, path).inclusion_origin == "OWNER") or metadata.get("inclusion_origin") == "OWNER") else "DEFAULT",
+                "effective_category": source_category(version, decision),
+                "category_origin": "OWNER" if ((decision and decision.category_origin == "OWNER") or metadata.get("logical_category_source") == "OWNER_OVERRIDE") else "AUTO",
+                "included": source_included(version, decision),
+                "inclusion_origin": "OWNER" if ((decision and decision.inclusion_origin == "OWNER") or metadata.get("inclusion_origin") == "OWNER") else "DEFAULT",
                 "processing_state": metadata.get("processing_state", "PENDING"),
                 "capture_status": "MISSING_AT_SOURCE", "capture_failure_reason": None,
                 "source_scan_id": scan.scan_id,
@@ -279,8 +350,8 @@ def build_effective_proposal_source_manifest(db: Session, proposal: Opportunity,
         raise ValueError("PROPOSAL_SOURCE_PROJECT_IDENTITY_REQUIRED")
     manifest = source_manifest(db, int(number), include_excluded=include_excluded)
     source_identity = manifest.get("source_project_identity") or workspace.get("source_project_identity")
-    decision_rows = db.scalars(select(ProposalSourceDecision).where(ProposalSourceDecision.source_project_identity == source_identity)).all() if source_identity else []
-    decisions = {row.logical_source_identity: row for row in decision_rows}
+    linked_versions = [version for link in db.scalars(select(ProposalSourceLink).where(ProposalSourceLink.proposal_id == proposal.id, ProposalSourceLink.active == true())).all() if (version := db.get(DocumentVersion, link.document_version_id)) is not None]
+    decisions = canonical_source_decisions(db, source_project_identity=source_identity, versions=tuple(linked_versions))
     known = {str(entry.get("document_version_id")) for entry in manifest["entries"] if entry.get("document_version_id")}
     current_paths = {str(entry.get("source_path")): str(entry.get("document_version_id")) for entry in manifest["entries"] if entry.get("source_path") and entry.get("document_version_id")}
     for link in db.scalars(select(ProposalSourceLink).where(ProposalSourceLink.proposal_id == proposal.id, ProposalSourceLink.active == true())).all():
@@ -309,7 +380,7 @@ def save_source_category(version: DocumentVersion, category: str, *, actor: str,
     if db is not None:
         logical_identity = str(prior.get("proposal_source_key") or prior.get("source_relative_path") or version.id)
         identity = source_project_identity or str(prior.get("source_project_identity") or "UNKNOWN")
-        decision = db.scalar(select(ProposalSourceDecision).where(ProposalSourceDecision.source_project_identity == identity, ProposalSourceDecision.logical_source_identity == logical_identity))
+        decision = source_decision_for_version(db, source_project_identity=identity, version=version, path=logical_identity)
         if decision is None:
             decision = ProposalSourceDecision(source_project_identity=identity, logical_source_identity=logical_identity)
             db.add(decision)
@@ -317,6 +388,20 @@ def save_source_category(version: DocumentVersion, category: str, *, actor: str,
         decision.category_origin = "OWNER"
         decision.updated_by = actor
         decision.decision_version = int(decision.decision_version or 0) + 1
+        # Keep the canonical DocumentVersion projection in step with the
+        # decision ledger.  Context compilation resolves DocumentVersion
+        # metadata server-side, so an Owner category must flow into Proposal
+        # AI without relying on a browser dropdown or a filename heuristic.
+        history = list(prior.get("logical_category_history") or [])
+        previous = source_category(version)
+        if previous != category or prior.get("logical_category_source") != "OWNER_OVERRIDE":
+            history.append({"from": previous, "to": category, "actor": actor})
+        version.metadata_json = {
+            **prior,
+            "logical_category": category,
+            "logical_category_source": "OWNER_OVERRIDE",
+            "logical_category_history": history[-25:],
+        }
         return {"logical_category": category, "logical_category_source": "OWNER_OVERRIDE", "decision_id": decision.id}
     previous = source_category(version)
     history = list(prior.get("logical_category_history") or [])
@@ -337,7 +422,7 @@ def save_source_inclusion(version: DocumentVersion, included: bool, *, actor: st
     if db is not None:
         logical_identity = str(prior.get("proposal_source_key") or prior.get("source_relative_path") or version.id)
         identity = source_project_identity or str(prior.get("source_project_identity") or "UNKNOWN")
-        decision = db.scalar(select(ProposalSourceDecision).where(ProposalSourceDecision.source_project_identity == identity, ProposalSourceDecision.logical_source_identity == logical_identity))
+        decision = source_decision_for_version(db, source_project_identity=identity, version=version, path=logical_identity)
         if decision is None:
             decision = ProposalSourceDecision(source_project_identity=identity, logical_source_identity=logical_identity)
             db.add(decision)
@@ -345,6 +430,7 @@ def save_source_inclusion(version: DocumentVersion, included: bool, *, actor: st
         decision.inclusion_origin = "OWNER"
         decision.updated_by = actor
         decision.decision_version = int(decision.decision_version or 0) + 1
+        version.metadata_json = {**prior, "included_in_proposal": bool(included), "inclusion_origin": "OWNER"}
         return {"included_in_proposal": bool(included), "inclusion_origin": "OWNER", "decision_id": decision.id}
     return_value = {
         **prior,

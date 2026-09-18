@@ -18,19 +18,20 @@ beforeEach(() => {
   }));
 });
 
-describe("operating-guide-only language boundary", () => {
-  it("ignores stale global locale state and keeps the operational shell English/LTR", async () => {
+describe("application shell and business-content language boundary", () => {
+  it("keeps the operational shell English/LTR without deleting business locale state", async () => {
     localStorage.setItem("permitops.locale", "ar-EG");
     render(<App />);
     await waitFor(() => expect(screen.getByRole("heading", { name: "Keep work moving from source to cash." })).toBeVisible());
     expect(document.documentElement.lang).toBe("en");
     expect(document.documentElement.dir).toBe("ltr");
     expect(document.querySelector(".global-language-switch")).toBeNull();
-    expect(localStorage.getItem("permitops.locale")).toBeNull();
-    expect(document.body.textContent).not.toMatch(/[\u0600-\u06FF]/);
+    expect(localStorage.getItem("permitops.locale")).toBe("ar-EG");
+    expect(document.querySelector(".app-shell")).toHaveAttribute("lang", "en");
+    expect(document.querySelector(".app-shell")).toHaveAttribute("dir", "ltr");
   });
 
-  it("allows Arabic only inside the Operating Guide and persists its dedicated preference", () => {
+  it("keeps the Operating Guide's dedicated Arabic mode independent from the Proposal shell", () => {
     const onNavigate = vi.fn();
     render(<AboutPermitOpsPage onNavigate={onNavigate} />);
     fireEvent.click(screen.getByRole("button", { name: "العربي" }));

@@ -35,6 +35,10 @@ describe("Proposal V1 source state", () => {
     await waitFor(() => expect(screen.getByRole("button", { name: "Saved" })).toBeDisabled());
     expect(select.value).toBe("TENDER_DOCUMENTS");
     expect(screen.getByRole("button", { name: /Tender Documents/ })).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: /Email/ }));
+    expect(screen.getByText("No sources in this category.")).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: /Tender Documents/ }));
+    expect(screen.getByText("request.docx")).toBeVisible();
     expect(mockedApi.mock.calls.find(([path]) => String(path).endsWith("/category"))?.[1]).toMatchObject({ method: "PATCH" });
     expect(mockedApi.mock.calls.filter(([path]) => String(path).endsWith("/category")).length).toBe(1);
   });

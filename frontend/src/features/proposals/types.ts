@@ -37,6 +37,7 @@ export interface ProposalRegisterRow {
   owner_lane: JsonRecord;
   contract_eligible: boolean;
   validation: JsonRecord;
+  proposal_v1?: boolean;
 }
 
 export interface ProposalRegisterResponse {

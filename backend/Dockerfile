@@ -33,6 +33,9 @@ RUN set -eux; \
     apt-get install -y --no-install-recommends \
       ca-certificates \
       curl \
+      fontconfig \
+      fonts-noto-core \
+      libreoffice-writer \
       unixodbc \
       unixodbc-dev \
       libgssapi-krb5-2; \
@@ -48,6 +51,9 @@ RUN set -eux; \
     apt-get update; \
     ACCEPT_EULA=Y apt-get install -y --no-install-recommends msodbcsql18; \
     odbcinst -q -d | grep -F 'ODBC Driver 18 for SQL Server'; \
+    command -v soffice; \
+    fc-cache -f; \
+    fc-match -f '%{family}\n' 'Noto Sans Arabic' | grep -qi 'Noto'; \
     dpkg-query -W -f='${Package}=${Version}\n' packages-microsoft-prod msodbcsql18; \
     rm -rf /var/lib/apt/lists/*; \
     python -m pip install --no-cache-dir --require-hashes -r /tmp/requirements-runtime.lock; \

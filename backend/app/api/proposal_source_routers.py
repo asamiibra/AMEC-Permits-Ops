@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
-from fastapi import APIRouter, Body, Depends, File, Form, HTTPException, Request, UploadFile
+from fastapi import APIRouter, Body, Depends, File, Form, HTTPException, Query, Request, UploadFile
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import select, true
@@ -319,9 +319,18 @@ def source_download(number: int, file_id: str, _: Role = Depends(source_role), d
 
 
 @router.post("/2026/sync")
-def sync_sources(_: Role = Depends(sync_role), db: Session = Depends(get_db)):
+def sync_sources(project: int | None = Query(default=None, ge=1), _: Role = Depends(sync_role), db: Session = Depends(get_db)):
+    """Reconcile one selected source project, or all projects for admin sync.
+
+    The workspace always supplies ``project``.  Omitting it preserves the
+    existing admin/global operation for scheduled or operational callers.
+    """
     try:
         discovered = projects(db)
+        if project is not None:
+            discovered = [row for row in discovered if row["number"] == project]
+            if not discovered:
+                raise HTTPException(404, "SOURCE_PROJECT_NOT_FOUND")
         runs = [capture(db, row["number"], actor="source-sync") for row in discovered]
         for row in discovered:
             current_manifest = source_manifest(db, row["number"])
@@ -353,7 +362,128 @@ def _mark_generation_failed(db: Session, proposal_id: str, manifest_hash: str, d
         attempt.completed_at = datetime.now(timezone.utc)
 
 
-def _validate_generated_docx(proposal: Any, content: bytes, selected_versions: list[DocumentVersion]) -> None:
+def _identity_label(value: Any) -> str:
+    """Normalize a project/client label for deterministic identity checks."""
+    normalized = re.sub(r"^\s*\d{1,9}\s*[-–—:]\s*", "", str(value or "").strip())
+    return re.sub(r"\s+", " ", normalized).strip().casefold()
+
+
+def _proposal_baseline_identity(db: Session, proposal: Any, selected_versions: list[DocumentVersion]) -> dict[str, str | None]:
+    """Derive the expected identity from the Proposal and its source set.
+
+    Source filenames are evidence only.  They are useful for discovering the
+    Synology folder label when the synthetic source adapter has no canonical
+    Project row, but the Proposal reference/project row remains authoritative
+    whenever one is present.
+    """
+    workspace = (getattr(proposal, "proposal_fields_json", None) or {}).get("source_workspace") or {}
+    project_number = str(
+        getattr(proposal, "canonical_project_reference", None)
+        or getattr(proposal, "provisional_reference", None)
+        or workspace.get("project_number")
+        or ""
+    ).strip() or None
+    project_name: str | None = None
+    client_name: str | None = None
+    client_is_synthetic = False
+    project_id = getattr(proposal, "project_id", None)
+    if project_id:
+        project = db.get(Project, project_id)
+        if project is not None:
+            project_name = _identity_label(project.project_name) or None
+    client_id = getattr(proposal, "client_account_id", None)
+    if client_id:
+        client = db.get(ClientAccount, client_id)
+        if client is not None:
+            client_name = _identity_label(client.display_name or client.legal_name) or None
+            client_is_synthetic = str(getattr(client, "data_classification", "")).upper() == "SYNTHETIC"
+
+    # Mounted/bridge source captures retain the exact Synology folder in the
+    # immutable relative path.  Use it only to fill missing labels.
+    folder_name: str | None = None
+    for version in selected_versions:
+        metadata = version.metadata_json if isinstance(version.metadata_json, dict) else {}
+        relative = str(metadata.get("source_relative_path") or "")
+        match = re.match(r"^\s*(\d{1,9})\s*[-–—]\s*(.+?)(?:/|$)", relative)
+        if match and (project_number is None or match.group(1) == project_number):
+            project_number = project_number or match.group(1)
+            folder_name = match.group(2).strip()
+            break
+    folder_identity = _identity_label(folder_name) if folder_name else None
+    if folder_identity and (project_name is None or project_name.startswith("project ")):
+        project_name = folder_identity
+    if folder_identity and (client_name is None or client_is_synthetic):
+        client_name = folder_identity
+    if client_name is None and project_name is not None:
+        # Proposal V1 source promotions may be provisional and have no
+        # canonical ClientAccount yet; the mapped project label is the only
+        # admissible client identity until Owner mapping is recorded.
+        client_name = project_name
+    if project_name is None:
+        title = str(getattr(proposal, "title", "") or "")
+        project_name = _identity_label(re.sub(r"\s+proposal\s*$", "", title, flags=re.IGNORECASE)) or None
+    if client_name is None:
+        title = str(getattr(proposal, "title", "") or "")
+        client_name = _identity_label(re.sub(r"\s+proposal\s*$", "", title, flags=re.IGNORECASE)) or None
+    proposal_reference = None
+    if project_number:
+        proposal_reference = f"AMEC-P-D-2026-Q-{project_number}"
+    if proposal_reference is None:
+        proposal_reference = str(getattr(proposal, "opportunity_reference", "") or "") or None
+    return {
+        "project_number": project_number,
+        "project_name": project_name,
+        "client_name": client_name,
+        "proposal_reference": proposal_reference,
+    }
+
+
+def _docx_text(content: bytes) -> str:
+    model = import_editor_model(content)
+    return "\n".join(str(node.get("text") or "") for node in model.get("nodes", []))
+
+
+def _docx_identity_matches(content: bytes, expected: dict[str, str | None]) -> bool:
+    """Return whether a DOCX body belongs to the expected project."""
+    try:
+        text = _docx_text(content)
+    except (DocumentPackageError, ValueError, TypeError, OSError):
+        return False
+    normalized = re.sub(r"\s+", " ", text).strip().casefold()
+    project_number = expected.get("project_number")
+    if project_number:
+        references = re.findall(r"amec\s*[-_ ]?p\s*[-_ ]?d\s*[-_ ]?\d{4}\s*[-_ ]?q\s*[-_ ]?(\d+)", normalized, flags=re.IGNORECASE)
+        if references and any(str(number) != str(project_number) for number in references):
+            return False
+    for label, expected_value in (("project", expected.get("project_name")), ("client name", expected.get("client_name"))):
+        if not expected_value:
+            continue
+        match = re.search(rf"{re.escape(label)}\s*:\s*([^\n\r]+)", text, flags=re.IGNORECASE)
+        if not match:
+            continue
+        actual = _identity_label(match.group(1))
+        if actual in {"", "to be confirmed by owner", "needs owner review", "tbd", "n/a"}:
+            continue
+        if actual != expected_value and expected_value not in actual and actual not in expected_value:
+            return False
+    return True
+
+
+def _baseline_identity_matches(version: DocumentVersion, expected: dict[str, str | None]) -> bool:
+    """Reject a named Proposal DOCX whose body belongs to another project."""
+    try:
+        content = _captured_bytes(version)
+    except (HTTPException, DocumentPackageError, ValueError, TypeError, OSError):
+        return False
+    # The governed template's Q-454 filename/body is a fixture label, not a
+    # business identity.  Its project-bound placeholders are intentionally
+    # populated by the generation plan for the selected source project.
+    if (version.metadata_json or {}).get("template_baseline"):
+        return True
+    return _docx_identity_matches(content, expected)
+
+
+def _validate_generated_docx(proposal: Any, content: bytes, selected_versions: list[DocumentVersion], *, expected_identity: dict[str, str | None] | None = None) -> None:
     """Deterministic business validation before a revision is editable."""
     try:
         model = import_editor_model(content)
@@ -362,13 +492,8 @@ def _validate_generated_docx(proposal: Any, content: bytes, selected_versions: l
     text = "\n".join(str(node.get("text") or "") for node in model.get("nodes", []))
     if any(token.lower() in text.lower() for token in ("<tbd>", "[tbd]", "sample proposal", "xxx")):
         raise HTTPException(409, "GENERATION_REVIEW_REQUIRED:UNRESOLVED_PLACEHOLDER")
-    proposal_ref = str(getattr(proposal, "opportunity_reference", ""))
-    project_ref = str(getattr(proposal, "canonical_project_reference", "") or getattr(proposal, "provisional_reference", ""))
-    if proposal_ref and any(value and value not in text for value in (proposal_ref, project_ref)):
-        # The baseline may intentionally omit the reference; only reject a
-        # clear cross-project leak from the known pilot template.
-        if "454" in text and project_ref and project_ref != "454":
-            raise HTTPException(409, "FAILED_VALIDATION:SOURCE_PROJECT_MISMATCH")
+    if expected_identity and not _docx_identity_matches(content, expected_identity):
+        raise HTTPException(409, "GENERATION_REVIEW_REQUIRED:STALE_PROJECT_FACTS")
 
 
 def _ensure_baseline_template(db: Session, proposal: Any) -> DocumentVersion:
@@ -441,6 +566,7 @@ def _ensure_baseline_template(db: Session, proposal: Any) -> DocumentVersion:
         metadata={
             "template_baseline": True,
             "sensitivity_class": "INTERNAL",
+            "synthetic_non_business_fixture": True,
             "source_presence_state": "PRESENT",
             "template_name": "AMEC Proposal V1 baseline",
         },
@@ -476,7 +602,8 @@ def _generate_proposal_revision(
     from datetime import datetime, timezone
     generation.started_at = datetime.now(timezone.utc)
     db.commit()
-    baseline = _select_baseline_docx(selected_versions)
+    expected_identity = _proposal_baseline_identity(db, proposal, selected_versions)
+    baseline = _select_baseline_docx(selected_versions, expected_identity=expected_identity)
     if baseline is None:
         raise HTTPException(422, "VALID_DOCX_SOURCE_REQUIRED")
     baseline_bytes = _captured_bytes(baseline)
@@ -510,7 +637,33 @@ def _generate_proposal_revision(
     plan = intelligence.get("output") or {}
     if plan.get("baseline_document_version_id") != baseline.id:
         raise HTTPException(409, "PROPOSAL_AI_BASELINE_MISMATCH")
-    raw_mutations = plan.get("mutations") or []
+    baseline_model = import_editor_model(baseline_bytes)
+    baseline_nodes = {str(node.get("id")): node for node in baseline_model.get("nodes", []) if isinstance(node, dict)}
+    raw_mutations = []
+    for candidate in plan.get("mutations") or []:
+        if not isinstance(candidate, dict):
+            raw_mutations.append(candidate)
+            continue
+        mutation = dict(candidate)
+        node = baseline_nodes.get(str(mutation.get("anchor"))) or {}
+        mutation.setdefault("section", node.get("part") or node.get("block_type") or "Document")
+        mutation.setdefault("before", node.get("text") or "")
+        mutation.setdefault("after", mutation.get("replacement") or "")
+        mutation.setdefault("reason", "Source-grounded Proposal change")
+        raw_mutations.append(mutation)
+    plan["mutations"] = raw_mutations
+    # A first generation with no source-backed document mutation is not a
+    # truthful generated Proposal. Only a later, already verified Proposal may
+    # legitimately produce a deterministic no-change result; a first
+    # generation must stop for Owner review instead of being marked ready with
+    # an unchanged baseline.
+    prior_for_zero = db.get(ProposalRevision, seeded_editor.get("editor_revision_id")) if seeded_editor.get("editor_revision_id") else None
+    prior_for_zero_provenance = (prior_for_zero.snapshot or {}).get("ai_provenance") if prior_for_zero else {}
+    verified_existing_proposal = bool(prior_for_zero_provenance.get("generated_from_ai")) and prior_for_zero_provenance.get("provenance_state") == "RECORDED"
+    if not raw_mutations and not verified_existing_proposal:
+        raise HTTPException(409, "GENERATION_REVIEW_REQUIRED:AI_NO_DOCUMENT_CHANGES")
+    if not raw_mutations:
+        plan["status"] = "NO_AI_CHANGES_REQUIRED"
     available_citations = {
         str((item.get("citation_key") or item.get("locator", {}).get("citation_key") or item.get("locator_json", {}).get("citation_key"))) if isinstance(item, dict) else str(item)
         for item in (intelligence.get("citations") or [])
@@ -531,7 +684,7 @@ def _generate_proposal_revision(
     # the cumulative anchored edits from the prior canonical draft onto the
     # fresh AI output.  If the AI changed document topology and an Owner anchor
     # disappeared, fail closed for review instead of publishing a silent loss.
-    prior = db.get(ProposalRevision, seeded_editor.get("editor_revision_id")) if seeded_editor.get("editor_revision_id") else None
+    prior = prior_for_zero
     prior_snapshot = prior.snapshot if prior and prior.status == "DRAFT" else {}
     owner_mutations_data = prior_snapshot.get("owner_mutations") or []
     owner_mutations_by_anchor = {
@@ -563,7 +716,7 @@ def _generate_proposal_revision(
             raise HTTPException(409, "OWNER_EDIT_REBASE_REQUIRED") from exc
     else:
         generated_bytes = generated_ai_bytes
-    _validate_generated_docx(proposal, generated_bytes, selected_versions)
+    _validate_generated_docx(proposal, generated_bytes, selected_versions, expected_identity=expected_identity)
 
     store = create_binary_store()
     generated_document = Document(
@@ -589,6 +742,9 @@ def _generate_proposal_revision(
         metadata={
             "proposal_id": proposal.id, "source_set_hash": source_set_hash,
             "baseline_document_version_id": baseline.id,
+            "baseline_sha256": baseline.sha256,
+            "baseline_selection_method": "GOVERNED_MASTER_CONTENT_TEMPLATE" if (baseline.metadata_json or {}).get("template_baseline") else "RECOGNIZED_CURRENT_PROJECT_PROPOSAL",
+            "baseline_identity": expected_identity,
             "ai_work_product_id": intelligence.get("work_product_id"),
             "ai_context_snapshot_id": intelligence.get("context_snapshot_id"),
             "evidence_refs": [item.id for item in selected_versions],
@@ -608,9 +764,11 @@ def _generate_proposal_revision(
             for mutation in owner_mutations
         ],
         "owner_edit_base_hash": digest(generated_ai_bytes),
-        "baseline_hash": digest(generated_bytes), "working_hash": digest(generated_bytes),
+        "baseline_hash": digest(baseline_bytes), "working_hash": digest(generated_bytes),
         "source_set_hash": source_set_hash, "source_ids": [item.id for item in selected_versions],
         "editor_baseline_document_version_id": baseline.id,
+        "baseline_selection_method": "GOVERNED_MASTER_CONTENT_TEMPLATE" if (baseline.metadata_json or {}).get("template_baseline") else "RECOGNIZED_CURRENT_PROJECT_PROPOSAL",
+        "baseline_identity": expected_identity,
         "editor_document_id": generated.document.id,
         "editor_document_version_id": generated.version.id,
         "change_plan": plan,
@@ -651,13 +809,21 @@ def _generate_proposal_revision(
     }
 
 
-def _select_baseline_docx(versions: list[DocumentVersion]) -> DocumentVersion:
+def _select_baseline_docx(versions: list[DocumentVersion], *, expected_identity: dict[str, str | None] | None = None) -> DocumentVersion:
     """Select exactly one recognized AMEC Proposal baseline."""
     candidates = [version for version in versions if (version.source_filename or "").lower().endswith(".docx")]
     recognized = [version for version in candidates if _is_recognized_baseline_docx(version)]
-    if len(recognized) == 1:
-        return recognized[0]
-    if len(recognized) > 1:
+    if expected_identity is not None:
+        recognized = [version for version in recognized if _baseline_identity_matches(version, expected_identity)]
+    current_project = [version for version in recognized if not (version.metadata_json or {}).get("template_baseline")]
+    if len(current_project) == 1:
+        return current_project[0]
+    if len(current_project) > 1:
+        raise HTTPException(409, "PROPOSAL_BASELINE_SELECTION_REQUIRED")
+    templates = [version for version in recognized if (version.metadata_json or {}).get("template_baseline")]
+    if len(templates) == 1:
+        return templates[0]
+    if len(templates) > 1:
         raise HTTPException(409, "PROPOSAL_BASELINE_SELECTION_REQUIRED")
     # Generic DOCX files (scope briefs, client letters, project descriptions)
     # remain source evidence and never silently become the baseline.
@@ -702,7 +868,10 @@ def create_proposal_from_source_workspace(
     else:
         client = None
     project_name = (project.project_name if project else f"Project {number}").strip()
-    client_name = _source_client_name(project_name, number) if get_settings().source_intake_mode.upper() == "BRIDGE" else project_name
+    source_folder_name = str((discovered or {}).get("folder_name") or project_name).strip()
+    # The Synology folder is the provisional source label for this promotion;
+    # canonical ClientAccount mapping remains a separate Owner action.
+    client_name = _source_client_name(source_folder_name, number)
     client_id = client.id if client is not None else None
     source_project_identity = canonical_source_project_identity(number=number, folder_name=project_name if project else (discovered or {}).get("folder_name", f"Project {number}"))
     item = _create_proposal_record(ProposalCreate(proposal_description=f"{client_name} Proposal", project_reference=str(number), project_id=project.id if project else None, client_account_id=client_id, client_name=client_name, idempotency_key=f"proposal-source-project:{source_project_identity}", provisional_source_identity=True), request, db, role)
@@ -760,10 +929,16 @@ def create_proposal_from_source_workspace(
             manifest["entries"].append({"source_identity": f"OWNER_STAGING:{staging.id}:{staged.sha256}", "source_path": staged.filename, "document_version_id": version.id, "document_id": version.document_id, "sha256": version.sha256, "filename": staged.filename, "content_type": version.mime_type, "size": version.file_size, "source_version_token": version.id, "source_presence_state": "PRESENT", "currentness_state": "CURRENT", "source_role": "OWNER_SOURCE", "effective_category": staged.logical_category, "category_origin": "OWNER", "included": True, "inclusion_origin": "OWNER", "processing_state": "PENDING", "capture_status": "CAPTURED"})
         manifest["entries"].sort(key=lambda entry: (entry["source_path"], entry["source_identity"]))
         manifest["source_manifest_hash"] = hashlib.sha256(json.dumps(manifest["entries"], sort_keys=True, separators=(",", ":")).encode()).hexdigest()
-    # Only a recognized AMEC Proposal DOCX satisfies the baseline contract.
-    # An unrelated single DOCX must still fall back to the governed Master
-    # Content template instead of producing a false selection blocker.
-    if not any(_is_recognized_baseline_docx(version) for version in selected_versions):
+    # Only a recognized AMEC Proposal DOCX for this exact project satisfies
+    # the baseline contract.  A filename such as Q-454 is not sufficient when
+    # the package body still contains Q-498/client facts.  Such a source stays
+    # evidence, while the governed template becomes the editable baseline.
+    expected_identity = _proposal_baseline_identity(db, item, selected_versions)
+    if not any(
+        _is_recognized_baseline_docx(version)
+        and _baseline_identity_matches(version, expected_identity)
+        for version in selected_versions
+    ):
         selected_versions.append(_ensure_baseline_template(db, item))
     # Promotion is idempotent. If an Owner repeats it after excluding a file,
     # deactivate the existing Proposal link while leaving the immutable
@@ -821,8 +996,11 @@ def create_proposal_from_source_workspace(
     latest_revision = db.get(ProposalRevision, editor.get("editor_revision_id")) if editor.get("editor_revision_id") else None
     latest_provenance = ((latest_revision.snapshot or {}).get("ai_provenance") or {}) if latest_revision else {}
     generated_for_hash = latest_provenance.get("source_set_hash") if latest_provenance.get("generated_from_ai") else None
+    latest_snapshot = (latest_revision.snapshot or {}) if latest_revision else {}
+    latest_baseline = db.get(DocumentVersion, latest_snapshot.get("editor_baseline_document_version_id")) if latest_snapshot.get("editor_baseline_document_version_id") else None
+    baseline_identity_ok = bool(latest_baseline and _baseline_identity_matches(latest_baseline, expected_identity))
     ai_generation = editor.get("ai_generation")
-    if editor.get("editor_ready") and generated_for_hash != source_manifest_hash:
+    if editor.get("editor_ready") and (generated_for_hash != source_manifest_hash or (generated_for_hash == source_manifest_hash and not baseline_identity_ok)):
         try:
             editor = _generate_proposal_revision(
                 request=request, db=db, proposal=item, selected_versions=selected_versions,
@@ -905,7 +1083,7 @@ def regenerate_proposal_from_sources(
             return {"result": "GENERATION_FAILED_RETRYABLE", "proposal_id": proposal.id, "source_set_hash": source_set_hash, "generation_state": "FAILED_RETRYABLE", "generation_error": detail, **editor}
     current_fields = dict(proposal.proposal_fields_json or {})
     current_workspace = dict(current_fields.get("source_workspace") or {})
-    current_workspace.update({"source_set_hash": source_set_hash, "source_manifest_hash": source_set_hash})
+    current_workspace.update({"source_set_hash": source_set_hash, "source_manifest_hash": source_set_hash, "source_manifest": manifest})
     proposal.proposal_fields_json = {**current_fields, "source_workspace": current_workspace, "generation_state": "READY_FOR_EDIT", "source_set_hash": source_set_hash}
     db.commit()
     return {"result": "REGENERATED", "proposal_id": proposal.id, "source_set_hash": source_set_hash, "source_count": len(selected_versions), **editor}

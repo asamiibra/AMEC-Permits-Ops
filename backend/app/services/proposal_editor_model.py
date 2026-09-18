@@ -28,6 +28,8 @@ class EditorNode:
     xml_hash: str
     editable: bool
     block_type: str
+    heading_level: int | None = None
+    heading_style: str | None = None
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -38,6 +40,8 @@ class EditorNode:
             "xml_hash": self.xml_hash,
             "editable": self.editable,
             "block_type": self.block_type,
+            "heading_level": self.heading_level,
+            "heading_style": self.heading_style,
         }
 
 
@@ -71,8 +75,43 @@ def import_editor_model(content: bytes) -> dict[str, Any]:
             xml_hash=block.xml_hash,
             editable=editable,
             block_type=kind,
+            heading_level=block.heading_level,
+            heading_style=block.heading_style,
         ))
     editable_count = sum(node.editable for node in nodes)
+    body_nodes = [node for node in nodes if node.part == "word/document.xml"]
+    sections: list[dict[str, Any]] = []
+    current: dict[str, Any] | None = None
+    section_number = 0
+    leading_nodes: list[str] = []
+    for node in body_nodes:
+        if node.heading_level:
+            if current is not None and current["node_ids"]:
+                sections.append(current)
+            elif current is None and leading_nodes:
+                sections.append({"section_id": "document-body", "title": "Document body", "level": 0, "heading_anchor": None, "node_ids": leading_nodes})
+            section_number += 1
+            current = {
+                "section_id": f"section-{section_number}",
+                "title": node.text.strip() or "Untitled section",
+                "level": node.heading_level,
+                "heading_anchor": node.anchor,
+                "node_ids": [node.node_id],
+            }
+        elif current is not None:
+            current["node_ids"].append(node.node_id)
+        else:
+            leading_nodes.append(node.node_id)
+    if current is not None and current["node_ids"]:
+        sections.append(current)
+    if not sections:
+        sections = [{
+            "section_id": "document-body",
+            "title": "Document body",
+            "level": 0,
+            "heading_anchor": None,
+            "node_ids": [node.node_id for node in body_nodes],
+        }]
     return {
         "version": "PROPOSAL-EDITOR-MODEL-1.0",
         "docx_import_owned_by": "server",
@@ -81,6 +120,7 @@ def import_editor_model(content: bytes) -> dict[str, Any]:
         "editable_node_count": editable_count,
         "read_only_node_count": len(nodes) - editable_count,
         "read_only_block_types": sorted({node.block_type for node in nodes if not node.editable}),
+        "sections": sections,
         "export_path": "ORIGINAL_PACKAGE_TARGETED_MUTATIONS",
     }
 

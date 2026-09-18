@@ -72,8 +72,8 @@ describe("P04 canonical Proposal experience", () => {
   });
 
   it("keeps source-first New Proposal intake explicit and backend-driven", async () => {
+    window.history.pushState({}, "", "/proposals/new");
     render(<ProposalRoutes role="COMMERCIAL_APPROVER" />);
-    fireEvent.click(await screen.findByRole("button", { name: /New Proposal/ }));
     fireEvent.click(await screen.findByRole("button", { name: /Start without a source/ }));
     expect(screen.getByRole("heading", { name: "New Proposal from Start without a source", level: 3 })).toBeVisible();
     fireEvent.change(screen.getByLabelText("Proposal title"), { target: { value: "New harbor enquiry" } });
@@ -87,8 +87,8 @@ describe("P04 canonical Proposal experience", () => {
     mockedApi.mockImplementation(async (path: string) => path === "/api/bd/proposals/clients"
       ? { items: [{ id: "client-1", name: "Canonical Client" }] }
       : { id: "proposal-1" });
+    window.history.pushState({}, "", "/proposals/new");
     render(<ProposalRoutes role="COMMERCIAL_APPROVER" />);
-    fireEvent.click(await screen.findByRole("button", { name: /New Proposal/ }));
     fireEvent.click(await screen.findByRole("button", { name: /Start without a source/ }));
     fireEvent.change(screen.getByLabelText("Proposal title"), { target: { value: "Canonical intake" } });
     fireEvent.change(screen.getByLabelText("Client"), { target: { value: "client-1" } });
@@ -104,8 +104,8 @@ describe("P04 canonical Proposal experience", () => {
     mockedApi.mockImplementation((path: string) => path === "/api/bd/proposals/clients"
       ? new Promise((resolve) => { resolveClients = resolve; })
       : Promise.resolve({ id: "proposal-1" }));
+    window.history.pushState({}, "", "/proposals/new");
     render(<ProposalRoutes role="COMMERCIAL_APPROVER" />);
-    fireEvent.click(await screen.findByRole("button", { name: /New Proposal/ }));
     fireEvent.click(await screen.findByRole("button", { name: /Start without a source/ }));
     expect(screen.getByRole("status")).toHaveTextContent("Loading active Clients");
     expect(screen.getByRole("button", { name: "Create Proposal draft" })).toBeDisabled();
@@ -119,8 +119,8 @@ describe("P04 canonical Proposal experience", () => {
       attempts += 1;
       return attempts === 1 ? Promise.reject(new Error("network down")) : Promise.resolve({ items: [{ id: "client-1", name: "Harbor Client" }] });
     });
+    window.history.pushState({}, "", "/proposals/new");
     render(<ProposalRoutes role="COMMERCIAL_APPROVER" />);
-    fireEvent.click(await screen.findByRole("button", { name: /New Proposal/ }));
     fireEvent.click(await screen.findByRole("button", { name: /Start without a source/ }));
     expect(await screen.findByRole("alert")).toHaveTextContent("Client list could not be loaded");
     fireEvent.click(screen.getByRole("button", { name: "Retry client list" }));
@@ -130,8 +130,8 @@ describe("P04 canonical Proposal experience", () => {
 
   it("blocks an empty canonical Client list without posting", async () => {
     mockedApi.mockImplementation(async (path: string) => path === "/api/bd/proposals/clients" ? { items: [] } : { id: "proposal-1" });
+    window.history.pushState({}, "", "/proposals/new");
     render(<ProposalRoutes role="COMMERCIAL_APPROVER" />);
-    fireEvent.click(await screen.findByRole("button", { name: /New Proposal/ }));
     fireEvent.click(await screen.findByRole("button", { name: /Start without a source/ }));
     expect(await screen.findByRole("status")).toHaveTextContent("No active Clients are available");
     expect(screen.getByRole("button", { name: "Create Proposal draft" })).toBeDisabled();
@@ -139,8 +139,8 @@ describe("P04 canonical Proposal experience", () => {
   });
 
   it("preserves Client Information source semantics and canonical identity", async () => {
+    window.history.pushState({}, "", "/proposals/new");
     render(<ProposalRoutes role="COMMERCIAL_APPROVER" />);
-    fireEvent.click(await screen.findByRole("button", { name: /New Proposal/ }));
     fireEvent.click(await screen.findByRole("button", { name: /Client Information/ }));
     fireEvent.change(screen.getByLabelText("Proposal title"), { target: { value: "Client-context enquiry" } });
     fireEvent.change(screen.getByLabelText("Client"), { target: { value: "client-1" } });

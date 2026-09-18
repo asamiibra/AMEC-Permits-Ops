@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass, replace
 from typing import Any
 from uuid import uuid4
@@ -159,9 +160,28 @@ def _proposal_sources(db: Session, context: ProposalContext) -> list[dict[str, A
         ProposalSourceLink.active == true(),
     ).order_by(ProposalSourceLink.created_at, ProposalSourceLink.id)).all()
     accepted_only = context.skill.manifest.skill_id in ACCEPTED_REVISION_SKILLS
+    included_source_ids: set[str] | None = None
+    # Proposal V1 source curation is persisted in the source manifest.  Use
+    # that server-owned projection when selecting AI context so an Owner's
+    # include/exclude decision survives refreshes and cannot be overridden by
+    # a stale active link or browser state.
+    try:
+        from .proposal_source_workspace import build_effective_proposal_source_manifest
+        workspace = (context.proposal.proposal_fields_json or {}).get("source_workspace") or {}
+        if workspace.get("source_project_identity"):
+            effective = build_effective_proposal_source_manifest(db, context.proposal, include_excluded=True)
+            included_source_ids = {
+                str(item.get("document_version_id"))
+                for item in effective.get("entries", [])
+                if item.get("included") and item.get("document_version_id")
+            }
+    except (KeyError, TypeError, ValueError):
+        included_source_ids = None
     for index, link in enumerate(links, 1):
         role = link.source_role.upper()
         if accepted_only and role not in {"LPO_PO", "CLIENT_ACCEPTANCE", "CLIENT_RESPONSE", "DISTRIBUTION", "TENDER_DOCUMENT"}:
+            continue
+        if included_source_ids is not None and str(link.document_version_id) not in included_source_ids:
             continue
         sources.append({
             "key": f"proposal-source-{index}",
@@ -239,22 +259,52 @@ class ProposalDeterministicProvider:
         elif name == "proposal_lpo_variance_analysis":
             payload = {"summary": "Synthetic typed LPO comparison; no adjudication performed.", "accepted_revision_id": projection.get("accepted_revision_id", "unresolved"), "lpo_evidence_id": projection.get("lpo_evidence_id"), "differences": [], "citation_keys": citation}
         elif name == "proposal_document_change_plan":
-            baseline = next((entry for entry in context if entry.get("context_type") == "DOCUMENT_VERSION" and entry.get("projection", {}).get("editable_blocks")), None)
+            documents = [entry for entry in context if entry.get("context_type") == "DOCUMENT_VERSION" and entry.get("projection", {}).get("editable_blocks")]
+            baseline = next((entry for entry in documents if entry.get("projection", {}).get("template_baseline")), None) or (documents[0] if documents else None)
             baseline_projection = baseline.get("projection", {}) if baseline else {}
             baseline_id = str(baseline_projection.get("document_version_id", "unresolved"))
             blocks = baseline_projection.get("editable_blocks", [])
             mutations = []
-            replacements = {
-                "AMEC-P-D-2026-Q-498 Rev 01": "AMEC-P-D-2026-Q-454 Rev 01",
-                "Project: The Ethiopian Orthodox Church": "Project: Al Watan Center",
-                "Client Name: The Ethiopian Orthodox Church": "Client Name: Al Watan Center",
-                "Scope: Reviewing and addressing the authorities' comments required to secure the DC2 approval for the Fire Fighting discipline": "Scope: Needs Owner Review",
-                "Commercial value: QAR 40,000 (discounted QAR 36,000)": "Commercial value: Needs Owner Review",
-                "Duration: 3 months": "Duration: Needs Owner Review",
-            }
+            # Derive the target identity from the frozen source folder.  The
+            # deterministic provider is used in TEST/DEV only, but it must
+            # exercise the same universal project boundary as the governed
+            # provider instead of carrying the old 454/498 fixture mapping.
+            project_number = None
+            project_name = None
+            client_name = None
+            proposal_projection = next((entry.get("projection") for entry in context if entry.get("context_type") == "DOMAIN_ENTITY_REVISION"), {}) or {}
+            for entry in context:
+                path = str((entry.get("projection") or {}).get("source_relative_path") or "")
+                match = re.match(r"^\s*(\d{1,9})\s*[-–—]\s*(.+?)(?:/|$)", path)
+                if match:
+                    project_number = project_number or match.group(1)
+                    project_name = project_name or match.group(2).strip()
+            if project_number is None:
+                project_number = str(proposal_projection.get("canonical_project_reference") or proposal_projection.get("project_number") or "").strip() or None
+            project_name = project_name or str(proposal_projection.get("project_name") or "").strip() or None
+            client_name = str(proposal_projection.get("client_name") or "").strip() or None
+            if project_name:
+                project_name = re.sub(r"^\s*\d{1,9}\s*[-–—:]\s*", "", project_name).strip()
+            project_name = project_name or "Needs Owner Review"
+            client_name = client_name or project_name
+            client_name = re.sub(r"^\s*\d{1,9}\s*[-–—:]\s*", "", client_name).strip()
+            if client_name.casefold().startswith("project ") and project_name:
+                client_name = project_name
+            project_identity = project_name.casefold()
+            client_identity = client_name.casefold()
             for block in blocks:
                 value = str(block.get("value", ""))
-                replacement = next((new for old, new in replacements.items() if old in value), None)
+                replacement = None
+                if project_number and re.search(r"amec\s*[-_ ]?p\s*[-_ ]?d\s*[-_ ]?\d{4}\s*[-_ ]?q\s*[-_ ]?\d+", value, flags=re.IGNORECASE):
+                    replacement = re.sub(r"(amec\s*[-_ ]?p\s*[-_ ]?d\s*[-_ ]?\d{4}\s*[-_ ]?q\s*[-_ ]?)\d+", rf"\g<1>{project_number}", value, flags=re.IGNORECASE)
+                elif value.casefold().startswith("project:"):
+                    actual = value.split(":", 1)[1].strip().casefold()
+                    if actual != project_identity:
+                        replacement = f"Project: {project_name}"
+                elif value.casefold().startswith("client name:"):
+                    actual = value.split(":", 1)[1].strip().casefold()
+                    if actual != client_identity:
+                        replacement = f"Client Name: {client_name}"
                 # The baseline can be a real Owner DOCX with wording that
                 # differs from the synthetic fixture. Project-specific
                 # commercial/schedule/scope rows are never copied when the

@@ -24,7 +24,7 @@ from ..storage import DocumentStorageService, StorageTarget, create_binary_store
 
 from ..services.proposal_document_package import DocumentPackageError, apply_text_mutations, digest, package_parts
 from ..services.proposal_editor_model import editor_diff_to_mutations, import_editor_model, tracked_changes
-from ..services.proposal_source_workspace import LOGICAL_SOURCE_CATEGORIES, save_source_category, save_source_inclusion, source_manifest
+from ..services.proposal_source_workspace import LOGICAL_SOURCE_CATEGORIES, build_effective_proposal_source_manifest, save_source_category, save_source_inclusion, source_category, source_decision_for_version, source_manifest, source_included
 
 router = APIRouter(prefix="/api/proposals-v1/editor", tags=["proposal-editor-option-b"])
 MAX_UPLOAD = 64 * 1024 * 1024
@@ -101,13 +101,23 @@ async def true_render_preview(file: UploadFile = File(...), imported_model: str 
         output = apply_text_mutations(data, editor_diff_to_mutations(imported, current))
     except (ValueError, DocumentPackageError) as exc:
         raise HTTPException(409, str(exc)) from exc
+    return _render_pdf(output)
+
+
+def _render_pdf(content: bytes) -> StreamingResponse:
+    """Render a server-owned DOCX package through the real Office pipeline."""
+    rendered = _render_pdf_bytes(content)
+    return StreamingResponse(io.BytesIO(rendered), media_type="application/pdf", headers={"Content-Disposition": 'inline; filename="proposal-preview.pdf"', "X-Proposal-Render": "TRUE_DOCX_TO_PDF"})
+
+
+def _render_pdf_bytes(content: bytes) -> bytes:
     office = shutil.which("soffice") or shutil.which("libreoffice")
     if not office:
         raise HTTPException(503, "TRUE_RENDER_PIPELINE_UNAVAILABLE")
     with tempfile.TemporaryDirectory(prefix="proposal-preview-") as directory:
         source = os.path.join(directory, "proposal.docx")
         with open(source, "wb") as handle:
-            handle.write(output)
+            handle.write(content)
         try:
             subprocess.run([office, "--headless", "--convert-to", "pdf", "--outdir", directory, source], check=True, timeout=45, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         except (OSError, subprocess.SubprocessError) as exc:
@@ -117,7 +127,7 @@ async def true_render_preview(file: UploadFile = File(...), imported_model: str 
             raise HTTPException(503, "TRUE_RENDER_OUTPUT_MISSING")
         with open(pdf, "rb") as handle:
             rendered = handle.read()
-    return StreamingResponse(io.BytesIO(rendered), media_type="application/pdf", headers={"Content-Disposition": 'inline; filename="proposal-preview.pdf"', "X-Proposal-Render": "TRUE_DOCX_TO_PDF"})
+    return rendered
 
 
 def _canonical_revision(proposal_id: str, revision_id: str, db: Session) -> tuple[Opportunity, ProposalRevision]:
@@ -140,7 +150,6 @@ def canonical_editor_entry(proposal_id: str, db: Session = Depends(get_db), _: R
     if not isinstance(workspace, dict):
         # This endpoint deliberately does not hijack legacy Proposal routes.
         raise HTTPException(404, "PROPOSAL_V1_EDITOR_ENTRY_NOT_FOUND")
-    generation_state = str((proposal.proposal_fields_json or {}).get("generation_state") or "READY_FOR_EDIT")
     revision = db.scalar(select(ProposalRevision).where(ProposalRevision.proposal_id == proposal.id, ProposalRevision.status == "DRAFT").order_by(ProposalRevision.revision_number.desc()))
     # A prior attempt can leave a retryable marker while a later request has
     # already committed a generated draft.  Reconcile only when the durable
@@ -156,6 +165,29 @@ def canonical_editor_entry(proposal_id: str, db: Session = Depends(get_db), _: R
         ) if value
     }
     revision_provenance = ((revision.snapshot or {}).get("ai_provenance") or {}) if revision else {}
+    stored_generation_state = (proposal.proposal_fields_json or {}).get("generation_state")
+    manifest_hashes = {
+        value for value in (
+            workspace.get("source_manifest_hash"),
+            workspace.get("source_set_hash"),
+            (proposal.proposal_fields_json or {}).get("source_manifest_hash"),
+            (proposal.proposal_fields_json or {}).get("source_set_hash"),
+        ) if value
+    }
+    generated_revision_is_current = bool(
+        revision is not None
+        and revision_provenance.get("generated_from_ai") is True
+        and revision_provenance.get("source_set_hash") in manifest_hashes
+        and (revision.snapshot or {}).get("source_set_hash") in manifest_hashes
+    )
+    # A V1 record with only the seeded baseline must remain in V1 recovery
+    # state.  It is never a successful editor entry just because a draft
+    # revision exists or the old field is missing.
+    generation_state = str(stored_generation_state or ("READY_FOR_EDIT" if generated_revision_is_current else "BASELINE_READY"))
+    if generated_revision_is_current and generation_state != "STALE_SOURCE_MANIFEST":
+        generation_state = "READY_FOR_EDIT"
+    if generation_state == "READY_FOR_EDIT" and not generated_revision_is_current:
+        generation_state = "BASELINE_READY"
     if (
         generation_state in {"FAILED_RETRYABLE", "GENERATION_REVIEW_REQUIRED", "FAILED_VALIDATION"}
         and revision is not None
@@ -166,11 +198,11 @@ def canonical_editor_entry(proposal_id: str, db: Session = Depends(get_db), _: R
         generation_state = "READY_FOR_EDIT"
     blocked_states = {
         "PENDING_OWNER_SOURCES", "GENERATION_PENDING", "RUNNING", "FAILED_RETRYABLE",
-        "BLOCKED_BASELINE", "STALE_SOURCE_MANIFEST", "GENERATION_REVIEW_REQUIRED",
+        "BASELINE_READY", "BLOCKED_BASELINE", "STALE_SOURCE_MANIFEST", "GENERATION_REVIEW_REQUIRED",
         "FAILED_VALIDATION",
     }
     if generation_state in blocked_states:
-        return {"proposal_id": proposal.id, "revision_id": None, "revision_number": None, "project_number": workspace.get("project_number"), "source_project_identity": workspace.get("source_project_identity"), "generation_state": generation_state, "editor_mode": "PROGRESS" if generation_state in {"PENDING_OWNER_SOURCES", "GENERATION_PENDING", "RUNNING"} else "RECOVERY", "editable": False, "retry_allowed": generation_state in {"FAILED_RETRYABLE", "GENERATION_REVIEW_REQUIRED"}, "blocker": (proposal.proposal_fields_json or {}).get("generation_error"), "route": f"/proposals/{proposal.id}/editor"}
+        return {"proposal_id": proposal.id, "revision_id": None, "revision_number": None, "project_number": workspace.get("project_number"), "source_project_identity": workspace.get("source_project_identity"), "generation_state": generation_state, "editor_mode": "PROGRESS" if generation_state in {"PENDING_OWNER_SOURCES", "GENERATION_PENDING", "RUNNING"} else "RECOVERY", "editable": False, "retry_allowed": generation_state in {"FAILED_RETRYABLE", "GENERATION_REVIEW_REQUIRED", "STALE_SOURCE_MANIFEST"}, "blocker": (proposal.proposal_fields_json or {}).get("generation_error") or ("AI_GENERATION_REQUIRED" if generation_state == "BASELINE_READY" else None), "route": f"/proposals/{proposal.id}/editor"}
     if revision is None:
         raise HTTPException(409, "PROPOSAL_V1_EDITOR_REVISION_REQUIRED")
     return {
@@ -194,7 +226,17 @@ def active_proposal_sources(proposal_id: str, db: Session = Depends(get_db), _: 
         raise HTTPException(404, "PROPOSAL_NOT_FOUND")
     workspace = (proposal.proposal_fields_json or {}).get("source_workspace") or {}
     number = workspace.get("project_number")
-    decision_rows = {row.logical_source_identity: row for row in db.scalars(select(ProposalSourceDecision).where(ProposalSourceDecision.source_project_identity == workspace.get("source_project_identity"))).all()} if workspace.get("source_project_identity") else {}
+    effective_manifest = None
+    if number is not None:
+        try:
+            effective_manifest = build_effective_proposal_source_manifest(db, proposal)
+        except (FileNotFoundError, OSError, ValueError):
+            effective_manifest = None
+    manifest_by_version = {
+        str(entry.get("document_version_id")): entry
+        for entry in (effective_manifest or {}).get("entries", [])
+        if entry.get("document_version_id")
+    }
     rows = db.scalars(
         select(ProposalSourceLink)
         .where(ProposalSourceLink.proposal_id == proposal_id, ProposalSourceLink.active == true())
@@ -206,7 +248,14 @@ def active_proposal_sources(proposal_id: str, db: Session = Depends(get_db), _: 
         if version is None:
             continue
         metadata = version.metadata_json or {}
-        decision = decision_rows.get(str(metadata.get("proposal_source_key") or metadata.get("source_relative_path") or ""))
+        manifest_entry = manifest_by_version.get(str(version.id), {})
+        decision = source_decision_for_version(
+            db,
+            source_project_identity=workspace.get("source_project_identity"),
+            version=version,
+        )
+        effective_category = "BASELINE_TEMPLATE" if link.source_role == "BASELINE_TEMPLATE" else (manifest_entry.get("effective_category") or source_category(version, decision))
+        effective_included = manifest_entry.get("included") if "included" in manifest_entry else source_included(version, decision)
         path = metadata.get("source_relative_path")
         source_number = metadata.get("source_project_number", number)
         file_id = __import__("hashlib").sha256(path.encode()).hexdigest()[:24] if path and source_number else None
@@ -215,8 +264,8 @@ def active_proposal_sources(proposal_id: str, db: Session = Depends(get_db), _: 
             "document_version_id": version.id,
             "filename": version.source_filename,
             "source_role": link.source_role,
-            "logical_category": decision.logical_category if decision and decision.logical_category else metadata.get("logical_category"),
-            "included_in_proposal": decision.included_in_proposal if decision else metadata.get("included_in_proposal", True),
+            "logical_category": effective_category,
+            "included_in_proposal": effective_included,
             "sha256": version.sha256,
             "source_path": path,
             "view_route": f"/api/proposals/sources/2026/projects/{source_number}/files/{file_id}/content" if file_id else (f"/api/bd/proposals/{proposal_id}/sources/{link.source_evidence_id}/content" if link.source_evidence_id else None),
@@ -224,7 +273,7 @@ def active_proposal_sources(proposal_id: str, db: Session = Depends(get_db), _: 
         })
     return {
         "proposal_id": proposal_id,
-        "source_manifest_hash": workspace.get("source_manifest_hash"),
+        "source_manifest_hash": (effective_manifest or {}).get("source_manifest_hash") or workspace.get("source_manifest_hash"),
         "generation_state": (proposal.proposal_fields_json or {}).get("generation_state"),
         "source_changes_available": bool((proposal.proposal_fields_json or {}).get("source_changes_available")),
         "sources": sources,
@@ -248,7 +297,9 @@ def update_active_source_category(proposal_id: str, link_id: str, payload: dict[
         raise HTTPException(422, "SOURCE_CATEGORY_INVALID")
     workspace = (proposal.proposal_fields_json or {}).get("source_workspace") or {}
     metadata = save_source_category(version, category, actor="proposal-editor", db=db, source_project_identity=workspace.get("source_project_identity"))
-    proposal.proposal_fields_json = {**(proposal.proposal_fields_json or {}), "generation_state": "STALE_SOURCE_MANIFEST", "source_changes_available": True}
+    refreshed_manifest = build_effective_proposal_source_manifest(db, proposal)
+    next_workspace = {**workspace, "source_manifest": refreshed_manifest, "source_manifest_hash": refreshed_manifest["source_manifest_hash"], "source_set_hash": refreshed_manifest["source_manifest_hash"]}
+    proposal.proposal_fields_json = {**(proposal.proposal_fields_json or {}), "source_workspace": next_workspace, "generation_state": "STALE_SOURCE_MANIFEST", "source_changes_available": True}
     db.add(ProposalStalenessEvent(proposal_id=proposal.id, trigger_type="ACTIVE_SOURCE", trigger_reference=version.id, reason_code="SOURCE_MANIFEST_CHANGED", impacted_sections=["CATEGORY_CHANGED"], detected_by="proposal-editor"))
     db.commit()
     return {"proposal_id": proposal_id, "link_id": link_id, "logical_category": metadata["logical_category"], "generation_state": "STALE_SOURCE_MANIFEST"}
@@ -259,7 +310,9 @@ def update_active_source_inclusion(proposal_id: str, link_id: str, payload: dict
     proposal, link, version = _active_source_link(proposal_id, link_id, db)
     workspace = (proposal.proposal_fields_json or {}).get("source_workspace") or {}
     metadata = save_source_inclusion(version, bool(payload.get("included_in_proposal", True)), actor="proposal-editor", db=db, source_project_identity=workspace.get("source_project_identity"))
-    proposal.proposal_fields_json = {**(proposal.proposal_fields_json or {}), "generation_state": "STALE_SOURCE_MANIFEST", "source_changes_available": True}
+    refreshed_manifest = build_effective_proposal_source_manifest(db, proposal)
+    next_workspace = {**workspace, "source_manifest": refreshed_manifest, "source_manifest_hash": refreshed_manifest["source_manifest_hash"], "source_set_hash": refreshed_manifest["source_manifest_hash"]}
+    proposal.proposal_fields_json = {**(proposal.proposal_fields_json or {}), "source_workspace": next_workspace, "generation_state": "STALE_SOURCE_MANIFEST", "source_changes_available": True}
     db.add(ProposalStalenessEvent(proposal_id=proposal.id, trigger_type="ACTIVE_SOURCE", trigger_reference=version.id, reason_code="SOURCE_MANIFEST_CHANGED", impacted_sections=["INCLUSION_CHANGED"], detected_by="proposal-editor"))
     db.commit()
     return {"proposal_id": proposal_id, "link_id": link_id, "included_in_proposal": metadata["included_in_proposal"], "generation_state": "STALE_SOURCE_MANIFEST"}
@@ -282,7 +335,8 @@ def mutation_evidence(proposal_id: str, revision_id: str, anchor: str, db: Sessi
             continue
         version_id = citation.get("source_id") or citation.get("source_version_or_hash")
         entry = entries.get(str(version_id), {})
-        citations.append({"citation_key": key, "document_version_id": version_id, "sha256": citation.get("source_version_or_hash"), "source_path": entry.get("source_path"), "filename": entry.get("filename"), "logical_category": entry.get("effective_category"), "locator": citation.get("locator_json") or citation.get("locator")})
+        locator = citation.get("locator_json") or citation.get("locator") or {}
+        citations.append({"citation_key": key, "document_version_id": version_id, "sha256": citation.get("source_version_or_hash"), "source_path": entry.get("source_path"), "filename": entry.get("filename"), "logical_category": entry.get("effective_category"), "locator": locator, "excerpt": citation.get("excerpt") or locator.get("excerpt") or locator.get("text")})
     return {"proposal_id": proposal_id, "revision_id": revision_id, "mutation": mutation, "citations": citations}
 
 
@@ -291,7 +345,7 @@ def load_canonical_editor_revision(proposal_id: str, revision_id: str, db: Sessi
     """Load the server-owned editor state by canonical Proposal identity."""
     _, revision = _canonical_revision(proposal_id, revision_id, db)
     snapshot = revision.snapshot or {}
-    return {"proposal_id": proposal_id, "revision_id": revision.id, "revision_number": revision.revision_number, "status": revision.status, "editor_model": snapshot.get("editor_model"), "baseline_hash": snapshot.get("baseline_hash"), "working_hash": snapshot.get("working_hash"), "source_set_hash": snapshot.get("source_set_hash"), "change_plan": snapshot.get("change_plan", {}), "ai_provenance": snapshot.get("ai_provenance", {})}
+    return {"proposal_id": proposal_id, "revision_id": revision.id, "revision_number": revision.revision_number, "status": revision.status, "editor_model": snapshot.get("editor_model"), "baseline_hash": snapshot.get("baseline_hash"), "working_hash": snapshot.get("working_hash"), "source_set_hash": snapshot.get("source_set_hash"), "editor_document_version_id": snapshot.get("editor_document_version_id"), "baseline_selection_method": snapshot.get("baseline_selection_method"), "baseline_identity": snapshot.get("baseline_identity"), "change_plan": snapshot.get("change_plan", {}), "ai_provenance": snapshot.get("ai_provenance", {})}
 
 
 @router.get("/proposals/{proposal_id}/revisions/{revision_id}/document")
@@ -327,8 +381,36 @@ def download_canonical_editor_document(proposal_id: str, revision_id: str, db: S
         headers={
             "Content-Disposition": 'inline; filename="proposal-revision.docx"',
             "X-Proposal-Document-SHA256": digest(content),
+            "X-Proposal-Document-Version-ID": str(version.id),
         },
     )
+
+
+@router.get("/proposals/{proposal_id}/revisions/{revision_id}/render")
+def render_canonical_editor_document(proposal_id: str, revision_id: str, db: Session = Depends(get_db), _: Role = Depends(editor_role)):
+    """Render the exact canonical generated DOCX for the default Document view."""
+    _, revision = _canonical_revision(proposal_id, revision_id, db)
+    snapshot = revision.snapshot or {}
+    version_id = snapshot.get("editor_document_version_id") or snapshot.get("editor_baseline_document_version_id")
+    version = db.get(DocumentVersion, version_id) if version_id else None
+    if version is None:
+        raise HTTPException(404, "PROPOSAL_REVISION_DOCUMENT_NOT_FOUND")
+    try:
+        if version.source_path_or_reference.startswith("storage://"):
+            with DocumentStorageService(create_binary_store()).read_verified(version) as stream:
+                content = stream.read()
+        elif version.synthetic_content is not None:
+            content = version.synthetic_content
+        else:
+            raise HTTPException(404, "PROPOSAL_REVISION_DOCUMENT_NOT_FOUND")
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(503, "PROPOSAL_REVISION_DOCUMENT_READ_FAILED") from exc
+    if digest(content) != version.sha256:
+        raise HTTPException(503, "PROPOSAL_REVISION_DOCUMENT_INTEGRITY_DRIFT")
+    rendered = _render_pdf_bytes(content)
+    return StreamingResponse(io.BytesIO(rendered), media_type="application/pdf", headers={"Content-Disposition": 'inline; filename="proposal-preview.pdf"', "X-Proposal-Render": "TRUE_DOCX_TO_PDF", "X-Proposal-Document-Version-ID": str(version.id), "X-Proposal-Document-SHA256": digest(content)})
 
 
 @router.post("/proposals/{proposal_id}/revisions/{revision_id}/save")

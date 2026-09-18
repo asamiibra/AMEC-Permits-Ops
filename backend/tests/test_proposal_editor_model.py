@@ -20,6 +20,26 @@ def test_import_is_server_owned_and_marks_complex_blocks_read_only():
     assert "COMPLEX_PARAGRAPH" in model["read_only_block_types"]
 
 
+def test_sections_use_native_heading_styles_and_no_heading_falls_back_to_body():
+    heading_content = package(
+        '<w:p><w:pPr><w:pStyle w:val="Heading1"/></w:pPr><w:r><w:t>Project Description</w:t></w:r></w:p>'
+        '<w:p><w:r><w:t>Body text</w:t></w:r></w:p>'
+        '<w:p><w:pPr><w:outlineLvl w:val="1"/></w:pPr><w:r><w:t>Details</w:t></w:r></w:p>'
+    )
+    model = import_editor_model(heading_content)
+    assert [section["title"] for section in model["sections"]] == ["Project Description", "Details"]
+    assert all(section["node_ids"] for section in model["sections"])
+
+    body = import_editor_model(package())
+    assert body["sections"] == [{
+        "section_id": "document-body",
+        "title": "Document body",
+        "level": 0,
+        "heading_anchor": None,
+        "node_ids": [node["id"] for node in body["nodes"] if node["part"] == "word/document.xml"],
+    }]
+
+
 def test_browser_diff_roundtrips_through_original_package_only():
     content = package()
     imported = import_editor_model(content)

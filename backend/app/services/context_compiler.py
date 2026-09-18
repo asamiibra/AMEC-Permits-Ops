@@ -35,6 +35,7 @@ from backend.app.models import (
     DefinitionRevision,
     DocumentApprovalState,
     DocumentVersion,
+    ClientAccount,
     FieldDefinition,
     FieldObservation,
     MasterContentGovernanceProfile,
@@ -636,7 +637,7 @@ class GovernedContextCompiler:
         return None, None, None
 
     @classmethod
-    def _proposal_source_projection(cls, version: DocumentVersion) -> dict[str, Any]:
+    def _proposal_source_projection(cls, version: DocumentVersion, *, source_metadata: dict[str, Any] | None = None) -> dict[str, Any]:
         """Build a small, source-grounded projection for Proposal V1.
 
         Raw bytes, full paths and transport locators never enter the model
@@ -646,7 +647,7 @@ class GovernedContextCompiler:
         metadata. Images retain their source hash while a low-detail,
         size-capped rendition is available only to the transient vision input.
         """
-        metadata = version.metadata_json if isinstance(version.metadata_json, dict) else {}
+        metadata = source_metadata if source_metadata is not None else (version.metadata_json if isinstance(version.metadata_json, dict) else {})
         projection: dict[str, Any] = {
             "document_version_id": version.id,
             "document_id": version.document_id,
@@ -658,6 +659,8 @@ class GovernedContextCompiler:
             "document_date": version.document_date.isoformat() if version.document_date else None,
             "source_filename": version.source_filename,
             "source_relative_path": metadata.get("source_relative_path"),
+            "template_baseline": bool(metadata.get("template_baseline")),
+            "source_role": metadata.get("source_role"),
             "logical_category": metadata.get("logical_category") or "OTHER_UNCLASSIFIED",
             "logical_category_source": metadata.get("logical_category_source") or "AUTO_CLASSIFIED",
         }
@@ -789,7 +792,22 @@ class GovernedContextCompiler:
         data_classification = str(metadata.get("sensitivity_class") or ("SYNTHETIC" if synthetic else "INTERNAL")).upper()
         contains_sensitive = bool(metadata.get("contains_sensitive_data") or data_classification in {"CONFIDENTIAL", "RESTRICTED"})
         is_proposal = request.skill_manifest.owning_module.upper() == "BD_PROPOSAL"
-        projection = self._proposal_source_projection(version) if is_proposal else self._safe_projection({
+        # Resolve the same Owner source decision ledger used by Source
+        # Workspace and Active Proposal Sources before compiling AI context.
+        effective_metadata = dict(metadata)
+        if is_proposal and request.scope_type.upper() == "PROPOSAL":
+            proposal = self.db.get(Opportunity, request.scope_id)
+            workspace = (proposal.proposal_fields_json or {}).get("source_workspace") if proposal else {}
+            from .proposal_source_workspace import source_decision_for_version, source_category
+            decision = source_decision_for_version(
+                self.db,
+                source_project_identity=(workspace or {}).get("source_project_identity"),
+                version=version,
+            )
+            if decision is not None:
+                effective_metadata["logical_category"] = source_category(version, decision)
+                effective_metadata["logical_category_source"] = decision.category_origin or "OWNER"
+        projection = self._proposal_source_projection(version, source_metadata=effective_metadata) if is_proposal else self._safe_projection({
             "document_version_id": version.id,
             "document_id": version.document_id,
             "version_number": version.version_number,
@@ -802,7 +820,7 @@ class GovernedContextCompiler:
         return _ResolvedSource(
             "DOCUMENT_VERSION", "DOCUMENT_VERSION", version.id, version.sha256,
             "GOVERNED_EVIDENCE", "CURRENT", data_classification, contains_sensitive,
-            synthetic, projection, {"document_id": version.document_id, "source_relative_path": metadata.get("source_relative_path"), "logical_category": metadata.get("logical_category") or "OTHER_UNCLASSIFIED", "logical_category_source": metadata.get("logical_category_source") or "AUTO_CLASSIFIED"},
+            synthetic, projection, {"document_id": version.document_id, "source_relative_path": metadata.get("source_relative_path"), "logical_category": effective_metadata.get("logical_category") or "OTHER_UNCLASSIFIED", "logical_category_source": effective_metadata.get("logical_category_source") or "AUTO_CLASSIFIED"},
         )
 
     def _resolve_evidence_envelope(self, request: ContextCompileRequest, source: ContextSourceSpec, capabilities: set[str]) -> _ResolvedSource | None:
@@ -1014,6 +1032,8 @@ class GovernedContextCompiler:
                     else stable_hash({"proposal_id": proposal.id, "proposal_fields": proposal.proposal_fields_json, "updated_at": proposal.updated_at.isoformat()})
                 )
             self._check_project(proposal.project_id, request)
+            project = self.db.get(Project, proposal.project_id) if proposal.project_id else None
+            client = self.db.get(ClientAccount, proposal.client_account_id) if proposal.client_account_id else None
             lpo = self.db.scalar(select(ProposalLpoReconciliation).where(
                 ProposalLpoReconciliation.proposal_id == proposal.id,
                 ProposalLpoReconciliation.accepted_revision_id == accepted.id if accepted else False,
@@ -1026,6 +1046,9 @@ class GovernedContextCompiler:
                 "title": proposal.title,
                 "status": proposal.status,
                 "project_id": proposal.project_id,
+                "project_number": proposal.canonical_project_reference or proposal.provisional_reference,
+                "project_name": project.project_name if project is not None else None,
+                "client_name": (client.display_name or client.legal_name) if client is not None else None,
                 "working_revision_id": working.id if working else None,
                 "working_revision_number": working.revision_number if working else None,
                 "working_revision_hash": working.content_hash if working else None,
