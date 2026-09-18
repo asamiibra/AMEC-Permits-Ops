@@ -76,13 +76,16 @@ export function ProposalSourceWorkspace({ role = "OWNER_SPONSOR", onBack, onOpen
   const createProposal = async () => {
     setError(""); setCreatedProposal("");
     try {
-      const data = await api<{ proposal_id?: string; proposal_reference?: string; editor_ready?: boolean; editor_revision_id?: string; source_count?: number }>("/api/proposals/sources/2026/projects/" + selected + "/create-proposal", { method: "POST", headers: roleHeaders(role), body: JSON.stringify({}) });
+      const data = await api<{ proposal_id?: string; proposal_reference?: string; editor_ready?: boolean; editor_revision_id?: string; source_count?: number }>("/api/proposals/sources/2026/projects/" + selected + "/create-proposal", { method: "POST", headers: roleHeaders(role), body: JSON.stringify({ defer_generation: pendingSources.length > 0 }) });
       let editorReady = data.editor_ready;
       let editorRevisionId = data.editor_revision_id;
       if (data.proposal_id) {
-        for (const pending of pendingSources) {
-          const body = new FormData(); body.append("source_type", CATEGORY_DEFS.find((item) => item.key === pending.category)?.sourceType || "TENDER_DOCUMENT"); body.append("logical_category", pending.category); body.append("file", pending.file);
-          await api("/api/bd/proposals/" + data.proposal_id + "/sources", { method: "POST", headers: roleHeaders(role), body });
+        if (pendingSources.length) {
+          const body = new FormData();
+          pendingSources.forEach((pending) => body.append("files", pending.file));
+          body.append("source_types", JSON.stringify(pendingSources.map((pending) => CATEGORY_DEFS.find((item) => item.key === pending.category)?.sourceType || "TENDER_DOCUMENT")));
+          body.append("logical_categories", JSON.stringify(pendingSources.map((pending) => pending.category)));
+          await api("/api/bd/proposals/" + data.proposal_id + "/sources/batch", { method: "POST", headers: roleHeaders(role), body });
         }
         // Owner-added sources are linked after the JSON promotion request. A
         // single explicit regeneration makes those files part of the exact AI

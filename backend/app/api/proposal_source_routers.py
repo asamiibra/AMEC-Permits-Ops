@@ -40,6 +40,7 @@ class SourceProposalCreatePayload(BaseModel):
 
     excluded_source_paths: list[str] = Field(default_factory=list)
     source_categories: dict[str, str] = Field(default_factory=dict)
+    defer_generation: bool = False
 
 
 class SourceCategoryUpdatePayload(BaseModel):
@@ -567,6 +568,10 @@ def create_proposal_from_source_workspace(
     # Proposal instead of rolling the entire promotion back.
     item.proposal_fields_json = {**(item.proposal_fields_json or {}), "generation_state": "BASELINE_READY" if editor.get("editor_ready") else "BLOCKED_BASELINE"}
     db.commit()
+    if payload and payload.defer_generation:
+        item.proposal_fields_json = {**(item.proposal_fields_json or {}), "generation_state": "PENDING_OWNER_SOURCES"}
+        db.commit()
+        return {"result": "CREATED", "proposal_id": item.id, "proposal_reference": item.opportunity_reference, "source_set_hash": source_manifest_hash, "source_manifest_hash": source_manifest_hash, "source_count": len(selected_versions), "excluded_source_count": len(excluded_paths), "capture": run, "generation_state": "PENDING_OWNER_SOURCES", **editor}
     # Promotion is the single causal handoff into Proposal Intelligence.  The
     # generated revision is published before the browser is allowed to open
     # the editor, so the Owner always starts from the source-grounded DOCX.
