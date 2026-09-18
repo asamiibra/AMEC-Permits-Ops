@@ -198,6 +198,17 @@ def capture(db: Session, number: int, *, actor: str = "source-workspace") -> dic
                     and get_settings().app_env.upper() in {"TEST", "DEV", "DEVELOPMENT"}
                 ),
             }
+            # A sync may produce a new immutable version for the same source
+            # identity. Preserve an explicit Owner classification across that
+            # version boundary; path/filename heuristics must never silently
+            # replace an existing override.
+            prior_metadata = current.metadata_json if current and isinstance(current.metadata_json, dict) else {}
+            if prior_metadata.get("logical_category_source") == "OWNER_OVERRIDE" and prior_metadata.get("logical_category") in LOGICAL_SOURCE_CATEGORIES:
+                metadata.update({
+                    "logical_category": prior_metadata["logical_category"],
+                    "logical_category_source": "OWNER_OVERRIDE",
+                    "logical_category_history": list(prior_metadata.get("logical_category_history") or []),
+                })
             # All new captures use the same verified storage protocol as the
             # rest of the SOR.  The mock provider is permitted only in the
             # synthetic TEST/DEV profile, while SMB/Azure persist outside it.
