@@ -57,6 +57,10 @@
 .proposal-section-heading { margin-bottom: .75rem; }
 .proposal-section-heading h4 { margin: .25rem 0 0; }
 .proposal-section-actions { justify-content: flex-end; margin-top: .75rem; }
+.document-operation-state { color: #137b81; font-size: .78rem; font-weight: 700; }
+.proposal-owner-review { margin-top: 1rem; padding: .85rem; border: 1px solid #d9e8eb; border-radius: .55rem; background: #fbfdfd; }
+.proposal-owner-review h4 { margin: 0 0 .65rem; }
+.proposal-owner-review .proposal-editor-change { margin-bottom: .55rem; }
 .proposal-ai-section { display: grid; gap: .5rem; }
 .proposal-ai-section h5 { margin: .5rem 0 0; color: #173142; }
 .proposal-ai-section h5 small { color: var(--ink-muted, #667085); font-weight: 400; }
