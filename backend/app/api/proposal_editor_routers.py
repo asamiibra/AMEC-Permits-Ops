@@ -338,11 +338,21 @@ async def save_canonical_editor_revision(
     # that the Owner first opened.  A later save receives the already edited
     # DOCX, so diffing only against that file would lose earlier edits when a
     # source regeneration creates a new AI revision.
-    owner_base_model = prior.get("owner_base_model") or prior.get("editor_model") or imported
-    try:
-        owner_mutations = editor_diff_to_mutations(owner_base_model, current)
-    except (ValueError, TypeError) as exc:
-        raise HTTPException(409, "EDITOR_OWNER_EDIT_REBASE_REQUIRED") from exc
+    canonical_model = prior.get("editor_model")
+    canonical_import = not canonical_model or canonical_model.get("nodes") == imported.get("nodes")
+    owner_base_model = prior.get("owner_base_model") or canonical_model or imported
+    if canonical_import:
+        try:
+            owner_mutations = editor_diff_to_mutations(owner_base_model, current)
+        except (ValueError, TypeError) as exc:
+            raise HTTPException(409, "EDITOR_OWNER_EDIT_REBASE_REQUIRED") from exc
+    else:
+        # Older clients could submit the original source DOCX after a
+        # generated revision had already been published.  Keep that request
+        # readable for the compatibility path, but never misclassify the
+        # stale document as a canonical Owner edit that regeneration must
+        # replay over new AI output.
+        owner_mutations = []
     serialized_owner_mutations = [
         {"anchor": mutation.anchor, "expected_xml_hash": mutation.expected_xml_hash, "replacement": mutation.replacement}
         for mutation in owner_mutations
@@ -363,6 +373,7 @@ async def save_canonical_editor_revision(
         "editor_model": current,
         "owner_base_model": owner_base_model,
         "owner_mutations": serialized_owner_mutations,
+        "owner_mutation_origin": "CANONICAL_EDITOR" if canonical_import else "STALE_IMPORT_COMPATIBILITY",
         "owner_edit_base_hash": prior.get("owner_edit_base_hash") or prior.get("working_hash") or baseline_hash,
         "baseline_hash": baseline_hash,
         "working_hash": working_hash,
