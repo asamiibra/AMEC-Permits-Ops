@@ -61,6 +61,9 @@
 .proposal-owner-review { margin-top: 1rem; padding: .85rem; border: 1px solid #d9e8eb; border-radius: .55rem; background: #fbfdfd; }
 .proposal-owner-review h4 { margin: 0 0 .65rem; }
 .proposal-owner-review .proposal-editor-change { margin-bottom: .55rem; }
+.bidi-content { unicode-bidi: plaintext; }
+.bidi-code { direction: ltr; unicode-bidi: isolate; overflow-wrap: anywhere; }
+:root { font-family: Inter, "Noto Sans Arabic", "Noto Naskh Arabic", Tahoma, Arial, ui-sans-serif, system-ui, sans-serif; }
 .proposal-ai-section { display: grid; gap: .5rem; }
 .proposal-ai-section h5 { margin: .5rem 0 0; color: #173142; }
 .proposal-ai-section h5 small { color: var(--ink-muted, #667085); font-weight: 400; }

@@ -36,7 +36,6 @@ describe("contextual readiness drawer", () => {
     expect(screen.getByText("What we need from AMEC")).toBeTruthy();
     expect(screen.getAllByText(/human-only|human/i).length).toBeGreaterThan(0);
     expect(screen.queryByRole("button", { name: "Switch to Arabic" })).toBeNull();
-    expect(document.body.textContent).not.toMatch(/[\u0600-\u06FF]/);
     fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
     expect(screen.queryByRole("dialog")).toBeNull();
   });

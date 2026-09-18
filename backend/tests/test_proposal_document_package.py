@@ -44,6 +44,24 @@ def test_minimal_diff_preserves_other_xml_bytes_and_package_parts():
     assert [b.anchor for b in document_map(data)]==[b.anchor for b in document_map(changed)]
 
 
+def test_arabic_replacement_adds_minimal_paragraph_bidi_without_rebuilding_docx():
+    data = package('<w:p><w:r><w:t>English placeholder</w:t></w:r></w:p>')
+    changed = apply_text_mutations(data, [mutation(data, 'English placeholder', 'نطاق الخدمات')])
+    document = package_parts(changed)['word/document.xml']
+    assert b'<w:pPr><w:bidi/></w:pPr>' in document
+    assert any(block.text == 'نطاق الخدمات' for block in document_map(changed))
+    assert package_parts(changed)['word/media/logo.png'] == b'opaque-original-image'
+
+
+def test_existing_word_bidi_properties_are_preserved_for_mixed_replacement():
+    data = package('<w:p><w:pPr><w:bidi/></w:pPr><w:r><w:rPr><w:rtl/></w:rPr><w:t>نطاق الخدمات</w:t></w:r></w:p>')
+    changed = apply_text_mutations(data, [mutation(data, 'نطاق الخدمات', 'Scope of Services - 521')])
+    document = package_parts(changed)['word/document.xml']
+    assert document.count(b'<w:bidi/>') == 1
+    assert document.count(b'<w:rtl/>') == 1
+    assert b'Scope of Services - 521' in document
+
+
 def test_preserves_table_cell_runs_and_xml_escaping():
     data=package('<w:tbl><w:tr><w:tc><w:p><w:r><w:rPr><w:b/></w:rPr><w:t>A&amp;B</w:t></w:r><w:r><w:t>C</w:t></w:r></w:p></w:tc></w:tr></w:tbl>')
     changed=apply_text_mutations(data,[mutation(data,'A&BC','D<EF')])

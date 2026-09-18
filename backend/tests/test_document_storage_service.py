@@ -65,6 +65,31 @@ def test_full_protocol_publishes_only_after_fresh_readback_and_outbox(tmp_path):
         db.commit()
 
 
+def test_unicode_document_content_round_trips_exactly(tmp_path):
+    engine = service_db(tmp_path)
+    arabic_content = "مركز الوطن\nمشروع الدفنة\nنطاق الخدمات".encode("utf-8")
+    with Session(engine) as db:
+        document = Document(document_type=DocumentType.OTHER, logical_name="Arabic proposal", language="AR/EN", source_system="TEST")
+        db.add(document)
+        db.flush()
+        service, store = make_service(tmp_path)
+        result = service.store_version(
+            db,
+            document=document,
+            filename="عرض فني - 521.txt",
+            mime_type="text/plain; charset=utf-8",
+            content=arabic_content,
+            target=target_for(store),
+            actor="test",
+            correlation_id="unicode-roundtrip",
+            idempotency_key="unicode-roundtrip-1",
+        )
+
+        with service.read_verified(result.version) as stream:
+            assert stream.read() == arabic_content
+        assert result.version.source_filename == "عرض فني - 521.txt"
+
+
 def test_idempotency_reuses_one_published_version(tmp_path):
     engine = service_db(tmp_path)
     with Session(engine) as db:

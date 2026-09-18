@@ -277,6 +277,41 @@ def _escape(value: str) -> bytes:
     return value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").encode("utf-8")
 
 
+def _predominantly_arabic(value: str) -> bool:
+    """Return true when a replacement is primarily Arabic script.
+
+    Direction is a property of the edited paragraph, so this deliberately
+    counts letters instead of trying to infer direction from punctuation,
+    digits, project codes, or mixed Arabic/English identifiers.
+    """
+    letters = [char for char in value if char.isalpha()]
+    if not letters:
+        return False
+    arabic = sum(
+        "\u0600" <= char <= "\u06ff"
+        or "\u0750" <= char <= "\u077f"
+        or "\u08a0" <= char <= "\u08ff"
+        or "\ufb50" <= char <= "\ufdff"
+        or "\ufe70" <= char <= "\ufeff"
+        for char in letters
+    )
+    return arabic * 2 >= len(letters)
+
+
+def _rtl_property_insert(data: bytes, block: DocumentBlock) -> tuple[int, bytes] | None:
+    """Find the smallest insertion point for a paragraph-level Word bidi flag."""
+    paragraph = data[block.start:block.end]
+    if re.search(rb"<w:bidi(?:\s|/|>)", paragraph):
+        return None
+    ppr = re.search(rb"<w:pPr(?:\s[^>]*)?>", paragraph)
+    if ppr:
+        return block.start + ppr.end(), b"<w:bidi/>"
+    opening = re.search(rb"<w:p(?:\s[^>]*)?>", paragraph)
+    if not opening:
+        return None
+    return block.start + opening.end(), b"<w:pPr><w:bidi/></w:pPr>"
+
+
 def apply_text_mutations(content: bytes, mutations: Iterable[TextMutation]) -> bytes:
     mutations = list(mutations)
     parts = package_parts(content)
@@ -302,6 +337,10 @@ def apply_text_mutations(content: bytes, mutations: Iterable[TextMutation]) -> b
         intervals.append((block.start, block.end))
         # Allocate characters to existing text runs, retaining all run formatting,
         # field/shape/table geometry, relationships and other XML bytes.
+        if _predominantly_arabic(mutation.replacement):
+            rtl_insert = _rtl_property_insert(parts[block.part], block)
+            if rtl_insert:
+                edits.setdefault(block.part, []).append((rtl_insert[0], rtl_insert[0], rtl_insert[1]))
         remaining = mutation.replacement
         for i, span in enumerate(block.text_spans):
             value = remaining if i == len(block.text_spans) - 1 else remaining[:len(span.value)]

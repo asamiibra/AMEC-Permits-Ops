@@ -72,23 +72,6 @@ export default function App() {
   ));
 
   useEffect(() => {
-    document.documentElement.lang = "en";
-    document.documentElement.dir = "ltr";
-    document.body.dir = "ltr";
-    try {
-      [
-        "permitops.locale",
-        "permitops-locale",
-        "permitops-language",
-        "language",
-        "locale",
-      ].forEach((key) => window.localStorage.removeItem(key));
-    } catch {
-      // The application remains English/LTR when browser storage is unavailable.
-    }
-  }, []);
-
-  useEffect(() => {
     if (!accountMenuOpen && !mobileNavOpen) return;
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
@@ -199,6 +182,8 @@ export default function App() {
   return (
     <div
       className="app-shell"
+      lang="en"
+      dir="ltr"
       data-g9-authenticated={authSession?.authenticated ? "true" : "false"}
       data-g9-auth-tenant={authSession?.identity.tenant_id || ""}
       data-g9-auth-object-id={authSession?.identity.object_id || ""}
