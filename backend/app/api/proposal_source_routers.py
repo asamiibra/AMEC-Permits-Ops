@@ -578,20 +578,31 @@ def create_proposal_from_source_workspace(
     latest_revision = db.get(ProposalRevision, editor.get("editor_revision_id")) if editor.get("editor_revision_id") else None
     latest_provenance = ((latest_revision.snapshot or {}).get("ai_provenance") or {}) if latest_revision else {}
     generated_for_hash = latest_provenance.get("source_set_hash") if latest_provenance.get("generated_from_ai") else None
+    ai_generation = editor.get("ai_generation")
     if editor.get("editor_ready") and generated_for_hash != source_manifest_hash:
         try:
             editor = _generate_proposal_revision(
                 request=request, db=db, proposal=item, selected_versions=selected_versions,
                 source_set_hash=source_manifest_hash, seeded_editor=editor, role=role,
             )
+            ai_generation = editor.get("ai_generation")
         except HTTPException as exc:
             detail = exc.detail if isinstance(exc.detail, str) else json.dumps(exc.detail, sort_keys=True)
             item.proposal_fields_json = {**(item.proposal_fields_json or {}), "generation_state": "FAILED_RETRYABLE", "generation_error": detail}
             db.commit()
             return {"result": "GENERATION_FAILED_RETRYABLE", "proposal_id": item.id, "proposal_reference": item.opportunity_reference, "source_set_hash": source_manifest_hash, "source_manifest_hash": source_manifest_hash, "source_count": len(selected_versions), "excluded_source_count": len(excluded_paths), "capture": run, "generation_state": "FAILED_RETRYABLE", "generation_error": detail, **editor}
+    elif generated_for_hash == source_manifest_hash and latest_provenance:
+        ai_generation = {
+            "status": "SUCCEEDED",
+            "work_product_id": latest_provenance.get("work_product_id"),
+            "context_snapshot_id": latest_provenance.get("context_snapshot_id"),
+            "mutation_count": latest_provenance.get("mutation_count", 0),
+            "source_set_hash": source_manifest_hash,
+            "generation_mode": latest_provenance.get("generation_mode"),
+        }
     item.proposal_fields_json = {**(item.proposal_fields_json or {}), "generation_state": "READY_FOR_EDIT" if editor.get("editor_ready") else "BLOCKED_BASELINE"}
     db.commit()
-    return {"result": "CREATED", "proposal_id": item.id, "proposal_reference": item.opportunity_reference, "source_set_hash": source_manifest_hash, "source_manifest_hash": source_manifest_hash, "source_count": len(selected_versions), "excluded_source_count": len(excluded_paths), "capture": run, "generation_state": "READY_FOR_EDIT" if editor.get("editor_ready") else "BLOCKED_BASELINE", **editor}
+    return {"result": "CREATED", "proposal_id": item.id, "proposal_reference": item.opportunity_reference, "source_set_hash": source_manifest_hash, "source_manifest_hash": source_manifest_hash, "source_count": len(selected_versions), "excluded_source_count": len(excluded_paths), "capture": run, "generation_state": "READY_FOR_EDIT" if editor.get("editor_ready") else "BLOCKED_BASELINE", **editor, **({"ai_generation": ai_generation} if ai_generation else {})}
 
 
 @router.post("/proposals/{proposal_id}/regenerate")

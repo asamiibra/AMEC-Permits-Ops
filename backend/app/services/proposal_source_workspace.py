@@ -270,6 +270,13 @@ def capture(db: Session, number: int, *, actor: str = "source-workspace") -> dic
             historical_metadata = historical.metadata_json if isinstance(historical.metadata_json, dict) else {}
             if historical_metadata.get("source_project_number") == number and historical_metadata.get("source_presence_state", "PRESENT") == "PRESENT" and historical_metadata.get("source_relative_path") not in present_paths and historical.superseded_by is None:
                 historical.metadata_json = {**historical_metadata, "source_presence_state": "MISSING_AT_SOURCE", "currentness_state": "MISSING"}
+        missing_by_hash = {
+            historical.sha256: historical
+            for historical in historical_rows
+            if historical.metadata_json and historical.metadata_json.get("source_project_number") == number
+            and historical.metadata_json.get("source_presence_state") == "MISSING_AT_SOURCE"
+            and historical.superseded_by is None
+        }
         captured = 0
         unchanged = 0
         for item in files:
@@ -309,6 +316,17 @@ def capture(db: Session, number: int, *, actor: str = "source-workspace") -> dic
                     and get_settings().app_env.upper() in {"TEST", "DEV", "DEVELOPMENT"}
                 ),
             }
+            moved_from = None
+            if current is None and read.sha256 in missing_by_hash:
+                moved_from = (missing_by_hash[read.sha256].metadata_json or {}).get("source_relative_path")
+                previous = missing_by_hash[read.sha256]
+                previous.metadata_json = {
+                    **(previous.metadata_json or {}),
+                    "source_presence_state": "MOVED",
+                    "currentness_state": "SUPERSEDED",
+                    "moved_to": item.relative_path,
+                }
+                metadata.update({"moved_from": moved_from, "source_presence_state": "PRESENT", "currentness_state": "CURRENT"})
             # A sync may produce a new immutable version for the same source
             # identity. Preserve an explicit Owner classification across that
             # version boundary; path/filename heuristics must never silently
