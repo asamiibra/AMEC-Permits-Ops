@@ -9,7 +9,7 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
-from sqlalchemy import select, true
+from sqlalchemy import or_, select, true
 from sqlalchemy.orm import Session
 
 from ..models import Document, DocumentType, DocumentVersion, DocumentApprovalState, Opportunity, ProposalRevision, ProposalSourceDecision, ProposalSourceLink, Project
@@ -192,11 +192,34 @@ def source_decision_for_version(
     """Resolve the one Owner decision for a version across identity aliases."""
     metadata = version.metadata_json if isinstance(version.metadata_json, dict) else {}
     logical_identity = str(path or metadata.get("proposal_source_key") or metadata.get("source_relative_path") or version.id)
-    return _decision_for(
+    decision = _decision_for(
         canonical_source_decisions(db, source_project_identity=source_project_identity, versions=(version,)),
         version,
         logical_identity,
     )
+    if decision is not None:
+        return decision
+    # Last-resort legacy lookup: older captures may not have persisted the
+    # project identity on the version, while their decision key still carries
+    # the canonical relative path or proposal_source_key. Keep this fallback
+    # here so every caller shares exactly the same identity semantics.
+    aliases = {
+        str(value)
+        for value in (metadata.get("proposal_source_key"), metadata.get("source_relative_path"), logical_identity)
+        if value
+    }
+    predicates = [ProposalSourceDecision.logical_source_identity.in_(aliases)] if aliases else []
+    path_value = str(metadata.get("source_relative_path") or path or "")
+    if path_value:
+        predicates.append(ProposalSourceDecision.logical_source_identity.like(f"%:{path_value}"))
+    if not predicates:
+        return None
+    rows = db.scalars(
+        select(ProposalSourceDecision)
+        .where(or_(*predicates))
+        .order_by(ProposalSourceDecision.updated_at.desc(), ProposalSourceDecision.decision_version.desc(), ProposalSourceDecision.id.desc())
+    ).all()
+    return rows[0] if rows else None
 
 
 def current_source_versions(db: Session, number: int) -> dict[str, DocumentVersion]:
