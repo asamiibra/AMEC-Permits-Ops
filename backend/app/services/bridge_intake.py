@@ -187,10 +187,14 @@ def ingest_bridge_scan(db: Session, payload: BridgeScanIn, identity: BridgeIdent
             row = existing_entries.get(entry.relative_path)
             values = {"entry_type": entry.entry_type, "size_bytes": entry.size_bytes, "mtime_token": entry.mtime_token, "sha256": entry.sha256, "capture_status": entry.capture_status, "failure_reason": entry.failure_reason, "source_version_token": entry.source_version_token}
             if row is None:
-                db.add(ProposalSourceScanEntry(scan_id=existing.id, relative_path=entry.relative_path, **values))
-            else:
-                for key, value in values.items():
-                    setattr(row, key, value)
+                row = ProposalSourceScanEntry(scan_id=existing.id, relative_path=entry.relative_path, **values)
+                db.add(row)
+                # Keep the in-memory index in sync so duplicate paths in one
+                # signed Synology inventory update the pending row instead of
+                # violating the database uniqueness constraint.
+                existing_entries[entry.relative_path] = row
+            for key, value in values.items():
+                setattr(row, key, value)
         db.flush()
         return {"result": "FINALIZED" if existing.status in {"COMPLETED", "INCOMPLETE", "FAILED"} else "IDEMPOTENT", "scan_id": existing.scan_id, "status": existing.status, "entry_count": len(payload.entries), "signature_verified": True}
     scan = ProposalSourceScan(scan_id=payload.scan_id, source_identity=payload.source_identity, source_root=payload.source_root, source_project_identity=payload.source_project_identity, project_number=payload.project_number, status=payload.status, started_at=started, completed_at=completed, bridge_machine_identity=identity.object_id, signed_manifest_hash=payload.manifest_hash, signature_b64=payload.signature_b64, metadata_json={"signature_verified": True})
@@ -199,8 +203,17 @@ def ingest_bridge_scan(db: Session, payload: BridgeScanIn, identity: BridgeIdent
             setattr(scan, key, int(payload.counts[key]))
     db.add(scan)
     db.flush()
+    entries_by_path: dict[str, ProposalSourceScanEntry] = {}
     for entry in payload.entries:
-        db.add(ProposalSourceScanEntry(scan_id=scan.id, relative_path=entry.relative_path, entry_type=entry.entry_type, size_bytes=entry.size_bytes, mtime_token=entry.mtime_token, sha256=entry.sha256, capture_status=entry.capture_status, failure_reason=entry.failure_reason, source_version_token=entry.source_version_token))
+        row = entries_by_path.get(entry.relative_path)
+        values = {"entry_type": entry.entry_type, "size_bytes": entry.size_bytes, "mtime_token": entry.mtime_token, "sha256": entry.sha256, "capture_status": entry.capture_status, "failure_reason": entry.failure_reason, "source_version_token": entry.source_version_token}
+        if row is None:
+            row = ProposalSourceScanEntry(scan_id=scan.id, relative_path=entry.relative_path, **values)
+            db.add(row)
+            entries_by_path[entry.relative_path] = row
+        else:
+            for key, value in values.items():
+                setattr(row, key, value)
     db.flush()
     return {"result": "RECORDED", "scan_id": scan.scan_id, "status": scan.status, "entry_count": len(payload.entries), "signature_verified": True}
 
