@@ -340,10 +340,14 @@ def _captured_bytes(version: DocumentVersion) -> bytes:
     raise HTTPException(503, "PROPOSAL_BASELINE_DOCUMENT_UNAVAILABLE")
 
 
+def _generation_state_for_error(detail: str) -> str:
+    return "GENERATION_REVIEW_REQUIRED" if detail.startswith("GENERATION_REVIEW_REQUIRED:") else "FAILED_RETRYABLE"
+
+
 def _mark_generation_failed(db: Session, proposal_id: str, manifest_hash: str, detail: str) -> None:
     attempt = db.scalar(select(ProposalGenerationAttempt).where(ProposalGenerationAttempt.proposal_id == proposal_id, ProposalGenerationAttempt.manifest_hash == manifest_hash, ProposalGenerationAttempt.generation_kind == "DOCUMENT_CHANGE_PLAN"))
     if attempt is not None:
-        attempt.status = "FAILED_RETRYABLE"
+        attempt.status = _generation_state_for_error(detail)
         attempt.failure_code = detail[:160]
         from datetime import datetime, timezone
         attempt.completed_at = datetime.now(timezone.utc)
@@ -519,9 +523,46 @@ def _generate_proposal_revision(
             raise HTTPException(409, "PROPOSAL_AI_MUTATION_CITATION_INVALID")
     try:
         mutations = [TextMutation(str(item["anchor"]), str(item["expected_xml_hash"]), str(item["replacement"])) for item in raw_mutations]
-        generated_bytes = apply_text_mutations(baseline_bytes, mutations)
+        generated_ai_bytes = apply_text_mutations(baseline_bytes, mutations)
     except (KeyError, TypeError, ValueError, DocumentPackageError) as exc:
         raise HTTPException(409, "PROPOSAL_AI_CHANGE_PLAN_INVALID") from exc
+
+    # Regeneration must preserve edits already accepted by the Owner.  Rebase
+    # the cumulative anchored edits from the prior canonical draft onto the
+    # fresh AI output.  If the AI changed document topology and an Owner anchor
+    # disappeared, fail closed for review instead of publishing a silent loss.
+    prior = db.get(ProposalRevision, seeded_editor.get("editor_revision_id")) if seeded_editor.get("editor_revision_id") else None
+    prior_snapshot = prior.snapshot if prior and prior.status == "DRAFT" else {}
+    owner_mutations_data = prior_snapshot.get("owner_mutations") or []
+    owner_mutations_by_anchor = {
+        str(item.get("anchor")): item for item in owner_mutations_data
+        if isinstance(item, dict) and item.get("anchor")
+    }
+    # Three-way merge rule: an AI mutation that targets an anchor changed by
+    # the Owner cannot silently win.  Preserve the prior draft and require an
+    # explicit review, while unrelated AI anchors can be applied safely.
+    for item in raw_mutations:
+        if not isinstance(item, dict):
+            continue
+        owner_item = owner_mutations_by_anchor.get(str(item.get("anchor")))
+        if owner_item is not None and str(item.get("replacement") or "") != str(owner_item.get("replacement") or ""):
+            raise HTTPException(409, "GENERATION_REVIEW_REQUIRED:OWNER_AI_EDIT_CONFLICT")
+    owner_mutations: list[TextMutation] = []
+    if owner_mutations_data:
+        generated_nodes = {str(node.get("id")): node for node in import_editor_model(generated_ai_bytes).get("nodes", []) if isinstance(node, dict)}
+        for item in owner_mutations_data:
+            if not isinstance(item, dict) or not item.get("anchor"):
+                raise HTTPException(409, "OWNER_EDIT_REBASE_REQUIRED")
+            node = generated_nodes.get(str(item["anchor"]))
+            if node is None or not node.get("editable"):
+                raise HTTPException(409, "OWNER_EDIT_REBASE_REQUIRED")
+            owner_mutations.append(TextMutation(str(item["anchor"]), str(node.get("xml_hash") or ""), str(item.get("replacement") or "")))
+        try:
+            generated_bytes = apply_text_mutations(generated_ai_bytes, owner_mutations)
+        except (DocumentPackageError, ValueError, TypeError) as exc:
+            raise HTTPException(409, "OWNER_EDIT_REBASE_REQUIRED") from exc
+    else:
+        generated_bytes = generated_ai_bytes
     _validate_generated_docx(proposal, generated_bytes, selected_versions)
 
     store = create_binary_store()
@@ -553,14 +594,20 @@ def _generate_proposal_revision(
             "evidence_refs": [item.id for item in selected_versions],
         },
     )
-    prior = db.get(ProposalRevision, seeded_editor.get("editor_revision_id")) if seeded_editor.get("editor_revision_id") else None
     if prior is not None and prior.status == "DRAFT":
         prior.status = "SUPERSEDED"
         from datetime import datetime, timezone
         prior.superseded_at = datetime.now(timezone.utc)
     latest_number = db.scalar(select(ProposalRevision.revision_number).where(ProposalRevision.proposal_id == proposal.id).order_by(ProposalRevision.revision_number.desc())) or 0
+    generated_ai_model = import_editor_model(generated_ai_bytes)
     snapshot = {
         "editor_model": import_editor_model(generated_bytes),
+        "owner_base_model": generated_ai_model,
+        "owner_mutations": [
+            {"anchor": mutation.anchor, "expected_xml_hash": mutation.expected_xml_hash, "replacement": mutation.replacement}
+            for mutation in owner_mutations
+        ],
+        "owner_edit_base_hash": digest(generated_ai_bytes),
         "baseline_hash": digest(generated_bytes), "working_hash": digest(generated_bytes),
         "source_set_hash": source_set_hash, "source_ids": [item.id for item in selected_versions],
         "editor_baseline_document_version_id": baseline.id,
@@ -576,6 +623,7 @@ def _generate_proposal_revision(
             "work_product_id": intelligence.get("work_product_id"),
             "context_snapshot_id": intelligence.get("context_snapshot_id"),
             "mutation_count": len(mutations),
+            "owner_mutation_count": len(owner_mutations),
         },
     }
     revision = ProposalRevision(
@@ -780,10 +828,11 @@ def create_proposal_from_source_workspace(
             ai_generation = editor.get("ai_generation")
         except HTTPException as exc:
             detail = exc.detail if isinstance(exc.detail, str) else json.dumps(exc.detail, sort_keys=True)
+            generation_state = _generation_state_for_error(detail)
             _mark_generation_failed(db, item.id, source_manifest_hash, detail)
-            item.proposal_fields_json = {**(item.proposal_fields_json or {}), "generation_state": "FAILED_RETRYABLE", "generation_error": detail}
+            item.proposal_fields_json = {**(item.proposal_fields_json or {}), "generation_state": generation_state, "generation_error": detail}
             db.commit()
-            return {"result": "GENERATION_FAILED_RETRYABLE", "proposal_id": item.id, "proposal_reference": item.opportunity_reference, "source_set_hash": source_manifest_hash, "source_manifest_hash": source_manifest_hash, "source_count": len(selected_versions), "excluded_source_count": len(excluded_paths), "capture": run, "generation_state": "FAILED_RETRYABLE", "generation_error": detail, **editor}
+            return {"result": "GENERATION_REVIEW_REQUIRED" if generation_state == "GENERATION_REVIEW_REQUIRED" else "GENERATION_FAILED_RETRYABLE", "proposal_id": item.id, "proposal_reference": item.opportunity_reference, "source_set_hash": source_manifest_hash, "source_manifest_hash": source_manifest_hash, "source_count": len(selected_versions), "excluded_source_count": len(excluded_paths), "capture": run, "generation_state": generation_state, "generation_error": detail, **editor}
         except Exception:
             db.rollback()
             detail = "PROPOSAL_AI_GENERATION_FAILED"
@@ -838,10 +887,12 @@ def regenerate_proposal_from_sources(
         try:
             editor = _generate_proposal_revision(request=request, db=db, proposal=proposal, selected_versions=selected_versions, source_set_hash=source_set_hash, seeded_editor=editor, role=role)
         except HTTPException as exc:
-            _mark_generation_failed(db, proposal.id, source_set_hash, str(exc.detail))
-            proposal.proposal_fields_json = {**(proposal.proposal_fields_json or {}), "generation_state": "FAILED_RETRYABLE", "generation_error": str(exc.detail)}
+            detail = str(exc.detail)
+            generation_state = _generation_state_for_error(detail)
+            _mark_generation_failed(db, proposal.id, source_set_hash, detail)
+            proposal.proposal_fields_json = {**(proposal.proposal_fields_json or {}), "generation_state": generation_state, "generation_error": detail}
             db.commit()
-            return {"result": "GENERATION_FAILED_RETRYABLE", "proposal_id": proposal.id, "source_set_hash": source_set_hash, "generation_state": "FAILED_RETRYABLE", "generation_error": str(exc.detail), **editor}
+            return {"result": "GENERATION_REVIEW_REQUIRED" if generation_state == "GENERATION_REVIEW_REQUIRED" else "GENERATION_FAILED_RETRYABLE", "proposal_id": proposal.id, "source_set_hash": source_set_hash, "generation_state": generation_state, "generation_error": detail, **editor}
         except Exception:
             db.rollback()
             detail = "PROPOSAL_AI_GENERATION_FAILED"

@@ -334,6 +334,19 @@ async def save_canonical_editor_revision(
     output = apply_text_mutations(data, mutations)
     baseline_hash, working_hash = digest(data), digest(output)
     prior = revision.snapshot or {}
+    # Keep a cumulative, anchored edit set relative to the generated revision
+    # that the Owner first opened.  A later save receives the already edited
+    # DOCX, so diffing only against that file would lose earlier edits when a
+    # source regeneration creates a new AI revision.
+    owner_base_model = prior.get("owner_base_model") or prior.get("editor_model") or imported
+    try:
+        owner_mutations = editor_diff_to_mutations(owner_base_model, current)
+    except (ValueError, TypeError) as exc:
+        raise HTTPException(409, "EDITOR_OWNER_EDIT_REBASE_REQUIRED") from exc
+    serialized_owner_mutations = [
+        {"anchor": mutation.anchor, "expected_xml_hash": mutation.expected_xml_hash, "replacement": mutation.replacement}
+        for mutation in owner_mutations
+    ]
     source_ids = prior.get("source_ids", [])
     source_set_hash = prior.get("source_set_hash") or digest(json.dumps(source_ids, sort_keys=True, separators=(",", ":")).encode())
     document_id = prior.get("editor_document_id")
@@ -345,7 +358,20 @@ async def save_canonical_editor_revision(
     store = create_binary_store()
     target = StorageTarget(store.provider_id, getattr(getattr(store, "config", None), "container", None) or getattr(getattr(store, "config", None), "share", "synthetic"), f"proposal-editors/{proposal_id}/{revision_id}")
     stored = DocumentStorageService(store).store_version(db, document=document, content=output, filename="proposal-edited.docx", mime_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document", target=target, actor=getattr(role, "value", str(role)), correlation_id=getattr(request.state, "correlation_id", f"proposal-editor:{revision_id}"), idempotency_key=f"proposal-editor:{revision_id}:{working_hash}", source_system="PROPOSAL_EDITOR", metadata={"proposal_id": proposal_id, "revision_id": revision_id, "baseline_hash": baseline_hash, "source_set_hash": source_set_hash, "change_plan": plan, "evidence_refs": refs})
-    revision.snapshot = {**prior, "editor_model": current, "baseline_hash": baseline_hash, "working_hash": working_hash, "source_set_hash": source_set_hash, "editor_document_id": document.id, "editor_document_version_id": stored.version.id, "change_plan": plan, "ai_provenance": {"evidence_refs": refs, "mutation_count": len(mutations), "provenance_state": "RECORDED"}}
+    revision.snapshot = {
+        **prior,
+        "editor_model": current,
+        "owner_base_model": owner_base_model,
+        "owner_mutations": serialized_owner_mutations,
+        "owner_edit_base_hash": prior.get("owner_edit_base_hash") or prior.get("working_hash") or baseline_hash,
+        "baseline_hash": baseline_hash,
+        "working_hash": working_hash,
+        "source_set_hash": source_set_hash,
+        "editor_document_id": document.id,
+        "editor_document_version_id": stored.version.id,
+        "change_plan": plan,
+        "ai_provenance": {"evidence_refs": refs, "mutation_count": len(mutations), "owner_mutation_count": len(owner_mutations), "provenance_state": "RECORDED"},
+    }
     revision.content_hash = digest(json.dumps(revision.snapshot, sort_keys=True, separators=(",", ":")).encode())
     revision.change_summary = {**(revision.change_summary or {}), "editor_saved": True, "mutation_count": len(mutations), "working_hash": working_hash}
     db.commit()
