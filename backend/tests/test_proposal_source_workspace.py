@@ -32,6 +32,16 @@ def test_explicit_454_create_proposal_persists_source_set(client):
     assert "discounted QAR 36,000" not in generated_text
     assert "Duration: 3 months" not in generated_text
     assert "Needs Owner Review" in generated_text
+    revision = client.get(
+        f"/api/proposals-v1/editor/proposals/{payload['proposal_id']}/revisions/{payload['editor_revision_id']}",
+        headers={"X-Dev-Role": "SYSTEM_ADMIN"},
+    )
+    assert revision.status_code == 200, revision.text
+    mutation = revision.json()["change_plan"]["mutations"][0]
+    assert mutation["before"]
+    assert mutation["after"]
+    assert mutation["section"]
+    assert mutation["reason"]
 
 
 def test_source_create_applies_owner_exclusions_without_mutating_synology(client):

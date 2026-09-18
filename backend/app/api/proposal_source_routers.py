@@ -519,7 +519,33 @@ def _generate_proposal_revision(
     plan = intelligence.get("output") or {}
     if plan.get("baseline_document_version_id") != baseline.id:
         raise HTTPException(409, "PROPOSAL_AI_BASELINE_MISMATCH")
-    raw_mutations = plan.get("mutations") or []
+    baseline_model = import_editor_model(baseline_bytes)
+    baseline_nodes = {str(node.get("id")): node for node in baseline_model.get("nodes", []) if isinstance(node, dict)}
+    raw_mutations = []
+    for candidate in plan.get("mutations") or []:
+        if not isinstance(candidate, dict):
+            raw_mutations.append(candidate)
+            continue
+        mutation = dict(candidate)
+        node = baseline_nodes.get(str(mutation.get("anchor"))) or {}
+        mutation.setdefault("section", node.get("part") or node.get("block_type") or "Document")
+        mutation.setdefault("before", node.get("text") or "")
+        mutation.setdefault("after", mutation.get("replacement") or "")
+        mutation.setdefault("reason", "Source-grounded Proposal change")
+        raw_mutations.append(mutation)
+    plan["mutations"] = raw_mutations
+    # A first generation with no source-backed document mutation is not a
+    # truthful generated Proposal. Only a later, already verified Proposal may
+    # legitimately produce a deterministic no-change result; a first
+    # generation must stop for Owner review instead of being marked ready with
+    # an unchanged baseline.
+    prior_for_zero = db.get(ProposalRevision, seeded_editor.get("editor_revision_id")) if seeded_editor.get("editor_revision_id") else None
+    prior_for_zero_provenance = (prior_for_zero.snapshot or {}).get("ai_provenance") if prior_for_zero else {}
+    verified_existing_proposal = bool(prior_for_zero_provenance.get("generated_from_ai")) and prior_for_zero_provenance.get("provenance_state") == "RECORDED"
+    if not raw_mutations and not verified_existing_proposal:
+        raise HTTPException(409, "GENERATION_REVIEW_REQUIRED:AI_NO_DOCUMENT_CHANGES")
+    if not raw_mutations:
+        plan["status"] = "NO_AI_CHANGES_REQUIRED"
     available_citations = {
         str((item.get("citation_key") or item.get("locator", {}).get("citation_key") or item.get("locator_json", {}).get("citation_key"))) if isinstance(item, dict) else str(item)
         for item in (intelligence.get("citations") or [])
@@ -540,7 +566,7 @@ def _generate_proposal_revision(
     # the cumulative anchored edits from the prior canonical draft onto the
     # fresh AI output.  If the AI changed document topology and an Owner anchor
     # disappeared, fail closed for review instead of publishing a silent loss.
-    prior = db.get(ProposalRevision, seeded_editor.get("editor_revision_id")) if seeded_editor.get("editor_revision_id") else None
+    prior = prior_for_zero
     prior_snapshot = prior.snapshot if prior and prior.status == "DRAFT" else {}
     owner_mutations_data = prior_snapshot.get("owner_mutations") or []
     owner_mutations_by_anchor = {
@@ -914,7 +940,7 @@ def regenerate_proposal_from_sources(
             return {"result": "GENERATION_FAILED_RETRYABLE", "proposal_id": proposal.id, "source_set_hash": source_set_hash, "generation_state": "FAILED_RETRYABLE", "generation_error": detail, **editor}
     current_fields = dict(proposal.proposal_fields_json or {})
     current_workspace = dict(current_fields.get("source_workspace") or {})
-    current_workspace.update({"source_set_hash": source_set_hash, "source_manifest_hash": source_set_hash})
+    current_workspace.update({"source_set_hash": source_set_hash, "source_manifest_hash": source_set_hash, "source_manifest": manifest})
     proposal.proposal_fields_json = {**current_fields, "source_workspace": current_workspace, "generation_state": "READY_FOR_EDIT", "source_set_hash": source_set_hash}
     db.commit()
     return {"result": "REGENERATED", "proposal_id": proposal.id, "source_set_hash": source_set_hash, "source_count": len(selected_versions), **editor}

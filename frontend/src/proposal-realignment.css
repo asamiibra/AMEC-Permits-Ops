@@ -23,6 +23,26 @@
 .proposal-editor-change ins { color: #067647; background: #ecfdf3; text-decoration: none; }
 .proposal-editor-change small { color: #667085; word-break: break-all; font-size: .65rem; }
 .proposal-editor-preview { width: 100%; min-height: 70vh; border: 1px solid var(--line, #e5e7eb); margin-top: 1rem; }
+.proposal-editor-modes { display: flex; gap: .35rem; flex-wrap: wrap; margin: 0 0 1rem; border-bottom: 1px solid var(--line, #e5e7eb); }
+.proposal-editor-modes button { border: 0; border-bottom: 3px solid transparent; padding: .7rem .9rem; background: transparent; color: var(--ink-muted, #667085); font-weight: 700; cursor: pointer; }
+.proposal-editor-modes button.active { color: #137b81; border-bottom-color: #137b81; background: #f0faf8; }
+.proposal-document-view { min-height: 70vh; }
+.proposal-ai-changes, .proposal-mutation-evidence { display: grid; gap: .75rem; }
+.proposal-ai-changes h4, .proposal-mutation-evidence h4 { margin: 0; }
+.proposal-editor-sources { display: grid; gap: .75rem; }
+.proposal-editor-sources-head { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+.proposal-editor-sources-head h4 { margin: 0; margin-right: auto; }
+.proposal-source-row { display: grid; gap: .35rem; padding: .75rem; border: 1px solid var(--line, #e5e7eb); border-radius: .5rem; background: #fff; }
+.proposal-source-row small { color: var(--ink-muted, #667085); }
+.proposal-source-row label { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; font-size: .75rem; color: var(--ink-muted, #667085); }
+.proposal-source-row select { border: 1px solid var(--line, #e5e7eb); border-radius: .35rem; padding: .35rem; }
+.proposal-source-row > span { display: flex; gap: .5rem; flex-wrap: wrap; }
+.proposal-source-row.source-excluded { opacity: .62; background: #f8fafc; }
+.source-stale { color: #9c650d; font-size: .75rem; font-weight: 700; }
+.proposal-mutation-evidence { margin-top: 1rem; padding: .9rem; border: 1px solid #d9ecef; border-radius: .5rem; background: #f8fcfd; }
+.proposal-mutation-evidence > div { display: grid; gap: .25rem; padding: .65rem 0; border-top: 1px solid #e5eef0; }
+.proposal-mutation-evidence small { color: var(--ink-muted, #667085); }
+.proposal-mutation-evidence p { margin: 0; color: var(--ink-muted, #667085); font-size: .8rem; }
 @media (max-width: 900px) { .proposal-editor-grid { grid-template-columns: 1fr; } .proposal-editor-review { position: static; } }
 .source-workspace-toolbar { display: flex; align-items: center; gap: 1rem; margin: 1rem 0; }
 .source-workspace-projects { display: flex; gap: .5rem; overflow-x: auto; margin-bottom: 1rem; }
