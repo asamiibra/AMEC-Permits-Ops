@@ -91,6 +91,24 @@ def test_proposal_creation_without_initial_source_remains_available(client):
     assert payload["sources"] == []
 
 
+def test_arabic_proposal_values_round_trip_through_json_and_persistence(client):
+    title = "مركز الوطن - عرض فني"
+    client_name = "شركة آرت مارك الهندسية"
+    created = client.post(
+        "/api/bd/proposals",
+        headers=_headers(),
+        json={"proposal_description": title, "client_name": client_name, "idempotency_key": "unicode-api-roundtrip-v1"},
+    )
+    assert created.status_code == 200, created.text
+    payload = created.json()
+    proposal_id = payload["id"]
+    assert payload["title"] == title
+    detail = client.get(f"/api/bd/proposals/{proposal_id}", headers=_headers())
+    assert detail.status_code == 200, detail.text
+    assert detail.json()["title"] == title
+    assert detail.json()["client_name"] == client_name
+
+
 def test_client_information_without_file_persists_contact_and_client_source(client):
     response = client.post(
         "/api/bd/proposals/intake",
