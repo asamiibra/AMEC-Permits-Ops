@@ -19,7 +19,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from ..api.dependencies import require_roles
 from ..db import get_db
-from ..models import Document, DocumentType, DocumentVersion, Opportunity, ProposalRevision, Role
+from ..models import Document, DocumentType, DocumentVersion, Opportunity, ProposalRevision, ProposalSourceLink, Role
 from ..storage import DocumentStorageService, StorageTarget, create_binary_store
 
 from ..services.proposal_document_package import DocumentPackageError, apply_text_mutations, digest, package_parts
@@ -148,6 +148,43 @@ def canonical_editor_entry(proposal_id: str, db: Session = Depends(get_db), _: R
         "project_number": workspace.get("project_number"),
         "route": f"/proposals/{proposal.id}/editor",
     }
+
+
+@router.get("/proposals/{proposal_id}/sources")
+def active_proposal_sources(proposal_id: str, db: Session = Depends(get_db), _: Role = Depends(editor_role)):
+    """Return the active, citation-addressable source set inside a Proposal."""
+    proposal = db.get(Opportunity, proposal_id)
+    if proposal is None:
+        raise HTTPException(404, "PROPOSAL_NOT_FOUND")
+    workspace = (proposal.proposal_fields_json or {}).get("source_workspace") or {}
+    number = workspace.get("project_number")
+    rows = db.scalars(
+        select(ProposalSourceLink)
+        .where(ProposalSourceLink.proposal_id == proposal_id, ProposalSourceLink.active.is_(True))
+        .order_by(ProposalSourceLink.created_at, ProposalSourceLink.id)
+    ).all()
+    sources = []
+    for link in rows:
+        version = db.get(DocumentVersion, link.document_version_id)
+        if version is None:
+            continue
+        metadata = version.metadata_json or {}
+        path = metadata.get("source_relative_path")
+        source_number = metadata.get("source_project_number", number)
+        file_id = __import__("hashlib").sha256(path.encode()).hexdigest()[:24] if path and source_number else None
+        sources.append({
+            "link_id": link.id,
+            "document_version_id": version.id,
+            "filename": version.source_filename,
+            "source_role": link.source_role,
+            "logical_category": metadata.get("logical_category"),
+            "included_in_proposal": metadata.get("included_in_proposal", True),
+            "sha256": version.sha256,
+            "source_path": path,
+            "view_route": f"/api/proposals/sources/2026/projects/{source_number}/files/{file_id}/content" if file_id else (f"/api/bd/proposals/{proposal_id}/sources/{link.source_evidence_id}/content" if link.source_evidence_id else None),
+            "download_route": f"/api/proposals/sources/2026/projects/{source_number}/files/{file_id}/download" if file_id else (f"/api/bd/proposals/{proposal_id}/sources/{link.source_evidence_id}/content" if link.source_evidence_id else None),
+        })
+    return {"proposal_id": proposal_id, "source_manifest_hash": workspace.get("source_manifest_hash"), "sources": sources}
 
 
 @router.get("/proposals/{proposal_id}/revisions/{revision_id}")

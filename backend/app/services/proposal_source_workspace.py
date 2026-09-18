@@ -5,6 +5,8 @@ import hashlib
 import json
 import mimetypes
 import os
+import re
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from sqlalchemy import select
@@ -92,6 +94,84 @@ def source_category(version: DocumentVersion) -> str:
     )
 
 
+def source_included(version: DocumentVersion) -> bool:
+    metadata = version.metadata_json if isinstance(version.metadata_json, dict) else {}
+    return bool(metadata.get("included_in_proposal", True))
+
+
+def current_source_versions(db: Session, number: int) -> dict[str, DocumentVersion]:
+    """Return exactly one present, non-superseded version per source path."""
+    rows = db.scalars(
+        select(DocumentVersion)
+        .where(DocumentVersion.source_system.in_(("QATAR_SOURCE_INTAKE_BRIDGE", "SYNOLOGY_PROPOSAL_SOURCE")))
+        .order_by(DocumentVersion.ingested_at.desc(), DocumentVersion.version_number.desc(), DocumentVersion.id.desc())
+    ).all()
+    selected: dict[str, DocumentVersion] = {}
+    for version in rows:
+        metadata = version.metadata_json if isinstance(version.metadata_json, dict) else {}
+        if metadata.get("source_project_number") != number or metadata.get("source_presence_state", "PRESENT") != "PRESENT":
+            continue
+        path = str(metadata.get("source_relative_path") or "")
+        if path and version.superseded_by is None and path not in selected:
+            selected[path] = version
+    return selected
+
+
+def source_manifest(db: Session, number: int, *, include_excluded: bool = True) -> dict[str, Any]:
+    """Build the canonical persisted-source projection used by promotion/AI."""
+    with _source(db) as source:
+        project = _project(source, number)
+        inventory = source.inventory(project.folder_name)
+    current = current_source_versions(db, number)
+    entries: list[dict[str, Any]] = []
+    completeness_reasons: list[str] = []
+    for item in inventory:
+        if item.is_directory:
+            continue
+        version = current.get(item.relative_path)
+        metadata = version.metadata_json if version and isinstance(version.metadata_json, dict) else {}
+        included = source_included(version) if version else True
+        if not include_excluded and not included:
+            continue
+        if version is None:
+            completeness_reasons.append("CAPTURE_MISSING:" + item.relative_path)
+        entries.append({
+            "source_identity": metadata.get("proposal_source_key") or f"PROPOSAL_SOURCE:{number}:{item.relative_path}",
+            "source_path": item.relative_path,
+            "document_version_id": version.id if version else None,
+            "document_id": version.document_id if version else None,
+            "sha256": version.sha256 if version else None,
+            "filename": item.name,
+            "content_type": mimetypes.guess_type(item.name)[0] or "application/octet-stream",
+            "size": item.size,
+            "source_version_token": metadata.get("source_modified_at") or str(item.modified_ns),
+            "source_presence_state": metadata.get("source_presence_state", "MISSING_AT_SOURCE") if version else "MISSING_AT_SOURCE",
+            "currentness_state": "CURRENT" if version else "MISSING",
+            "source_role": metadata.get("source_role") or "SOURCE_WORKSPACE",
+            "effective_category": source_category(version) if version else default_logical_category(item.relative_path, item.name),
+            "category_origin": "OWNER" if metadata.get("logical_category_source") == "OWNER_OVERRIDE" else "AUTO",
+            "included": included,
+            "inclusion_origin": "OWNER" if metadata.get("inclusion_origin") == "OWNER" else "DEFAULT",
+            "processing_state": metadata.get("processing_state", "PENDING"),
+        })
+    canonical = [entry for entry in entries if entry["included"] or include_excluded]
+    canonical.sort(key=lambda entry: (entry["source_path"], entry["source_identity"]))
+    manifest_hash = hashlib.sha256(json.dumps(canonical, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    completeness = "COMPLETE" if not completeness_reasons else "INCOMPLETE"
+    return {
+        "source_project_identity": project.folder_name,
+        "source_project_number": number,
+        "source_project_folder_name": project.folder_name,
+        "logical_root": LOGICAL_ROOT,
+        "snapshot_at": datetime.now(timezone.utc).isoformat(),
+        "completeness_state": completeness,
+        "completeness_reasons": completeness_reasons,
+        "entries": entries,
+        "source_manifest_version": "PROPOSAL-V1-MANIFEST-1",
+        "source_manifest_hash": manifest_hash,
+    }
+
+
 def save_source_category(version: DocumentVersion, category: str, *, actor: str) -> dict[str, Any]:
     category = category.strip().upper()
     if category not in LOGICAL_SOURCE_CATEGORIES:
@@ -109,6 +189,18 @@ def save_source_category(version: DocumentVersion, category: str, *, actor: str)
     }
     version.metadata_json = updated
     return updated
+
+
+def save_source_inclusion(version: DocumentVersion, included: bool, *, actor: str) -> dict[str, Any]:
+    prior = dict(version.metadata_json or {})
+    return_value = {
+        **prior,
+        "included_in_proposal": bool(included),
+        "inclusion_origin": "OWNER",
+        "inclusion_history": [*(prior.get("inclusion_history") or []), {"included": bool(included), "actor": actor}][-25:],
+    }
+    version.metadata_json = return_value
+    return return_value
 
 
 def projects(db: Session | None = None) -> list[dict[str, Any]]:
@@ -143,10 +235,11 @@ def tree(number: int, db: Session | None = None) -> dict[str, Any]:
     with _source(db) as source:
         project = _project(source, number)
         entries = source.inventory(project.folder_name)
+        current = current_source_versions(db, number) if db is not None else {}
         # Preserve the adapter's source ordering and exact names.
         result = []
         for item in entries:
-            version = captured_version(db, number, item.relative_path) if db is not None and not item.is_directory else None
+            version = current.get(item.relative_path) if db is not None and not item.is_directory else None
             result.append({
                 "id": hashlib.sha256(item.relative_path.encode()).hexdigest()[:24],
                 "path": item.relative_path, "name": item.name, "is_directory": item.is_directory,
@@ -154,6 +247,11 @@ def tree(number: int, db: Session | None = None) -> dict[str, Any]:
                 "content_type": mimetypes.guess_type(item.name)[0] or "application/octet-stream",
                 "logical_category": source_category(version) if version else default_logical_category(item.relative_path, item.name),
                 "category_source": ((version.metadata_json or {}).get("logical_category_source") if version else None) or "AUTO_CLASSIFIED",
+                "category_origin": "OWNER" if version and (version.metadata_json or {}).get("logical_category_source") == "OWNER_OVERRIDE" else "AUTO",
+                "included_in_proposal": source_included(version) if version else True,
+                "inclusion_origin": ((version.metadata_json or {}).get("inclusion_origin") if version else None) or "DEFAULT",
+                "source_presence_state": ((version.metadata_json or {}).get("source_presence_state") if version else None) or "NOT_CAPTURED",
+                "currentness_state": ((version.metadata_json or {}).get("currentness_state") if version else None) or "NOT_CAPTURED",
             })
         return {"number": number, "name": project.folder_name, "root": project.folder_name, "entries": result}
 
@@ -163,6 +261,15 @@ def capture(db: Session, number: int, *, actor: str = "source-workspace") -> dic
         project = _project(source, number)
         entries = source.inventory(project.folder_name)
         files = [item for item in entries if not item.is_directory]
+        present_paths = {item.relative_path for item in files}
+        historical_rows = db.scalars(
+            select(DocumentVersion)
+            .where(DocumentVersion.source_system.in_(("QATAR_SOURCE_INTAKE_BRIDGE", "SYNOLOGY_PROPOSAL_SOURCE")))
+        ).all()
+        for historical in historical_rows:
+            historical_metadata = historical.metadata_json if isinstance(historical.metadata_json, dict) else {}
+            if historical_metadata.get("source_project_number") == number and historical_metadata.get("source_presence_state", "PRESENT") == "PRESENT" and historical_metadata.get("source_relative_path") not in present_paths and historical.superseded_by is None:
+                historical.metadata_json = {**historical_metadata, "source_presence_state": "MISSING_AT_SOURCE", "currentness_state": "MISSING"}
         captured = 0
         unchanged = 0
         for item in files:
@@ -175,7 +282,7 @@ def capture(db: Session, number: int, *, actor: str = "source-workspace") -> dic
                 # marker is only ever added in TEST/DEV synthetic mode; a
                 # live capture can never be relabelled by this path.
                 if get_settings().synthetic_only and get_settings().app_env.upper() in {"TEST", "DEV", "DEVELOPMENT"}:
-                    current.metadata_json = {**(current.metadata_json or {}), "synthetic_non_business_fixture": True, "synthetic_only": True}
+                    current.metadata_json = {**(current.metadata_json or {}), "synthetic_non_business_fixture": True, "synthetic_only": True, "source_presence_state": "PRESENT", "currentness_state": "CURRENT"}
                 unchanged += 1
                 continue
             document = current.document if current else Document(document_type=DocumentType.OTHER, logical_name=item.name, language="UNKNOWN", source_system="SYNOLOGY_PROPOSAL_SOURCE")
@@ -190,6 +297,10 @@ def capture(db: Session, number: int, *, actor: str = "source-workspace") -> dic
                 "source_modified_at": read.before_modified_at,
                 "capture_actor": actor,
                 "source_presence_state": "PRESENT",
+                "currentness_state": "CURRENT",
+                "included_in_proposal": True,
+                "inclusion_origin": "DEFAULT",
+                "processing_state": "PENDING",
                 # TEST/DEV captures are explicitly synthetic so the shared
                 # AI context compiler can prove its safety boundary.  Live
                 # bridge captures never inherit this marker.
@@ -209,6 +320,8 @@ def capture(db: Session, number: int, *, actor: str = "source-workspace") -> dic
                     "logical_category_source": "OWNER_OVERRIDE",
                     "logical_category_history": list(prior_metadata.get("logical_category_history") or []),
                 })
+            if prior_metadata.get("inclusion_origin") == "OWNER" and "included_in_proposal" in prior_metadata:
+                metadata.update({"included_in_proposal": bool(prior_metadata["included_in_proposal"]), "inclusion_origin": "OWNER", "inclusion_history": list(prior_metadata.get("inclusion_history") or [])})
             # All new captures use the same verified storage protocol as the
             # rest of the SOR.  The mock provider is permitted only in the
             # synthetic TEST/DEV profile, while SMB/Azure persist outside it.
@@ -225,6 +338,9 @@ def capture(db: Session, number: int, *, actor: str = "source-workspace") -> dic
                 version = DocumentVersion(document_id=document.id, version_number=(current.version_number + 1 if current else 1), source_filename=item.name, source_path_or_reference=f"synthetic-db://proposal-source/{number}/{item.relative_path}", sha256=read.sha256, mime_type=mimetypes.guess_type(item.name)[0] or "application/octet-stream", file_size=read.size, language="UNKNOWN", approval_state=DocumentApprovalState.WORKING, source_system="SYNOLOGY_PROPOSAL_SOURCE", synthetic_content=read.content, metadata_json={**metadata, "synthetic_only": True})
                 db.add(version)
                 db.flush()
+                if current is not None:
+                    current.superseded_by = version.id
+                    current.approval_state = DocumentApprovalState.SUPERSEDED
                 document.current_version_id = version.id
             else:
                 raise RuntimeError("CANONICAL_STORAGE_JOURNAL_REQUIRED")
@@ -300,7 +416,17 @@ def ensure_editor_revision(
         version for version in versions
         if (version.source_filename or "").lower().endswith(".docx")
     ]
-    for version in sorted(candidates, key=lambda item: (item.version_number, item.id)):
+    explicit = [version for version in candidates if (version.metadata_json or {}).get("template_baseline") or (version.metadata_json or {}).get("source_role") == "BASELINE_TEMPLATE"]
+    named = [version for version in candidates if re.search(r"(?:amec.*p[-_ ]?d|proposal|baseline|template)", (version.source_filename or "").lower())]
+    if len(explicit) == 1:
+        ordered_candidates = explicit
+    elif len(named) == 1:
+        ordered_candidates = named
+    elif len(candidates) == 1:
+        ordered_candidates = candidates
+    else:
+        ordered_candidates = []
+    for version in ordered_candidates:
         content = _version_bytes(version)
         if not content:
             continue

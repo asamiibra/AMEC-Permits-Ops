@@ -43,6 +43,11 @@ class ProposalCreate(BaseModel):
     client_account_id: str | None = None
     client_name: str | None = None
     idempotency_key: str | None = Field(default=None, max_length=200)
+    # Source-workspace promotion may create a provisional Proposal before a
+    # canonical CRM ClientAccount is known. This flag is only set by the
+    # authenticated Synology source route; ordinary Proposal creation remains
+    # fail-closed on canonical client identity.
+    provisional_source_identity: bool = False
 
 
 class ProposalFieldsPatch(BaseModel):
@@ -103,8 +108,9 @@ def _create_proposal_record(payload: ProposalCreate, request: Request, db: Sessi
     if production_mode():
         reject_synthetic_value(payload.proposal_description, code="CANONICAL_PROPOSAL_CONTEXT_REQUIRED")
         reject_synthetic_value(payload.project_reference, code="CANONICAL_PROPOSAL_CONTEXT_REQUIRED")
-        client = require_canonical_active_client(db, client_id)
-        client_id = client.id
+        if not (payload.provisional_source_identity and not client_id):
+            client = require_canonical_active_client(db, client_id)
+            client_id = client.id
     office = require_authorized_office(db, principal, project_id=payload.project_id)
     if payload.idempotency_key:
         existing = db.scalar(select(Opportunity).where(Opportunity.idempotency_key == payload.idempotency_key))
@@ -119,6 +125,9 @@ def _create_proposal_record(payload: ProposalCreate, request: Request, db: Sessi
         client_id = client.id
     reference = allocate_proposal_reference(db)
     fields = {"intake_client_name": payload.client_name, "project_reference": payload.project_reference, "provenance": {"intake_client_name": "manual", "project_reference": "manual"}}
+    if payload.provisional_source_identity:
+        fields["source_identity_state"] = "PROVISIONAL_UNRESOLVED"
+        fields["client_resolution_state"] = "UNRESOLVED_PROVISIONAL"
     fields = {key: value for key, value in fields.items() if value is not None}
     item = Opportunity(office_id=office.id, client_account_id=client_id, opportunity_reference=reference, title=payload.proposal_description.strip(), status="IN_REVIEW", source_type="BD_WORKSPACE", project_id=payload.project_id, reference_state="CANONICAL" if payload.project_id else "PROVISIONAL", proposal_fields_json=fields, idempotency_key=payload.idempotency_key, provisional_reference=reference, canonical_project_reference=payload.project_reference)
     db.add(item)

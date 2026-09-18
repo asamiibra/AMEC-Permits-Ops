@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import io
 import json
+import os
 import re
 from pathlib import Path
 from typing import Any
@@ -19,13 +20,14 @@ from ..api.dependencies import AuthenticatedPrincipal, authenticated_actor, auth
 from ..audit.service import audit
 from ..db import get_db
 from ..models import ClientAccount, Document, DocumentType, DocumentVersion, ProposalRevision, ProposalSourceEvidence, ProposalSourceLink, Project, Role
-from ..services.proposal_source_workspace import LOGICAL_ROOT, LOGICAL_SOURCE_CATEGORIES, captured_version, capture, configured_source_root, ensure_editor_revision, projects, save_source_category, source_category, tree
+from ..services.proposal_source_workspace import LOGICAL_ROOT, LOGICAL_SOURCE_CATEGORIES, capture, configured_source_root, current_source_versions, ensure_editor_revision, projects, save_source_category, save_source_inclusion, source_category, source_included, source_manifest, tree
 from ..services.proposal_production_boundary import require_authorized_office
 from ..config.settings import get_settings
 from ..storage import DocumentStorageService, StorageTarget, create_binary_store
 from ..services.proposal_document_package import DocumentPackageError, TextMutation, apply_text_mutations, digest
 from ..services.proposal_editor_model import import_editor_model
 from ..services.proposal_intelligence import ProposalDeterministicProvider, execute_proposal_intelligence
+from ..services.master_content import resolve_master_content_purpose
 from .bd_proposal_routers import ProposalCreate, _create_proposal_record
 
 router = APIRouter(prefix="/api/proposals/sources", tags=["proposal-source-workspace"])
@@ -44,9 +46,8 @@ class SourceCategoryUpdatePayload(BaseModel):
     logical_category: str = Field(min_length=1, max_length=60)
 
 
-def _identity_token(value: str) -> str:
-    """Normalize a source identity for deterministic account resolution."""
-    return re.sub(r"[^a-z0-9]+", " ", value.casefold()).strip()
+class SourceInclusionUpdatePayload(BaseModel):
+    included_in_proposal: bool
 
 
 def _source_client_name(folder_name: str, number: int) -> str:
@@ -56,71 +57,20 @@ def _source_client_name(folder_name: str, number: int) -> str:
     return value or f"Synology project {number}"
 
 
-def _ensure_source_project_and_client(db: Session, *, number: int, folder_name: str) -> tuple[Project, ClientAccount]:
-    """Resolve canonical business identities for every bridged source project.
+def _ensure_source_project_and_client(db: Session, *, number: int, folder_name: str) -> tuple[Project | None, ClientAccount | None]:
+    """Resolve only identities already present in the canonical register.
 
-    A synced folder is an external source identity, not a synthetic fixture.
-    When the source has not been onboarded into the relational register yet,
-    create the durable Project and ClientAccount rows from that identity. This
-    keeps the normal production guard intact while making Create Proposal
-    universal for all governed Synology projects.
+    A Synology folder is a source identity, not proof of a canonical Client or
+    Project. Promotion therefore never manufactures business master data from
+    a folder suffix. Unknown folders remain provisional until an Owner maps
+    them to the real entities.
     """
     principal = authenticated_principal_context()
     project = db.scalar(select(Project).where(Project.project_number == str(number)))
     if project is None:
-        office = require_authorized_office(db, principal)
-        project = Project(
-            project_number=str(number),
-            project_name=folder_name,
-            office_id=office.id,
-            workstream="PROPOSAL_SOURCE",
-            status="ACTIVE",
-            municipality="NOT_RECORDED",
-            permit_type="PROPOSAL_SOURCE",
-        )
-        db.add(project)
-        db.flush()
-    else:
-        require_authorized_office(db, principal, project_id=project.id)
-
-    client_name = _source_client_name(folder_name, number)
-    identity = _identity_token(client_name)
-    candidates = db.scalars(
-        select(ClientAccount).where(ClientAccount.status == "ACTIVE")
-    ).all()
-    client = next(
-        (
-            row for row in candidates
-            if "SYNTHETIC" not in (row.client_reference or "").upper()
-            and "SYNTHETIC" not in (row.data_classification or "").upper()
-            and (
-                _identity_token(row.display_name or "") == identity
-                or _identity_token(row.legal_name or "") == identity
-            )
-        ),
-        None,
-    )
-    if client is None:
-        # The reference is deterministic and contains no fixture marker. If a
-        # rare slug collision exists, append the project number while keeping
-        # the canonical source identity stable for retries.
-        slug = re.sub(r"[^A-Z0-9]+", "-", client_name.upper()).strip("-")[:72] or f"PROJECT-{number}"
-        reference = f"QATAR-SOURCE-CLIENT-{slug}"
-        existing = db.scalar(select(ClientAccount).where(ClientAccount.client_reference == reference))
-        if existing is not None:
-            client = existing
-        else:
-            client = ClientAccount(
-                client_reference=reference,
-                legal_name=client_name,
-                display_name=client_name,
-                client_type="COMPANY",
-                data_classification="INTERNAL",
-                status="ACTIVE",
-            )
-            db.add(client)
-            db.flush()
-    return project, client
+        return None, None
+    require_authorized_office(db, principal, project_id=project.id)
+    return project, None
 
 
 def _entry(number: int, file_id: str, db: Session) -> dict[str, Any]:
@@ -137,6 +87,18 @@ def source_projects(_: Role = Depends(source_role), db: Session = Depends(get_db
     return {"logical_root": "Tenders/1- Proposal/2026", "physical_root_configured": settings.source_intake_mode.upper() != "BRIDGE" and configured_source_root().is_absolute(), "projects": projects(db)}
 
 
+@router.get("/runtime-version")
+def proposal_v1_runtime_version(_: Role = Depends(source_role)):
+    """Expose the non-secret runtime identity used by browser diagnostics."""
+    return {
+        "feature": "PROPOSALS_V1",
+        "source_sha": os.getenv("SOURCE_VERSION", os.getenv("GIT_SHA", "UNKNOWN")),
+        "image_digest": os.getenv("IMAGE_DIGEST", "UNKNOWN"),
+        "api_revision": os.getenv("API_REVISION", "UNKNOWN"),
+        "migration_head": "proposal_billing_contract_convergence_v1",
+    }
+
+
 @router.get("/2026/projects/{number}/tree")
 def source_tree(number: int, _: Role = Depends(source_role), db: Session = Depends(get_db)):
     try:
@@ -145,11 +107,19 @@ def source_tree(number: int, _: Role = Depends(source_role), db: Session = Depen
         raise HTTPException(404, str(exc)) from exc
 
 
+@router.get("/2026/projects/{number}/manifest")
+def source_manifest_view(number: int, _: Role = Depends(source_role), db: Session = Depends(get_db)):
+    try:
+        return source_manifest(db, number)
+    except (FileNotFoundError, OSError) as exc:
+        raise HTTPException(404, str(exc)) from exc
+
+
 @router.get("/2026/projects/{number}/files/{file_id}")
 def source_file(number: int, file_id: str, _: Role = Depends(source_role), db: Session = Depends(get_db)):
     item = _entry(number, file_id, db)
-    version = captured_version(db, number, item["path"])
-    return {**item, "captured": bool(version), "source_content_hash": version.sha256 if version else None, "source_version": version.version_number if version else None, "source_presence_state": (version.metadata_json or {}).get("source_presence_state", "NOT_CAPTURED") if version else "NOT_CAPTURED", "logical_category": source_category(version) if version else item.get("logical_category"), "category_source": ((version.metadata_json or {}).get("logical_category_source") if version else None) or item.get("category_source", "AUTO_CLASSIFIED")}
+    version = current_source_versions(db, number).get(item["path"])
+    return {**item, "captured": bool(version), "source_content_hash": version.sha256 if version else None, "source_version": version.version_number if version else None, "source_presence_state": (version.metadata_json or {}).get("source_presence_state", "NOT_CAPTURED") if version else "NOT_CAPTURED", "logical_category": source_category(version) if version else item.get("logical_category"), "category_source": ((version.metadata_json or {}).get("logical_category_source") if version else None) or item.get("category_source", "AUTO_CLASSIFIED"), "included_in_proposal": source_included(version) if version else item.get("included_in_proposal", True), "inclusion_origin": ((version.metadata_json or {}).get("inclusion_origin") if version else None) or item.get("inclusion_origin", "DEFAULT")}
 
 
 @router.patch("/2026/projects/{number}/files/{file_id}/category")
@@ -163,10 +133,10 @@ def save_source_file_category(
 ):
     """Persist one explicit Owner category without writing back to Synology."""
     item = _entry(number, file_id, db)
-    version = captured_version(db, number, item["path"])
+    version = current_source_versions(db, number).get(item["path"])
     if version is None:
         capture(db, number, actor="source-category-save")
-        version = captured_version(db, number, item["path"])
+        version = current_source_versions(db, number).get(item["path"])
     if version is None:
         raise HTTPException(404, "SOURCE_FILE_NOT_CAPTURED")
     previous_category = source_category(version)
@@ -179,12 +149,35 @@ def save_source_file_category(
     return {**item, "captured": True, "source_content_hash": version.sha256, "source_version": version.version_number, "source_presence_state": metadata.get("source_presence_state", "PRESENT"), "logical_category": metadata["logical_category"], "category_source": metadata["logical_category_source"], "synology_write_count": 0}
 
 
+@router.patch("/2026/projects/{number}/files/{file_id}/inclusion")
+def save_source_file_inclusion(
+    number: int,
+    file_id: str,
+    payload: SourceInclusionUpdatePayload,
+    request: Request,
+    db: Session = Depends(get_db),
+    role: Role = Depends(source_role),
+):
+    item = _entry(number, file_id, db)
+    version = current_source_versions(db, number).get(item["path"])
+    if version is None:
+        capture(db, number, actor="source-inclusion-save")
+        version = current_source_versions(db, number).get(item["path"])
+    if version is None:
+        raise HTTPException(404, "SOURCE_FILE_NOT_CAPTURED")
+    prior = source_included(version)
+    metadata = save_source_inclusion(version, payload.included_in_proposal, actor=authenticated_actor() or getattr(role, "value", str(role)))
+    audit(db, correlation_id=getattr(request.state, "correlation_id", f"source-inclusion:{version.id}"), event_type="PROPOSAL_SOURCE_INCLUSION_SAVED", entity_type="DocumentVersion", entity_id=version.id, actor_id=authenticated_actor(), before={"included_in_proposal": prior}, after={"included_in_proposal": metadata["included_in_proposal"], "source_relative_path": metadata.get("source_relative_path"), "sha256": version.sha256}, metadata={"project_number": number, "file_id": file_id, "synology_write_count": 0})
+    db.commit()
+    return {**item, "captured": True, "source_content_hash": version.sha256, "source_version": version.version_number, "included_in_proposal": source_included(version), "inclusion_origin": metadata["inclusion_origin"], "synology_write_count": 0}
+
+
 def _content(number: int, file_id: str, db: Session) -> tuple[dict[str, Any], bytes]:
     item = _entry(number, file_id, db)
-    version = captured_version(db, number, item["path"])
+    version = current_source_versions(db, number).get(item["path"])
     if not version:
         result = capture(db, number, actor="source-view")
-        version = captured_version(db, number, item["path"])
+        version = current_source_versions(db, number).get(item["path"])
         if not version:
             raise HTTPException(404, "SOURCE_FILE_NOT_CAPTURED")
     try:
@@ -244,6 +237,22 @@ def _ensure_baseline_template(db: Session, proposal: Any) -> DocumentVersion:
     template is stored once in managed artifact storage and becomes an explicit
     BASELINE_TEMPLATE source link alongside the live evidence.
     """
+    # Production resolves the exact reviewed Content Library binding. A code
+    # fixture is valid only for the synthetic test profile and is never a live
+    # fallback.
+    settings = get_settings()
+    if not (settings.synthetic_only and settings.app_env.upper() in {"TEST", "DEV", "DEVELOPMENT"}):
+        resolved = resolve_master_content_purpose(db, module="BD", usage_type="PROPOSAL_TEMPLATE")
+        if resolved.get("status") != "RESOLVED" or not resolved.get("item", {}).get("version_id"):
+            raise HTTPException(422, "PROPOSAL_BASELINE_TEMPLATE_REQUIRED")
+        version = db.get(DocumentVersion, resolved["item"]["version_id"])
+        if version is None:
+            raise HTTPException(422, "PROPOSAL_BASELINE_TEMPLATE_REQUIRED")
+        try:
+            import_editor_model(_captured_bytes(version))
+        except (DocumentPackageError, ValueError, TypeError) as exc:
+            raise HTTPException(422, "PROPOSAL_BASELINE_TEMPLATE_INVALID") from exc
+        return version
     existing = db.scalar(
         select(DocumentVersion)
         .join(Document, Document.id == DocumentVersion.document_id)
@@ -308,7 +317,7 @@ def _generate_proposal_revision(
     those preconditioned mutations to the captured baseline and stores a new
     canonical working revision before the browser opens.
     """
-    baseline = next((version for version in selected_versions if (version.source_filename or "").lower().endswith(".docx")), None)
+    baseline = _select_baseline_docx(selected_versions)
     if baseline is None:
         raise HTTPException(422, "VALID_DOCX_SOURCE_REQUIRED")
     baseline_bytes = _captured_bytes(baseline)
@@ -424,6 +433,22 @@ def _generate_proposal_revision(
     }
 
 
+def _select_baseline_docx(versions: list[DocumentVersion]) -> DocumentVersion:
+    """Select one explicit baseline; never use arbitrary source ordering."""
+    candidates = [version for version in versions if (version.source_filename or "").lower().endswith(".docx")]
+    if not candidates:
+        raise HTTPException(422, "VALID_DOCX_SOURCE_REQUIRED")
+    explicit = [version for version in candidates if (version.metadata_json or {}).get("template_baseline") or (version.metadata_json or {}).get("source_role") == "BASELINE_TEMPLATE"]
+    if len(explicit) == 1:
+        return explicit[0]
+    named = [version for version in candidates if re.search(r"(?:amec.*p[-_ ]?d|proposal|baseline|template)", (version.source_filename or "").lower())]
+    if len(named) == 1:
+        return named[0]
+    if len(candidates) == 1:
+        return candidates[0]
+    raise HTTPException(409, "PROPOSAL_BASELINE_SELECTION_REQUIRED")
+
+
 @router.post("/2026/projects/{number}/create-proposal")
 def create_proposal_from_source_workspace(
     number: int,
@@ -453,7 +478,7 @@ def create_proposal_from_source_workspace(
     project_name = (project.project_name if project else f"Project {number}").strip()
     client_name = _source_client_name(project_name, number) if get_settings().source_intake_mode.upper() == "BRIDGE" else project_name
     client_id = client.id if client is not None else None
-    item = _create_proposal_record(ProposalCreate(proposal_description=f"{client_name} Proposal", project_reference=str(number), project_id=project.id if project else None, client_account_id=client_id, client_name=client_name, idempotency_key=f"proposal-source-project:{number}"), request, db, role)
+    item = _create_proposal_record(ProposalCreate(proposal_description=f"{client_name} Proposal", project_reference=str(number), project_id=project.id if project else None, client_account_id=client_id, client_name=client_name, idempotency_key=f"proposal-source-project:{number}", provisional_source_identity=True), request, db, role)
     # The source adapter is synthetic-only in TEST/DEV/Azure pre-production.
     # Mark the Proposal projection accordingly so the shared AI context
     # compiler can prove that the entity and its captured evidence belong to
@@ -464,7 +489,7 @@ def create_proposal_from_source_workspace(
         and get_settings().app_env.upper() in {"TEST", "DEV", "DEVELOPMENT"}
     ):
         item.fixture_classification = "SYNTHETIC_OWNER_TEST"
-    versions = db.scalars(select(DocumentVersion).where(DocumentVersion.metadata_json["source_project_number"].as_integer() == number).order_by(DocumentVersion.ingested_at)).all()
+    manifest = source_manifest(db, number)
     excluded_paths = {path.strip() for path in (payload.excluded_source_paths if payload else []) if path and path.strip()}
     # Categories are server-owned DocumentVersion metadata.  The legacy
     # request field remains accepted for compatibility but never controls AI
@@ -473,10 +498,22 @@ def create_proposal_from_source_workspace(
     invalid_categories = sorted({value for value in requested_categories.values() if value not in LOGICAL_SOURCE_CATEGORIES})
     if invalid_categories:
         raise HTTPException(422, {"code": "SOURCE_CATEGORY_INVALID", "allowed": sorted(LOGICAL_SOURCE_CATEGORIES), "values": invalid_categories})
+    # Preserve compatibility with older callers that posted exclusions while
+    # making the canonical state durable before promotion.
+    current_versions = current_source_versions(db, number)
+    for path in excluded_paths:
+        version = current_versions.get(path)
+        if version is not None:
+            save_source_inclusion(version, False, actor="source-create-proposal")
+    if excluded_paths:
+        db.flush()
+        manifest = source_manifest(db, number)
     selected_versions = [
-        version for version in versions
-        if (version.metadata_json or {}).get("source_relative_path") not in excluded_paths
+        current_versions.get(entry["source_path"])
+        for entry in manifest["entries"]
+        if entry.get("included") and entry.get("document_version_id") and current_versions.get(entry["source_path"]) is not None
     ]
+    selected_versions = [version for version in selected_versions if version is not None]
     settings = get_settings()
     # Synthetic TEST/DEV fixtures retain their historical explicit blocker;
     # the managed template fallback is for the live governed bridge only.
@@ -490,7 +527,7 @@ def create_proposal_from_source_workspace(
     # captured source and Synology untouched.
     if excluded_paths:
         for link in db.scalars(select(ProposalSourceLink).where(ProposalSourceLink.proposal_id == item.id, ProposalSourceLink.source_role == "SOURCE_WORKSPACE", ProposalSourceLink.active == True)):  # noqa: E712
-            linked_version = next((version for version in versions if version.id == link.document_version_id), None)
+            linked_version = db.get(DocumentVersion, link.document_version_id)
             if linked_version and (linked_version.metadata_json or {}).get("source_relative_path") in excluded_paths:
                 link.active = False
     hashes: list[str] = []
@@ -516,23 +553,40 @@ def create_proposal_from_source_workspace(
             linked.active = True
             linked.source_evidence_id = evidence.id
             linked.added_by = "source-create-proposal"
-    source_set_hash = hashlib.sha256("".join(sorted(hashes)).encode()).hexdigest()
-    effective_categories = {str((version.metadata_json or {}).get("source_relative_path")): source_category(version) for version in selected_versions if not (version.metadata_json or {}).get("template_baseline")}
-    item.proposal_fields_json = {**(item.proposal_fields_json or {}), "source_workspace": {"logical_root": LOGICAL_ROOT, "project_number": number, "source_set_hash": source_set_hash, "captured_count": run["captured_count"], "selected_count": len(selected_versions), "excluded_source_paths": sorted(excluded_paths), "source_categories": effective_categories}}
-    editor = ensure_editor_revision(db, item, selected_versions, source_set_hash=source_set_hash, actor="source-create-proposal")
+    manifest_entries = [entry for entry in manifest["entries"] if entry.get("included") and entry.get("document_version_id")]
+    # The canonical hash is computed over the complete manifest, including
+    # excluded entries and their category/inclusion/currentness fields. This
+    # makes an Owner exclusion or category correction a material source-set
+    # change instead of silently reusing an older AI result.
+    source_manifest_hash = manifest["source_manifest_hash"]
+    effective_categories = {str(entry["source_path"]): entry["effective_category"] for entry in manifest_entries}
+    item.proposal_fields_json = {**(item.proposal_fields_json or {}), "source_workspace": {"logical_root": LOGICAL_ROOT, "project_number": number, "source_set_hash": source_manifest_hash, "source_manifest_hash": source_manifest_hash, "source_manifest_version": manifest.get("source_manifest_version"), "source_manifest": manifest, "captured_count": run["captured_count"], "selected_count": len(selected_versions), "excluded_source_paths": sorted(excluded_paths), "source_categories": effective_categories}}
+    editor = ensure_editor_revision(db, item, selected_versions, source_set_hash=source_manifest_hash, actor="source-create-proposal")
+    # Persist the Proposal, manifest, source links and baseline before any
+    # external AI call. A provider outage must leave a durable retryable
+    # Proposal instead of rolling the entire promotion back.
+    item.proposal_fields_json = {**(item.proposal_fields_json or {}), "generation_state": "BASELINE_READY" if editor.get("editor_ready") else "BLOCKED_BASELINE"}
+    db.commit()
     # Promotion is the single causal handoff into Proposal Intelligence.  The
     # generated revision is published before the browser is allowed to open
     # the editor, so the Owner always starts from the source-grounded DOCX.
     latest_revision = db.get(ProposalRevision, editor.get("editor_revision_id")) if editor.get("editor_revision_id") else None
     latest_provenance = ((latest_revision.snapshot or {}).get("ai_provenance") or {}) if latest_revision else {}
     generated_for_hash = latest_provenance.get("source_set_hash") if latest_provenance.get("generated_from_ai") else None
-    if editor.get("editor_ready") and generated_for_hash != source_set_hash:
-        editor = _generate_proposal_revision(
-            request=request, db=db, proposal=item, selected_versions=selected_versions,
-            source_set_hash=source_set_hash, seeded_editor=editor, role=role,
-        )
+    if editor.get("editor_ready") and generated_for_hash != source_manifest_hash:
+        try:
+            editor = _generate_proposal_revision(
+                request=request, db=db, proposal=item, selected_versions=selected_versions,
+                source_set_hash=source_manifest_hash, seeded_editor=editor, role=role,
+            )
+        except HTTPException as exc:
+            detail = exc.detail if isinstance(exc.detail, str) else json.dumps(exc.detail, sort_keys=True)
+            item.proposal_fields_json = {**(item.proposal_fields_json or {}), "generation_state": "FAILED_RETRYABLE", "generation_error": detail}
+            db.commit()
+            return {"result": "GENERATION_FAILED_RETRYABLE", "proposal_id": item.id, "proposal_reference": item.opportunity_reference, "source_set_hash": source_manifest_hash, "source_manifest_hash": source_manifest_hash, "source_count": len(selected_versions), "excluded_source_count": len(excluded_paths), "capture": run, "generation_state": "FAILED_RETRYABLE", "generation_error": detail, **editor}
+    item.proposal_fields_json = {**(item.proposal_fields_json or {}), "generation_state": "READY_FOR_EDIT" if editor.get("editor_ready") else "BLOCKED_BASELINE"}
     db.commit()
-    return {"result": "CREATED", "proposal_id": item.id, "proposal_reference": item.opportunity_reference, "source_set_hash": source_set_hash, "source_count": len(selected_versions), "excluded_source_count": len(excluded_paths), "capture": run, **editor}
+    return {"result": "CREATED", "proposal_id": item.id, "proposal_reference": item.opportunity_reference, "source_set_hash": source_manifest_hash, "source_manifest_hash": source_manifest_hash, "source_count": len(selected_versions), "excluded_source_count": len(excluded_paths), "capture": run, "generation_state": "READY_FOR_EDIT" if editor.get("editor_ready") else "BLOCKED_BASELINE", **editor}
 
 
 @router.post("/proposals/{proposal_id}/regenerate")
@@ -551,7 +605,21 @@ def regenerate_proposal_from_sources(
     selected_versions = [version for link in links if (version := db.get(DocumentVersion, link.document_version_id)) is not None]
     if not selected_versions:
         raise HTTPException(422, "PROPOSAL_SOURCE_SET_EMPTY")
-    source_set_hash = hashlib.sha256("".join(sorted(version.sha256 for version in selected_versions)).encode()).hexdigest()
+    semantic_sources = []
+    for link in links:
+        version = db.get(DocumentVersion, link.document_version_id)
+        if version is None:
+            continue
+        metadata = version.metadata_json or {}
+        semantic_sources.append({
+            "source_identity": metadata.get("proposal_source_key") or link.id,
+            "source_path": metadata.get("source_relative_path") or version.source_filename,
+            "sha256": version.sha256,
+            "logical_category": metadata.get("logical_category") or "OTHER_UNCLASSIFIED",
+            "included": metadata.get("included_in_proposal", True),
+            "source_role": link.source_role,
+        })
+    source_set_hash = hashlib.sha256(json.dumps(sorted(semantic_sources, key=lambda item: (item["source_path"], item["source_identity"])), sort_keys=True, separators=(",", ":")).encode()).hexdigest()
     latest = db.scalar(select(ProposalRevision).where(ProposalRevision.proposal_id == proposal.id, ProposalRevision.status == "DRAFT").order_by(ProposalRevision.revision_number.desc()))
     if latest is None:
         editor = ensure_editor_revision(db, proposal, selected_versions, source_set_hash=source_set_hash, actor="source-regenerate-proposal")
@@ -562,6 +630,12 @@ def regenerate_proposal_from_sources(
         db.commit()
         return {"result": "BLOCKED", "source_set_hash": source_set_hash, **editor}
     if not provenance.get("generated_from_ai") or provenance.get("source_set_hash") != source_set_hash:
-        editor = _generate_proposal_revision(request=request, db=db, proposal=proposal, selected_versions=selected_versions, source_set_hash=source_set_hash, seeded_editor=editor, role=role)
+        try:
+            editor = _generate_proposal_revision(request=request, db=db, proposal=proposal, selected_versions=selected_versions, source_set_hash=source_set_hash, seeded_editor=editor, role=role)
+        except HTTPException as exc:
+            proposal.proposal_fields_json = {**(proposal.proposal_fields_json or {}), "generation_state": "FAILED_RETRYABLE", "generation_error": str(exc.detail)}
+            db.commit()
+            return {"result": "GENERATION_FAILED_RETRYABLE", "proposal_id": proposal.id, "source_set_hash": source_set_hash, "generation_state": "FAILED_RETRYABLE", "generation_error": str(exc.detail), **editor}
+    proposal.proposal_fields_json = {**(proposal.proposal_fields_json or {}), "generation_state": "READY_FOR_EDIT", "source_set_hash": source_set_hash}
     db.commit()
     return {"result": "REGENERATED", "proposal_id": proposal.id, "source_set_hash": source_set_hash, "source_count": len(selected_versions), **editor}

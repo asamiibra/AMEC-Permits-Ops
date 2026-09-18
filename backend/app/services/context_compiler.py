@@ -666,12 +666,14 @@ class GovernedContextCompiler:
             # Import locally to keep the compiler's package boundary clear.
             from .proposal_document_package import document_map
             blocks = [item for item in document_map(content) if item.text.strip()]
+            # Every editable paragraph is represented. The prior first-40
+            # slice silently made later sections invisible to Proposal V1.
             editable = [
-                {"anchor": item.anchor, "expected_xml_hash": item.xml_hash, "value": item.text[:500]}
-                for item in blocks[:40]
+                {"anchor": item.anchor, "expected_xml_hash": item.xml_hash, "value": item.text[:500], "document_order": index}
+                for index, item in enumerate(blocks)
             ]
             excerpt, truncated = cls._bounded_text("\n".join(item.text for item in blocks), 2400)
-            projection.update({"source_excerpt": excerpt, "source_excerpt_truncated": truncated, "editable_blocks": editable})
+            projection.update({"source_excerpt": excerpt, "source_excerpt_truncated": truncated, "editable_blocks": editable, "document_coverage": {"state": "FULL_EDITABLE_BLOCKS", "block_count": len(editable)}})
         elif mime.startswith("text/") or filename.endswith((".txt", ".csv", ".json", ".xml", ".eml", ".md")):
             try:
                 value = content.decode("utf-8", errors="replace")
