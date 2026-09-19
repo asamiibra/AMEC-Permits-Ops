@@ -56,6 +56,7 @@ type ProposalV1Entry = {
   editor_mode?: string;
   retry_allowed?: boolean;
   blocker?: string | null;
+  generation_summary?: { state?: string; generation_review_reason?: string | null; published_ai_mutation_count?: number };
 };
 
 function ProposalEditorEntryRedirect({ role, proposalId, navigate }: { role: ProposalRole; proposalId: string; navigate: (next: string) => void }) {
@@ -74,7 +75,7 @@ function ProposalEditorEntryRedirect({ role, proposalId, navigate }: { role: Pro
     }
     // HTTP 200 from the V1 entry endpoint is authoritative.  A missing
     // revision is a generation/provenance state, never evidence of legacy.
-    if (next.generation_state === "READY_FOR_EDIT" && next.revision_id) {
+    if (["READY_FOR_EDIT", "NO_AI_CHANGES_REQUIRED"].includes(next.generation_state || "") && next.revision_id) {
       navigate(`/proposals/${proposalId}/editor?revision=${encodeURIComponent(next.revision_id)}${next.project_number ? `&project=${encodeURIComponent(String(next.project_number))}` : ""}`);
       return;
     }
@@ -112,7 +113,8 @@ function ProposalV1EntryState({ entry, onBack, onRetry }: { entry: ProposalV1Ent
     BASELINE_READY: { title: "Proposal V1 generation is required", detail: "A baseline document is captured, but the AI-generated revision is not ready yet." },
     BLOCKED_BASELINE: { title: "Proposal V1 baseline is blocked", detail: "A recognized Proposal DOCX baseline is required before generation can run." },
     FAILED_RETRYABLE: { title: "Proposal V1 generation failed", detail: "The generated document was not published. Retry generation when the source set is ready.", action: "Retry generation" },
-    GENERATION_REVIEW_REQUIRED: { title: "Proposal V1 needs Owner review", detail: "Generation completed with a review-required result. Resolve the message and retry.", action: "Retry generation" },
+    GENERATION_REVIEW_REQUIRED: { title: "Proposal V1 needs Owner review", detail: entry.generation_summary?.generation_review_reason || "AI produced no valid document changes. Review the baseline and source set, then retry generation.", action: "Retry generation" },
+    NO_AI_CHANGES_REQUIRED: { title: "Proposal V1 is ready for editing", detail: "The validated Proposal already matches the selected source evidence." },
     FAILED_VALIDATION: { title: "Proposal V1 validation failed", detail: "The generated DOCX did not pass validation. Review the source set before retrying." },
     STALE_SOURCE_MANIFEST: { title: "Proposal V1 sources changed", detail: "The active source set changed after generation. Regenerate to produce a current document.", action: "Regenerate" },
     PENDING_OWNER_SOURCES: { title: "Proposal V1 is waiting for Owner sources", detail: "Finish source selection before generation can begin." },

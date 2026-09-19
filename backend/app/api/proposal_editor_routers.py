@@ -24,6 +24,7 @@ from ..storage import DocumentStorageService, StorageTarget, create_binary_store
 
 from ..services.proposal_document_package import DocumentPackageError, apply_text_mutations, digest, package_parts
 from ..services.proposal_editor_model import editor_diff_to_mutations, import_editor_model, tracked_changes
+from ..services.proposal_generation_summary import canonical_generation_summary, persisted_generation_summary
 from ..services.proposal_source_workspace import LOGICAL_SOURCE_CATEGORIES, build_effective_proposal_source_manifest, save_source_category, save_source_inclusion, source_category, source_decision_for_version, source_manifest, source_included
 
 router = APIRouter(prefix="/api/proposals-v1/editor", tags=["proposal-editor-option-b"])
@@ -151,6 +152,7 @@ def canonical_editor_entry(proposal_id: str, db: Session = Depends(get_db), _: R
         # This endpoint deliberately does not hijack legacy Proposal routes.
         raise HTTPException(404, "PROPOSAL_V1_EDITOR_ENTRY_NOT_FOUND")
     revision = db.scalar(select(ProposalRevision).where(ProposalRevision.proposal_id == proposal.id, ProposalRevision.status == "DRAFT").order_by(ProposalRevision.revision_number.desc()))
+    generation_summary = canonical_generation_summary(revision)
     # A prior attempt can leave a retryable marker while a later request has
     # already committed a generated draft.  Reconcile only when the durable
     # revision provenance proves it was generated from the current manifest;
@@ -176,33 +178,39 @@ def canonical_editor_entry(proposal_id: str, db: Session = Depends(get_db), _: R
     }
     generated_revision_is_current = bool(
         revision is not None
-        and revision_provenance.get("generated_from_ai") is True
-        and revision_provenance.get("source_set_hash") in manifest_hashes
-        and (revision.snapshot or {}).get("source_set_hash") in manifest_hashes
+        and generation_summary["state"] in {"READY_FOR_EDIT", "NO_AI_CHANGES_REQUIRED"}
+        and generation_summary.get("generated_from_ai") is True
+        and generation_summary.get("generated_from_manifest_hash") in manifest_hashes
     )
     # A V1 record with only the seeded baseline must remain in V1 recovery
     # state.  It is never a successful editor entry just because a draft
     # revision exists or the old field is missing.
-    generation_state = str(stored_generation_state or ("READY_FOR_EDIT" if generated_revision_is_current else "BASELINE_READY"))
+    generation_state = str(stored_generation_state or (generation_summary["state"] if revision is not None else "BASELINE_READY"))
     if generated_revision_is_current and generation_state != "STALE_SOURCE_MANIFEST":
-        generation_state = "READY_FOR_EDIT"
-    if generation_state == "READY_FOR_EDIT" and not generated_revision_is_current:
-        generation_state = "BASELINE_READY"
-    if (
-        generation_state in {"FAILED_RETRYABLE", "GENERATION_REVIEW_REQUIRED", "FAILED_VALIDATION"}
-        and revision is not None
-        and revision_provenance.get("generated_from_ai")
-        and revision_provenance.get("source_set_hash") in workspace_manifest_hashes
-        and (revision.snapshot or {}).get("source_set_hash") in workspace_manifest_hashes
-    ):
-        generation_state = "READY_FOR_EDIT"
+        generation_state = generation_summary["state"]
+    # A persisted generation state is never enough to promote an old draft.
+    # If the source manifest moved on, force the explicit stale-source path;
+    # otherwise require a fresh generation before the editor can open.
+    if revision is not None and generation_state in {"READY_FOR_EDIT", "NO_AI_CHANGES_REQUIRED"} and not generated_revision_is_current:
+        current_manifest_hash = (
+            workspace.get("source_manifest_hash")
+            or workspace.get("source_set_hash")
+            or proposal_fields.get("source_manifest_hash")
+            or proposal_fields.get("source_set_hash")
+        )
+        generated_manifest_hash = generation_summary.get("generated_from_manifest_hash")
+        generation_state = (
+            "STALE_SOURCE_MANIFEST"
+            if generated_manifest_hash and current_manifest_hash and generated_manifest_hash != current_manifest_hash
+            else "BASELINE_READY"
+        )
     blocked_states = {
         "PENDING_OWNER_SOURCES", "GENERATION_PENDING", "RUNNING", "FAILED_RETRYABLE",
         "BASELINE_READY", "BLOCKED_BASELINE", "STALE_SOURCE_MANIFEST", "GENERATION_REVIEW_REQUIRED",
         "FAILED_VALIDATION",
     }
     if generation_state in blocked_states:
-        return {"proposal_id": proposal.id, "revision_id": None, "revision_number": None, "project_number": workspace.get("project_number"), "source_project_identity": workspace.get("source_project_identity"), "generation_state": generation_state, "editor_mode": "PROGRESS" if generation_state in {"PENDING_OWNER_SOURCES", "GENERATION_PENDING", "RUNNING"} else "RECOVERY", "editable": False, "retry_allowed": generation_state in {"FAILED_RETRYABLE", "GENERATION_REVIEW_REQUIRED", "STALE_SOURCE_MANIFEST"}, "blocker": (proposal.proposal_fields_json or {}).get("generation_error") or ("AI_GENERATION_REQUIRED" if generation_state == "BASELINE_READY" else None), "route": f"/proposals/{proposal.id}/editor"}
+        return {"proposal_id": proposal.id, "revision_id": None, "revision_number": None, "project_number": workspace.get("project_number"), "source_project_identity": workspace.get("source_project_identity"), "generation_state": generation_state, "generation_summary": generation_summary, "editor_mode": "PROGRESS" if generation_state in {"PENDING_OWNER_SOURCES", "GENERATION_PENDING", "RUNNING"} else "RECOVERY", "editable": False, "retry_allowed": generation_state in {"FAILED_RETRYABLE", "GENERATION_REVIEW_REQUIRED", "STALE_SOURCE_MANIFEST"}, "blocker": (proposal.proposal_fields_json or {}).get("generation_error") or generation_summary.get("generation_review_reason") or ("AI_GENERATION_REQUIRED" if generation_state == "BASELINE_READY" else None), "route": f"/proposals/{proposal.id}/editor"}
     if revision is None:
         raise HTTPException(409, "PROPOSAL_V1_EDITOR_REVISION_REQUIRED")
     return {
@@ -210,9 +218,10 @@ def canonical_editor_entry(proposal_id: str, db: Session = Depends(get_db), _: R
         "revision_id": revision.id,
         "revision_number": revision.revision_number,
         "generation_state": generation_state,
-        "editor_mode": "EDIT" if generation_state == "READY_FOR_EDIT" else "BASELINE_REVIEW",
-        "editable": generation_state == "READY_FOR_EDIT",
+        "editor_mode": "EDIT" if generation_state in {"READY_FOR_EDIT", "NO_AI_CHANGES_REQUIRED"} else "BASELINE_REVIEW",
+        "editable": generation_state in {"READY_FOR_EDIT", "NO_AI_CHANGES_REQUIRED"},
         "retry_allowed": False,
+        "generation_summary": generation_summary,
         "project_number": workspace.get("project_number"),
         "route": f"/proposals/{proposal.id}/editor",
     }
@@ -345,7 +354,8 @@ def load_canonical_editor_revision(proposal_id: str, revision_id: str, db: Sessi
     """Load the server-owned editor state by canonical Proposal identity."""
     _, revision = _canonical_revision(proposal_id, revision_id, db)
     snapshot = revision.snapshot or {}
-    return {"proposal_id": proposal_id, "revision_id": revision.id, "revision_number": revision.revision_number, "status": revision.status, "editor_model": snapshot.get("editor_model"), "baseline_hash": snapshot.get("baseline_hash"), "working_hash": snapshot.get("working_hash"), "source_set_hash": snapshot.get("source_set_hash"), "editor_document_version_id": snapshot.get("editor_document_version_id"), "baseline_selection_method": snapshot.get("baseline_selection_method"), "baseline_identity": snapshot.get("baseline_identity"), "change_plan": snapshot.get("change_plan", {}), "ai_provenance": snapshot.get("ai_provenance", {})}
+    summary = persisted_generation_summary(revision)
+    return {"proposal_id": proposal_id, "revision_id": revision.id, "revision_number": revision.revision_number, "status": revision.status, "editor_model": snapshot.get("editor_model"), "baseline_hash": snapshot.get("baseline_hash"), "working_hash": snapshot.get("working_hash"), "source_set_hash": snapshot.get("source_set_hash"), "editor_document_version_id": snapshot.get("editor_document_version_id"), "baseline_selection_method": snapshot.get("baseline_selection_method"), "baseline_identity": snapshot.get("baseline_identity"), "change_plan": snapshot.get("change_plan", {}), "ai_provenance": snapshot.get("ai_provenance", {}), "generation_summary": summary}
 
 
 @router.get("/proposals/{proposal_id}/revisions/{revision_id}/document")
@@ -468,6 +478,7 @@ async def save_canonical_editor_revision(
         for mutation in owner_mutations
     ]
     prior_ai_provenance = prior.get("ai_provenance") or {}
+    prior_generation_summary = canonical_generation_summary(type("RevisionSnapshot", (), {"snapshot": prior})())
     source_ids = prior.get("source_ids", [])
     source_set_hash = prior.get("source_set_hash") or digest(json.dumps(source_ids, sort_keys=True, separators=(",", ":")).encode())
     document_id = prior.get("editor_document_id")
@@ -479,7 +490,7 @@ async def save_canonical_editor_revision(
     store = create_binary_store()
     target = StorageTarget(store.provider_id, getattr(getattr(store, "config", None), "container", None) or getattr(getattr(store, "config", None), "share", "synthetic"), f"proposal-editors/{proposal_id}/{revision_id}")
     stored = DocumentStorageService(store).store_version(db, document=document, content=output, filename="proposal-edited.docx", mime_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document", target=target, actor=getattr(role, "value", str(role)), correlation_id=getattr(request.state, "correlation_id", f"proposal-editor:{revision_id}"), idempotency_key=f"proposal-editor:{revision_id}:{working_hash}", source_system="PROPOSAL_EDITOR", metadata={"proposal_id": proposal_id, "revision_id": revision_id, "baseline_hash": baseline_hash, "source_set_hash": source_set_hash, "change_plan": plan, "evidence_refs": refs})
-    revision.snapshot = {
+    snapshot = {
         **prior,
         "editor_model": current,
         "owner_base_model": owner_base_model,
@@ -491,16 +502,23 @@ async def save_canonical_editor_revision(
         "source_set_hash": source_set_hash,
         "editor_document_id": document.id,
         "editor_document_version_id": stored.version.id,
-        "change_plan": plan,
+        # Owner review metadata is separate from the AI generation plan.  The
+        # latter is immutable evidence for the AI Changes tab and must survive
+        # every owner save.
+        "change_plan": prior.get("change_plan") or {},
+        "owner_change_plan": plan,
         "ai_provenance": {
             **prior_ai_provenance,
             "evidence_refs": refs,
-            "mutation_count": prior_ai_provenance.get("mutation_count", len(mutations)),
+            "mutation_count": prior_generation_summary["published_ai_mutation_count"],
+            "published_ai_mutation_count": prior_generation_summary["published_ai_mutation_count"],
             "owner_mutation_count": len(owner_mutations),
             "provenance_state": "RECORDED",
         },
     }
+    snapshot["generation_summary"] = canonical_generation_summary(type("RevisionSnapshot", (), {"snapshot": snapshot})())
+    revision.snapshot = snapshot
     revision.content_hash = digest(json.dumps(revision.snapshot, sort_keys=True, separators=(",", ":")).encode())
-    revision.change_summary = {**(revision.change_summary or {}), "editor_saved": True, "mutation_count": len(mutations), "working_hash": working_hash}
+    revision.change_summary = {**(revision.change_summary or {}), "editor_saved": True, "owner_mutation_count": len(owner_mutations), "working_hash": working_hash}
     db.commit()
-    return {"result": "SAVED", "proposal_id": proposal_id, "revision_id": revision.id, "content_hash": revision.content_hash, "baseline_hash": baseline_hash, "working_hash": working_hash, "source_set_hash": source_set_hash, "document_version_id": stored.version.id, "tracked_changes": tracked_changes(imported, current), "change_plan": plan, "ai_provenance": revision.snapshot["ai_provenance"]}
+    return {"result": "SAVED", "proposal_id": proposal_id, "revision_id": revision.id, "content_hash": revision.content_hash, "baseline_hash": baseline_hash, "working_hash": working_hash, "source_set_hash": source_set_hash, "document_version_id": stored.version.id, "tracked_changes": tracked_changes(imported, current), "change_plan": revision.snapshot["change_plan"], "owner_change_plan": plan, "ai_provenance": revision.snapshot["ai_provenance"], "generation_summary": revision.snapshot["generation_summary"]}

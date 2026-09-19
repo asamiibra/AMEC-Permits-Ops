@@ -37,6 +37,26 @@ def test_proposal_v1_entry_resolves_only_to_canonical_editor_revision(client):
     assert entry.json()["route"].endswith("/editor")
 
 
+def test_proposal_v1_entry_blocks_when_source_manifest_moves_on(client):
+    headers = {"X-Dev-Role": "SYSTEM_ADMIN"}
+    created = client.post("/api/proposals/sources/2026/projects/454/create-proposal", headers=headers)
+    assert created.status_code == 200, created.text
+    payload = created.json()
+    sources = client.get(f"/api/proposals-v1/editor/proposals/{payload['proposal_id']}/sources", headers=headers)
+    assert sources.status_code == 200, sources.text
+    source = next(item for item in sources.json()["sources"] if item["source_role"] != "BASELINE_TEMPLATE")
+    changed = client.patch(
+        f"/api/proposals-v1/editor/proposals/{payload['proposal_id']}/sources/{source['link_id']}/inclusion",
+        headers=headers,
+        json={"included_in_proposal": False},
+    )
+    assert changed.status_code == 200, changed.text
+    entry = client.get(f"/api/proposals-v1/editor/proposals/{payload['proposal_id']}/entry", headers=headers)
+    assert entry.status_code == 200, entry.text
+    assert entry.json()["generation_state"] == "STALE_SOURCE_MANIFEST"
+    assert entry.json()["editable"] is False
+
+
 def test_owner_inclusion_is_persisted_and_changes_manifest_hash(client):
     headers = {"X-Dev-Role": "SYSTEM_ADMIN"}
     sync = client.post("/api/proposals/sources/2026/sync", headers=headers)

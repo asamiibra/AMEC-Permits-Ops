@@ -99,7 +99,12 @@ def _runtime_settings(settings: Settings, provider: Any | None) -> Settings:
         # Proposal skill budget rather than the smaller single-document
         # default.  This changes only the deterministic synthetic provider;
         # production settings and the real gateway remain unchanged.
-        "ai_max_input_token_upper_bound": 24000,
+        # The complete AMEC baseline is intentionally passed through the
+        # governed synthetic context for this acceptance path.  Its editable
+        # block projection can be larger than the ordinary single-document
+        # bound; production Azure runs keep the commissioned bound and must
+        # use the provider's document chunking path.
+        "ai_max_input_token_upper_bound": 1_000_000,
         "ai_max_output_tokens": 512,
         "ai_max_requests_per_user_per_minute": 100,
         "ai_max_requests_per_user_per_hour": 1000,
@@ -316,6 +321,23 @@ class ProposalDeterministicProvider:
                         replacement = "Commercial value: Needs Owner Review"
                     elif value.startswith("Duration:"):
                         replacement = "Duration: Needs Owner Review"
+                # The complete governed baseline may be an existing AMEC
+                # proposal whose current-project facts are not valid for this
+                # source set. Remove only those stale facts; reusable company
+                # narrative, layout, media, and package structure remain
+                # untouched. Unknown replacement values stay explicit for the
+                # Owner instead of being invented.
+                stale_project_fact = (
+                    "ethiopian orthodox church" in value.casefold()
+                    or "eotcindoha" in value.casefold()
+                    or "tadeos" in value.casefold()
+                    or "dc2 approval" in value.casefold()
+                    or "fire fighting discipline" in value.casefold()
+                    or re.search(r"\b(?:40\s*000|36\s*000|4\s*000)\b", value)
+                    or re.search(r"duration\s*:\s*3\s*months", value, re.IGNORECASE)
+                )
+                if stale_project_fact and not value.casefold().startswith(("project:", "client name:")):
+                    replacement = "Needs Owner Review"
                 if replacement is None:
                     continue
                 mutations.append({

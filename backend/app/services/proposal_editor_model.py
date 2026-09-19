@@ -105,13 +105,31 @@ def import_editor_model(content: bytes) -> dict[str, Any]:
     if current is not None and current["node_ids"]:
         sections.append(current)
     if not sections:
-        sections = [{
-            "section_id": "document-body",
-            "title": "Document body",
-            "level": 0,
-            "heading_anchor": None,
-            "node_ids": [node.node_id for node in body_nodes],
-        }]
+        # A document without reliable Word structure remains one logical
+        # document.  For a long unheaded package, expose deterministic ranges
+        # so the Owner can work through it without pretending that inferred
+        # headings are authoritative.  Small packages retain the honest single
+        # body fallback used by the import contract.
+        range_size = 12
+        if len(body_nodes) > range_size:
+            for index in range(0, len(body_nodes), range_size):
+                chunk = body_nodes[index:index + range_size]
+                start, end = index + 1, index + len(chunk)
+                sections.append({
+                    "section_id": f"document-range-{start}-{end}",
+                    "title": f"Document content · {start}–{end}",
+                    "level": 0,
+                    "heading_anchor": None,
+                    "node_ids": [node.node_id for node in chunk],
+                })
+        else:
+            sections = [{
+                "section_id": "document-body",
+                "title": "Document body",
+                "level": 0,
+                "heading_anchor": None,
+                "node_ids": [node.node_id for node in body_nodes],
+            }]
     return {
         "version": "PROPOSAL-EDITOR-MODEL-1.0",
         "docx_import_owned_by": "server",

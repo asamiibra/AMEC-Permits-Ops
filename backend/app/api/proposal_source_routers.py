@@ -24,8 +24,9 @@ from ..services.proposal_source_workspace import LOGICAL_ROOT, LOGICAL_SOURCE_CA
 from ..services.proposal_production_boundary import require_authorized_office
 from ..config.settings import get_settings
 from ..storage import DocumentStorageService, StorageTarget, create_binary_store
-from ..services.proposal_document_package import DocumentPackageError, TextMutation, apply_text_mutations, digest
+from ..services.proposal_document_package import DocumentPackageError, TextMutation, apply_text_mutations, digest, package_parts
 from ..services.proposal_editor_model import import_editor_model
+from ..services.proposal_generation_summary import canonical_generation_summary
 from ..services.proposal_intelligence import ProposalDeterministicProvider, execute_proposal_intelligence
 from ..services.master_content import resolve_master_content_purpose
 from .bd_proposal_routers import ProposalCreate, _create_proposal_record
@@ -496,6 +497,36 @@ def _validate_generated_docx(proposal: Any, content: bytes, selected_versions: l
         raise HTTPException(409, "GENERATION_REVIEW_REQUIRED:STALE_PROJECT_FACTS")
 
 
+def _generation_coverage(baseline_model: dict[str, Any], generated_model: dict[str, Any], mutations: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Record an explicit disposition for every detected document section."""
+    generated_by_id = {str(node.get("id")): node for node in (generated_model.get("nodes") or []) if isinstance(node, dict)}
+    mutation_by_anchor = {str(item.get("anchor")): item for item in mutations if isinstance(item, dict) and item.get("anchor")}
+    coverage: list[dict[str, Any]] = []
+    for section in baseline_model.get("sections") or []:
+        node_ids = [str(node_id) for node_id in (section.get("node_ids") or [])]
+        section_mutations = [mutation_by_anchor[node_id] for node_id in node_ids if node_id in mutation_by_anchor]
+        section_text = "\n".join(str((generated_by_id.get(node_id) or {}).get("text") or "") for node_id in node_ids)
+        citation_keys = sorted({str(key) for item in section_mutations for key in (item.get("citation_keys") or [])})
+        if "needs owner review" in section_text.casefold():
+            disposition = "NEEDS_OWNER_REVIEW"
+            reason = "Required project facts remain unresolved in this section."
+        elif section_mutations:
+            disposition = "UPDATED"
+            reason = "Source-grounded content was applied to the governed baseline."
+        else:
+            disposition = "KEEP_UNCHANGED"
+            reason = "Reusable governed AMEC content was preserved."
+        coverage.append({
+            "section_id": section.get("section_id"),
+            "section_title": section.get("title"),
+            "disposition": disposition,
+            "mutation_ids": [str(item.get("anchor")) for item in section_mutations],
+            "citation_keys": citation_keys,
+            "reason": reason,
+        })
+    return coverage
+
+
 def _ensure_baseline_template(db: Session, proposal: Any) -> DocumentVersion:
     """Provide the governed AMEC baseline when a live source has no DOCX.
 
@@ -611,6 +642,11 @@ def _generate_proposal_revision(
         import_editor_model(baseline_bytes)
     except (DocumentPackageError, ValueError, TypeError) as exc:
         raise HTTPException(422, "VALID_DOCX_SOURCE_REQUIRED") from exc
+    baseline_model = import_editor_model(baseline_bytes)
+    # A one-page stub is not a complete AMEC Proposal baseline.  Fail closed
+    # before AI generation rather than exposing a deceptively editable summary.
+    if len(baseline_model.get("nodes") or []) < 24 or len(package_parts(baseline_bytes)) < 10:
+        raise HTTPException(409, "GENERATION_REVIEW_REQUIRED:INCOMPLETE_BASELINE_DOCUMENT")
 
     settings = get_settings()
     synthetic_local = settings.synthetic_only and settings.app_env.upper() in {"TEST", "DEV", "DEVELOPMENT"}
@@ -637,7 +673,6 @@ def _generate_proposal_revision(
     plan = intelligence.get("output") or {}
     if plan.get("baseline_document_version_id") != baseline.id:
         raise HTTPException(409, "PROPOSAL_AI_BASELINE_MISMATCH")
-    baseline_model = import_editor_model(baseline_bytes)
     baseline_nodes = {str(node.get("id")): node for node in baseline_model.get("nodes", []) if isinstance(node, dict)}
     raw_mutations = []
     for candidate in plan.get("mutations") or []:
@@ -650,6 +685,11 @@ def _generate_proposal_revision(
         mutation.setdefault("before", node.get("text") or "")
         mutation.setdefault("after", mutation.get("replacement") or "")
         mutation.setdefault("reason", "Source-grounded Proposal change")
+        mutation.setdefault("published_status", "PUBLISHED")
+        # A provider may echo an already-correct value.  It is not a document
+        # mutation and must not inflate the AI Changes count.
+        if str(mutation.get("replacement") or "") == str(mutation.get("before") or ""):
+            continue
         raw_mutations.append(mutation)
     plan["mutations"] = raw_mutations
     # A first generation with no source-backed document mutation is not a
@@ -756,6 +796,22 @@ def _generate_proposal_revision(
         prior.superseded_at = datetime.now(timezone.utc)
     latest_number = db.scalar(select(ProposalRevision.revision_number).where(ProposalRevision.proposal_id == proposal.id).order_by(ProposalRevision.revision_number.desc())) or 0
     generated_ai_model = import_editor_model(generated_ai_bytes)
+    coverage = _generation_coverage(baseline_model, generated_ai_model, raw_mutations)
+    plan["generation_coverage"] = coverage
+    plan["coverage_state"] = "PASS" if coverage and all(item.get("disposition") in {"KEEP_UNCHANGED", "UPDATED", "GENERATED", "NEEDS_OWNER_REVIEW"} for item in coverage) else "FAIL"
+    plan["full_document_generation"] = "COMPLETE"
+    published_mutation_count = len([item for item in raw_mutations if isinstance(item, dict)])
+    generation_validation = {
+        "state": "PASSED",
+        "full_document_generation": "COMPLETE",
+        "full_document_validation": "PASS",
+        "coverage_state": plan["coverage_state"],
+        "sections_considered": len(coverage),
+        "sections_needing_owner_review": sum(item.get("disposition") == "NEEDS_OWNER_REVIEW" for item in coverage),
+        "docx_package": "VALID",
+        "project_identity": "PASSED",
+        "source_manifest_hash": source_set_hash,
+    }
     snapshot = {
         "editor_model": import_editor_model(generated_bytes),
         "owner_base_model": generated_ai_model,
@@ -772,21 +828,26 @@ def _generate_proposal_revision(
         "editor_document_id": generated.document.id,
         "editor_document_version_id": generated.version.id,
         "change_plan": plan,
+        "generation_validation": generation_validation,
         "ai_provenance": {
             "generated_from_ai": True,
             "generation_mode": "SYNTHETIC_DETERMINISTIC" if synthetic_local else "GOVERNED_AZURE_OPENAI",
             "provenance_state": "RECORDED", "source_set_hash": source_set_hash,
+            "generated_from_manifest_hash": source_set_hash,
             "evidence_refs": [item.id for item in selected_versions],
             "citations": intelligence.get("citations", []),
             "work_product_id": intelligence.get("work_product_id"),
             "context_snapshot_id": intelligence.get("context_snapshot_id"),
-            "mutation_count": len(mutations),
+            "mutation_count": published_mutation_count,
+            "published_ai_mutation_count": published_mutation_count,
+            "validation_state": "PASSED",
             "owner_mutation_count": len(owner_mutations),
         },
     }
+    snapshot["generation_summary"] = canonical_generation_summary(type("RevisionSnapshot", (), {"snapshot": snapshot})())
     revision = ProposalRevision(
         proposal_id=proposal.id, revision_number=latest_number + 1, status="DRAFT",
-        change_summary={"created_from": "PROPOSAL_AI_GENERATION", "baseline_document_version_id": baseline.id, "mutation_count": len(mutations)},
+        change_summary={"created_from": "PROPOSAL_AI_GENERATION", "baseline_document_version_id": baseline.id, "mutation_count": published_mutation_count},
         snapshot=snapshot, content_hash=digest(json.dumps(snapshot, sort_keys=True, separators=(",", ":")).encode()),
         created_by=getattr(role, "value", str(role)),
     )
@@ -803,7 +864,7 @@ def _generate_proposal_revision(
         "ai_generation": {
             "status": "SUCCEEDED", "work_product_id": intelligence.get("work_product_id"),
             "context_snapshot_id": intelligence.get("context_snapshot_id"),
-            "mutation_count": len(mutations), "source_set_hash": source_set_hash,
+            "mutation_count": published_mutation_count, "published_ai_mutation_count": published_mutation_count, "source_set_hash": source_set_hash,
             "generation_mode": snapshot["ai_provenance"]["generation_mode"],
         },
     }

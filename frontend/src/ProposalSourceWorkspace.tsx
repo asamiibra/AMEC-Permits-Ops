@@ -118,7 +118,7 @@ export function ProposalSourceWorkspace({ role = "OWNER_SPONSOR", onBack, onOpen
       }
       setPendingSources([]); setCreatedProposal(data.proposal_reference || data.proposal_id || "created"); setMessage("Proposal created from " + (data.source_count || 0) + " included Synology source files" + (pendingSources.length ? " and " + pendingSources.length + " Owner source(s)." : "."));
       if (data.proposal_id) {
-        if (data.generation_state === "READY_FOR_EDIT" && editorReady && editorRevisionId && onOpenEditor) onOpenEditor(data.proposal_id, editorRevisionId, selected);
+        if (["READY_FOR_EDIT", "NO_AI_CHANGES_REQUIRED"].includes(data.generation_state || "") && editorReady && editorRevisionId && onOpenEditor) onOpenEditor(data.proposal_id, editorRevisionId, selected);
         else if (onOpenProposal) onOpenProposal(data.proposal_id);
       }
     } catch (cause) {
