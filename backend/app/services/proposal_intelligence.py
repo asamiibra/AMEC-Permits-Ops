@@ -265,7 +265,12 @@ class ProposalDeterministicProvider:
             payload = {"summary": "Synthetic typed LPO comparison; no adjudication performed.", "accepted_revision_id": projection.get("accepted_revision_id", "unresolved"), "lpo_evidence_id": projection.get("lpo_evidence_id"), "differences": [], "citation_keys": citation}
         elif name == "proposal_document_change_plan":
             documents = [entry for entry in context if entry.get("context_type") == "DOCUMENT_VERSION" and entry.get("projection", {}).get("editable_blocks")]
-            baseline = next((entry for entry in documents if entry.get("projection", {}).get("template_baseline")), None) or (documents[0] if documents else None)
+            # Historical Proposal V1 records can contain a one-page bootstrap
+            # DOCX marked as a template. It remains evidence, but the AI
+            # baseline must be a complete AMEC package with enough editable
+            # structure to carry the real proposal template.
+            complete_documents = [entry for entry in documents if len(entry.get("projection", {}).get("editable_blocks") or []) >= 24]
+            baseline = next((entry for entry in complete_documents if entry.get("projection", {}).get("template_baseline")), None) or (complete_documents[0] if complete_documents else None)
             baseline_projection = baseline.get("projection", {}) if baseline else {}
             baseline_id = str(baseline_projection.get("document_version_id", "unresolved"))
             blocks = baseline_projection.get("editable_blocks", [])

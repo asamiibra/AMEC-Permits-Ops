@@ -138,6 +138,14 @@ def _canonical_revision(proposal_id: str, revision_id: str, db: Session) -> tupl
         raise HTTPException(404, "PROPOSAL_REVISION_NOT_FOUND")
     if revision.status != "DRAFT":
         raise HTTPException(409, "PROPOSAL_REVISION_IMMUTABLE")
+    summary = canonical_generation_summary(revision)
+    if summary.get("state") not in {"READY_FOR_EDIT", "NO_AI_CHANGES_REQUIRED"}:
+        raise HTTPException(409, f"PROPOSAL_REVISION_NOT_READY:{summary.get('state') or 'UNKNOWN'}")
+    workspace = (proposal.proposal_fields_json or {}).get("source_workspace") or {}
+    current_hash = workspace.get("source_manifest_hash") or workspace.get("source_set_hash")
+    generated_hash = summary.get("generated_from_manifest_hash")
+    if current_hash and generated_hash and current_hash != generated_hash:
+        raise HTTPException(409, "PROPOSAL_REVISION_STALE_SOURCE_MANIFEST")
     return proposal, revision
 
 
@@ -186,7 +194,11 @@ def canonical_editor_entry(proposal_id: str, db: Session = Depends(get_db), _: R
     # state.  It is never a successful editor entry just because a draft
     # revision exists or the old field is missing.
     generation_state = str(stored_generation_state or (generation_summary["state"] if revision is not None else "BASELINE_READY"))
-    if generated_revision_is_current and generation_state != "STALE_SOURCE_MANIFEST":
+    # A persisted legacy marker such as BASELINE_READY must not hide a durable
+    # generation-validation failure on the revision itself.
+    if generation_summary.get("state") == "GENERATION_REVIEW_REQUIRED":
+        generation_state = "GENERATION_REVIEW_REQUIRED"
+    elif generated_revision_is_current and generation_state != "STALE_SOURCE_MANIFEST":
         generation_state = generation_summary["state"]
     # A persisted generation state is never enough to promote an old draft.
     # If the source manifest moved on, force the explicit stale-source path;

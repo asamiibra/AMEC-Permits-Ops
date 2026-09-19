@@ -57,6 +57,39 @@ def test_proposal_v1_entry_blocks_when_source_manifest_moves_on(client):
     assert entry.json()["editable"] is False
 
 
+def test_old_review_required_revision_cannot_render_or_download(client):
+    headers = {"X-Dev-Role": "SYSTEM_ADMIN"}
+    created = client.post("/api/proposals/sources/2026/projects/454/create-proposal", headers=headers)
+    assert created.status_code == 200, created.text
+    payload = created.json()
+
+    from backend.app.db import SessionLocal
+    from backend.app.models import ProposalRevision
+    with SessionLocal() as db:
+        revision = db.get(ProposalRevision, payload["editor_revision_id"])
+        assert revision is not None
+        snapshot = dict(revision.snapshot or {})
+        snapshot["generation_validation"] = {
+            "state": "INCOMPLETE",
+            "full_document_generation": "INCOMPLETE",
+            "full_document_validation": "FAIL",
+            "coverage_state": "FAIL",
+        }
+        revision.snapshot = snapshot
+        db.commit()
+
+    entry = client.get(f"/api/proposals-v1/editor/proposals/{payload['proposal_id']}/entry", headers=headers)
+    assert entry.status_code == 200, entry.text
+    assert entry.json()["generation_state"] == "GENERATION_REVIEW_REQUIRED"
+    assert entry.json()["editable"] is False
+    document = client.get(
+        f"/api/proposals-v1/editor/proposals/{payload['proposal_id']}/revisions/{payload['editor_revision_id']}/document",
+        headers=headers,
+    )
+    assert document.status_code == 409, document.text
+    assert "PROPOSAL_REVISION_NOT_READY" in document.text
+
+
 def test_owner_inclusion_is_persisted_and_changes_manifest_hash(client):
     headers = {"X-Dev-Role": "SYSTEM_ADMIN"}
     sync = client.post("/api/proposals/sources/2026/sync", headers=headers)

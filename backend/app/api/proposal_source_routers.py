@@ -484,6 +484,21 @@ def _baseline_identity_matches(version: DocumentVersion, expected: dict[str, str
     return _docx_identity_matches(content, expected)
 
 
+def _baseline_is_complete(version: DocumentVersion) -> bool:
+    """Accept only a real AMEC package as an editable Proposal baseline.
+
+    Older Proposal V1 records can contain the original one-page bootstrap
+    document.  It is valid DOCX, but it is not the AMEC template and must
+    never be selected for generation, rendering, or download.
+    """
+    try:
+        content = _captured_bytes(version)
+        model = import_editor_model(content)
+        return len(model.get("nodes") or []) >= 24 and len(package_parts(content)) >= 10
+    except (HTTPException, DocumentPackageError, ValueError, TypeError, OSError):
+        return False
+
+
 def _validate_generated_docx(proposal: Any, content: bytes, selected_versions: list[DocumentVersion], *, expected_identity: dict[str, str | None] | None = None) -> None:
     """Deterministic business validation before a revision is editable."""
     try:
@@ -550,6 +565,8 @@ def _ensure_baseline_template(db: Session, proposal: Any) -> DocumentVersion:
             import_editor_model(_captured_bytes(version))
         except (DocumentPackageError, ValueError, TypeError) as exc:
             raise HTTPException(422, "PROPOSAL_BASELINE_TEMPLATE_INVALID") from exc
+        if not _baseline_is_complete(version):
+            raise HTTPException(422, "PROPOSAL_BASELINE_TEMPLATE_INCOMPLETE")
         return version
     existing = db.scalar(
         select(DocumentVersion)
@@ -561,8 +578,11 @@ def _ensure_baseline_template(db: Session, proposal: Any) -> DocumentVersion:
         )
         .order_by(DocumentVersion.ingested_at.desc())
     )
-    if existing is not None:
+    if existing is not None and _baseline_is_complete(existing):
         return existing
+    # Do not reuse the historical one-page bootstrap artifact.  Keep it
+    # immutable for audit, but materialize the current reviewed AMEC package
+    # as a new template version so regeneration can replace the bad draft.
     template_path = Path(__file__).resolve().parents[1] / "fixtures" / "AMEC-P-D-2026-Q-454.docx"
     try:
         content = template_path.read_bytes()
@@ -603,6 +623,80 @@ def _ensure_baseline_template(db: Session, proposal: Any) -> DocumentVersion:
         },
     )
     return stored.version
+
+
+def _attach_baseline_template(db: Session, proposal: Any, version: DocumentVersion) -> None:
+    """Make the selected template part of the Proposal's governed context."""
+    evidence = db.scalar(
+        select(ProposalSourceEvidence).where(
+            ProposalSourceEvidence.proposal_id == proposal.id,
+            ProposalSourceEvidence.source_type == "PROPOSAL_TEMPLATE",
+            ProposalSourceEvidence.content_hash == version.sha256,
+        )
+    )
+    if evidence is None:
+        evidence = ProposalSourceEvidence(
+            proposal_id=proposal.id,
+            source_type="PROPOSAL_TEMPLATE",
+            source_filename=version.source_filename,
+            source_reference=version.source_path_or_reference,
+            content_hash=version.sha256,
+            content_type=version.mime_type,
+            provenance={
+                "kind": "proposal_baseline_template",
+                "document_version_id": version.id,
+                "verification": "READ_BACK_VERIFIED",
+            },
+            status="CURRENT",
+            verification_state="READ_BACK_VERIFIED",
+            created_by="proposal-baseline-repair",
+        )
+        db.add(evidence)
+        db.flush()
+    link = db.scalar(
+        select(ProposalSourceLink).where(
+            ProposalSourceLink.proposal_id == proposal.id,
+            ProposalSourceLink.document_version_id == version.id,
+            ProposalSourceLink.source_role == "BASELINE_TEMPLATE",
+        )
+    )
+    if link is None:
+        db.add(ProposalSourceLink(
+            proposal_id=proposal.id,
+            source_evidence_id=evidence.id,
+            document_id=version.document_id,
+            document_version_id=version.id,
+            source_role="BASELINE_TEMPLATE",
+            added_by="proposal-baseline-repair",
+        ))
+    elif not link.active:
+        link.active = True
+        link.source_evidence_id = evidence.id
+
+
+def _prepare_baseline_versions(db: Session, proposal: Any, versions: list[DocumentVersion]) -> list[DocumentVersion]:
+    """Preserve evidence while selecting and attaching a reviewed AMEC template."""
+    expected_identity = _proposal_baseline_identity(db, proposal, versions)
+    prepared: list[DocumentVersion] = []
+    valid_baseline = False
+    for version in versions:
+        # Keep captured DOCX files in the evidence set even when they are an
+        # old bootstrap or another project's proposal.  They remain visible
+        # to the Owner; the selection predicate below decides what may be the
+        # editable baseline.
+        prepared.append(version)
+        if not _is_recognized_baseline_docx(version):
+            continue
+        if _baseline_is_complete(version) and _baseline_identity_matches(version, expected_identity):
+            valid_baseline = True
+        # Recognized but incomplete/cross-project DOCX files are source
+        # evidence at most; they are never allowed to become the Proposal
+        # document baseline.
+    if not valid_baseline:
+        template = _ensure_baseline_template(db, proposal)
+        _attach_baseline_template(db, proposal, template)
+        prepared.append(template)
+    return prepared
 
 
 def _generate_proposal_revision(
@@ -876,6 +970,10 @@ def _select_baseline_docx(versions: list[DocumentVersion], *, expected_identity:
     recognized = [version for version in candidates if _is_recognized_baseline_docx(version)]
     if expected_identity is not None:
         recognized = [version for version in recognized if _baseline_identity_matches(version, expected_identity)]
+    # A syntactically valid bootstrap/stub is not a baseline.  Filter it
+    # before cardinality checks so an old stub cannot shadow the governed
+    # template that was added later.
+    recognized = [version for version in recognized if _baseline_is_complete(version)]
     current_project = [version for version in recognized if not (version.metadata_json or {}).get("template_baseline")]
     if len(current_project) == 1:
         return current_project[0]
@@ -990,17 +1088,12 @@ def create_proposal_from_source_workspace(
             manifest["entries"].append({"source_identity": f"OWNER_STAGING:{staging.id}:{staged.sha256}", "source_path": staged.filename, "document_version_id": version.id, "document_id": version.document_id, "sha256": version.sha256, "filename": staged.filename, "content_type": version.mime_type, "size": version.file_size, "source_version_token": version.id, "source_presence_state": "PRESENT", "currentness_state": "CURRENT", "source_role": "OWNER_SOURCE", "effective_category": staged.logical_category, "category_origin": "OWNER", "included": True, "inclusion_origin": "OWNER", "processing_state": "PENDING", "capture_status": "CAPTURED"})
         manifest["entries"].sort(key=lambda entry: (entry["source_path"], entry["source_identity"]))
         manifest["source_manifest_hash"] = hashlib.sha256(json.dumps(manifest["entries"], sort_keys=True, separators=(",", ":")).encode()).hexdigest()
-    # Only a recognized AMEC Proposal DOCX for this exact project satisfies
-    # the baseline contract.  A filename such as Q-454 is not sufficient when
-    # the package body still contains Q-498/client facts.  Such a source stays
-    # evidence, while the governed template becomes the editable baseline.
-    expected_identity = _proposal_baseline_identity(db, item, selected_versions)
-    if not any(
-        _is_recognized_baseline_docx(version)
-        and _baseline_identity_matches(version, expected_identity)
-        for version in selected_versions
-    ):
-        selected_versions.append(_ensure_baseline_template(db, item))
+    # Only a complete, recognized AMEC Proposal DOCX for this exact project
+    # satisfies the baseline contract.  A filename such as Q-454 is not
+    # sufficient when the package is the historical one-page bootstrap or
+    # contains another project's facts; those artifacts remain evidence while
+    # the reviewed template becomes the editable baseline.
+    selected_versions = _prepare_baseline_versions(db, item, selected_versions)
     # Promotion is idempotent. If an Owner repeats it after excluding a file,
     # deactivate the existing Proposal link while leaving the immutable
     # captured source and Synology untouched.
@@ -1059,6 +1152,7 @@ def create_proposal_from_source_workspace(
     generated_for_hash = latest_provenance.get("source_set_hash") if latest_provenance.get("generated_from_ai") else None
     latest_snapshot = (latest_revision.snapshot or {}) if latest_revision else {}
     latest_baseline = db.get(DocumentVersion, latest_snapshot.get("editor_baseline_document_version_id")) if latest_snapshot.get("editor_baseline_document_version_id") else None
+    expected_identity = _proposal_baseline_identity(db, item, selected_versions)
     baseline_identity_ok = bool(latest_baseline and _baseline_identity_matches(latest_baseline, expected_identity))
     ai_generation = editor.get("ai_generation")
     if editor.get("editor_ready") and (generated_for_hash != source_manifest_hash or (generated_for_hash == source_manifest_hash and not baseline_identity_ok)):
@@ -1112,6 +1206,13 @@ def regenerate_proposal_from_sources(
     selected_versions = [version for link in links if (version := db.get(DocumentVersion, link.document_version_id)) is not None]
     if not selected_versions:
         raise HTTPException(422, "PROPOSAL_SOURCE_SET_EMPTY")
+    manifest = build_effective_proposal_source_manifest(db, proposal)
+    included_ids = {str(entry.get("document_version_id")) for entry in manifest["entries"] if entry.get("included") and entry.get("document_version_id")}
+    selected_versions = [version for version in selected_versions if str(version.id) in included_ids]
+    selected_versions = _prepare_baseline_versions(db, proposal, selected_versions)
+    # Baseline repair can attach a replacement template to an older Proposal.
+    # Re-read the effective manifest after that repair; the hash intentionally
+    # remains source-only, while the template is now available to AI context.
     manifest = build_effective_proposal_source_manifest(db, proposal)
     source_set_hash = manifest["source_manifest_hash"]
     included_ids = {str(entry.get("document_version_id")) for entry in manifest["entries"] if entry.get("included") and entry.get("document_version_id")}
