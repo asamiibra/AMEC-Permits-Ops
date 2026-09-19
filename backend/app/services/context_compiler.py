@@ -656,6 +656,8 @@ class GovernedContextCompiler:
             page_count = len(PdfReader(io.BytesIO(content)).pages)
         except Exception:
             page_count = None
+        if not page_count:
+            return [], page_count
         page_limit = max(1, min(max_pages, page_count or max_pages))
         pages: list[dict[str, Any]] = []
         try:
@@ -764,7 +766,10 @@ class GovernedContextCompiler:
             except Exception:
                 text = ""
             excerpt, truncated = cls._bounded_text(text)
-            vision_pages, page_count = cls._vision_pdf_pages(content)
+            # Synthetic fixtures exercise governance and citation behavior;
+            # keep their provider input deterministic and cheap. Real captured
+            # PDFs receive the bounded page renders above.
+            vision_pages, page_count = ([], None) if metadata.get("synthetic_non_business_fixture") or metadata.get("synthetic_only") else cls._vision_pdf_pages(content)
             media: dict[str, Any] = {
                 "mime_type": version.mime_type,
                 "byte_size": version.file_size,
