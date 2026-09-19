@@ -13,6 +13,9 @@ type SourceProject = {
   discovery_class?: string;
   folder_count: number;
   file_count: number;
+  completeness_state?: "COMPLETE" | "INCOMPLETE";
+  completeness_reasons?: string[];
+  scan_status?: string;
 };
 
 export function ProposalRegisterPage({ role, onOpen, onNew, onOpenDraft }: {
@@ -56,7 +59,8 @@ export function ProposalRegisterPage({ role, onOpen, onNew, onOpenDraft }: {
   // The API returns only source projects without a committed Proposal.  Keep
   // this page a projection of that server-owned queue; client-side matching
   // by project reference used to hide or resurrect projects incorrectly.
-  const drafts = sourceProjects;
+  const draftProposals = rows.filter((row) => row.lifecycle !== "COMPLETED" && row.stage_code !== "ACCEPTED" && row.stage_code !== "CLOSED");
+  const completedProposals = rows.filter((row) => row.lifecycle === "COMPLETED" || row.stage_code === "ACCEPTED" || row.stage_code === "CLOSED");
   return <div className="proposal-feature-page proposal-v1-page">
     <header className="proposal-page-intro">
       <div><span className="eyebrow">PROPOSALS V1 · SYNOLOGY SOURCES</span><h2>Proposal worklist</h2><p>Start with a synced source project, review its files, and create a Proposal only when the Owner is ready.</p></div>
@@ -65,20 +69,26 @@ export function ProposalRegisterPage({ role, onOpen, onNew, onOpenDraft }: {
     {error && <div className="proposal-alert error-state" role="alert"><Icon name="alert" size={17} /> <span>{error}</span><button type="button" className="text-button" onClick={() => setRefreshKey((value) => value + 1)}>Retry</button></div>}
     {sourceError && <div className="proposal-alert warning-copy" role="status"><Icon name="alert" size={17} /> <span>{sourceError}</span></div>}
     <section className="proposal-v1-panels" aria-label="Proposal V1 work areas">
-      <section className="proposal-v1-panel panel" aria-labelledby="proposal-v1-drafts-title">
-        <div className="panel-head"><div><span className="eyebrow">SYNCED SYNOLOGY PROJECTS</span><h3 id="proposal-v1-drafts-title">Drafts</h3></div><small>Source files are read-only until the Owner creates a Proposal.</small></div>
-        {sourceLoading ? <div className="proposal-empty"><b>Loading synced projects…</b><span>Reading Tender / 1- Proposal / 2026.</span></div> : !drafts.length ? <div className="proposal-empty"><b>No Draft source projects.</b><span>New eligible Synology folders will appear here after the bridge syncs them.</span></div> : <div className="proposal-v1-project-list">{drafts.map((project) => <button type="button" className="proposal-v1-project" key={project.number} onClick={() => onOpenDraft?.(project.number)}><span className="proposal-v1-project-copy"><BidiText as="b">{project.name}</BidiText><small>{project.file_count} files · {project.folder_count} folders · Draft · Synology synced</small></span><span className="proposal-v1-project-action">Open sources <Icon name="arrow-up-right" size={14} /></span></button>)}</div>}
+      <section className="proposal-v1-panel panel" aria-labelledby="proposal-v1-source-title">
+        <div className="panel-head"><div><span className="eyebrow">SOURCE PROJECTS</span><h3 id="proposal-v1-source-title">Source Projects</h3></div><small>Synced folders without a Proposal. Open one to review its own source workspace.</small></div>
+        {sourceLoading ? <div className="proposal-empty"><b>Loading synced projects…</b><span>Reading Tender / 1- Proposal / 2026.</span></div> : !sourceProjects.length ? <div className="proposal-empty"><b>No Source Projects.</b><span>New eligible Synology folders will appear here after the bridge syncs them.</span></div> : <div className="proposal-v1-project-list">{sourceProjects.map((project) => <button type="button" className="proposal-v1-project" key={project.number} onClick={() => onOpenDraft?.(project.number)}><span className="proposal-v1-project-copy"><BidiText as="b">{project.name}</BidiText><small>{project.file_count} files · Source sync: {project.completeness_state === "COMPLETE" ? "Complete" : "Needs attention"}</small></span><span className="proposal-v1-project-action">Open <Icon name="arrow-up-right" size={14} /></span></button>)}</div>}
       </section>
-      <section className="proposal-v1-panel panel" aria-labelledby="proposal-v1-active-title">
-        <div className="panel-head"><div><span className="eyebrow">OWNER CREATED</span><h3 id="proposal-v1-active-title">Active Proposals</h3></div><small>Open a Proposal to review, edit, and export its document.</small></div>
-        {loading ? <div className="proposal-empty"><b>Loading active Proposals…</b><span>Reading the canonical Proposal register.</span></div> : !rows.length ? <div className="proposal-empty"><b>No Active Proposals yet.</b><span>Create a Proposal from a synced Draft source project to start the editor flow.</span><span>No Proposal records match this view.</span></div> : <div className="proposal-v1-active-list">{rows.map((row) => <ActiveProposal key={row.id} row={row} onOpen={onOpen} />)}</div>}
+      <section className="proposal-v1-panel panel" aria-labelledby="proposal-v1-draft-title">
+        <div className="panel-head"><div><span className="eyebrow">DRAFT PROPOSALS</span><h3 id="proposal-v1-draft-title">Draft Proposals</h3></div><small>Created Proposals awaiting Owner acceptance and publication.</small></div>
+        {loading ? <div className="proposal-empty"><b>Loading Draft Proposals…</b><span>Reading the canonical Proposal register.</span></div> : !draftProposals.length ? <div className="proposal-empty"><b>No Draft Proposals yet.</b><span>Create a Proposal from a Source Project to start the editor flow.</span><span>No Proposal records match this view.</span></div> : <div className="proposal-v1-active-list">{draftProposals.map((row) => <ActiveProposal key={row.id} row={row} onOpen={onOpen} />)}</div>}
+      </section>
+      <section className="proposal-v1-panel panel" aria-labelledby="proposal-v1-completed-title">
+        <div className="panel-head"><div><span className="eyebrow">COMPLETED PROPOSALS</span><h3 id="proposal-v1-completed-title">Completed Proposals</h3></div><small>Owner-accepted and published Proposal V1 artifacts.</small></div>
+        {!completedProposals.length ? <div className="proposal-empty"><b>No Completed Proposals yet.</b><span>Accepted Proposals will appear here with their pinned revision.</span></div> : <div className="proposal-v1-active-list">{completedProposals.map((row) => <ActiveProposal key={row.id} row={row} onOpen={onOpen} completed />)}</div>}
       </section>
     </section>
     <div className="proposal-v1-footer"><button type="button" className="button-secondary" aria-label="Refresh Proposal register" onClick={() => setRefreshKey((value) => value + 1)} disabled={loading || sourceLoading}><Icon name="refresh" size={14} /> Refresh workspace</button><span><Icon name="shield" size={14} /> Synology remains read-only. Removing a source only changes the ProposalOps active source set.</span></div>
   </div>;
 }
 
-function ActiveProposal({ row, onOpen }: { row: ProposalRegisterRow; onOpen: (id: string) => void }) {
+function ActiveProposal({ row, onOpen, completed = false }: { row: ProposalRegisterRow; onOpen: (id: string) => void; completed?: boolean }) {
   const next = row.next_action || {};
-  return <article className="proposal-v1-active-row"><div><BidiText as="b">{row.proposal}</BidiText><small><BidiCode>{row.proposal_reference}</BidiCode> · <BidiText>{row.project_ref || "Project reference pending"}</BidiText></small></div><span className="proposal-status">{row.stage}</span><button type="button" className="text-button" onClick={() => onOpen(row.id)}>Open Proposal <Icon name="arrow-up-right" size={14} /></button><small className="proposal-v1-next"><BidiText>{text(next.label, "Review Proposal")} · {displayDate(row.last_activity)}</BidiText></small></article>;
+  const generation = row.generation_state || "DRAFT_READY";
+  const status = completed ? "Published" : generation === "READY_FOR_EDIT" || generation === "NO_AI_CHANGES_REQUIRED" ? "Draft ready" : generation === "FAILED_RETRYABLE" || generation === "GENERATION_REVIEW_REQUIRED" ? "Needs attention" : generation.replaceAll("_", " ");
+  return <article className="proposal-v1-active-row"><div><BidiText as="b">{row.proposal}</BidiText><small><BidiCode>{row.proposal_reference}</BidiCode> · <BidiText>{row.project_ref || "Project reference pending"}</BidiText></small></div><span className="proposal-status">{status}</span><button type="button" className="text-button" onClick={() => onOpen(row.id)}>Open <Icon name="arrow-up-right" size={14} /></button><small className="proposal-v1-next"><BidiText>{completed ? `Published · ${displayDate(row.last_activity)}` : `${text(next.label, "Review Proposal")} · ${displayDate(row.last_activity)}`}</BidiText></small></article>;
 }

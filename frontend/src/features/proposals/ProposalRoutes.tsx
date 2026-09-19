@@ -42,8 +42,7 @@ export function ProposalRoutes({ role }: { role: ProposalRole }) {
   if (path === "/proposals/sources") return <ProposalSourceWorkspace role={role} onBack={() => navigate("/proposals")} onOpenEditor={(proposalId, revisionId, projectNumber) => navigate(`/proposals/${proposalId}/editor?revision=${encodeURIComponent(revisionId)}&project=${encodeURIComponent(String(projectNumber))}`)} onOpenProposal={(proposalId) => navigate(`/proposals/${proposalId}`)} />;
   if (editorMatch) {
     const revisionId = new URLSearchParams(window.location.search).get("revision");
-    if (!revisionId) return <ProposalEditorEntryRedirect role={role} proposalId={editorMatch[1]} navigate={navigate} />;
-    return <ProposalDocumentEditor role={role} proposalId={editorMatch[1]} revisionId={revisionId} onBack={() => navigate("/proposals")} />;
+    return <ProposalEditorEntryRedirect role={role} proposalId={editorMatch[1]} requestedRevisionId={revisionId} navigate={navigate} />;
   }
   if (match) return <ProposalEditorEntryRedirect role={role} proposalId={match[1]} navigate={navigate} />;
   return <ProposalRegisterPage role={role} onOpen={(id) => navigate(`/proposals/${id}`)} onNew={() => navigate("/proposals/sources")} onOpenDraft={(number) => navigate(`/proposals/sources?project=${number}`)} />;
@@ -56,10 +55,11 @@ type ProposalV1Entry = {
   editor_mode?: string;
   retry_allowed?: boolean;
   blocker?: string | null;
+  generation_summary?: { state?: string; generation_review_reason?: string | null; published_ai_mutation_count?: number };
 };
 
-function ProposalEditorEntryRedirect({ role, proposalId, navigate }: { role: ProposalRole; proposalId: string; navigate: (next: string) => void }) {
-  const [state, setState] = useState<"loading" | "legacy" | "v1" | "error">("loading");
+function ProposalEditorEntryRedirect({ role, proposalId, requestedRevisionId, navigate }: { role: ProposalRole; proposalId: string; requestedRevisionId?: string | null; navigate: (next: string) => void }) {
+  const [state, setState] = useState<"loading" | "legacy" | "v1" | "editor" | "error">("loading");
   const [entry, setEntry] = useState<ProposalV1Entry | null>(null);
   const headers = { "X-Dev-Role": role };
   const resolve = () => api<ProposalV1Entry>(`/api/proposals-v1/editor/proposals/${encodeURIComponent(proposalId)}/entry`, { headers });
@@ -74,7 +74,12 @@ function ProposalEditorEntryRedirect({ role, proposalId, navigate }: { role: Pro
     }
     // HTTP 200 from the V1 entry endpoint is authoritative.  A missing
     // revision is a generation/provenance state, never evidence of legacy.
-    if (next.generation_state === "READY_FOR_EDIT" && next.revision_id) {
+    if (["READY_FOR_EDIT", "NO_AI_CHANGES_REQUIRED"].includes(next.generation_state || "") && next.revision_id) {
+      if (requestedRevisionId && requestedRevisionId === next.revision_id) {
+        setEntry(next);
+        setState("editor");
+        return;
+      }
       navigate(`/proposals/${proposalId}/editor?revision=${encodeURIComponent(next.revision_id)}${next.project_number ? `&project=${encodeURIComponent(String(next.project_number))}` : ""}`);
       return;
     }
@@ -87,7 +92,7 @@ function ProposalEditorEntryRedirect({ role, proposalId, navigate }: { role: Pro
       .then((next) => { if (active) applyEntry(next); })
       .catch((cause: unknown) => { if (!active) return; const status = cause && typeof cause === "object" && "status" in cause ? Number((cause as { status?: number }).status) : 404; setState(status === 404 ? "legacy" : "error"); });
     return () => { active = false; };
-  }, [proposalId, role]);
+  }, [proposalId, requestedRevisionId, role]);
   const retry = async () => {
     setState("loading");
     try {
@@ -99,6 +104,7 @@ function ProposalEditorEntryRedirect({ role, proposalId, navigate }: { role: Pro
       setState("v1");
     }
   };
+  if (state === "editor" && entry?.revision_id) return <ProposalDocumentEditor role={role} proposalId={proposalId} revisionId={entry.revision_id} onBack={() => navigate("/proposals")} />;
   if (state === "legacy") return <ProposalWorkspacePage role={role} proposalId={proposalId} onBack={() => navigate("/proposals")} />;
   if (state === "error") return <div className="proposal-alert error-state" role="alert">Proposal could not be opened.</div>;
   if (state === "v1" && entry) return <ProposalV1EntryState entry={entry} onBack={() => navigate("/proposals")} onRetry={entry.retry_allowed ? () => void retry() : undefined} />;
@@ -112,7 +118,8 @@ function ProposalV1EntryState({ entry, onBack, onRetry }: { entry: ProposalV1Ent
     BASELINE_READY: { title: "Proposal V1 generation is required", detail: "A baseline document is captured, but the AI-generated revision is not ready yet." },
     BLOCKED_BASELINE: { title: "Proposal V1 baseline is blocked", detail: "A recognized Proposal DOCX baseline is required before generation can run." },
     FAILED_RETRYABLE: { title: "Proposal V1 generation failed", detail: "The generated document was not published. Retry generation when the source set is ready.", action: "Retry generation" },
-    GENERATION_REVIEW_REQUIRED: { title: "Proposal V1 needs Owner review", detail: "Generation completed with a review-required result. Resolve the message and retry.", action: "Retry generation" },
+    GENERATION_REVIEW_REQUIRED: { title: "Proposal V1 needs Owner review", detail: entry.generation_summary?.generation_review_reason || "AI produced no valid document changes. Review the baseline and source set, then retry generation.", action: "Retry generation" },
+    NO_AI_CHANGES_REQUIRED: { title: "Proposal V1 is ready for editing", detail: "The validated Proposal already matches the selected source evidence." },
     FAILED_VALIDATION: { title: "Proposal V1 validation failed", detail: "The generated DOCX did not pass validation. Review the source set before retrying." },
     STALE_SOURCE_MANIFEST: { title: "Proposal V1 sources changed", detail: "The active source set changed after generation. Regenerate to produce a current document.", action: "Regenerate" },
     PENDING_OWNER_SOURCES: { title: "Proposal V1 is waiting for Owner sources", detail: "Finish source selection before generation can begin." },

@@ -368,7 +368,12 @@ def build_effective_proposal_source_manifest(db: Session, proposal: Opportunity,
         path = str(metadata.get("source_relative_path") or version.source_filename)
         manifest["entries"].append({"source_identity": metadata.get("proposal_source_key") or link.id, "source_path": path, "document_version_id": version.id, "document_id": version.document_id, "sha256": version.sha256, "filename": version.source_filename, "content_type": version.mime_type, "size": version.file_size, "source_version_token": metadata.get("source_version_token"), "source_presence_state": metadata.get("source_presence_state", "PRESENT"), "currentness_state": metadata.get("currentness_state", "CURRENT"), "source_role": link.source_role, "effective_category": source_category(version, decision), "category_origin": "OWNER" if decision and decision.category_origin == "OWNER" else metadata.get("logical_category_source", "AUTO"), "included": included, "inclusion_origin": "OWNER" if decision and decision.inclusion_origin == "OWNER" else metadata.get("inclusion_origin", "DEFAULT"), "processing_state": metadata.get("processing_state", "PENDING"), "capture_status": "CAPTURED"})
     manifest["entries"].sort(key=lambda entry: (entry["source_path"], entry["source_identity"]))
-    manifest["source_manifest_hash"] = hashlib.sha256(json.dumps(manifest["entries"], sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    # The AMEC baseline template is a governed document dependency, not a
+    # Synology source.  It must remain visible in the active source list, but
+    # it must not make every generated Proposal appear stale immediately after
+    # creation because the workspace hash is defined over the source snapshot.
+    hash_entries = [entry for entry in manifest["entries"] if entry.get("source_role") != "BASELINE_TEMPLATE"]
+    manifest["source_manifest_hash"] = hashlib.sha256(json.dumps(hash_entries, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
     return manifest
 
 

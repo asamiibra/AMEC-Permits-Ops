@@ -38,6 +38,11 @@ export interface ProposalRegisterRow {
   contract_eligible: boolean;
   validation: JsonRecord;
   proposal_v1?: boolean;
+  generation_state?: string;
+  lifecycle?: "DRAFT" | "COMPLETED" | string;
+  accepted_revision?: { id?: string; revision_number?: number; content_hash?: string } | null;
+  source_project_identity?: string | null;
+  source_manifest_hash?: string | null;
 }
 
 export interface ProposalRegisterResponse {

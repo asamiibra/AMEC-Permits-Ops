@@ -36,6 +36,7 @@ RUN set -eux; \
       fontconfig \
       fonts-noto-core \
       libreoffice-writer \
+      poppler-utils \
       unixodbc \
       unixodbc-dev \
       libgssapi-krb5-2; \

@@ -49,6 +49,13 @@ def test_explicit_454_create_proposal_persists_source_set(client):
     revision_payload = revision.json()
     assert revision_payload["baseline_selection_method"] == "GOVERNED_MASTER_CONTENT_TEMPLATE"
     assert revision_payload["editor_document_version_id"]
+    assert revision_payload["generation_summary"]["state"] == "READY_FOR_EDIT"
+    assert revision_payload["generation_summary"]["full_document_generation"] == "COMPLETE"
+    assert revision_payload["generation_summary"]["full_document_validation"] == "PASS"
+    assert revision_payload["change_plan"]["coverage_state"] == "PASS"
+    coverage = revision_payload["change_plan"]["generation_coverage"]
+    assert len(coverage) > 1
+    assert {item["disposition"] for item in coverage} & {"KEEP_UNCHANGED", "NEEDS_OWNER_REVIEW"}
     downloaded = client.get(
         f"/api/proposals-v1/editor/proposals/{payload['proposal_id']}/revisions/{payload['editor_revision_id']}/document",
         headers={"X-Dev-Role": "SYSTEM_ADMIN"},
@@ -56,11 +63,15 @@ def test_explicit_454_create_proposal_persists_source_set(client):
     assert downloaded.status_code == 200
     assert downloaded.headers["x-proposal-document-version-id"] == revision_payload["editor_document_version_id"]
     assert downloaded.headers["x-proposal-document-sha256"] == hashlib.sha256(downloaded.content).hexdigest()
-    expected_parts = set(zipfile.ZipFile(io.BytesIO(Path("backend/app/fixtures/AMEC-P-D-2026-Q-454.docx").read_bytes())).namelist())
+    expected_parts = set(zipfile.ZipFile(io.BytesIO(Path("backend/app/fixtures/AMEC-P-D-2026-Q-TECHNICAL-REPORT.docx").read_bytes())).namelist())
     actual_zip = zipfile.ZipFile(io.BytesIO(downloaded.content))
     assert set(actual_zip.namelist()) == expected_parts
-    for part in ("word/header1.xml", "word/footer1.xml", "word/styles.xml", "word/media/logo.png"):
-        assert actual_zip.read(part) == zipfile.ZipFile(io.BytesIO(Path("backend/app/fixtures/AMEC-P-D-2026-Q-454.docx").read_bytes())).read(part)
+    baseline_zip = zipfile.ZipFile(io.BytesIO(Path("backend/app/fixtures/AMEC-P-D-2026-Q-TECHNICAL-REPORT.docx").read_bytes()))
+    # AI is allowed to publish anchored text mutations in the document body;
+    # every other OOXML part, including corporate headers, footers, styles,
+    # relationships, and media, must remain byte-for-byte preserved.
+    for part in expected_parts - {"word/document.xml"}:
+        assert actual_zip.read(part) == baseline_zip.read(part)
     rendered = client.get(
         f"/api/proposals-v1/editor/proposals/{payload['proposal_id']}/revisions/{payload['editor_revision_id']}/render",
         headers={"X-Dev-Role": "SYSTEM_ADMIN"},
@@ -211,6 +222,9 @@ def test_source_create_seeds_canonical_editor_and_owner_save_roundtrip(client):
     assert result["result"] == "SAVED"
     assert result["working_hash"] != result["baseline_hash"]
     assert result["ai_provenance"]["provenance_state"] == "RECORDED"
+    assert result["generation_summary"]["published_ai_mutation_count"] >= 1
+    assert result["change_plan"]["mutations"]
+    assert result["owner_change_plan"]["mode"] == "SYNTHETIC_DETERMINISTIC"
     revised_document = client.get(
         f"/api/proposals-v1/editor/proposals/{proposal_id}/revisions/{revision_id}/document",
         headers=headers,

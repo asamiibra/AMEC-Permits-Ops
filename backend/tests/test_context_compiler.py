@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+import hashlib
 
 import pytest
 from sqlalchemy import create_engine, func, select
@@ -43,6 +44,7 @@ from backend.app.services.context_compiler import (
     ContextCompileRequest,
     ContextSourceSpec,
     ContextCompiler,
+    GovernedContextCompiler,
     compile_context,
 )
 from backend.app.services.intelligence_contracts import (
@@ -146,6 +148,37 @@ def request(manifest_value, *sources, actor="user-owner", project="project-a", *
 
 def source(key, context_type, selector, required=True):
     return ContextSourceSpec(key=key, context_type=context_type, selector=selector, required=required)
+
+
+def test_pdf_source_projection_preserves_evidence_and_adds_bounded_vision_pages(monkeypatch):
+    pdf = b"%PDF-1.7 synthetic evidence"
+    version = DocumentVersion(
+        id="pdf-version",
+        document_id="pdf-document",
+        version_number=1,
+        source_filename="scanned-permit.pdf",
+        source_path_or_reference="synthetic-db://project-a/scanned-permit.pdf",
+        sha256=hashlib.sha256(pdf).hexdigest(),
+        mime_type="application/pdf",
+        file_size=len(pdf),
+        language="ar",
+        approval_state=DocumentApprovalState.REVIEWED,
+        source_system="SYNTHETIC_FIXTURE",
+        metadata_json={},
+        synthetic_content=pdf,
+    )
+    monkeypatch.setattr(
+        GovernedContextCompiler,
+        "_vision_pdf_pages",
+        classmethod(lambda cls, content: ([{"page_number": 1, "image_data_url": "data:image/jpeg;base64,AA=="}], 4)),
+    )
+    projection = GovernedContextCompiler._proposal_source_projection(version)
+    media = projection["source_media"]
+    assert projection["source_text_state"] == "BINARY_ARTIFACT_ONLY"
+    assert media["vision_state"] == "READY"
+    assert media["page_count"] == 4
+    assert media["vision_pages"][0]["page_number"] == 1
+    assert media["sha256"] == hashlib.sha256(pdf).hexdigest()
 
 
 def counts(db):

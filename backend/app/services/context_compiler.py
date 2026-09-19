@@ -13,6 +13,9 @@ import base64
 import io
 import hashlib
 import re
+import shutil
+import subprocess
+import tempfile
 from pathlib import Path
 from dataclasses import dataclass
 from typing import Any
@@ -637,6 +640,56 @@ class GovernedContextCompiler:
         return None, None, None
 
     @classmethod
+    def _vision_pdf_pages(cls, content: bytes, *, max_pages: int = 3) -> tuple[list[dict[str, Any]], int | None]:
+        """Render a bounded sample of PDF pages for transient vision input.
+
+        The original PDF remains the governed evidence object.  Page renders
+        are deliberately short-lived, size-capped derivatives used only by a
+        multimodal provider so scanned permits, letters, plans, and photos do
+        not disappear merely because text extraction returned nothing.
+        """
+        renderer = shutil.which("pdftoppm")
+        if not renderer:
+            return [], None
+        try:
+            from pypdf import PdfReader  # type: ignore
+            page_count = len(PdfReader(io.BytesIO(content)).pages)
+        except Exception:
+            page_count = None
+        if not page_count:
+            return [], page_count
+        page_limit = max(1, min(max_pages, page_count or max_pages))
+        pages: list[dict[str, Any]] = []
+        try:
+            with tempfile.TemporaryDirectory(prefix="proposalops-pdf-vision-") as directory:
+                source = Path(directory) / "source.pdf"
+                prefix = Path(directory) / "page"
+                source.write_bytes(content)
+                subprocess.run(
+                    [renderer, "-jpeg", "-scale-to", "768", "-f", "1", "-l", str(page_limit), str(source), str(prefix)],
+                    check=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    timeout=20,
+                )
+                for page_path in sorted(Path(directory).glob("page-*.jpg")):
+                    match = re.search(r"-(\d+)\.jpg$", page_path.name)
+                    if not match:
+                        continue
+                    image_data_url, width, height = cls._vision_image(page_path.read_bytes(), "image/jpeg")
+                    if not image_data_url:
+                        continue
+                    pages.append({
+                        "page_number": int(match.group(1)),
+                        "image_data_url": image_data_url,
+                        "image_width": width,
+                        "image_height": height,
+                    })
+        except (OSError, subprocess.SubprocessError, ValueError):
+            return [], page_count
+        return pages, page_count
+
+    @classmethod
     def _proposal_source_projection(cls, version: DocumentVersion, *, source_metadata: dict[str, Any] | None = None) -> dict[str, Any]:
         """Build a small, source-grounded projection for Proposal V1.
 
@@ -648,6 +701,11 @@ class GovernedContextCompiler:
         size-capped rendition is available only to the transient vision input.
         """
         metadata = source_metadata if source_metadata is not None else (version.metadata_json if isinstance(version.metadata_json, dict) else {})
+        # Master Content stores the semantic template contract under
+        # engineering_metadata; flatten it into the bounded projection so the
+        # provider can prove which canonical baseline it received.
+        nested_metadata = metadata.get("engineering_metadata") if isinstance(metadata.get("engineering_metadata"), dict) else {}
+        metadata = {**nested_metadata, **metadata}
         projection: dict[str, Any] = {
             "document_version_id": version.id,
             "document_id": version.document_id,
@@ -660,6 +718,10 @@ class GovernedContextCompiler:
             "source_filename": version.source_filename,
             "source_relative_path": metadata.get("source_relative_path"),
             "template_baseline": bool(metadata.get("template_baseline")),
+            "template_id": metadata.get("template_id"),
+            "template_version": metadata.get("template_version"),
+            "template_contract_version": metadata.get("template_contract_version"),
+            "template_purpose": metadata.get("template_purpose"),
             "source_role": metadata.get("source_role"),
             "logical_category": metadata.get("logical_category") or "OTHER_UNCLASSIFIED",
             "logical_category_source": metadata.get("logical_category_source") or "AUTO_CLASSIFIED",
@@ -670,7 +732,13 @@ class GovernedContextCompiler:
         if filename.endswith(".docx") or "wordprocessingml.document" in mime:
             # Import locally to keep the compiler's package boundary clear.
             from .proposal_document_package import document_map
-            blocks = [item for item in document_map(content) if item.text.strip()]
+            all_blocks = document_map(content)
+            # The governed Owner template intentionally leaves table value
+            # cells empty. Keep those native Word paragraphs in the baseline
+            # projection so the anchored mutation engine can insert generated
+            # values without rebuilding the table. Other evidence documents
+            # retain the bounded non-empty projection used historically.
+            blocks = all_blocks if metadata.get("template_id") == "AMEC-PROPOSAL-V1-TECHNICAL-REPORT" else [item for item in all_blocks if item.text.strip()]
             # Every editable paragraph is represented. The prior first-40
             # slice silently made later sections invisible to Proposal V1.
             editable = [
@@ -698,7 +766,25 @@ class GovernedContextCompiler:
             except Exception:
                 text = ""
             excerpt, truncated = cls._bounded_text(text)
-            projection.update({"source_excerpt": excerpt, "source_excerpt_truncated": truncated, "source_text_state": "EXTRACTED" if excerpt else "BINARY_ARTIFACT_ONLY"})
+            # Synthetic fixtures exercise governance and citation behavior;
+            # keep their provider input deterministic and cheap. Real captured
+            # PDFs receive the bounded page renders above.
+            vision_pages, page_count = ([], None) if metadata.get("synthetic_non_business_fixture") or metadata.get("synthetic_only") else cls._vision_pdf_pages(content)
+            media: dict[str, Any] = {
+                "mime_type": version.mime_type,
+                "byte_size": version.file_size,
+                "sha256": version.sha256,
+                "vision_state": "READY" if vision_pages else "UNAVAILABLE",
+                "vision_pages": vision_pages,
+            }
+            if page_count is not None:
+                media["page_count"] = page_count
+            projection.update({
+                "source_excerpt": excerpt,
+                "source_excerpt_truncated": truncated,
+                "source_text_state": "EXTRACTED" if excerpt else "BINARY_ARTIFACT_ONLY",
+                "source_media": media,
+            })
         else:
             media: dict[str, Any] = {"mime_type": version.mime_type, "byte_size": version.file_size, "sha256": version.sha256}
             if mime.startswith("image/") or filename.endswith((".jpg", ".jpeg", ".png", ".webp")):

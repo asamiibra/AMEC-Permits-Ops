@@ -72,8 +72,17 @@ def _provider_input(skill: SkillDefinition, compiled: Any) -> str:
     def projection_for_text(item: Any) -> dict[str, Any]:
         projection = dict(item.projection)
         media = projection.get("source_media")
-        if isinstance(media, dict) and "image_data_url" in media:
-            projection["source_media"] = {key: value for key, value in media.items() if key != "image_data_url"}
+        if isinstance(media, dict):
+            # Image bytes are sent as transient Responses content parts below;
+            # never duplicate base64 data inside the serialized text payload.
+            cleaned = {key: value for key, value in media.items() if key != "image_data_url"}
+            if isinstance(cleaned.get("vision_pages"), list):
+                cleaned["vision_pages"] = [
+                    {key: value for key, value in page.items() if key != "image_data_url"}
+                    for page in cleaned["vision_pages"]
+                    if isinstance(page, dict)
+                ]
+            projection["source_media"] = cleaned
         return projection
 
     payload = {
@@ -106,13 +115,21 @@ def _provider_input_content(provider_input: str, compiled: Any) -> list[dict[str
         media = item.projection.get("source_media") if isinstance(item.projection, dict) else None
         if not isinstance(media, dict):
             continue
+        image_parts: list[tuple[str, str]] = []
         image_data_url = media.get("image_data_url")
         if isinstance(image_data_url, str) and image_data_url.startswith("data:image/"):
+            image_parts.append(("image", image_data_url))
+        for page in media.get("vision_pages") or []:
+            if isinstance(page, dict):
+                page_url = page.get("image_data_url")
+                if isinstance(page_url, str) and page_url.startswith("data:image/"):
+                    image_parts.append((f"PDF page {page.get('page_number', '?')}", page_url))
+        for label, image_url in image_parts:
             content.append({
                 "type": "input_text",
-                "text": f"Image evidence for {item.key}; source filename {item.projection.get('source_filename')}; SHA-256 {media.get('sha256')}.",
+                "text": f"{label} evidence for {item.key}; source filename {item.projection.get('source_filename')}; SHA-256 {media.get('sha256')}.",
             })
-            content.append({"type": "input_image", "image_url": image_data_url, "detail": "low"})
+            content.append({"type": "input_image", "image_url": image_url, "detail": "low"})
     return [{"role": "user", "content": content}] if len(content) > 1 else None
 
 
@@ -427,7 +444,8 @@ class SkillRuntime:
             output = skill.output.validator(result.payload)
             citations = validate_compiled_citations(output, compiled, skill.output)
             output_json = output.model_dump(mode="json")
-            if len(json.dumps(output_json, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")) > 64 * 1024:
+            output_limit = 128 * 1024 if skill.manifest.skill_id == "proposal.document-change-plan" else 64 * 1024
+            if len(json.dumps(output_json, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")) > output_limit:
                 raise AIError("AI_STRUCTURED_OUTPUT_VALIDATION_FAILED", status_code=502)
             output_hash = stable_hash(output_json)
             estimated_cost = (
