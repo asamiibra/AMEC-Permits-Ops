@@ -315,6 +315,7 @@ def _rtl_property_insert(data: bytes, block: DocumentBlock) -> tuple[int, bytes]
 def apply_text_mutations(content: bytes, mutations: Iterable[TextMutation]) -> bytes:
     mutations = list(mutations)
     parts = package_parts(content)
+    allow_boundary_space_preservation = "customXml/amec-technical-report-contract.json" in parts
     blocks = {b.anchor: b for b in document_map(content)}
     if len({m.anchor for m in mutations}) != len(mutations):
         raise DocumentPackageError("DUPLICATE_MUTATION_ANCHOR")
@@ -329,11 +330,31 @@ def apply_text_mutations(content: bytes, mutations: Iterable[TextMutation]) -> b
         if mutation.replacement == block.text:
             continue
         _escape(mutation.replacement)
-        if block.has_nested_paragraphs or not block.text_spans:
-            raise DocumentPackageError("COMPLEX_BLOCK_EDIT_REQUIRES_REVIEW")
         intervals = occupied.setdefault(block.part, [])
         if any(block.start < end and start < block.end for start, end in intervals):
             raise DocumentPackageError("OVERLAPPING_MUTATIONS")
+        if block.has_nested_paragraphs:
+            raise DocumentPackageError("COMPLEX_BLOCK_EDIT_REQUIRES_REVIEW")
+        if not block.text_spans:
+            # Owner-supplied templates commonly leave table value cells as an
+            # empty Word paragraph.  Insert a normal w:r/w:t run into that
+            # paragraph rather than rebuilding the table or flattening the
+            # DOCX.  This keeps the original OOXML/style/table structure and
+            # makes blank semantic targets editable by the same anchored
+            # mutation engine.
+            paragraph = parts[block.part][block.start:block.end]
+            close = paragraph.rfind(b"</w:p>")
+            if close < 0:
+                raise DocumentPackageError("EMPTY_BLOCK_INSERT_REQUIRES_REVIEW")
+            if _predominantly_arabic(mutation.replacement):
+                rtl_insert = _rtl_property_insert(parts[block.part], block)
+                if rtl_insert:
+                    edits.setdefault(block.part, []).append((rtl_insert[0], rtl_insert[0], rtl_insert[1]))
+            insertion = block.start + close
+            escaped = _escape(mutation.replacement)
+            edits.setdefault(block.part, []).append((insertion, insertion, b'<w:r><w:t xml:space="preserve">' + escaped + b'</w:t></w:r>'))
+            intervals.append((block.start, block.end))
+            continue
         intervals.append((block.start, block.end))
         # Allocate characters to existing text runs, retaining all run formatting,
         # field/shape/table geometry, relationships and other XML bytes.
@@ -351,7 +372,16 @@ def apply_text_mutations(content: bytes, mutations: Iterable[TextMutation]) -> b
                 tag_start = parts[block.part].rfind(b"<", block.start, span.start)
                 tag = parts[block.part][tag_start:span.start]
                 if value != value.strip(" ") and not re.search(rb'xml:space\s*=\s*[\"\']preserve[\"\']', tag):
-                    raise DocumentPackageError("SPACE_PRESERVATION_REQUIRES_REVIEW")
+                    # Preserve intentional boundary spaces in a real Word
+                    # run instead of rejecting otherwise safe field
+                    # replacement. This is a package-local attribute edit and
+                    # does not alter the surrounding table/style structure.
+                    if not allow_boundary_space_preservation:
+                        raise DocumentPackageError("SPACE_PRESERVATION_REQUIRES_REVIEW")
+                    tag_end = parts[block.part].find(b">", tag_start, span.start) + 1
+                    if tag_end <= 0:
+                        raise DocumentPackageError("SPACE_PRESERVATION_REQUIRES_REVIEW")
+                    edits.setdefault(block.part, []).append((tag_end - 1, tag_end - 1, b' xml:space="preserve"'))
                 edits.setdefault(block.part, []).append((span.start, span.end, _escape(value)))
     if not edits:
         return content

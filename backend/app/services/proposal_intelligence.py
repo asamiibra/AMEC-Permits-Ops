@@ -264,99 +264,336 @@ class ProposalDeterministicProvider:
         elif name == "proposal_lpo_variance_analysis":
             payload = {"summary": "Synthetic typed LPO comparison; no adjudication performed.", "accepted_revision_id": projection.get("accepted_revision_id", "unresolved"), "lpo_evidence_id": projection.get("lpo_evidence_id"), "differences": [], "citation_keys": citation}
         elif name == "proposal_document_change_plan":
-            documents = [entry for entry in context if entry.get("context_type") == "DOCUMENT_VERSION" and entry.get("projection", {}).get("editable_blocks")]
-            # Historical Proposal V1 records can contain a one-page bootstrap
-            # DOCX marked as a template. It remains evidence, but the AI
-            # baseline must be a complete AMEC package with enough editable
-            # structure to carry the real proposal template.
-            complete_documents = [entry for entry in documents if len(entry.get("projection", {}).get("editable_blocks") or []) >= 24]
-            baseline = next((entry for entry in complete_documents if entry.get("projection", {}).get("template_baseline")), None) or (complete_documents[0] if complete_documents else None)
+            # The canonical Arabic technical-report DOCX is the only document
+            # that may be mutated.  Other DOCX files remain source evidence;
+            # they can never silently become a proposal baseline.
+            from .proposal_technical_report_template import SECTION_KEYS, TEMPLATE_ID, TEMPLATE_VERSION
+            documents = [
+                entry for entry in context
+                if entry.get("context_type") == "DOCUMENT_VERSION"
+                and entry.get("projection", {}).get("editable_blocks")
+            ]
+            complete_documents = [
+                entry for entry in documents
+                if len(entry.get("projection", {}).get("editable_blocks") or []) >= 24
+            ]
+            baseline = next(
+                (entry for entry in complete_documents
+                 if (entry.get("projection", {}).get("template_id") == TEMPLATE_ID
+                     or entry.get("projection", {}).get("template_baseline"))),
+                None,
+            )
             baseline_projection = baseline.get("projection", {}) if baseline else {}
             baseline_id = str(baseline_projection.get("document_version_id", "unresolved"))
             blocks = baseline_projection.get("editable_blocks", [])
-            mutations = []
-            # Derive the target identity from the frozen source folder.  The
-            # deterministic provider is used in TEST/DEV only, but it must
-            # exercise the same universal project boundary as the governed
-            # provider instead of carrying the old 454/498 fixture mapping.
-            project_number = None
-            project_name = None
-            client_name = None
-            proposal_projection = next((entry.get("projection") for entry in context if entry.get("context_type") == "DOMAIN_ENTITY_REVISION"), {}) or {}
+            proposal_projection = next(
+                (entry.get("projection") for entry in context
+                 if entry.get("context_type") == "DOMAIN_ENTITY_REVISION"),
+                {},
+            ) or {}
+
+            # Derive identity only from the server-owned Proposal projection or
+            # the frozen Synology folder.  Do not use a historical DOCX as an
+            # identity source, which is how Q-498 leaked into earlier drafts.
+            project_number = str(
+                proposal_projection.get("project_number")
+                or proposal_projection.get("canonical_project_reference")
+                or ""
+            ).strip() or None
+            project_name = str(proposal_projection.get("project_name") or "").strip() or None
+            client_name = str(proposal_projection.get("client_name") or "").strip() or None
             for entry in context:
-                path = str((entry.get("projection") or {}).get("source_relative_path") or "")
+                projection = entry.get("projection") or {}
+                path = str(projection.get("source_relative_path") or "")
                 match = re.match(r"^\s*(\d{1,9})\s*[-–—]\s*(.+?)(?:/|$)", path)
                 if match:
                     project_number = project_number or match.group(1)
                     project_name = project_name or match.group(2).strip()
-            if project_number is None:
-                project_number = str(proposal_projection.get("canonical_project_reference") or proposal_projection.get("project_number") or "").strip() or None
-            project_name = project_name or str(proposal_projection.get("project_name") or "").strip() or None
-            client_name = str(proposal_projection.get("client_name") or "").strip() or None
-            if project_name:
-                project_name = re.sub(r"^\s*\d{1,9}\s*[-–—:]\s*", "", project_name).strip()
-            project_name = project_name or "Needs Owner Review"
-            client_name = client_name or project_name
-            client_name = re.sub(r"^\s*\d{1,9}\s*[-–—:]\s*", "", client_name).strip()
-            if client_name.casefold().startswith("project ") and project_name:
+            project_name = re.sub(r"^\s*\d{1,9}\s*[-–—:]\s*", "", project_name or "").strip() or "Needs Owner Review"
+            client_name = re.sub(r"^\s*\d{1,9}\s*[-–—:]\s*", "", client_name or "").strip() or project_name
+            if client_name.casefold().startswith("project "):
                 client_name = project_name
-            project_identity = project_name.casefold()
-            client_identity = client_name.casefold()
-            for block in blocks:
-                value = str(block.get("value", ""))
-                replacement = None
-                if project_number and re.search(r"amec\s*[-_ ]?p\s*[-_ ]?d\s*[-_ ]?\d{4}\s*[-_ ]?q\s*[-_ ]?\d+", value, flags=re.IGNORECASE):
-                    replacement = re.sub(r"(amec\s*[-_ ]?p\s*[-_ ]?d\s*[-_ ]?\d{4}\s*[-_ ]?q\s*[-_ ]?)\d+", rf"\g<1>{project_number}", value, flags=re.IGNORECASE)
-                elif value.casefold().startswith("project:"):
-                    actual = value.split(":", 1)[1].strip().casefold()
-                    if actual != project_identity:
-                        replacement = f"Project: {project_name}"
-                elif value.casefold().startswith("client name:"):
-                    actual = value.split(":", 1)[1].strip().casefold()
-                    if actual != client_identity:
-                        replacement = f"Client Name: {client_name}"
-                # The baseline can be a real Owner DOCX with wording that
-                # differs from the synthetic fixture. Project-specific
-                # commercial/schedule/scope rows are never copied when the
-                # selected source set does not establish them.
-                if replacement is None:
-                    if value.startswith("Scope:"):
-                        replacement = "Scope: Needs Owner Review"
-                    elif value.startswith("Commercial value:"):
-                        replacement = "Commercial value: Needs Owner Review"
-                    elif value.startswith("Duration:"):
-                        replacement = "Duration: Needs Owner Review"
-                # The complete governed baseline may be an existing AMEC
-                # proposal whose current-project facts are not valid for this
-                # source set. Remove only those stale facts; reusable company
-                # narrative, layout, media, and package structure remain
-                # untouched. Unknown replacement values stay explicit for the
-                # Owner instead of being invented.
-                stale_project_fact = (
-                    "ethiopian orthodox church" in value.casefold()
-                    or "eotcindoha" in value.casefold()
-                    or "tadeos" in value.casefold()
-                    or "dc2 approval" in value.casefold()
-                    or "fire fighting discipline" in value.casefold()
-                    or re.search(r"\b(?:40\s*000|36\s*000|4\s*000)\b", value)
-                    or re.search(r"duration\s*:\s*3\s*months", value, re.IGNORECASE)
-                )
-                if stale_project_fact and not value.casefold().startswith(("project:", "client name:")):
-                    replacement = "Needs Owner Review"
-                if replacement is None:
-                    continue
+            report_number = f"AMEC-P-D-2026-Q-{project_number}" if project_number else "Needs Owner Review"
+            unresolved = "Needs Owner Review / يحتاج مراجعة المالك"
+            unresolved_cell = "مراجعة المالك"
+            protected = "محمي - مراجعة بشرية"
+            source_text = "\n".join(
+                str((entry.get("projection") or {}).get("source_excerpt") or "")
+                for entry in context
+                if entry.get("context_type") != "DOCUMENT_VERSION"
+                or not (entry.get("projection") or {}).get("template_baseline")
+            )
+            building_matches = re.findall(r"(?:\\b(?:actual|existing|total)?\\s*buildings?\\b|المباني|مبنى|مبانٍ)[^\\d]{0,40}(\\d{1,3})", source_text, flags=re.IGNORECASE)
+            building_matches += re.findall(r"(\\d{1,3})[^\\d\\n]{0,20}(?:\\bbuildings?\\b|مبنى|مبانٍ)", source_text, flags=re.IGNORECASE)
+            building_count = max((int(value) for value in building_matches if int(value) <= 100), default=0)
+            building_count_known = bool(building_matches)
+
+            # Preserve the complete fact pass in the work product.  Unknown
+            # values are explicit owner-review decisions; the provider never
+            # invents an address, area, licence, price, duration, or building
+            # condition from a filename or old proposal.
+            field_values = {
+                "report.recipient": "مجمع رخص البناء – الجهة المختصة",
+                "report.project_name_or_site": project_name,
+                "report.number": report_number,
+                "report.date": unresolved,
+                "owner.name": unresolved,
+                "owner.qid_or_cr": unresolved,
+                "owner.contact_number": unresolved,
+                "site.name_or_description": project_name,
+                "site.municipality": unresolved,
+                "site.zone": unresolved,
+                "site.street": unresolved,
+                "site.plot_number": unresolved,
+                "site.pin": unresolved,
+                "site.plot_area": unresolved,
+                "site.coordinates": unresolved,
+                "site.current_use": unresolved,
+                "site.proposed_use": unresolved,
+                "site.inspection_date": unresolved,
+                "site.actual_building_count": unresolved,
+                "site.general_description": unresolved,
+                "site.map_image": "خريطة الموقع — يحتاج مراجعة المالك",
+                "site.layout_plan_image": "مخطط توزيع المباني — يحتاج مراجعة المالك",
+                "license.previous_building_permit_number": unresolved,
+                "license.date": unresolved,
+                "license.completion_certificate_number": unresolved,
+                "license.licensed_use": unresolved,
+                "license.approved_building_count": unresolved,
+                "license.actual_building_count": unresolved,
+                "license.status": unresolved,
+                "license.last_approved_amendment": unresolved,
+                "overall_building_condition": unresolved,
+                "report.conclusion": "يتم استكمال الخلاصة بعد مراجعة جميع المصادر من المالك.",
+                "modifications.rows": unresolved,
+                "protected.approval": protected,
+            }
+            if building_count_known:
+                field_values["site.actual_building_count"] = str(building_count)
+                field_values["license.actual_building_count"] = str(building_count)
+            for index in range(1, 16):
+                symbol = chr(64 + index) if index <= 26 else str(index)
+                for suffix in ("symbol", "name", "current_use", "licensed_use", "area", "floor_count", "structure_type", "visual_condition", "existing_condition", "existing_or_required_modifications", "proposed_action", "photos", "action_other"):
+                    field_values[f"building.{index}.{suffix}"] = symbol if suffix == "symbol" else unresolved
+
+            def replace_token(match: re.Match[str]) -> str:
+                key = match.group(1).strip()
+                if key in {"protected.approval", "consultant_approval", "stamp", "signature", "protected.signature", "protected.stamp"}:
+                    return protected
+                # The template uses {idx} in its fixed checkbox label.  It is
+                # a structural token, never a project fact.
+                if "{idx}" in key:
+                    return unresolved
+                return str(field_values.get(key, unresolved))
+
+            mutations = []
+            mutation_sections: dict[str, set[str]] = {}
+            mutation_fields: dict[str, set[str]] = {}
+            def section_for_field(field: str) -> str:
+                if field.startswith("report."): return "report_identity" if field != "report.conclusion" else "conclusion"
+                if field.startswith("owner."): return "owner_data"
+                if field.startswith("site."): return "site_data"
+                if field.startswith("license."): return "existing_license"
+                if field.startswith("building."): return "building_detail"
+                if field == "modifications.rows": return "modifications"
+                if field == "overall_building_condition": return "overall_condition"
+                return "report_identity"
+
+            # The Owner DOCX is a real blank form: its semantic targets are
+            # native paragraphs/table cells containing labels and blanks, not
+            # synthetic [[tokens]]. Resolve those targets from the actual
+            # package blocks and mutate the existing OOXML in place.
+            block_values = [str(block.get("value", "")) for block in blocks]
+            used_anchors: set[str] = set()
+            def add_mutation(block: dict[str, Any] | None, replacement: str, fields: list[str], section: str) -> None:
+                if not block or block.get("anchor") in used_anchors:
+                    return
+                current = str(block.get("value", ""))
+                if replacement == current:
+                    return
+                used_anchors.add(str(block.get("anchor")))
                 mutations.append({
                     "anchor": block["anchor"],
                     "expected_xml_hash": block["expected_xml_hash"],
                     "replacement": replacement,
-                    "reason": "Replace baseline placeholder with the selected Proposal source identity.",
+                    "reason": "Populate the Owner-supplied Arabic technical report template from the selected Proposal source set.",
                     "citation_keys": citation,
                 })
+                mutation_sections.setdefault(section, set()).add(str(block["anchor"]))
+                for field in fields:
+                    mutation_fields.setdefault(field, set()).add(str(block["anchor"]))
+
+            def first_block(predicate, start: int = 0) -> tuple[int, dict[str, Any]] | None:
+                for idx in range(start, len(blocks)):
+                    if predicate(block_values[idx]):
+                        return idx, blocks[idx]
+                return None
+
+            def next_value_block(label: str, *, start: int = 0) -> dict[str, Any] | None:
+                found = first_block(lambda value: label in value, start)
+                if not found:
+                    return None
+                idx, _ = found
+                for candidate in blocks[idx + 1:]:
+                    value = str(candidate.get("value", ""))
+                    if value in {"م²", "م²"}:
+                        continue
+                    if value == "" or "_" in value or value in {"سارية / منتهية / أخرى: __________"}:
+                        return candidate
+                    # Stop at the next table/paragraph label rather than
+                    # stealing a value from another semantic field.
+                    if value.strip() and not value.startswith("_"):
+                        break
+                return None
+
+            header = first_block(lambda value: value.startswith("مقدم إلى:"))
+            add_mutation(
+                header[1] if header else None,
+                f"مقدم إلى: {field_values['report.recipient']} | اسم المشروع / الموقع: {project_name} | رقم التقرير: {report_number} | التاريخ: {field_values['report.date']} | الإصدار: Rev. 00",
+                ["report.recipient", "report.project_name_or_site", "report.number", "report.date"],
+                "report_identity",
+            )
+            owner = first_block(lambda value: value.startswith("اسم المالك:"))
+            add_mutation(
+                owner[1] if owner else None,
+                f"اسم المالك: {field_values['owner.name']} | رقم البطاقة / السجل التجاري: {field_values['owner.qid_or_cr']} | رقم التواصل: {field_values['owner.contact_number']}",
+                ["owner.name", "owner.qid_or_cr", "owner.contact_number"],
+                "owner_data",
+            )
+            for label, field in (
+                ("اسم / وصف الموقع", "site.name_or_description"), ("البلدية", "site.municipality"),
+                ("المنطقة Zone", "site.zone"), ("الشارع Street", "site.street"),
+                ("رقم القسيمة Plot No.", "site.plot_number"), ("الرقم المساحي / PIN", "site.pin"),
+                ("مساحة القسيمة", "site.plot_area"), ("إحداثيات الموقع", "site.coordinates"),
+                ("الاستخدام الحالي", "site.current_use"), ("الاستخدام المقترح", "site.proposed_use"),
+            ):
+                add_mutation(next_value_block(label), str(field_values[field]), [field], "site_data")
+            for label, field in (
+                ("رقم رخصة البناء القديمة", "license.previous_building_permit_number"),
+                ("تاريخ الرخصة", "license.date"),
+                ("رقم شهادة إتمام البناء", "license.completion_certificate_number"),
+                ("الاستخدام المرخص", "license.licensed_use"),
+                ("عدد المباني طبقاً للرخصة", "license.approved_building_count"),
+                ("عدد المباني الموجودة فعلياً", "license.actual_building_count"),
+                ("حالة الرخصة", "license.status"),
+                ("آخر تعديل معتمد", "license.last_approved_amendment"),
+            ):
+                value = str(field_values[field])
+                add_mutation(next_value_block(label), unresolved_cell if value == unresolved else value, [field], "existing_license")
+            site_description = first_block(lambda value: value.startswith("الموقع عبارة عن قسيمة"))
+            add_mutation(site_description[1] if site_description else None, f"الموقع عبارة عن قسيمة رقم {field_values['site.plot_number']}، بالمنطقة رقم {field_values['site.zone']}، شارع رقم {field_values['site.street']}، وتبلغ مساحتها الإجمالية حوالي {field_values['site.plot_area']} م².", ["site.plot_number", "site.zone", "site.street", "site.plot_area"], "site_description")
+            site_count = first_block(lambda value: value.startswith("وفقاً للمعاينة الميدانية"))
+            add_mutation(site_count[1] if site_count else None, f"وفقاً للمعاينة الميدانية بتاريخ {field_values['site.inspection_date']}، يحتوي الموقع حالياً على عدد {field_values['site.actual_building_count']} مبنى / منشأة، بالإضافة إلى الأعمال الخارجية والخدمات التابعة للموقع.", ["site.inspection_date", "site.actual_building_count"], "site_description")
+            site_general = first_block(lambda value: value.startswith("تمت معاينة الموقع وتصوير"))
+            add_mutation(site_general[1] if site_general else None, "تمت مراجعة المستندات والصور والمخططات المتاحة. يجب استكمال المعاينة الميدانية النهائية ورفع الأبعاد الفعلية لجميع المباني والمنشآت قبل اعتماد النسخة النهائية للتقديم للجهة المختصة.", ["site.general_description"], "site_description")
+            map_block = first_block(lambda value: value.startswith("[توضع هنا صورة Google Map"))
+            add_mutation(map_block[1] if map_block else None, str(field_values["site.map_image"]), ["site.map_image"], "site_map")
+            layout_block = first_block(lambda value: value.startswith("توضع هنا صورة Site Plan"))
+            add_mutation(layout_block[1] if layout_block else None, str(field_values["site.layout_plan_image"]), ["site.layout_plan_image"], "site_layout")
+
+            detail_blocks = [
+                (idx, block) for idx, block in enumerate(blocks)
+                if str(block.get("value", "")).startswith("الاستخدام الحالي:")
+            ]
+            condition_blocks = [
+                (idx, block) for idx, block in enumerate(blocks)
+                if str(block.get("value", "")).startswith("يظهر من المعاينة الميدانية")
+            ]
+            modification_blocks = [
+                (idx, block) for idx, block in enumerate(blocks)
+                if str(block.get("value", "")).startswith("التعديلات القائمة / المطلوبة")
+            ]
+            for index, (_, detail) in enumerate(detail_blocks, start=1):
+                prefix = f"building.{index}."
+                detail_text = f"الاستخدام الحالي: {field_values[prefix+'current_use']} | الاستخدام حسب الرخصة السابقة: {field_values[prefix+'licensed_use']} | المساحة: {field_values[prefix+'area']} م² | عدد الطوابق: {field_values[prefix+'floor_count']} | نوع الإنشاء: {field_values[prefix+'structure_type']} | الحالة الظاهرية للمبنى: {field_values[prefix+'visual_condition']}"
+                fields = [prefix + suffix for suffix in ("current_use", "licensed_use", "area", "floor_count", "structure_type", "visual_condition")]
+                add_mutation(detail, detail_text, fields, "building_detail")
+            for index, (_, condition) in enumerate(condition_blocks, start=1):
+                prefix = f"building.{index}."
+                add_mutation(condition, f"تظهر من المستندات والصور المتاحة حالة المبنى {field_values[prefix+'visual_condition']}. تتم مطابقة الحالة القائمة مع المخططات والمستندات واستكمال القياسات بالموقع.", [prefix + "visual_condition"], "building_detail")
+            for index, (_, modification) in enumerate(modification_blocks, start=1):
+                prefix = f"building.{index}."
+                add_mutation(modification, f"التعديلات القائمة / المطلوبة: {field_values[prefix+'existing_or_required_modifications']}", [prefix + "existing_or_required_modifications"], "modifications")
+
+            # Building inventory rows are native Word table cells. Resolve the
+            # first 5 rows from the actual package order and let the structural
+            # expander clone/trim those rows for projects with another count.
+            inventory_heading = first_block(lambda value: "جدول حصر المباني" in value)
+            inventory_start = inventory_heading[0] if inventory_heading else 0
+            row_starts = [idx for idx in range(inventory_start, len(blocks)) if block_values[idx] in {"01", "02", "03", "04", "05"}]
+            for row_index, row_start in enumerate(row_starts[:15], start=1):
+                row = blocks[row_start:row_start + 8]
+                if len(row) < 8:
+                    continue
+                symbol = chr(64 + row_index) if row_index <= 26 else str(row_index)
+                add_mutation(row[1], symbol, [f"building.{row_index}.symbol"], "building_inventory")
+                for offset, suffix in enumerate(("name", "current_use", "area", "floor_count", "visual_condition", "required_modification"), start=2):
+                    value = str(field_values.get(f"building.{row_index}.{suffix}", unresolved))
+                    add_mutation(row[offset], unresolved_cell if value == unresolved else value, [f"building.{row_index}.{suffix}"], "building_inventory")
+
+            overall = first_block(lambda value: value.startswith("بناءً على المعاينة البصرية"))
+            add_mutation(overall[1] if overall else None, "بناءً على المصادر المتاحة، تم تسجيل الحالة الظاهرية للمباني والمنشآت القائمة. يجب استكمال المعاينة الميدانية النهائية قبل الاعتماد.", ["overall_building_condition"], "overall_condition")
+            conclusion = first_block(lambda value: value.startswith("ويقدم التقرير إلى مجمع رخص البناء"))
+            add_mutation(conclusion[1] if conclusion else None, "ويقدم التقرير إلى مجمع رخص البناء لدراسة الحالة واتخاذ الإجراءات اللازمة بشأن الطلب، طبقاً للأنظمة والاشتراطات المعمول بها وبعد استكمال التحقق الميداني من المالك والمكتب الاستشاري.", ["report.conclusion"], "conclusion")
+
+            for block in blocks:
+                value = str(block.get("value", ""))
+                replacement = re.sub(r"\[\[([^\]]+)\]\]", replace_token, value)
+                # Support older complete AMEC baselines during migration while
+                # ensuring no historical project facts survive.
+                if replacement == value:
+                    if re.search(r"amec\s*[-_ ]?p\s*[-_ ]?d\s*[-_ ]?\d{4}\s*[-_ ]?q\s*[-_ ]?\d+", value, re.I) and project_number:
+                        replacement = re.sub(r"(amec\s*[-_ ]?p\s*[-_ ]?d\s*[-_ ]?\d{4}\s*[-_ ]?q\s*[-_ ]?)\d+", rf"\g<1>{project_number}", value, flags=re.I)
+                    elif value.casefold().startswith("project:"):
+                        replacement = f"Project: {project_name}"
+                    elif value.casefold().startswith("client name:"):
+                        replacement = f"Client Name: {client_name}"
+                if replacement != value:
+                    mutations.append({
+                        "anchor": block["anchor"],
+                        "expected_xml_hash": block["expected_xml_hash"],
+                        "replacement": replacement,
+                        "reason": "Populate the canonical Arabic technical report from the selected Proposal source set.",
+                        "citation_keys": citation,
+                    })
+                    for field in re.findall(r"\[\[([^\]]+)\]\]", value):
+                        mutation_sections.setdefault(section_for_field(field), set()).add(str(block["anchor"]))
+            observed_fields = set()
+            for block in blocks:
+                observed_fields.update(re.findall(r"\[\[([^\]]+)\]\]", str(block.get("value", ""))))
+            observed_fields = {field.replace("{idx}", "1") for field in observed_fields}
+            observed_fields.update(mutation_fields)
+            fact_pass = []
+            for field_id, value in field_values.items():
+                if field_id not in observed_fields:
+                    continue
+                is_protected = field_id == "protected.approval"
+                is_confirmed = field_id in {"report.project_name_or_site", "report.number", "site.name_or_description"} and value not in {unresolved, "Needs Owner Review"}
+                fact_pass.append({
+                    "field_id": field_id,
+                    "value": value,
+                    "status": "NOT_APPLICABLE" if is_protected else ("SUPPORTED" if is_confirmed else ("NEEDS_OWNER_REVIEW" if value == unresolved or "Needs Owner Review" in value else "NOT_APPLICABLE")),
+                    "citation_keys": [] if is_protected else citation,
+                    "reason": "Protected human approval field is never completed by AI." if is_protected else ("Identity is anchored to the Proposal/Synology source projection." if is_confirmed else "No authoritative source fact was available; owner review is required."),
+                })
+            generation_coverage = [{
+                "section_id": section,
+                "disposition": "NEEDS_OWNER_REVIEW" if section in {"owner_data", "site_data", "existing_license", "building_inventory", "building_detail", "modifications", "overall_condition", "conclusion"} else "POPULATED_FROM_SOURCE",
+                "mutation_ids": sorted(mutation_sections.get(section, set())),
+                "citation_keys": citation,
+                "reason": "Canonical section processed; unresolved fields are explicitly marked for Owner review.",
+            } for section in SECTION_KEYS]
             payload = {
-                "summary": "Generated source-grounded Proposal revision plan for the selected baseline document.",
+                "summary": "Complete source-grounded Arabic technical-report proposal generated from the canonical AMEC template.",
                 "baseline_document_version_id": baseline_id,
                 "mutations": mutations,
                 "citation_keys": citation,
+                "template_id": TEMPLATE_ID,
+                "template_version": TEMPLATE_VERSION,
+                "building_count": building_count,
+                "building_count_known": building_count_known,
+                "fact_pass": fact_pass,
+                "generation_coverage": generation_coverage,
                 "draft_only": True,
             }
         else:

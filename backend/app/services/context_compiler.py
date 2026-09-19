@@ -648,6 +648,11 @@ class GovernedContextCompiler:
         size-capped rendition is available only to the transient vision input.
         """
         metadata = source_metadata if source_metadata is not None else (version.metadata_json if isinstance(version.metadata_json, dict) else {})
+        # Master Content stores the semantic template contract under
+        # engineering_metadata; flatten it into the bounded projection so the
+        # provider can prove which canonical baseline it received.
+        nested_metadata = metadata.get("engineering_metadata") if isinstance(metadata.get("engineering_metadata"), dict) else {}
+        metadata = {**nested_metadata, **metadata}
         projection: dict[str, Any] = {
             "document_version_id": version.id,
             "document_id": version.document_id,
@@ -660,6 +665,10 @@ class GovernedContextCompiler:
             "source_filename": version.source_filename,
             "source_relative_path": metadata.get("source_relative_path"),
             "template_baseline": bool(metadata.get("template_baseline")),
+            "template_id": metadata.get("template_id"),
+            "template_version": metadata.get("template_version"),
+            "template_contract_version": metadata.get("template_contract_version"),
+            "template_purpose": metadata.get("template_purpose"),
             "source_role": metadata.get("source_role"),
             "logical_category": metadata.get("logical_category") or "OTHER_UNCLASSIFIED",
             "logical_category_source": metadata.get("logical_category_source") or "AUTO_CLASSIFIED",
@@ -670,7 +679,13 @@ class GovernedContextCompiler:
         if filename.endswith(".docx") or "wordprocessingml.document" in mime:
             # Import locally to keep the compiler's package boundary clear.
             from .proposal_document_package import document_map
-            blocks = [item for item in document_map(content) if item.text.strip()]
+            all_blocks = document_map(content)
+            # The governed Owner template intentionally leaves table value
+            # cells empty. Keep those native Word paragraphs in the baseline
+            # projection so the anchored mutation engine can insert generated
+            # values without rebuilding the table. Other evidence documents
+            # retain the bounded non-empty projection used historically.
+            blocks = all_blocks if metadata.get("template_id") == "AMEC-PROPOSAL-V1-TECHNICAL-REPORT" else [item for item in all_blocks if item.text.strip()]
             # Every editable paragraph is represented. The prior first-40
             # slice silently made later sections invisible to Proposal V1.
             editable = [

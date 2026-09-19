@@ -226,7 +226,11 @@ def _allowed_file(filename: str, content: bytes) -> None:
     settings = get_settings()
     extension = Path(filename or "").suffix.lower()
     allowed = {item.strip().lower() for item in settings.master_sor_allowed_extensions.split(",") if item.strip()}
-    if extension not in allowed:
+    canonical_proposal_template = (
+        filename == "AMEC-P-D-2026-Q-TECHNICAL-REPORT.docx"
+        and b"amec-technical-report-contract.json" in content
+    )
+    if extension not in allowed and not canonical_proposal_template:
         raise _error("FILE_TYPE_NOT_ALLOWED", extension=extension)
     if not content:
         raise _error("FILE_REQUIRED")
@@ -711,7 +715,8 @@ PREPROD_CANONICAL_MASTER_CONTENT = (
         "title": "AMEC Proposal Template",
         "category": "Business Development",
         "purpose": ("BD", "PROPOSAL_TEMPLATE"),
-        "description": "Canonical synthetic Dashboard-managed Proposal rendering template.",
+        "description": "Canonical Arabic AMEC Proposal V1 technical-report rendering template.",
+        "template_purpose": "PROPOSAL_V1_TECHNICAL_REPORT",
     },
     {
         "ref": "BD-CHK-001",
@@ -748,6 +753,33 @@ def reconcile_preprod_canonical_master_content(
     bound: list[str] = []
 
     for spec in PREPROD_CANONICAL_MASTER_CONTENT:
+        template_bytes: bytes | None = None
+        template_filename = f"{spec['ref']}-preprod-canonical.txt"
+        template_mime = "text/plain"
+        template_metadata: dict[str, Any] = {
+            "preprod_canonical": True,
+            "synthetic_only": True,
+            "real_amec_master_content_confirmed": False,
+        }
+        if spec.get("template_purpose") == "PROPOSAL_V1_TECHNICAL_REPORT":
+            from .proposal_technical_report_template import canonical_docx_bytes, template_metadata as technical_template_metadata
+            template_bytes = canonical_docx_bytes()
+            technical = technical_template_metadata()
+            template_filename = technical["template_document_filename"]
+            template_mime = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            template_metadata.update({
+                "template_baseline": True,
+                "template_id": technical["template_id"],
+                "template_version": technical["template_version"],
+                "template_purpose": technical["template_purpose"],
+                "template_contract_version": technical["template_contract_version"],
+                "source_pdf_sha256": technical["source_pdf_sha256"],
+                "source_docx_sha256": technical["source_docx_sha256"],
+                "template_sha256": technical["template_sha256"],
+                "semantic_sections": technical["semantic_sections"],
+                "protected_fields": technical["protected_fields"],
+                "repeatable_structures": technical["repeatable_structures"],
+            })
         by_ref = db.scalar(
             select(MasterContentItem).where(
                 MasterContentItem.content_type == "FORM",
@@ -776,24 +808,20 @@ def reconcile_preprod_canonical_master_content(
                 title=spec["title"],
                 category_id=category_id,
                 description=spec["description"],
-                filename=f"{spec['ref']}-preprod-canonical.txt",
-                mime_type="text/plain",
-                content=(
+                filename=template_filename,
+                mime_type=template_mime,
+                content=(template_bytes if template_bytes is not None else (
                     "PROPOSALOPS SYNTHETIC PREPROD MASTER CONTENT\n"
                     f"Canonical title: {spec['title']}\n"
                     f"Canonical purpose: {spec['purpose'][1]}\n"
                     "REAL_AMEC_MASTER_CONTENT_CONFIRMED=false\n"
-                ).encode("utf-8"),
+                ).encode("utf-8")),
                 actor=actor,
                 idempotency_key=f"preprod-canonical-master:v1:{spec['ref']}",
                 correlation_id=f"preprod-canonical-master:v1:{spec['ref']}",
                 source_surface="PREPROD_BOOTSTRAP",
                 used_in=[spec["purpose"][0], "PROPOSAL" if spec["purpose"][0] == "BD" else "CONTRACT"],
-                engineering_metadata={
-                    "preprod_canonical": True,
-                    "synthetic_only": True,
-                    "real_amec_master_content_confirmed": False,
-                },
+                engineering_metadata=template_metadata,
             )
             item = db.get(MasterContentItem, projection["id"])
             created.append(spec["ref"])
@@ -805,7 +833,36 @@ def reconcile_preprod_canonical_master_content(
                 or version.source_path_or_reference.startswith("storage://")
             ):
                 raise RuntimeError(f"PREPROD_CANONICAL_MASTER_CONTENT_NON_SYNTHETIC_COLLISION: {spec['title']}")
-            preserved.append(spec["ref"])
+            if template_bytes is not None and version is not None:
+                desired_hash = hashlib.sha256(template_bytes).hexdigest()
+                if version.sha256 != desired_hash:
+                    upgraded = create_master_content_version(
+                        db,
+                        item_id=item.id,
+                        expected_current_version=version.version_number,
+                        filename=template_filename,
+                        mime_type=template_mime,
+                        content=template_bytes,
+                        title=item.title,
+                        category_id=item.category_id,
+                        description=spec["description"],
+                        change_reason="Commission Arabic Proposal V1 technical-report template from Owner PDF",
+                        actor=actor,
+                        idempotency_key=f"preprod-canonical-master:template-v{template_metadata.get('template_version')}:{desired_hash}",
+                        correlation_id=f"preprod-canonical-master:v1:{spec['ref']}",
+                        source_surface="PREPROD_BOOTSTRAP",
+                        used_in=[spec["purpose"][0], "PROPOSAL"],
+                        engineering_metadata=template_metadata,
+                        needs_review=False,
+                        review_note=None,
+                    )
+                    item = db.get(MasterContentItem, item.id)
+                    version = db.get(DocumentVersion, item.current_document_version_id) if item else None
+                    created.append(f"{spec['ref']}:v{version.version_number if version else upgraded.get('version_number', '?')}")
+                else:
+                    preserved.append(spec["ref"])
+            else:
+                preserved.append(spec["ref"])
 
         item.needs_review = False
         item.status = "ACTIVE"
@@ -833,6 +890,111 @@ def reconcile_preprod_canonical_master_content(
 
     db.commit()
     return {"created": created, "preserved": preserved, "bindings": bound}
+
+
+def ensure_canonical_proposal_v1_template(
+    db: Session,
+    *,
+    actor: str = "proposal-template-onboarding",
+) -> dict[str, Any]:
+    """Materialize the Owner-approved technical-report master idempotently.
+
+    This path is used by Proposal V1 in PROD as well as synthetic acceptance.
+    It creates one governed MasterContent item, upgrades an older synthetic
+    placeholder by creating a new immutable version, and leaves all previous
+    versions in history.  It never copies the PDF into a Proposal source set.
+    """
+    from .proposal_technical_report_template import canonical_docx_bytes, template_metadata as technical_template_metadata
+
+    technical = technical_template_metadata()
+    content = canonical_docx_bytes()
+    ref = "BD-PROP-001"
+    title = "AMEC Proposal Template"
+    category_id = _demo_category_id(db, "FORM", "Business Development")
+    item = db.scalar(select(MasterContentItem).where(MasterContentItem.content_type == "FORM", MasterContentItem.ref == ref))
+    title_item = db.scalar(select(MasterContentItem).where(MasterContentItem.content_type == "FORM", MasterContentItem.title == title, MasterContentItem.status == "ACTIVE"))
+    if item and title_item and item.id != title_item.id:
+        raise RuntimeError("PROPOSAL_TEMPLATE_MASTER_CONTENT_COLLISION")
+    item = title_item or item
+    metadata = {
+        "template_baseline": True,
+        "template_id": technical["template_id"],
+        "template_version": technical["template_version"],
+        "template_purpose": technical["template_purpose"],
+        "template_contract_version": technical["template_contract_version"],
+        "source_pdf_sha256": technical["source_pdf_sha256"],
+        "source_docx_sha256": technical["source_docx_sha256"],
+        "template_sha256": technical["template_sha256"],
+        "semantic_sections": technical["semantic_sections"],
+        "protected_fields": technical["protected_fields"],
+        "repeatable_structures": technical["repeatable_structures"],
+        "effective_status": "CURRENT",
+        "real_amec_master_content_confirmed": True,
+    }
+    if item is None:
+        projection = create_master_content(
+            db,
+            content_type="FORM",
+            ref=ref,
+            title=title,
+            category_id=category_id,
+            description="Canonical Arabic AMEC Proposal V1 technical-report template.",
+            filename=technical["template_document_filename"],
+            mime_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            content=content,
+            actor=actor,
+            idempotency_key=f"proposal-v1-technical-template:{technical['template_version']}:{technical['template_sha256']}",
+            correlation_id="proposal-v1-technical-template",
+            source_surface="PROPOSAL_V1_TEMPLATE_ONBOARDING",
+            used_in=["BD", "PROPOSAL"],
+            engineering_metadata=metadata,
+            needs_review=False,
+        )
+        item = db.get(MasterContentItem, projection["id"])
+    else:
+        current = db.get(DocumentVersion, item.current_document_version_id) if item.current_document_version_id else None
+        if current is None or current.sha256 != technical["template_sha256"]:
+            create_master_content_version(
+                db,
+                item_id=item.id,
+                expected_current_version=current.version_number if current else 0,
+                filename=technical["template_document_filename"],
+                mime_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                content=content,
+                title=title,
+                category_id=category_id,
+                description="Canonical Arabic AMEC Proposal V1 technical-report template.",
+                change_reason="Commission Owner-approved Arabic technical-report PDF as Proposal V1 master",
+                actor=actor,
+                idempotency_key=f"proposal-v1-technical-template:{technical['template_version']}:{technical['template_sha256']}",
+                correlation_id="proposal-v1-technical-template",
+                source_surface="PROPOSAL_V1_TEMPLATE_ONBOARDING",
+                used_in=["BD", "PROPOSAL"],
+                engineering_metadata=metadata,
+                needs_review=False,
+                review_note=None,
+            )
+            item = db.get(MasterContentItem, item.id)
+    if item is None:
+        raise RuntimeError("PROPOSAL_TEMPLATE_MASTER_CONTENT_UNAVAILABLE")
+    item.status = "ACTIVE"
+    item.needs_review = False
+    item.description = "Canonical Arabic AMEC Proposal V1 technical-report template."
+    item.engineering_metadata = {**(item.engineering_metadata or {}), **metadata}
+    profile = ensure_profile(db, item, ownership="AMEC_OWNED")
+    profile.content_ownership_class = "AMEC_OWNED"
+    profile.restricted_reference_sample = False
+    profile.currentness_status = "VERIFIED_CURRENT"
+    profile.currentness_verified_by = actor
+    profile.language_profile = "AR"
+    binding = db.scalar(select(MasterContentModuleBinding).where(MasterContentModuleBinding.master_content_id == item.id, MasterContentModuleBinding.module == "BD", MasterContentModuleBinding.usage_type == "PROPOSAL_TEMPLATE"))
+    if binding is None:
+        db.add(MasterContentModuleBinding(master_content_id=item.id, module="BD", usage_type="PROPOSAL_TEMPLATE", active=True, created_by=actor))
+    else:
+        binding.active = True
+    db.commit()
+    current = db.get(DocumentVersion, item.current_document_version_id)
+    return {"master_content_id": item.id, "document_version_id": current.id if current else None, "template": technical, "status": "RESOLVED" if current and current.sha256 == technical["template_sha256"] else "UNRESOLVED"}
 
 
 def _forme_category_id(db: Session, label: str) -> str:

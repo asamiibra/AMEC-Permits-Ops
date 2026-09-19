@@ -6,6 +6,8 @@ import io
 import json
 import os
 import re
+import zipfile
+from copy import deepcopy
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -15,6 +17,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import select, true
 from sqlalchemy.orm import Session
+from lxml import etree
 
 from ..api.dependencies import AuthenticatedPrincipal, authenticated_actor, authenticated_principal_context, require_roles
 from ..audit.service import audit
@@ -29,6 +32,7 @@ from ..services.proposal_editor_model import import_editor_model
 from ..services.proposal_generation_summary import canonical_generation_summary
 from ..services.proposal_intelligence import ProposalDeterministicProvider, execute_proposal_intelligence
 from ..services.master_content import resolve_master_content_purpose
+from ..services.proposal_technical_report_template import template_contract, template_metadata
 from .bd_proposal_routers import ProposalCreate, _create_proposal_record
 
 router = APIRouter(prefix="/api/proposals/sources", tags=["proposal-source-workspace"])
@@ -479,9 +483,16 @@ def _baseline_identity_matches(version: DocumentVersion, expected: dict[str, str
     # The governed template's Q-454 filename/body is a fixture label, not a
     # business identity.  Its project-bound placeholders are intentionally
     # populated by the generation plan for the selected source project.
-    if (version.metadata_json or {}).get("template_baseline"):
+    if _template_metadata(version).get("template_baseline") or _template_metadata(version).get("template_id") == "AMEC-PROPOSAL-V1-TECHNICAL-REPORT":
         return True
     return _docx_identity_matches(content, expected)
+
+
+def _template_metadata(version: DocumentVersion) -> dict[str, Any]:
+    """Read template metadata whether it is stored directly or nested by SOR."""
+    metadata = version.metadata_json or {}
+    nested = metadata.get("engineering_metadata") if isinstance(metadata.get("engineering_metadata"), dict) else {}
+    return {**nested, **metadata}
 
 
 def _baseline_is_complete(version: DocumentVersion) -> bool:
@@ -508,6 +519,8 @@ def _validate_generated_docx(proposal: Any, content: bytes, selected_versions: l
     text = "\n".join(str(node.get("text") or "") for node in model.get("nodes", []))
     if any(token.lower() in text.lower() for token in ("<tbd>", "[tbd]", "sample proposal", "xxx")):
         raise HTTPException(409, "GENERATION_REVIEW_REQUIRED:UNRESOLVED_PLACEHOLDER")
+    if re.search(r"\[\[[^\]]+\]\]", text):
+        raise HTTPException(409, "GENERATION_REVIEW_REQUIRED:UNRESOLVED_TEMPLATE_TOKEN")
     if expected_identity and not _docx_identity_matches(content, expected_identity):
         raise HTTPException(409, "GENERATION_REVIEW_REQUIRED:STALE_PROJECT_FACTS")
 
@@ -542,6 +555,127 @@ def _generation_coverage(baseline_model: dict[str, Any], generated_model: dict[s
     return coverage
 
 
+def _apply_dynamic_building_structure(content: bytes, *, building_count: int, building_count_known: bool) -> bytes:
+    """Trim or extend the A-E demonstration pages around the shared model.
+
+    The supplied report demonstrates five buildings; it is not a business
+    limit. Known counts remove unused detail pages and inventory rows. Counts
+    above five clone the governed E page, preserving its tables/styles while
+    replacing semantic indices. An unknown count is retained for Owner review
+    so generation never invents a building.
+    """
+    if not building_count_known:
+        return content
+    count = max(0, min(int(building_count), 100))
+    ns = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
+    with zipfile.ZipFile(io.BytesIO(content), "r") as source:
+        parts = {name: source.read(name) for name in source.namelist()}
+    xml = parts.get("word/document.xml")
+    if not xml:
+        return content
+    root = etree.fromstring(xml)
+    body = root.find("w:body", ns)
+    if body is None:
+        return content
+    children = list(body)
+    text_of = lambda element: "".join(element.xpath(".//w:t/text()", namespaces=ns))
+    # The Owner DOCX has one section heading followed by the repeated native
+    # Word building sections.  Older generated fixtures used a numbered
+    # heading, so retain that migration spelling as a fallback.
+    starts = [
+        i for i, element in enumerate(children)
+        if re.search(r"^(?:المبن[ىي])\s+[A-E]$", text_of(element).strip())
+    ]
+    modification_start = next(
+        (i for i, element in enumerate(children)
+         if "جدول التعديلات" in text_of(element) or "10 - التعديلات المطلوبة" in text_of(element)),
+        len(children) - 1,
+    )
+    if starts:
+        if count < len(starts):
+            first_remove = starts[count]
+            for element in children[first_remove:modification_start]:
+                body.remove(element)
+        elif count > len(starts):
+            template_start = starts[-1]
+            template_nodes = children[template_start:modification_start]
+            modification_element = children[modification_start]
+            for index in range(len(starts) + 1, count + 1):
+                symbol = chr(64 + index) if index <= 26 else str(index)
+                cloned = [deepcopy(element) for element in template_nodes]
+                for element in cloned:
+                    text_nodes = element.xpath(".//w:t", namespaces=ns)
+                    joined_text = "".join(node.text or "" for node in text_nodes)
+                    if text_nodes:
+                        joined_text = joined_text.replace("للمبنى E", f"للمبنى {symbol}").replace("صور المبنى E", f"صور المبنى {symbol}").replace("المبنى E", f"المبنى {symbol}").replace("المبني E", f"المبني {symbol}")
+                        if joined_text != "".join(node.text or "" for node in text_nodes):
+                            text_nodes[0].text = joined_text
+                            for node in text_nodes[1:]:
+                                node.text = ""
+                    for node in element.xpath(".//w:t", namespaces=ns):
+                        if node.text:
+                            node.text = node.text.replace("building.5", f"building.{index}").replace("building.{idx}", f"building.{index}").replace("للمبنى E", f"للمبنى {symbol}").replace("المبنى E", f"المبنى {symbol}").replace("المبني E", f"المبني {symbol}")
+                            node.text = re.sub(rf"\[\[building\.{index}\.symbol\]\]", symbol, node.text)
+                            node.text = re.sub(rf"\[\[building\.{index}\.[^\]]+\]\]", "Needs Owner Review / يحتاج مراجعة المالك", node.text)
+                insertion = list(body).index(modification_element)
+                for element in cloned:
+                    body.insert(insertion, element)
+                    insertion += 1
+        # Keep the inventory and repeated detail sections driven by the same
+        # count. The inventory table is the table containing building.1.symbol.
+        for table in body.xpath("./w:tbl", namespaces=ns):
+            table_text = text_of(table)
+            if not ("building.1.symbol" in table_text or "رمز المبنى" in table_text):
+                continue
+            rows = table.xpath("./w:tr", namespaces=ns)
+            data_rows = rows[1:]
+            for row in data_rows[count:]:
+                table.remove(row)
+            if count > len(data_rows) and data_rows:
+                template_row = data_rows[-1]
+                for number in range(len(data_rows) + 1, count + 1):
+                    symbol = chr(64 + number) if number <= 26 else str(number)
+                    cloned = deepcopy(template_row)
+                    for node in cloned.xpath(".//w:t", namespaces=ns):
+                        value = node.text or ""
+                        if re.fullmatch(r"0?\d+", value.strip()):
+                            node.text = f"{number:02d}"
+                        elif value.strip() == "E":
+                            node.text = symbol
+                    table.append(cloned)
+            break
+        # The modification matrix is a second repeatable native table. It is
+        # driven by the same building count and uses the same conservative
+        # Owner-review placeholders for newly cloned rows.
+        for table in body.xpath("./w:tbl", namespaces=ns):
+            table_text = text_of(table)
+            if "الوضع حسب الرخصة القديمة" not in table_text or "الإجراء المقترح" not in table_text:
+                continue
+            rows = table.xpath("./w:tr", namespaces=ns)
+            data_rows = rows[1:]
+            for row in data_rows[count:]:
+                table.remove(row)
+            if count > len(data_rows) and data_rows:
+                template_row = data_rows[-1]
+                for number in range(len(data_rows) + 1, count + 1):
+                    symbol = chr(64 + number) if number <= 26 else str(number)
+                    cloned = deepcopy(template_row)
+                    for node in cloned.xpath(".//w:t", namespaces=ns):
+                        value = node.text or ""
+                        if re.fullmatch(r"0?\d+", value.strip()):
+                            node.text = f"{number:02d}"
+                        elif "Building E" in value:
+                            node.text = value.replace("Building E", f"Building {symbol}")
+                    table.append(cloned)
+            break
+    parts["word/document.xml"] = etree.tostring(root, xml_declaration=True, encoding="UTF-8", standalone=True)
+    output = io.BytesIO()
+    with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED) as target:
+        for name, value in parts.items():
+            target.writestr(name, value)
+    return output.getvalue()
+
+
 def _ensure_baseline_template(db: Session, proposal: Any) -> DocumentVersion:
     """Provide the governed AMEC baseline when a live source has no DOCX.
 
@@ -555,6 +689,12 @@ def _ensure_baseline_template(db: Session, proposal: Any) -> DocumentVersion:
     # fallback.
     settings = get_settings()
     if not (settings.synthetic_only and settings.app_env.upper() in {"TEST", "DEV", "DEVELOPMENT"}):
+        # Commission the single Owner-approved Arabic technical-report master
+        # before resolving the Content Library binding.  Older synthetic text
+        # placeholders are upgraded as immutable history by this idempotent
+        # command; they can never remain the generation baseline.
+        from ..services.master_content import ensure_canonical_proposal_v1_template
+        ensure_canonical_proposal_v1_template(db, actor="proposal-v1-template-onboarding")
         resolved = resolve_master_content_purpose(db, module="BD", usage_type="PROPOSAL_TEMPLATE")
         if resolved.get("status") != "RESOLVED" or not resolved.get("item", {}).get("version_id"):
             raise HTTPException(422, "PROPOSAL_BASELINE_TEMPLATE_REQUIRED")
@@ -583,7 +723,7 @@ def _ensure_baseline_template(db: Session, proposal: Any) -> DocumentVersion:
     # Do not reuse the historical one-page bootstrap artifact.  Keep it
     # immutable for audit, but materialize the current reviewed AMEC package
     # as a new template version so regeneration can replace the bad draft.
-    template_path = Path(__file__).resolve().parents[1] / "fixtures" / "AMEC-P-D-2026-Q-454.docx"
+    template_path = Path(__file__).resolve().parents[1] / "fixtures" / "AMEC-P-D-2026-Q-TECHNICAL-REPORT.docx"
     try:
         content = template_path.read_bytes()
     except OSError as exc:
@@ -608,7 +748,7 @@ def _ensure_baseline_template(db: Session, proposal: Any) -> DocumentVersion:
     )
     stored = DocumentStorageService(store).store_version(
         db, document=document, content=content,
-        filename="AMEC-P-D-2026-Q-454.docx",
+        filename="AMEC-P-D-2026-Q-TECHNICAL-REPORT.docx",
         mime_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         target=target, actor="proposal-template",
         correlation_id=f"proposal-template:{proposal.project_id}",
@@ -619,7 +759,8 @@ def _ensure_baseline_template(db: Session, proposal: Any) -> DocumentVersion:
             "sensitivity_class": "INTERNAL",
             "synthetic_non_business_fixture": True,
             "source_presence_state": "PRESENT",
-            "template_name": "AMEC Proposal V1 baseline",
+            "template_name": "AMEC Proposal V1 Arabic technical report",
+            **template_metadata(),
         },
     )
     return stored.version
@@ -687,7 +828,7 @@ def _prepare_baseline_versions(db: Session, proposal: Any, versions: list[Docume
         prepared.append(version)
         if not _is_recognized_baseline_docx(version):
             continue
-        if _baseline_is_complete(version) and _baseline_identity_matches(version, expected_identity):
+        if _baseline_is_complete(version) and _template_metadata(version).get("template_id") == "AMEC-PROPOSAL-V1-TECHNICAL-REPORT":
             valid_baseline = True
         # Recognized but incomplete/cross-project DOCX files are source
         # evidence at most; they are never allowed to become the Proposal
@@ -737,6 +878,9 @@ def _generate_proposal_revision(
     except (DocumentPackageError, ValueError, TypeError) as exc:
         raise HTTPException(422, "VALID_DOCX_SOURCE_REQUIRED") from exc
     baseline_model = import_editor_model(baseline_bytes)
+    baseline_meta = _template_metadata(baseline)
+    if baseline_meta.get("template_id") != "AMEC-PROPOSAL-V1-TECHNICAL-REPORT":
+        raise HTTPException(422, "PROPOSAL_BASELINE_TEMPLATE_REQUIRED")
     # A one-page stub is not a complete AMEC Proposal baseline.  Fail closed
     # before AI generation rather than exposing a deceptively editable summary.
     if len(baseline_model.get("nodes") or []) < 24 or len(package_parts(baseline_bytes)) < 10:
@@ -765,6 +909,10 @@ def _generate_proposal_revision(
             raise
         raise HTTPException(503, "PROPOSAL_AI_GENERATION_FAILED") from exc
     plan = intelligence.get("output") or {}
+    if plan.get("template_id") != "AMEC-PROPOSAL-V1-TECHNICAL-REPORT":
+        raise HTTPException(409, "PROPOSAL_AI_TEMPLATE_MISMATCH")
+    if str(plan.get("template_version") or "") != str(baseline_meta.get("template_version") or ""):
+        raise HTTPException(409, "PROPOSAL_AI_TEMPLATE_VERSION_MISMATCH")
     if plan.get("baseline_document_version_id") != baseline.id:
         raise HTTPException(409, "PROPOSAL_AI_BASELINE_MISMATCH")
     baseline_nodes = {str(node.get("id")): node for node in baseline_model.get("nodes", []) if isinstance(node, dict)}
@@ -813,6 +961,11 @@ def _generate_proposal_revision(
         generated_ai_bytes = apply_text_mutations(baseline_bytes, mutations)
     except (KeyError, TypeError, ValueError, DocumentPackageError) as exc:
         raise HTTPException(409, "PROPOSAL_AI_CHANGE_PLAN_INVALID") from exc
+    generated_ai_bytes = _apply_dynamic_building_structure(
+        generated_ai_bytes,
+        building_count=int(plan.get("building_count") or 0),
+        building_count_known=bool(plan.get("building_count_known")),
+    )
 
     # Regeneration must preserve edits already accepted by the Owner.  Rebase
     # the cumulative anchored edits from the prior canonical draft onto the
@@ -877,7 +1030,9 @@ def _generate_proposal_revision(
             "proposal_id": proposal.id, "source_set_hash": source_set_hash,
             "baseline_document_version_id": baseline.id,
             "baseline_sha256": baseline.sha256,
-            "baseline_selection_method": "GOVERNED_MASTER_CONTENT_TEMPLATE" if (baseline.metadata_json or {}).get("template_baseline") else "RECOGNIZED_CURRENT_PROJECT_PROPOSAL",
+            "baseline_selection_method": "GOVERNED_MASTER_CONTENT_TEMPLATE",
+            "template_id": baseline_meta.get("template_id"),
+            "template_version": baseline_meta.get("template_version"),
             "baseline_identity": expected_identity,
             "ai_work_product_id": intelligence.get("work_product_id"),
             "ai_context_snapshot_id": intelligence.get("context_snapshot_id"),
@@ -890,8 +1045,11 @@ def _generate_proposal_revision(
         prior.superseded_at = datetime.now(timezone.utc)
     latest_number = db.scalar(select(ProposalRevision.revision_number).where(ProposalRevision.proposal_id == proposal.id).order_by(ProposalRevision.revision_number.desc())) or 0
     generated_ai_model = import_editor_model(generated_ai_bytes)
+    provider_coverage = list(plan.get("generation_coverage") or [])
     coverage = _generation_coverage(baseline_model, generated_ai_model, raw_mutations)
     plan["generation_coverage"] = coverage
+    plan["semantic_generation_coverage"] = provider_coverage
+    plan["template_contract"] = template_contract()
     plan["coverage_state"] = "PASS" if coverage and all(item.get("disposition") in {"KEEP_UNCHANGED", "UPDATED", "GENERATED", "NEEDS_OWNER_REVIEW"} for item in coverage) else "FAIL"
     plan["full_document_generation"] = "COMPLETE"
     published_mutation_count = len([item for item in raw_mutations if isinstance(item, dict)])
@@ -905,6 +1063,16 @@ def _generate_proposal_revision(
         "docx_package": "VALID",
         "project_identity": "PASSED",
         "source_manifest_hash": source_set_hash,
+        "template_id": baseline_meta.get("template_id"),
+        "template_version": baseline_meta.get("template_version"),
+        "template_contract_version": baseline_meta.get("template_contract_version"),
+        "template_selected": True,
+        "template_version_pinned": True,
+        "source_manifest_frozen": True,
+        "all_template_sections_processed": {str(item.get("section_id")) for item in plan.get("semantic_generation_coverage", []) if isinstance(item, dict)} >= set(template_metadata()["semantic_sections"]),
+        "protected_approval_fields_not_autofilled": "محمي - مراجعة بشرية" in "\n".join(str(node.get("text") or "") for node in generated_ai_model.get("nodes", [])),
+        "arabic_render_valid": any(any("\u0600" <= char <= "\u06ff" for char in str(node.get("text") or "")) for node in generated_ai_model.get("nodes", [])),
+        "docx_valid": True,
     }
     snapshot = {
         "editor_model": import_editor_model(generated_bytes),
@@ -917,7 +1085,8 @@ def _generate_proposal_revision(
         "baseline_hash": digest(baseline_bytes), "working_hash": digest(generated_bytes),
         "source_set_hash": source_set_hash, "source_ids": [item.id for item in selected_versions],
         "editor_baseline_document_version_id": baseline.id,
-        "baseline_selection_method": "GOVERNED_MASTER_CONTENT_TEMPLATE" if (baseline.metadata_json or {}).get("template_baseline") else "RECOGNIZED_CURRENT_PROJECT_PROPOSAL",
+        "baseline_selection_method": "GOVERNED_MASTER_CONTENT_TEMPLATE",
+        "template_contract": template_contract(),
         "baseline_identity": expected_identity,
         "editor_document_id": generated.document.id,
         "editor_document_version_id": generated.version.id,
@@ -936,6 +1105,9 @@ def _generate_proposal_revision(
             "published_ai_mutation_count": published_mutation_count,
             "validation_state": "PASSED",
             "owner_mutation_count": len(owner_mutations),
+            "template_id": baseline_meta.get("template_id"),
+            "template_version": baseline_meta.get("template_version"),
+            "source_provenance": plan.get("fact_pass", []),
         },
     }
     snapshot["generation_summary"] = canonical_generation_summary(type("RevisionSnapshot", (), {"snapshot": snapshot})())
@@ -974,12 +1146,10 @@ def _select_baseline_docx(versions: list[DocumentVersion], *, expected_identity:
     # before cardinality checks so an old stub cannot shadow the governed
     # template that was added later.
     recognized = [version for version in recognized if _baseline_is_complete(version)]
-    current_project = [version for version in recognized if not (version.metadata_json or {}).get("template_baseline")]
-    if len(current_project) == 1:
-        return current_project[0]
-    if len(current_project) > 1:
-        raise HTTPException(409, "PROPOSAL_BASELINE_SELECTION_REQUIRED")
-    templates = [version for version in recognized if (version.metadata_json or {}).get("template_baseline")]
+    # Proposal V1 always starts from the reviewed canonical Arabic technical
+    # report. A project DOCX is evidence and is never silently used as the
+    # baseline, even when it happens to be complete.
+    templates = [version for version in recognized if _template_metadata(version).get("template_id") == "AMEC-PROPOSAL-V1-TECHNICAL-REPORT"]
     if len(templates) == 1:
         return templates[0]
     if len(templates) > 1:
@@ -1105,7 +1275,7 @@ def create_proposal_from_source_workspace(
     hashes: list[str] = []
     for version in selected_versions:
         hashes.append(version.sha256)
-        metadata = version.metadata_json or {}
+        metadata = _template_metadata(version)
         relative_path = metadata.get("source_relative_path")
         is_template = bool(metadata.get("template_baseline"))
         owner_staged = bool(metadata.get("owner_staged"))

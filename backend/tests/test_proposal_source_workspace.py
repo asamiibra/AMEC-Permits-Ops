@@ -63,10 +63,10 @@ def test_explicit_454_create_proposal_persists_source_set(client):
     assert downloaded.status_code == 200
     assert downloaded.headers["x-proposal-document-version-id"] == revision_payload["editor_document_version_id"]
     assert downloaded.headers["x-proposal-document-sha256"] == hashlib.sha256(downloaded.content).hexdigest()
-    expected_parts = set(zipfile.ZipFile(io.BytesIO(Path("backend/app/fixtures/AMEC-P-D-2026-Q-454.docx").read_bytes())).namelist())
+    expected_parts = set(zipfile.ZipFile(io.BytesIO(Path("backend/app/fixtures/AMEC-P-D-2026-Q-TECHNICAL-REPORT.docx").read_bytes())).namelist())
     actual_zip = zipfile.ZipFile(io.BytesIO(downloaded.content))
     assert set(actual_zip.namelist()) == expected_parts
-    baseline_zip = zipfile.ZipFile(io.BytesIO(Path("backend/app/fixtures/AMEC-P-D-2026-Q-454.docx").read_bytes()))
+    baseline_zip = zipfile.ZipFile(io.BytesIO(Path("backend/app/fixtures/AMEC-P-D-2026-Q-TECHNICAL-REPORT.docx").read_bytes()))
     # AI is allowed to publish anchored text mutations in the document body;
     # every other OOXML part, including corporate headers, footers, styles,
     # relationships, and media, must remain byte-for-byte preserved.

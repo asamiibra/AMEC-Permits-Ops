@@ -290,14 +290,42 @@ class ProposalDocumentMutation(BaseModel):
     citation_keys: list[str] = Field(min_length=1, max_length=16)
 
 
+class ProposalGenerationFact(BaseModel):
+    """A bounded fact decision made before document mutations are published."""
+
+    model_config = ConfigDict(extra="forbid", strict=True)
+    field_id: str = Field(min_length=1, max_length=240)
+    value: str = Field(max_length=4000)
+    status: Literal["CONFIRMED", "SUPPORTED", "NEEDS_OWNER_REVIEW", "NOT_APPLICABLE", "NOT_FOUND"]
+    citation_keys: list[str] = Field(default_factory=list, max_length=16)
+    reason: str = Field(min_length=1, max_length=1000)
+
+
+class ProposalGenerationCoverage(BaseModel):
+    """Explicit disposition for every semantic section of the template."""
+
+    model_config = ConfigDict(extra="forbid", strict=True)
+    section_id: str = Field(min_length=1, max_length=160)
+    disposition: Literal["GENERATED", "POPULATED_FROM_SOURCE", "PRESERVED_TEMPLATE_CONTENT", "NOT_APPLICABLE", "NEEDS_OWNER_REVIEW"]
+    mutation_ids: list[str] = Field(default_factory=list, max_length=240)
+    citation_keys: list[str] = Field(default_factory=list, max_length=16)
+    reason: str = Field(min_length=1, max_length=1000)
+
+
 class ProposalDocumentChangePlan(BaseModel):
     """AI proposal for applying source-grounded edits to an existing DOCX."""
 
     model_config = ConfigDict(extra="forbid", strict=True)
     summary: str = Field(min_length=1, max_length=4000)
     baseline_document_version_id: str = Field(min_length=1, max_length=36)
-    mutations: list[ProposalDocumentMutation] = Field(default_factory=list, max_length=80)
+    mutations: list[ProposalDocumentMutation] = Field(default_factory=list, max_length=240)
     citation_keys: list[str] = Field(min_length=1, max_length=30)
+    template_id: str = Field(default="AMEC-PROPOSAL-V1-TECHNICAL-REPORT", min_length=1, max_length=160)
+    template_version: str = Field(default="1.0.0", min_length=1, max_length=40)
+    building_count: int = Field(default=0, ge=0, le=100)
+    building_count_known: bool = False
+    fact_pass: list[ProposalGenerationFact] = Field(default_factory=list, max_length=160)
+    generation_coverage: list[ProposalGenerationCoverage] = Field(default_factory=list, max_length=80)
     draft_only: Literal[True] = True
 
 

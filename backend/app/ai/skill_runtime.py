@@ -427,7 +427,8 @@ class SkillRuntime:
             output = skill.output.validator(result.payload)
             citations = validate_compiled_citations(output, compiled, skill.output)
             output_json = output.model_dump(mode="json")
-            if len(json.dumps(output_json, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")) > 64 * 1024:
+            output_limit = 128 * 1024 if skill.manifest.skill_id == "proposal.document-change-plan" else 64 * 1024
+            if len(json.dumps(output_json, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")) > output_limit:
                 raise AIError("AI_STRUCTURED_OUTPUT_VALIDATION_FAILED", status_code=502)
             output_hash = stable_hash(output_json)
             estimated_cost = (
