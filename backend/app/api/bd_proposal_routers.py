@@ -80,6 +80,11 @@ class ProposalRegisterRow(BaseModel):
     contract_eligible: bool
     validation: dict[str, Any]
     proposal_v1: bool = False
+    generation_state: str = "NOT_CREATED"
+    lifecycle: str = "DRAFT"
+    source_project_identity: str | None = None
+    source_manifest_hash: str | None = None
+    accepted_revision: dict[str, Any] | None = None
 
 
 class ProposalRegisterResponse(BaseModel):
@@ -332,7 +337,8 @@ def _register_rows(db: Session, items: list[Opportunity]) -> list[dict[str, Any]
         project_ref = item.canonical_project_reference or item.provisional_reference
         contract_eligible = bool(accepted_revision and handoff_predicate(db, item.id)["eligible"])
         search_text = " ".join(str(value or "") for value in (item.title, item.opportunity_reference, project_ref, client_label, activity, fields.get("client_scope_of_work"), fields.get("scope_of_work") or fields.get("sow"), location, stage_labels.get(item.status, item.status.replace("_", " ").title()), item.status)).lower()
-        rows.append({"id": item.id, "proposal_reference": item.opportunity_reference, "proposal": item.title, "project_ref": project_ref, "client": client_label, "activity": activity, "stage": stage_labels.get(item.status, item.status.replace("_", " ").title()), "stage_code": item.status, "amount": fields.get("price"), "last_activity": item.updated_at.isoformat() if item.updated_at else None, "location": location or None, "current_owner": current_owner, "next_action": {"label": next_action, "eligible": not blockers, "blockers": len(blockers)}, "owner_lane": owner_lane, "contract_eligible": contract_eligible, "validation": validation, "proposal_v1": bool(fields.get("source_workspace")), "fixture_classification": item.fixture_classification, "_search_text": search_text})
+        source_workspace = fields.get("source_workspace") or {}
+        rows.append({"id": item.id, "proposal_reference": item.opportunity_reference, "proposal": item.title, "project_ref": project_ref, "client": client_label, "activity": activity, "stage": stage_labels.get(item.status, item.status.replace("_", " ").title()), "stage_code": item.status, "amount": fields.get("price"), "last_activity": item.updated_at.isoformat() if item.updated_at else None, "location": location or None, "current_owner": current_owner, "next_action": {"label": next_action, "eligible": not blockers, "blockers": len(blockers)}, "owner_lane": owner_lane, "contract_eligible": contract_eligible, "validation": validation, "proposal_v1": bool(source_workspace), "generation_state": fields.get("generation_state", "NOT_CREATED"), "source_project_identity": source_workspace.get("source_project_identity"), "source_manifest_hash": source_workspace.get("source_manifest_hash"), "accepted_revision": {"id": accepted_revision.id, "revision_number": accepted_revision.revision_number, "content_hash": accepted_revision.content_hash} if accepted_revision else None, "lifecycle": "COMPLETED" if accepted_revision or item.status in {"ACCEPTED", "CLOSED"} else "DRAFT", "fixture_classification": item.fixture_classification, "_search_text": search_text})
     return rows
 
 

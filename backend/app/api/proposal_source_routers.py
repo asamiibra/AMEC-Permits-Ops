@@ -171,7 +171,23 @@ async def stage_owner_sources(
 @router.get("/2026/projects")
 def source_projects(_: Role = Depends(source_role), db: Session = Depends(get_db)):
     settings = get_settings()
-    return {"logical_root": "Tenders/1- Proposal/2026", "physical_root_configured": settings.source_intake_mode.upper() != "BRIDGE" and configured_source_root().is_absolute(), "projects": projects(db)}
+    discovered = projects(db)
+    # The register needs the same authoritative manifest state that the
+    # project workspace uses.  Returning it with each unbound source project
+    # avoids a second, stale client-side interpretation of sync readiness.
+    for item in discovered:
+        try:
+            manifest = source_manifest(db, int(item["number"]))
+        except Exception:
+            manifest = {}
+        item.update({
+            "completeness_state": manifest.get("completeness_state", "INCOMPLETE"),
+            "completeness_reasons": manifest.get("completeness_reasons", []),
+            "scan_status": manifest.get("scan_status", "NOT_SYNCED"),
+            "source_manifest_hash": manifest.get("source_manifest_hash"),
+            "snapshot_at": manifest.get("snapshot_at"),
+        })
+    return {"logical_root": "Tenders/1- Proposal/2026", "physical_root_configured": settings.source_intake_mode.upper() != "BRIDGE" and configured_source_root().is_absolute(), "projects": discovered}
 
 
 @router.get("/runtime-version")
@@ -1178,8 +1194,24 @@ def create_proposal_from_source_workspace(
     role: Role = Depends(create_role),
 ):
     """Create one canonical Proposal from any explicitly selected Draft."""
-    run = capture(db, number, actor="source-create-proposal")
     discovered = next((row for row in projects(db) if row["number"] == number), None)
+    # The Owner has already reviewed the latest explicit Sync result.  Reuse a
+    # complete canonical snapshot without starting a second capture lifecycle.
+    # A legacy/API caller that never synced receives one compatibility
+    # bootstrap capture; once a complete snapshot exists, retries are strictly
+    # idempotent and read-only against the source adapter.
+    prior_manifest = source_manifest(db, number)
+    if prior_manifest.get("completeness_state") == "COMPLETE":
+        run = {
+            "project_number": number,
+            "file_count": len([entry for entry in prior_manifest.get("entries", []) if entry.get("document_version_id")]),
+            "captured_count": 0,
+            "unchanged_count": len([entry for entry in prior_manifest.get("entries", []) if entry.get("document_version_id")]),
+            "state": "SNAPSHOT_REUSED",
+            "synology_write_count": 0,
+        }
+    else:
+        run = capture(db, number, actor="source-create-proposal")
     # Bridge captures are attached to the canonical Project row so downstream
     # intake, provenance, and editor records share one project identity.  The
     # mounted synthetic fixture keeps its historical provisional behavior.
