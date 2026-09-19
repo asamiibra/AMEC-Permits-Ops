@@ -30,6 +30,7 @@ from ..storage import DocumentStorageService, StorageTarget, create_binary_store
 from ..services.proposal_document_package import DocumentPackageError, TextMutation, apply_text_mutations, digest, package_parts
 from ..services.proposal_editor_model import import_editor_model
 from ..services.proposal_generation_summary import canonical_generation_summary
+from ..services.proposal_canonical_audit import audit_proposal, audit_references, CANONICAL_BASELINE_SELECTION, CANONICAL_CLASSIFICATION
 from ..services.proposal_intelligence import ProposalDeterministicProvider, execute_proposal_intelligence
 from ..services.master_content import resolve_master_content_purpose
 from ..services.proposal_technical_report_template import template_contract, template_metadata
@@ -57,6 +58,19 @@ class SourceCategoryUpdatePayload(BaseModel):
 
 class SourceInclusionUpdatePayload(BaseModel):
     included_in_proposal: bool
+
+
+CANONICAL_AUDIT_REFERENCES = [
+    "AMEC-SYN-PROP-0008",
+    "AMEC-SYN-PROP-0009",
+    "AMEC-SYN-PROP-0010",
+    "AMEC-SYN-PROP-0011",
+]
+
+
+class CanonicalAuditPayload(BaseModel):
+    references: list[str] = Field(default_factory=lambda: list(CANONICAL_AUDIT_REFERENCES), min_length=1, max_length=50)
+    apply: bool = False
 
 
 def _mark_bound_proposals_stale(db: Session, number: int, manifest_hash: str, reason: str, *, source_project_identity: str) -> None:
@@ -359,6 +373,60 @@ def sync_sources(project: int | None = Query(default=None, ge=1), _: Role = Depe
     except (FileNotFoundError, OSError) as exc:
         raise HTTPException(503, "SOURCE_ROOT_UNAVAILABLE") from exc
     return {"logical_root": "Tenders/1- Proposal/2026", "runs": runs, "synology_write_count": 0, "auto_proposal_created_for_520_plus": 0, "projects_455_519_auto_onboarded": 0}
+
+
+@router.get("/canonical-audit")
+def canonical_audit(
+    references: list[str] | None = Query(default=None),
+    db: Session = Depends(get_db),
+    _: Role = Depends(source_role),
+):
+    """Audit persisted active Proposal V1 revisions against the canonical DOCX contract."""
+    requested = references or list(CANONICAL_AUDIT_REFERENCES)
+    return audit_references(db, requested)
+
+
+@router.post("/canonical-audit/regenerate")
+def canonical_audit_regenerate(
+    payload: CanonicalAuditPayload,
+    request: Request,
+    db: Session = Depends(get_db),
+    role: Role = Depends(create_role),
+):
+    """Dry-run or selectively regenerate exact active Proposal V1 records.
+
+    ``apply`` is deliberately explicit.  Historical revisions remain in the
+    database; the existing source-regeneration path creates a new draft and
+    marks the previous draft superseded only after the new package validates.
+    """
+    references = [str(reference).strip() for reference in payload.references if str(reference).strip()]
+    before = audit_references(db, references)
+    if not payload.apply:
+        return {"result": "AUDIT_ONLY", "before": before, "after": before, "operations": []}
+    operations: list[dict[str, Any]] = []
+    for row in before["rows"]:
+        reference = row["proposal_reference"]
+        if row.get("classification") == CANONICAL_CLASSIFICATION:
+            operations.append({"proposal_reference": reference, "result": "SKIPPED_CURRENT_CANONICAL"})
+            continue
+        if row.get("source_manifest_completeness_state") != "COMPLETE":
+            operations.append({"proposal_reference": reference, "result": "BLOCKED_SOURCE_MANIFEST", "reasons": row.get("source_manifest_completeness_reasons") or []})
+            continue
+        proposal = db.scalar(select(Opportunity).where(Opportunity.opportunity_reference == reference))
+        if proposal is None:
+            operations.append({"proposal_reference": reference, "result": "PROPOSAL_NOT_FOUND"})
+            continue
+        try:
+            # Reuse the canonical source regeneration path.  It captures the
+            # current Owner category/inclusion decisions, validates the
+            # governed baseline, and preserves the prior revision.
+            result = regenerate_proposal_from_sources(proposal.id, request=request, db=db, role=role)
+            operations.append({"proposal_reference": reference, "result": result.get("result"), "generation_state": result.get("generation_state"), "revision_id": result.get("editor_revision_id")})
+        except HTTPException as exc:
+            db.rollback()
+            operations.append({"proposal_reference": reference, "result": "REGENERATION_FAILED", "error": str(exc.detail)})
+    after = audit_references(db, references)
+    return {"result": "APPLIED", "before": before, "after": after, "operations": operations}
 
 
 def _captured_bytes(version: DocumentVersion) -> bytes:
@@ -1425,10 +1493,15 @@ def regenerate_proposal_from_sources(
     else:
         editor = {"editor_ready": True, "editor_revision_id": latest.id, "editor_revision_number": latest.revision_number, "editor_baseline_hash": (latest.snapshot or {}).get("baseline_hash")}
     provenance = ((latest.snapshot or {}).get("ai_provenance") or {}) if latest else {}
+    canonical_audit_row = audit_proposal(db, proposal)
     if not editor.get("editor_ready"):
         db.commit()
         return {"result": "BLOCKED", "source_set_hash": source_set_hash, **editor}
-    if not provenance.get("generated_from_ai") or provenance.get("source_set_hash") != source_set_hash:
+    # A current source hash alone is insufficient: older revisions may have
+    # been generated from a non-canonical baseline or may lack a complete
+    # generation validation record.  Reconcile every such revision through
+    # the same canonical generation path.
+    if canonical_audit_row.get("classification") != CANONICAL_CLASSIFICATION:
         try:
             editor = _generate_proposal_revision(request=request, db=db, proposal=proposal, selected_versions=selected_versions, source_set_hash=source_set_hash, seeded_editor=editor, role=role)
         except HTTPException as exc:
