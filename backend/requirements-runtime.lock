@@ -1267,6 +1267,10 @@ pyjwt==2.13.0 \
 pyodbc==5.3.0 \
     --hash=sha256:5dd3d5e469f89a3112cf8b0658c43108a4712fad65e576071e4dd44d2bd763c7
     # via -r backend/requirements-runtime.txt
+pypdf==6.19.0 \
+    --hash=sha256:7e5d6e730e7dae87d560a2cee218b852f6498c8be61966f3cd02ead971e48d14 \
+    --hash=sha256:bbc43aca292369ccc6cbc8a921991ecf2538a3587ab5a116eff06c321d647155
+    # via -r backend/requirements-runtime.txt
 pyspnego==0.12.1 \
     --hash=sha256:7237cb47985ccf5da512106ddb2731e4f9cefec00991f76c054488eb95fb1a2d \
     --hash=sha256:ff4fb6df38202a012ea2a0f43091ae9680878443f0ea61c9ea0e2e8152a4b810

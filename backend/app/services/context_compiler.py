@@ -13,6 +13,9 @@ import base64
 import io
 import hashlib
 import re
+import shutil
+import subprocess
+import tempfile
 from pathlib import Path
 from dataclasses import dataclass
 from typing import Any
@@ -637,6 +640,54 @@ class GovernedContextCompiler:
         return None, None, None
 
     @classmethod
+    def _vision_pdf_pages(cls, content: bytes, *, max_pages: int = 3) -> tuple[list[dict[str, Any]], int | None]:
+        """Render a bounded sample of PDF pages for transient vision input.
+
+        The original PDF remains the governed evidence object.  Page renders
+        are deliberately short-lived, size-capped derivatives used only by a
+        multimodal provider so scanned permits, letters, plans, and photos do
+        not disappear merely because text extraction returned nothing.
+        """
+        renderer = shutil.which("pdftoppm")
+        if not renderer:
+            return [], None
+        try:
+            from pypdf import PdfReader  # type: ignore
+            page_count = len(PdfReader(io.BytesIO(content)).pages)
+        except Exception:
+            page_count = None
+        page_limit = max(1, min(max_pages, page_count or max_pages))
+        pages: list[dict[str, Any]] = []
+        try:
+            with tempfile.TemporaryDirectory(prefix="proposalops-pdf-vision-") as directory:
+                source = Path(directory) / "source.pdf"
+                prefix = Path(directory) / "page"
+                source.write_bytes(content)
+                subprocess.run(
+                    [renderer, "-jpeg", "-scale-to", "768", "-f", "1", "-l", str(page_limit), str(source), str(prefix)],
+                    check=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    timeout=20,
+                )
+                for page_path in sorted(Path(directory).glob("page-*.jpg")):
+                    match = re.search(r"-(\d+)\.jpg$", page_path.name)
+                    if not match:
+                        continue
+                    image_data_url, width, height = cls._vision_image(page_path.read_bytes(), "image/jpeg")
+                    if not image_data_url:
+                        continue
+                    pages.append({
+                        "page_number": int(match.group(1)),
+                        "image_data_url": image_data_url,
+                        "image_width": width,
+                        "image_height": height,
+                    })
+        except (OSError, subprocess.SubprocessError, ValueError):
+            return [], page_count
+        return pages, page_count
+
+    @classmethod
     def _proposal_source_projection(cls, version: DocumentVersion, *, source_metadata: dict[str, Any] | None = None) -> dict[str, Any]:
         """Build a small, source-grounded projection for Proposal V1.
 
@@ -713,7 +764,22 @@ class GovernedContextCompiler:
             except Exception:
                 text = ""
             excerpt, truncated = cls._bounded_text(text)
-            projection.update({"source_excerpt": excerpt, "source_excerpt_truncated": truncated, "source_text_state": "EXTRACTED" if excerpt else "BINARY_ARTIFACT_ONLY"})
+            vision_pages, page_count = cls._vision_pdf_pages(content)
+            media: dict[str, Any] = {
+                "mime_type": version.mime_type,
+                "byte_size": version.file_size,
+                "sha256": version.sha256,
+                "vision_state": "READY" if vision_pages else "UNAVAILABLE",
+                "vision_pages": vision_pages,
+            }
+            if page_count is not None:
+                media["page_count"] = page_count
+            projection.update({
+                "source_excerpt": excerpt,
+                "source_excerpt_truncated": truncated,
+                "source_text_state": "EXTRACTED" if excerpt else "BINARY_ARTIFACT_ONLY",
+                "source_media": media,
+            })
         else:
             media: dict[str, Any] = {"mime_type": version.mime_type, "byte_size": version.file_size, "sha256": version.sha256}
             if mime.startswith("image/") or filename.endswith((".jpg", ".jpeg", ".png", ".webp")):
