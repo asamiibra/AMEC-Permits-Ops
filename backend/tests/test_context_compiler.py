@@ -164,7 +164,7 @@ def test_pdf_source_projection_preserves_evidence_and_adds_bounded_vision_pages(
         language="ar",
         approval_state=DocumentApprovalState.REVIEWED,
         source_system="SYNTHETIC_FIXTURE",
-        metadata_json={"synthetic_non_business_fixture": True},
+        metadata_json={},
         synthetic_content=pdf,
     )
     monkeypatch.setattr(
